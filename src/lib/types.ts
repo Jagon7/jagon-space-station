@@ -1,0 +1,78 @@
+export type LimitUpStock = {
+  code: string;
+  name: string;
+  sector: string;
+  change: number;
+  volume: number;
+  tradeValue?: number;
+  limitTime: string;
+  openPrice: number;
+  closePrice: number;
+  market?: string;
+  instiForeign?: number | null;
+  instiTrust?: number | null;
+  instiDealer?: number | null;
+  instiTotal?: number | null;
+  reason?: string;
+};
+
+export type SectorSummary = {
+  name: string;
+  count: number;
+  momentum: "strong" | "normal" | "weak";
+};
+
+export type NoticeStock = {
+  code: string;
+  name: string;
+  noticeCount: number;
+  info: string;
+  date: string;
+  closePrice: number;
+  market?: string;
+};
+
+export type DispositionStock = {
+  code: string;
+  name: string;
+  count: number;
+  condition: string;
+  period: string;
+  endDate: string;
+  announceDate: string;
+  market?: string;
+};
+
+export type Announcement = {
+  time: string;
+  code: string;
+  name: string;
+  type: string;
+  important: boolean;
+  content?: string;
+};
+
+export type CBIssuance = {
+  code: string;             // 股號
+  name: string;             // 公司名稱
+  cbSeries: string;         // CB 期別，e.g. "英業達三"
+  filingDate: string;       // 申報日 YYYY-MM-DD
+  bookBuildDate?: string;   // 詢圈日 YYYY-MM-DD
+  listingDate?: string;     // 掛牌日 YYYY-MM-DD
+  amount?: number;          // 發行金額（億元）
+  conversionPrice?: number; // 轉換價（元）
+  closePrice?: number;      // 現股收盤價（元）
+  market?: string;          // 上市 / 上櫃
+  underwriter?: string;     // 主辦承銷商
+};
+
+export type MarketSummary = {
+  date: string;
+  limitUpCount: number;
+  sectorCount: number;
+  noticeCount: number;
+  dispositionCount: number;
+  announcementCount: number;
+  marketMood: "強勢" | "偏強" | "中性" | "偏弱" | "弱勢";
+  taiexChange: number;
+};
