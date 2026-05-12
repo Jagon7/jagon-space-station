@@ -16,7 +16,7 @@ async function readJson<T>(filename: string): Promise<T | null> {
   if (IS_PROD) {
     try {
       const res = await fetch(`${GITHUB_RAW}/${filename}`, {
-        next: { revalidate: 3600 },
+        cache: "no-store",
       });
       if (!res.ok) return null;
       return res.json() as Promise<T>;
