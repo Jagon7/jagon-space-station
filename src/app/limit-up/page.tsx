@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import PageShell from "@/components/PageShell";
 import { LimitUpTrendChart, SectorTrendChart } from "@/components/charts/LimitUpChart";
 import { getLimitUpStocks, getMarketSummary, getLastUpdated } from "@/lib/data-loader";

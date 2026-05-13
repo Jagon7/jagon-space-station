@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import PageShell from "@/components/PageShell";
 import { getNoticeStocks, getDispositionStocks, getLastUpdated } from "@/lib/data-loader";
 import { AlertTriangle, ShieldAlert, Info } from "lucide-react";
