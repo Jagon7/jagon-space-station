@@ -97,8 +97,11 @@ function SFBStatusBadge({ status }: { status: string }) {
 }
 
 export default async function CBWatchPage() {
-  const [items, sfbRecords, updatedAt] =
+  const [items, sfbRecordsRaw, updatedAt] =
     await Promise.all([getCBIssuances(), getSFBCBRecords(), getLastUpdated()]);
+  const sfbRecords = [...sfbRecordsRaw].sort((a, b) =>
+    (b.filingDate ?? "").localeCompare(a.filingDate ?? "")
+  );
   const updatedTime = new Date(updatedAt).toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" });
 
   const enriched = items
