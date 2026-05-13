@@ -1,8 +1,8 @@
 export const dynamic = "force-dynamic";
 
 import PageShell from "@/components/PageShell";
-import { getCBIssuances, getLastUpdated } from "@/lib/data-loader";
-import type { CBIssuance } from "@/lib/types";
+import { getCBIssuances, getSFBCBRecords, getLastUpdated } from "@/lib/data-loader";
+import type { CBIssuance, SFBCBRecord } from "@/lib/types";
 import { Info, AlertCircle, Clock, CheckCircle2, FileText } from "lucide-react";
 
 // ── 工具函式 ────────────────────────────────────────────────
@@ -79,9 +79,26 @@ const STATUS_ORDER: Record<Status, number> = {
   listing_soon: 0, bookbuilding: 1, filed: 2, listed: 3,
 };
 
+const SFB_STATUS_META: Record<string, { label: string; color: string; bg: string }> = {
+  "生效":     { label: "生效",   color: "text-[#22c55e]", bg: "bg-[#22c55e]/10 border-[#22c55e]/30" },
+  "審查中":   { label: "審查中", color: "text-[#60a5fa]", bg: "bg-[#60a5fa]/10 border-[#60a5fa]/30" },
+  "自行撤回": { label: "已撤回", color: "text-slate-500",  bg: "bg-slate-800/40 border-slate-600/30" },
+  "廢止撤銷": { label: "已廢止", color: "text-slate-500",  bg: "bg-slate-800/40 border-slate-600/30" },
+  "退件":     { label: "退件",   color: "text-slate-500",  bg: "bg-slate-800/40 border-slate-600/30" },
+};
+
+function SFBStatusBadge({ status }: { status: string }) {
+  const m = SFB_STATUS_META[status] ?? { label: status, color: "text-slate-400", bg: "bg-slate-800/40 border-slate-600/30" };
+  return (
+    <span className={`inline-flex items-center text-[10px] font-mono px-1.5 py-0.5 rounded border ${m.color} ${m.bg}`}>
+      {m.label}
+    </span>
+  );
+}
+
 export default async function CBWatchPage() {
-  const [items, updatedAt] =
-    await Promise.all([getCBIssuances(), getLastUpdated()]);
+  const [items, sfbRecords, updatedAt] =
+    await Promise.all([getCBIssuances(), getSFBCBRecords(), getLastUpdated()]);
   const updatedTime = new Date(updatedAt).toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" });
 
   const enriched = items
@@ -225,6 +242,91 @@ export default async function CBWatchPage() {
         <div className="px-4 py-3 border-t border-[#1e2a3a] flex items-center justify-between">
           <span className="text-xs text-slate-600 font-mono">共 {items.length} 件 CB 在追蹤</span>
           <span className="text-xs text-slate-600 font-mono">溢價率 = (轉換價 − 現股) ÷ 現股 · 資料來源：TWSA / TWSE / TPEx</span>
+        </div>
+      </div>
+
+      {/* ── FSC 申報案件 ── */}
+      <div className="mt-10">
+        <div className="flex items-center gap-3 mb-4">
+          <h2 className="text-sm font-semibold text-white">FSC 申報案件 — {new Date().getFullYear() - 1911}年度轉換公司債</h2>
+          <span className="text-[10px] font-mono text-slate-400 bg-[#1e2a3a] px-2 py-0.5 rounded border border-[#1e2a3a]">
+            {sfbRecords.length} 筆
+          </span>
+        </div>
+
+        <div className="rounded-xl border border-[#1e2a3a] bg-[#0d1220] overflow-hidden">
+          {sfbRecords.length > 0 ? (
+            <div className="overflow-x-auto">
+              <table className="w-max min-w-full text-sm">
+                <thead>
+                  <tr className="border-b border-[#1e2a3a] text-[10px] font-mono text-slate-500 uppercase tracking-wider">
+                    <th className="text-left px-4 py-3">股號</th>
+                    <th className="text-left px-4 py-3">公司</th>
+                    <th className="text-center px-3 py-3">市場</th>
+                    <th className="text-left px-4 py-3">案件類別</th>
+                    <th className="text-right px-4 py-3">發行金額</th>
+                    <th className="text-right px-4 py-3">收文日期</th>
+                    <th className="text-right px-4 py-3">生效日期</th>
+                    <th className="text-left px-4 py-3">主辦承銷商</th>
+                    <th className="text-left px-4 py-3">狀態</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sfbRecords.map((r: SFBCBRecord, i: number) => (
+                    <tr
+                      key={`${r.code}-${i}`}
+                      className={`border-b border-[#1e2a3a]/50 last:border-0 hover:bg-[#1e2a3a]/30 transition-colors ${
+                        r.status === "自行撤回" || r.status === "廢止撤銷" || r.status === "退件"
+                          ? "opacity-50"
+                          : ""
+                      }`}
+                    >
+                      <td className="px-4 py-3 font-mono text-slate-500 whitespace-nowrap">{r.code}</td>
+                      <td className="px-4 py-3 font-medium text-slate-100 whitespace-nowrap">{r.name}</td>
+                      <td className="px-3 py-3 text-center">
+                        <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded ${
+                          r.market === "上市"
+                            ? "text-[#3b82f6] bg-[#3b82f6]/10"
+                            : r.market === "上櫃"
+                            ? "text-[#a78bfa] bg-[#a78bfa]/10"
+                            : "text-slate-400 bg-slate-800/40"
+                        }`}>
+                          {r.market}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-xs text-slate-400 whitespace-nowrap">
+                        {r.cbType.includes("海外") ? "海外無擔保" : "國內無擔保"}
+                      </td>
+                      <td className="px-4 py-3 text-right font-mono text-slate-300 whitespace-nowrap">
+                        {r.amount != null
+                          ? `${r.amount} ${r.currency === "台幣" ? "億" : "百萬" + r.currency}`
+                          : "—"}
+                      </td>
+                      <td className="px-4 py-3 text-right font-mono text-slate-500 text-xs whitespace-nowrap">
+                        {r.filingDate ?? "—"}
+                      </td>
+                      <td className="px-4 py-3 text-right font-mono text-slate-400 text-xs whitespace-nowrap">
+                        {r.effectiveDate ?? "—"}
+                      </td>
+                      <td className="px-4 py-3 text-xs text-slate-500 whitespace-nowrap">
+                        {r.underwriter ?? "—"}
+                      </td>
+                      <td className="px-4 py-3 whitespace-nowrap">
+                        <SFBStatusBadge status={r.status} />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="px-5 py-8 text-center text-sm text-slate-600 font-mono">
+              資料載入中，請於 Actions 執行後重新整理
+            </div>
+          )}
+          <div className="px-4 py-3 border-t border-[#1e2a3a]">
+            <span className="text-xs text-slate-600 font-mono">資料來源：金融監督管理委員會證券期貨局 sfb.gov.tw · 金額台幣單位億元，外幣單位百萬</span>
+          </div>
         </div>
       </div>
     </PageShell>

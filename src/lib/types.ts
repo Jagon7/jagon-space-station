@@ -66,6 +66,20 @@ export type CBIssuance = {
   underwriter?: string;     // 主辦承銷商
 };
 
+export type SFBCBRecord = {
+  code: string;
+  name: string;
+  market: string;
+  status: string;           // 生效 / 審查中 / 自行撤回 / 廢止撤銷 / 退件
+  cbType: string;           // 轉換公司債(無擔保) / 轉換公司債(海外無擔保)
+  amount?: number | null;   // 億元(台幣) 或 百萬(外幣)
+  currency: string;
+  filingDate?: string | null;
+  effectiveDate?: string | null;
+  withdrawDate?: string | null;
+  underwriter?: string | null;
+};
+
 export type MarketSummary = {
   date: string;
   limitUpCount: number;

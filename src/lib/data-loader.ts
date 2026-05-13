@@ -2,7 +2,7 @@ import fs from "fs";
 import path from "path";
 import type {
   LimitUpStock, NoticeStock, DispositionStock, Announcement,
-  MarketSummary, SectorSummary, CBIssuance,
+  MarketSummary, SectorSummary, CBIssuance, SFBCBRecord,
 } from "./types";
 import * as mock from "./mock-data";
 
@@ -65,6 +65,11 @@ export async function getAnnouncements(): Promise<Announcement[]> {
 export async function getCBIssuances(): Promise<CBIssuance[]> {
   const file = await readJson<Dated<CBIssuance[]>>("cb-watch.json");
   return file?.data ?? mock.mockCBIssuances;
+}
+
+export async function getSFBCBRecords(): Promise<SFBCBRecord[]> {
+  const file = await readJson<Dated<SFBCBRecord[]>>("sfb-cb.json");
+  return file?.data ?? [];
 }
 
 export async function getLastUpdated(): Promise<string> {
