@@ -2,7 +2,7 @@ import fs from "fs";
 import path from "path";
 import type {
   LimitUpStock, NoticeStock, DispositionStock, Announcement,
-  MarketSummary, SectorSummary, CBIssuance, SFBCBRecord,
+  MarketSummary, SectorSummary, CBIssuance, SFBCBRecord, EtfFlowData,
 } from "./types";
 import * as mock from "./mock-data";
 
@@ -75,4 +75,9 @@ export async function getSFBCBRecords(): Promise<SFBCBRecord[]> {
 export async function getLastUpdated(): Promise<string> {
   const file = await readJson<{ updatedAt: string; date: string }>("last-updated.json");
   return file?.updatedAt ?? new Date().toISOString();
+}
+
+export async function getEtfFlow(): Promise<EtfFlowData | null> {
+  const file = await readJson<EtfFlowData>("etf-flow.json");
+  return file ?? mock.mockEtfFlow;
 }

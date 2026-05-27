@@ -33,8 +33,9 @@ const navItems: NavItem[] = [
     label: "籌碼雷達",
     children: [
       { label: "券差偵測", href: "/short",       badge: "20:08" },
-      { label: "處置預警", href: "/disposition",  badge: "19:00" },
-      { label: "主動 ETF", href: "/etf",          badge: "22:30" },
+      { label: "處置預警",      href: "/disposition",  badge: "19:00" },
+      { label: "主動 ETF",      href: "/etf",          badge: "22:30" },
+      { label: "ETF 成分股動態", href: "/etf-flow",     badge: "22:30" },
     ],
   },
   { label: "情報截收", href: "/announcements" },

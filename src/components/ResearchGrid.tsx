@@ -52,6 +52,14 @@ const modules = [
     badge: "22:30",
   },
   {
+    icon: Activity,
+    title: "ETF 成分股動態",
+    desc: "高股息 & 主動型 ETF 當日申購買回清單比對，精確追蹤買賣超張數",
+    href: "/etf-flow",
+    accent: "#a78bfa",
+    badge: "22:30",
+  },
+  {
     icon: DollarSign,
     title: "自結盈餘情報",
     desc: "上市櫃自行公布盈餘數據彙整，先市場一步掌握獲利動向",

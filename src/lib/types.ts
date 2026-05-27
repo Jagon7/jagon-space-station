@@ -90,3 +90,31 @@ export type MarketSummary = {
   marketMood: "強勢" | "偏強" | "中性" | "偏弱" | "弱勢";
   taiexChange: number;
 };
+
+export type EtfFlowAction = "new" | "remove" | "buy" | "sell";
+
+export type EtfFlowChange = {
+  code: string;
+  name: string;
+  action: EtfFlowAction;
+  prevShares: number;
+  currShares: number;
+  diffShares: number;      // positive = bought, negative = sold
+  closePrice: number;
+  diffValue: number;       // diffShares * closePrice (TWD)
+  weight: number;          // current weight % in ETF
+};
+
+export type EtfFlowItem = {
+  etfCode: string;
+  etfName: string;
+  category: "高股息" | "主動型";
+  navPerUnit: number;
+  totalUnits: number;
+  changes: EtfFlowChange[];
+};
+
+export type EtfFlowData = {
+  date: string;
+  data: EtfFlowItem[];
+};

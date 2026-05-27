@@ -1,4 +1,4 @@
-import type { LimitUpStock, DispositionStock, Announcement, MarketSummary, CBIssuance } from "./types";
+import type { LimitUpStock, DispositionStock, Announcement, MarketSummary, CBIssuance, EtfFlowData } from "./types";
 
 export const mockMarketSummary: MarketSummary = {
   date: "2026-05-07",
@@ -104,3 +104,92 @@ export const mockLimitUpTrend = [
   { date: "05/06", count: 55, mood: 85 },
   { date: "05/07", count: 48, mood: 79 },
 ];
+
+export const mockEtfFlow: EtfFlowData = {
+  date: "2026-05-25",
+  data: [
+    {
+      etfCode: "00919",
+      etfName: "群益台灣精選高息",
+      category: "高股息",
+      navPerUnit: 27.56,
+      totalUnits: 17532135000,
+      changes: [
+        { code: "2454", name: "聯發科",  action: "buy",    prevShares: 600000, currShares: 650000, diffShares: 50000,  closePrice: 1245, diffValue: 62250000, weight: 15.58 },
+        { code: "2303", name: "聯電",    action: "buy",    prevShares: 800000, currShares: 820000, diffShares: 20000,  closePrice: 52.1, diffValue: 1042000,  weight: 8.24 },
+        { code: "2308", name: "台達電",  action: "sell",   prevShares: 300000, currShares: 280000, diffShares: -20000, closePrice: 352,  diffValue: -7040000, weight: 5.12 },
+        { code: "2330", name: "台積電",  action: "new",    prevShares: 0,      currShares: 50000,  diffShares: 50000,  closePrice: 1012, diffValue: 50600000, weight: 3.15 },
+        { code: "3034", name: "聯詠",    action: "sell",   prevShares: 150000, currShares: 120000, diffShares: -30000, closePrice: 420,  diffValue: -12600000, weight: 2.84 },
+        { code: "6547", name: "高端疫苗",action: "remove", prevShares: 200000, currShares: 0,      diffShares: -200000, closePrice: 45, diffValue: -9000000, weight: 0 },
+      ],
+    },
+    {
+      etfCode: "00929",
+      etfName: "復華台灣科技優息",
+      category: "高股息",
+      navPerUnit: 18.42,
+      totalUnits: 24180000000,
+      changes: [
+        { code: "2382", name: "廣達",    action: "buy",    prevShares: 420000, currShares: 460000, diffShares: 40000,  closePrice: 418,  diffValue: 16720000, weight: 10.2 },
+        { code: "2317", name: "鴻海",    action: "sell",   prevShares: 560000, currShares: 530000, diffShares: -30000, closePrice: 196,  diffValue: -5880000, weight: 6.81 },
+        { code: "3711", name: "日月光",  action: "buy",    prevShares: 380000, currShares: 400000, diffShares: 20000,  closePrice: 158,  diffValue: 3160000,  weight: 4.55 },
+      ],
+    },
+    {
+      etfCode: "00878",
+      etfName: "國泰永續高股息",
+      category: "高股息",
+      navPerUnit: 23.15,
+      totalUnits: 39820000000,
+      changes: [
+        { code: "2454", name: "聯發科",  action: "buy",    prevShares: 1100000, currShares: 1150000, diffShares: 50000,  closePrice: 1245, diffValue: 62250000, weight: 18.3 },
+        { code: "2308", name: "台達電",  action: "sell",   prevShares: 450000,  currShares: 420000,  diffShares: -30000, closePrice: 352,  diffValue: -10560000, weight: 5.6 },
+      ],
+    },
+    {
+      etfCode: "0056",
+      etfName: "元大高股息",
+      category: "高股息",
+      navPerUnit: 48.12,
+      totalUnits: 13670000000,
+      changes: [
+        { code: "2303", name: "聯電",    action: "buy",    prevShares: 2100000, currShares: 2200000, diffShares: 100000, closePrice: 52.1, diffValue: 5210000, weight: 7.8 },
+        { code: "2379", name: "瑞昱",    action: "sell",   prevShares: 320000,  currShares: 300000,  diffShares: -20000, closePrice: 610,  diffValue: -12200000, weight: 4.2 },
+      ],
+    },
+    {
+      etfCode: "00981A",
+      etfName: "統一台股增長",
+      category: "主動型",
+      navPerUnit: 22.84,
+      totalUnits: 3120000000,
+      changes: [
+        { code: "2330", name: "台積電",  action: "buy",    prevShares: 180000, currShares: 200000, diffShares: 20000,  closePrice: 1012, diffValue: 20240000, weight: 24.8 },
+        { code: "2382", name: "廣達",    action: "new",    prevShares: 0,      currShares: 80000,  diffShares: 80000,  closePrice: 418,  diffValue: 33440000, weight: 6.2 },
+        { code: "2308", name: "台達電",  action: "sell",   prevShares: 120000, currShares: 100000, diffShares: -20000, closePrice: 352,  diffValue: -7040000, weight: 4.1 },
+      ],
+    },
+    {
+      etfCode: "00403A",
+      etfName: "統一台股升級50",
+      category: "主動型",
+      navPerUnit: 19.35,
+      totalUnits: 2840000000,
+      changes: [
+        { code: "2454", name: "聯發科",  action: "buy",    prevShares: 150000, currShares: 170000, diffShares: 20000,  closePrice: 1245, diffValue: 24900000, weight: 18.9 },
+        { code: "6669", name: "緯穎",    action: "sell",   prevShares: 45000,  currShares: 40000,  diffShares: -5000,  closePrice: 2580, diffValue: -12900000, weight: 5.4 },
+      ],
+    },
+    {
+      etfCode: "00982A",
+      etfName: "群益台灣強棒",
+      category: "主動型",
+      navPerUnit: 23.77,
+      totalUnits: 2310000000,
+      changes: [
+        { code: "2330", name: "台積電",  action: "buy",    prevShares: 140000, currShares: 160000, diffShares: 20000,  closePrice: 1012, diffValue: 20240000, weight: 25.1 },
+        { code: "2379", name: "瑞昱",    action: "new",    prevShares: 0,      currShares: 30000,  diffShares: 30000,  closePrice: 610,  diffValue: 18300000, weight: 3.8 },
+      ],
+    },
+  ],
+};
