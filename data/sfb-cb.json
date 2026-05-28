@@ -1,5 +1,5 @@
 {
-  "date": "2026-05-27",
+  "date": "2026-05-28",
   "data": [
     {
       "code": "2344",
@@ -447,7 +447,7 @@
       "code": "6223",
       "name": "旺矽科技",
       "market": "上櫃",
-      "status": "審查中",
+      "status": "生效",
       "cbType": "轉換公司債(無擔保)",
       "amount": 50.0,
       "currency": "台幣",
@@ -494,6 +494,32 @@
       "effectiveDate": "2026-06-09",
       "withdrawDate": null,
       "underwriter": "元大證券"
+    },
+    {
+      "code": "6584",
+      "name": "南俊國際",
+      "market": "上櫃",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 8.0,
+      "currency": "台幣",
+      "filingDate": "2026-05-27",
+      "effectiveDate": "2026-06-12",
+      "withdrawDate": null,
+      "underwriter": "凱基證券"
+    },
+    {
+      "code": "8222",
+      "name": "寶一科技",
+      "market": "上市",
+      "status": "審查中",
+      "cbType": "轉換公司債(有擔保)",
+      "amount": 4.0,
+      "currency": "台幣",
+      "filingDate": "2026-05-27",
+      "effectiveDate": "2026-06-12",
+      "withdrawDate": null,
+      "underwriter": "台新證券"
     }
   ]
 }

@@ -1,36 +1,6 @@
 {
-  "date": "2026-05-27",
+  "date": "2026-05-28",
   "data": [
-    {
-      "code": "3664",
-      "name": "安瑞-KY",
-      "count": 7,
-      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
-      "period": "115/05/13~115/05/26",
-      "endDate": "2026-05-26",
-      "announceDate": "115/05/12",
-      "market": "上櫃"
-    },
-    {
-      "code": "4979",
-      "name": "華星光",
-      "count": 7,
-      "condition": "連續5個營業日",
-      "period": "115/05/13~115/05/26",
-      "endDate": "2026-05-26",
-      "announceDate": "115/05/12",
-      "market": "上櫃"
-    },
-    {
-      "code": "7769",
-      "name": "鴻勁",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/05/14～115/05/27",
-      "endDate": "2026-05-27",
-      "announceDate": "115/05/13",
-      "market": "上市"
-    },
     {
       "code": "5464",
       "name": "霖宏",
@@ -342,16 +312,6 @@
       "market": "上市"
     },
     {
-      "code": "3026",
-      "name": "禾伸堂",
-      "count": 2,
-      "condition": "連續三次",
-      "period": "115/05/26～115/06/08",
-      "endDate": "2026-06-08",
-      "announceDate": "115/05/25",
-      "market": "上市"
-    },
-    {
       "code": "3167",
       "name": "大量",
       "count": 1,
@@ -375,16 +335,6 @@
       "code": "4916",
       "name": "事欣科",
       "count": 1,
-      "condition": "連續三次",
-      "period": "115/05/26～115/06/08",
-      "endDate": "2026-06-08",
-      "announceDate": "115/05/25",
-      "market": "上市"
-    },
-    {
-      "code": "6806",
-      "name": "森崴能源",
-      "count": 2,
       "condition": "連續三次",
       "period": "115/05/26～115/06/08",
       "endDate": "2026-06-08",
@@ -599,6 +549,76 @@
       "period": "115/05/28~115/06/10",
       "endDate": "2026-06-10",
       "announceDate": "115/05/27",
+      "market": "上櫃"
+    },
+    {
+      "code": "3026",
+      "name": "禾伸堂",
+      "count": 3,
+      "condition": "連續三次",
+      "period": "115/05/29～115/06/11",
+      "endDate": "2026-06-11",
+      "announceDate": "115/05/28",
+      "market": "上市"
+    },
+    {
+      "code": "3532",
+      "name": "台勝科",
+      "count": 1,
+      "condition": "連續三次",
+      "period": "115/05/29～115/06/11",
+      "endDate": "2026-06-11",
+      "announceDate": "115/05/28",
+      "market": "上市"
+    },
+    {
+      "code": "6239",
+      "name": "力成",
+      "count": 1,
+      "condition": "連續三次",
+      "period": "115/05/29～115/06/11",
+      "endDate": "2026-06-11",
+      "announceDate": "115/05/28",
+      "market": "上市"
+    },
+    {
+      "code": "6405",
+      "name": "悅城",
+      "count": 1,
+      "condition": "連續三次",
+      "period": "115/05/29～115/06/11",
+      "endDate": "2026-06-11",
+      "announceDate": "115/05/28",
+      "market": "上市"
+    },
+    {
+      "code": "6806",
+      "name": "森崴能源",
+      "count": 3,
+      "condition": "連續三次",
+      "period": "115/05/29～115/06/11",
+      "endDate": "2026-06-11",
+      "announceDate": "115/05/28",
+      "market": "上市"
+    },
+    {
+      "code": "3191",
+      "name": "雲嘉南",
+      "count": 4,
+      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
+      "period": "115/05/29~115/06/11",
+      "endDate": "2026-06-11",
+      "announceDate": "115/05/28",
+      "market": "上櫃"
+    },
+    {
+      "code": "6821",
+      "name": "聯寶",
+      "count": 4,
+      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
+      "period": "115/05/29~115/06/11",
+      "endDate": "2026-06-11",
+      "announceDate": "115/05/28",
       "market": "上櫃"
     }
   ]
