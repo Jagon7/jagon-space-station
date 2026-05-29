@@ -1,5 +1,5 @@
 {
-  "date": "2026-05-28",
+  "date": "2026-05-29",
   "data": [
     {
       "code": "2344",
@@ -465,7 +465,7 @@
       "amount": 4.0,
       "currency": "台幣",
       "filingDate": "2026-05-18",
-      "effectiveDate": "2026-06-15",
+      "effectiveDate": "2026-06-25",
       "withdrawDate": null,
       "underwriter": "福邦證券"
     },
@@ -520,6 +520,58 @@
       "effectiveDate": "2026-06-12",
       "withdrawDate": null,
       "underwriter": "台新證券"
+    },
+    {
+      "code": "6693",
+      "name": "廣閎科技",
+      "market": "上櫃",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 5.0,
+      "currency": "台幣",
+      "filingDate": "2026-05-28",
+      "effectiveDate": "2026-06-15",
+      "withdrawDate": null,
+      "underwriter": "兆豐證券"
+    },
+    {
+      "code": "8096",
+      "name": "擎亞電子",
+      "market": "上櫃",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 8.0,
+      "currency": "台幣",
+      "filingDate": "2026-05-28",
+      "effectiveDate": "2026-06-15",
+      "withdrawDate": null,
+      "underwriter": "統一證券"
+    },
+    {
+      "code": "8096",
+      "name": "擎亞電子",
+      "market": "上櫃",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 5.0,
+      "currency": "台幣",
+      "filingDate": "2026-05-28",
+      "effectiveDate": "2026-06-15",
+      "withdrawDate": null,
+      "underwriter": "統一證券"
+    },
+    {
+      "code": "9958",
+      "name": "世紀鋼鐵",
+      "market": "上市",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 15.0,
+      "currency": "台幣",
+      "filingDate": "2026-05-28",
+      "effectiveDate": "2026-06-15",
+      "withdrawDate": null,
+      "underwriter": "永豐金證券"
     }
   ]
 }
