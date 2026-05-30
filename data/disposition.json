@@ -1,56 +1,6 @@
 {
-  "date": "2026-05-29",
+  "date": "2026-05-30",
   "data": [
-    {
-      "code": "4966",
-      "name": "譜瑞-KY",
-      "count": 7,
-      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
-      "period": "115/05/15~115/05/28",
-      "endDate": "2026-05-28",
-      "announceDate": "115/05/14",
-      "market": "上櫃"
-    },
-    {
-      "code": "6263",
-      "name": "普萊德",
-      "count": 7,
-      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
-      "period": "115/05/15~115/05/28",
-      "endDate": "2026-05-28",
-      "announceDate": "115/05/14",
-      "market": "上櫃"
-    },
-    {
-      "code": "8069",
-      "name": "元太",
-      "count": 7,
-      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
-      "period": "115/05/15~115/05/28",
-      "endDate": "2026-05-28",
-      "announceDate": "115/05/14",
-      "market": "上櫃"
-    },
-    {
-      "code": "8358",
-      "name": "金居",
-      "count": 7,
-      "condition": "最近10個營業日內有6個營業日",
-      "period": "115/05/15~115/05/28",
-      "endDate": "2026-05-28",
-      "announceDate": "115/05/14",
-      "market": "上櫃"
-    },
-    {
-      "code": "3135",
-      "name": "凌航",
-      "count": 1,
-      "condition": "連續五次",
-      "period": "115/05/18～115/05/29",
-      "endDate": "2026-05-29",
-      "announceDate": "115/05/15",
-      "market": "上市"
-    },
     {
       "code": "5228",
       "name": "鈺鎧",
