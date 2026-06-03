@@ -1,5 +1,5 @@
 {
-  "date": "2026-06-02",
+  "date": "2026-06-03",
   "data": [
     {
       "code": "2344",
@@ -166,7 +166,7 @@
       "amount": 6.5,
       "currency": "台幣",
       "filingDate": "2026-03-31",
-      "effectiveDate": "2026-06-18",
+      "effectiveDate": "2026-06-30",
       "withdrawDate": null,
       "underwriter": "台新證券"
     },
@@ -585,6 +585,19 @@
       "effectiveDate": "2026-06-17",
       "withdrawDate": null,
       "underwriter": "凱基證券"
+    },
+    {
+      "code": "3036",
+      "name": "文曄科技",
+      "market": "上市",
+      "status": "審查中",
+      "cbType": "轉換公司債(海外無擔保)",
+      "amount": 500.0,
+      "currency": "美元",
+      "filingDate": "2026-06-02",
+      "effectiveDate": "2026-06-18",
+      "withdrawDate": null,
+      "underwriter": "元大證券"
     }
   ]
 }

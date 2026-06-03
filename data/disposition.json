@@ -1,56 +1,6 @@
 {
-  "date": "2026-06-02",
+  "date": "2026-06-03",
   "data": [
-    {
-      "code": "3498",
-      "name": "陽程",
-      "count": 4,
-      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
-      "period": "115/05/19~115/06/01",
-      "endDate": "2026-06-01",
-      "announceDate": "115/05/18",
-      "market": "上櫃"
-    },
-    {
-      "code": "4971",
-      "name": "IET-KY",
-      "count": 4,
-      "condition": "連續5個營業日",
-      "period": "115/05/19~115/06/01",
-      "endDate": "2026-06-01",
-      "announceDate": "115/05/18",
-      "market": "上櫃"
-    },
-    {
-      "code": "3008",
-      "name": "大立光",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/05/20～115/06/02",
-      "endDate": "2026-06-02",
-      "announceDate": "115/05/19",
-      "market": "上市"
-    },
-    {
-      "code": "3665",
-      "name": "貿聯-KY",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/05/20～115/06/02",
-      "endDate": "2026-06-02",
-      "announceDate": "115/05/19",
-      "market": "上市"
-    },
-    {
-      "code": "6924",
-      "name": "榮惠-KY創",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/05/20～115/06/02",
-      "endDate": "2026-06-02",
-      "announceDate": "115/05/19",
-      "market": "上市"
-    },
     {
       "code": "6217",
       "name": "中探針",
@@ -104,16 +54,6 @@
     {
       "code": "6742",
       "name": "澤米",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/05/25～115/06/05",
-      "endDate": "2026-06-05",
-      "announceDate": "115/05/22",
-      "market": "上市"
-    },
-    {
-      "code": "7610",
-      "name": "聯友金屬-創",
       "count": 1,
       "condition": "連續三次",
       "period": "115/05/25～115/06/05",
@@ -452,16 +392,6 @@
       "market": "上櫃"
     },
     {
-      "code": "1568",
-      "name": "倉佑",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/06/01～115/06/12",
-      "endDate": "2026-06-12",
-      "announceDate": "115/05/29",
-      "market": "上市"
-    },
-    {
       "code": "2375",
       "name": "凱美",
       "count": 1,
@@ -474,36 +404,6 @@
     {
       "code": "2472",
       "name": "立隆電",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/06/01～115/06/12",
-      "endDate": "2026-06-12",
-      "announceDate": "115/05/29",
-      "market": "上市"
-    },
-    {
-      "code": "2492",
-      "name": "華新科",
-      "count": 2,
-      "condition": "連續三次",
-      "period": "115/06/01～115/06/12",
-      "endDate": "2026-06-12",
-      "announceDate": "115/05/29",
-      "market": "上市"
-    },
-    {
-      "code": "3021",
-      "name": "鴻名",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/06/01～115/06/12",
-      "endDate": "2026-06-12",
-      "announceDate": "115/05/29",
-      "market": "上市"
-    },
-    {
-      "code": "6116",
-      "name": "彩晶",
       "count": 1,
       "condition": "連續三次",
       "period": "115/06/01～115/06/12",
@@ -679,6 +579,126 @@
       "period": "115/06/03~115/06/16",
       "endDate": "2026-06-16",
       "announceDate": "115/06/02",
+      "market": "上櫃"
+    },
+    {
+      "code": "1409",
+      "name": "新纖",
+      "count": 1,
+      "condition": "連續三次",
+      "period": "115/06/04～115/06/17",
+      "endDate": "2026-06-17",
+      "announceDate": "115/06/03",
+      "market": "上市"
+    },
+    {
+      "code": "1568",
+      "name": "倉佑",
+      "count": 2,
+      "condition": "連續三次",
+      "period": "115/06/04～115/06/17",
+      "endDate": "2026-06-17",
+      "announceDate": "115/06/03",
+      "market": "上市"
+    },
+    {
+      "code": "2492",
+      "name": "華新科",
+      "count": 3,
+      "condition": "連續三次",
+      "period": "115/06/04～115/06/17",
+      "endDate": "2026-06-17",
+      "announceDate": "115/06/03",
+      "market": "上市"
+    },
+    {
+      "code": "3021",
+      "name": "鴻名",
+      "count": 2,
+      "condition": "連續三次",
+      "period": "115/06/04～115/06/17",
+      "endDate": "2026-06-17",
+      "announceDate": "115/06/03",
+      "market": "上市"
+    },
+    {
+      "code": "3346",
+      "name": "麗清",
+      "count": 1,
+      "condition": "連續三次",
+      "period": "115/06/04～115/06/17",
+      "endDate": "2026-06-17",
+      "announceDate": "115/06/03",
+      "market": "上市"
+    },
+    {
+      "code": "3481",
+      "name": "群創",
+      "count": 1,
+      "condition": "最近十個營業日已有六次",
+      "period": "115/06/04～115/06/17",
+      "endDate": "2026-06-17",
+      "announceDate": "115/06/03",
+      "market": "上市"
+    },
+    {
+      "code": "6116",
+      "name": "彩晶",
+      "count": 2,
+      "condition": "連續三次",
+      "period": "115/06/04～115/06/17",
+      "endDate": "2026-06-17",
+      "announceDate": "115/06/03",
+      "market": "上市"
+    },
+    {
+      "code": "7610",
+      "name": "聯友金屬-創",
+      "count": 2,
+      "condition": "連續三次",
+      "period": "115/06/04～115/06/17",
+      "endDate": "2026-06-17",
+      "announceDate": "115/06/03",
+      "market": "上市"
+    },
+    {
+      "code": "3556",
+      "name": "禾瑞亞",
+      "count": 7,
+      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
+      "period": "115/06/04~115/06/17",
+      "endDate": "2026-06-17",
+      "announceDate": "115/06/03",
+      "market": "上櫃"
+    },
+    {
+      "code": "6548",
+      "name": "長科*",
+      "count": 7,
+      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
+      "period": "115/06/04~115/06/17",
+      "endDate": "2026-06-17",
+      "announceDate": "115/06/03",
+      "market": "上櫃"
+    },
+    {
+      "code": "7709",
+      "name": "榮田",
+      "count": 7,
+      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
+      "period": "115/06/04~115/06/17",
+      "endDate": "2026-06-17",
+      "announceDate": "115/06/03",
+      "market": "上櫃"
+    },
+    {
+      "code": "8277",
+      "name": "商丞",
+      "count": 7,
+      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
+      "period": "115/06/04~115/06/17",
+      "endDate": "2026-06-17",
+      "announceDate": "115/06/03",
       "market": "上櫃"
     }
   ]

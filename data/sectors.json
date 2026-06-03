@@ -1,55 +1,55 @@
 {
-  "date": "2026-06-02",
+  "date": "2026-06-03",
   "data": [
     {
       "name": "光電",
-      "count": 8,
+      "count": 9,
       "momentum": "strong"
     },
     {
-      "name": "電子零組件",
-      "count": 8,
-      "momentum": "strong"
-    },
-    {
-      "name": "電腦週邊",
+      "name": "電機機械",
       "count": 7,
       "momentum": "strong"
     },
     {
-      "name": "半導體",
+      "name": "電子零組件",
+      "count": 6,
+      "momentum": "strong"
+    },
+    {
+      "name": "紡織纖維",
+      "count": 5,
+      "momentum": "normal"
+    },
+    {
+      "name": "電腦週邊",
       "count": 4,
       "momentum": "normal"
     },
     {
-      "name": "其他電子",
+      "name": "電器電纜",
+      "count": 4,
+      "momentum": "normal"
+    },
+    {
+      "name": "化工",
+      "count": 4,
+      "momentum": "normal"
+    },
+    {
+      "name": "金融保險",
       "count": 3,
       "momentum": "normal"
     },
     {
-      "name": "電子通路",
+      "name": "存託憑證",
       "count": 3,
       "momentum": "normal"
     },
     {
-      "name": "資訊服務",
+      "name": "塑膠",
       "count": 3,
       "momentum": "normal"
-    },
-    {
-      "name": "通信網路",
-      "count": 2,
-      "momentum": "weak"
-    },
-    {
-      "name": "運動休閒",
-      "count": 2,
-      "momentum": "weak"
-    },
-    {
-      "name": "紡織纖維",
-      "count": 2,
-      "momentum": "weak"
     }
   ]
 }
