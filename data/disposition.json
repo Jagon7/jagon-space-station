@@ -1,26 +1,6 @@
 {
-  "date": "2026-06-03",
+  "date": "2026-06-04",
   "data": [
-    {
-      "code": "6217",
-      "name": "中探針",
-      "count": 4,
-      "condition": "連續5個營業日",
-      "period": "115/05/20~115/06/02",
-      "endDate": "2026-06-02",
-      "announceDate": "115/05/19",
-      "market": "上櫃"
-    },
-    {
-      "code": "8091",
-      "name": "翔名",
-      "count": 4,
-      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
-      "period": "115/05/20~115/06/02",
-      "endDate": "2026-06-02",
-      "announceDate": "115/05/19",
-      "market": "上櫃"
-    },
     {
       "code": "1591",
       "name": "駿吉-KY",
@@ -364,7 +344,7 @@
     {
       "code": "6806",
       "name": "森崴能源",
-      "count": 3,
+      "count": 2,
       "condition": "連續三次",
       "period": "115/05/29～115/06/11",
       "endDate": "2026-06-11",
@@ -494,16 +474,6 @@
     {
       "code": "3485",
       "name": "敘豐",
-      "count": 10,
-      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
-      "period": "115/06/02~115/06/15",
-      "endDate": "2026-06-15",
-      "announceDate": "115/06/01",
-      "market": "上櫃"
-    },
-    {
-      "code": "3523",
-      "name": "迎輝",
       "count": 10,
       "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
       "period": "115/06/02~115/06/15",
@@ -699,6 +669,66 @@
       "period": "115/06/04~115/06/17",
       "endDate": "2026-06-17",
       "announceDate": "115/06/03",
+      "market": "上櫃"
+    },
+    {
+      "code": "3535",
+      "name": "晶彩科",
+      "count": 1,
+      "condition": "最近十個營業日已有六次",
+      "period": "115/06/05～115/06/18",
+      "endDate": "2026-06-18",
+      "announceDate": "115/06/04",
+      "market": "上市"
+    },
+    {
+      "code": "8454",
+      "name": "富邦媒",
+      "count": 1,
+      "condition": "連續三次",
+      "period": "115/06/05～115/06/18",
+      "endDate": "2026-06-18",
+      "announceDate": "115/06/04",
+      "market": "上市"
+    },
+    {
+      "code": "3288",
+      "name": "點晶",
+      "count": 4,
+      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
+      "period": "115/06/05~115/06/18",
+      "endDate": "2026-06-18",
+      "announceDate": "115/06/04",
+      "market": "上櫃"
+    },
+    {
+      "code": "3523",
+      "name": "迎輝",
+      "count": 4,
+      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
+      "period": "115/06/05~115/06/18",
+      "endDate": "2026-06-18",
+      "announceDate": "115/06/04",
+      "market": "上櫃"
+    },
+    {
+      "code": "4707",
+      "name": "磐亞",
+      "count": 4,
+      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
+      "period": "115/06/05~115/06/18",
+      "endDate": "2026-06-18",
+      "announceDate": "115/06/04",
+      "market": "上櫃"
+    },
+    {
+      "code": "8358",
+      "name": "金居",
+      "count": 4,
+      "condition": "連續5個營業日",
+      "period": "115/06/05~115/06/18",
+      "endDate": "2026-06-18",
+      "announceDate": "115/06/04",
       "market": "上櫃"
     }
   ]

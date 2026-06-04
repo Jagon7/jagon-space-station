@@ -1,5 +1,5 @@
 {
-  "date": "2026-06-03",
+  "date": "2026-06-04",
   "data": [
     {
       "code": "2344",
@@ -382,7 +382,7 @@
       "code": "4190",
       "name": "F-佐登",
       "market": "上市",
-      "status": "審查中",
+      "status": "生效",
       "cbType": "轉換公司債(有擔保)",
       "amount": 5.0,
       "currency": "台幣",
@@ -598,6 +598,19 @@
       "effectiveDate": "2026-06-18",
       "withdrawDate": null,
       "underwriter": "元大證券"
+    },
+    {
+      "code": "6134",
+      "name": "萬旭電業",
+      "market": "上櫃",
+      "status": "審查中",
+      "cbType": "轉換公司債(有擔保)",
+      "amount": 3.0,
+      "currency": "台幣",
+      "filingDate": "2026-06-03",
+      "effectiveDate": "2026-06-22",
+      "withdrawDate": null,
+      "underwriter": "中國信託證券"
     }
   ]
 }
