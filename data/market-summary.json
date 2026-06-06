@@ -1,10 +1,10 @@
 {
-  "date": "2026-06-05",
+  "date": "2026-06-06",
   "limitUpCount": 57,
-  "sectorCount": 0,
-  "dispositionCount": 78,
+  "sectorCount": 10,
+  "dispositionCount": 77,
   "announcementCount": 0,
   "marketMood": "偏強",
   "taiexChange": 0.0,
-  "noticeCount": 68
+  "noticeCount": 33
 }

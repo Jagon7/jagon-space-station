@@ -1,5 +1,5 @@
 {
-  "date": "2026-06-05",
+  "date": "2026-06-06",
   "data": [
     {
       "code": "8043",
@@ -38,7 +38,7 @@
     {
       "code": "3376",
       "name": "新日興",
-      "sector": "其他",
+      "sector": "電子零組件",
       "change": 9.98,
       "volume": 15188,
       "tradeValue": 3508175587.0,
@@ -55,7 +55,7 @@
     {
       "code": "6409",
       "name": "旭隼",
-      "sector": "其他",
+      "sector": "其他電子",
       "change": 9.95,
       "volume": 2102,
       "tradeValue": 1929464912.0,
@@ -72,7 +72,7 @@
     {
       "code": "3015",
       "name": "全漢",
-      "sector": "其他",
+      "sector": "電子零組件",
       "change": 9.89,
       "volume": 23541,
       "tradeValue": 1586781856.0,
@@ -89,7 +89,7 @@
     {
       "code": "8454",
       "name": "富邦媒",
-      "sector": "其他",
+      "sector": "數位雲端",
       "change": 9.97,
       "volume": 4338,
       "tradeValue": 1465445111.0,
@@ -140,7 +140,7 @@
     {
       "code": "6155",
       "name": "鈞寶",
-      "sector": "其他",
+      "sector": "電子零組件",
       "change": 9.99,
       "volume": 16373,
       "tradeValue": 1242439141.0,
@@ -208,7 +208,7 @@
     {
       "code": "7788",
       "name": "松川精密",
-      "sector": "其他",
+      "sector": "電子零組件",
       "change": 9.8,
       "volume": 4318,
       "tradeValue": 942901189.0,
@@ -225,7 +225,7 @@
     {
       "code": "7799",
       "name": "禾榮科",
-      "sector": "其他",
+      "sector": "生技醫療",
       "change": 9.7,
       "volume": 1992,
       "tradeValue": 752209533.0,
@@ -276,7 +276,7 @@
     {
       "code": "2478",
       "name": "大毅",
-      "sector": "其他",
+      "sector": "電子零組件",
       "change": 9.09,
       "volume": 4349,
       "tradeValue": 616414722.0,
@@ -293,7 +293,7 @@
     {
       "code": "1810",
       "name": "和成",
-      "sector": "其他",
+      "sector": "玻璃陶瓷",
       "change": 9.98,
       "volume": 23846,
       "tradeValue": 536312179.0,
@@ -378,7 +378,7 @@
     {
       "code": "6862",
       "name": "三集瑞-KY",
-      "sector": "其他",
+      "sector": "電子零組件",
       "change": 9.95,
       "volume": 1572,
       "tradeValue": 308529825.0,
@@ -395,7 +395,7 @@
     {
       "code": "2483",
       "name": "百容",
-      "sector": "其他",
+      "sector": "電子零組件",
       "change": 9.93,
       "volume": 10502,
       "tradeValue": 307530262.0,
@@ -514,7 +514,7 @@
     {
       "code": "2461",
       "name": "光群雷",
-      "sector": "其他",
+      "sector": "其他電子",
       "change": 9.86,
       "volume": 9408,
       "tradeValue": 182296054.0,
@@ -565,7 +565,7 @@
     {
       "code": "2241",
       "name": "艾姆勒",
-      "sector": "其他",
+      "sector": "汽車",
       "change": 9.94,
       "volume": 3727,
       "tradeValue": 128343040.0,
@@ -599,7 +599,7 @@
     {
       "code": "7722",
       "name": "LINEPAY",
-      "sector": "其他",
+      "sector": "數位雲端",
       "change": 9.89,
       "volume": 231,
       "tradeValue": 69556764.0,
@@ -616,7 +616,7 @@
     {
       "code": "2528",
       "name": "皇普",
-      "sector": "其他",
+      "sector": "建材營造",
       "change": 9.88,
       "volume": 2961,
       "tradeValue": 68263890.0,
@@ -701,7 +701,7 @@
     {
       "code": "6885",
       "name": "全福生技",
-      "sector": "其他",
+      "sector": "生技醫療",
       "change": 9.94,
       "volume": 1453,
       "tradeValue": 37544246.0,
@@ -735,7 +735,7 @@
     {
       "code": "2025",
       "name": "千興",
-      "sector": "其他",
+      "sector": "鋼鐵",
       "change": 9.84,
       "volume": 2025,
       "tradeValue": 26464016.0,
@@ -803,7 +803,7 @@
     {
       "code": "1906",
       "name": "寶隆",
-      "sector": "其他",
+      "sector": "造紙",
       "change": 9.61,
       "volume": 1001,
       "tradeValue": 12571556.0,
@@ -837,7 +837,7 @@
     {
       "code": "4190",
       "name": "佐登-KY",
-      "sector": "其他",
+      "sector": "生技醫療",
       "change": 9.88,
       "volume": 299,
       "tradeValue": 7901828.0,
@@ -854,7 +854,7 @@
     {
       "code": "911608",
       "name": "明輝-DR",
-      "sector": "其他",
+      "sector": "存託憑證",
       "change": 9.01,
       "volume": 1705,
       "tradeValue": 5948375.0,
@@ -871,7 +871,7 @@
     {
       "code": "6645",
       "name": "金萬林-創",
-      "sector": "其他",
+      "sector": "生技醫療",
       "change": 9.75,
       "volume": 217,
       "tradeValue": 2779167.0,
@@ -922,7 +922,7 @@
     {
       "code": "3018",
       "name": "隆銘綠能",
-      "sector": "其他",
+      "sector": "其他電子",
       "change": 9.81,
       "volume": 140,
       "tradeValue": 1639001.0,

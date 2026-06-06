@@ -1,4 +1,55 @@
 {
-  "date": "2026-06-05",
-  "data": []
+  "date": "2026-06-06",
+  "data": [
+    {
+      "name": "電子零組件",
+      "count": 7,
+      "momentum": "strong"
+    },
+    {
+      "name": "生技醫療",
+      "count": 4,
+      "momentum": "normal"
+    },
+    {
+      "name": "其他電子",
+      "count": 3,
+      "momentum": "normal"
+    },
+    {
+      "name": "數位雲端",
+      "count": 2,
+      "momentum": "weak"
+    },
+    {
+      "name": "玻璃陶瓷",
+      "count": 1,
+      "momentum": "weak"
+    },
+    {
+      "name": "汽車",
+      "count": 1,
+      "momentum": "weak"
+    },
+    {
+      "name": "建材營造",
+      "count": 1,
+      "momentum": "weak"
+    },
+    {
+      "name": "鋼鐵",
+      "count": 1,
+      "momentum": "weak"
+    },
+    {
+      "name": "造紙",
+      "count": 1,
+      "momentum": "weak"
+    },
+    {
+      "name": "存託憑證",
+      "count": 1,
+      "momentum": "weak"
+    }
+  ]
 }
