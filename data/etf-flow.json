@@ -1,4 +1,36 @@
 {
-  "date": "2026-06-06",
-  "data": []
+  "date": "2026-06-07",
+  "data": [
+    {
+      "etfCode": "00929",
+      "etfName": "復華台灣科技優息",
+      "category": "高股息",
+      "navPerUnit": 0.0,
+      "totalUnits": 4598639000,
+      "changes": [
+        {
+          "code": "3034",
+          "name": "聯詠",
+          "action": "new",
+          "prevShares": 0,
+          "currShares": 7907000,
+          "diffShares": 7907000,
+          "closePrice": 492.0,
+          "diffValue": 3890244000,
+          "weight": 5.26
+        },
+        {
+          "code": "3260",
+          "name": "3260",
+          "action": "remove",
+          "prevShares": 8758000,
+          "currShares": 0,
+          "diffShares": -8758000,
+          "closePrice": 0.0,
+          "diffValue": 0,
+          "weight": 0.0
+        }
+      ]
+    }
+  ]
 }
