@@ -1,5 +1,5 @@
 {
-  "date": "2026-06-07",
+  "date": "2026-06-08",
   "data": [
     {
       "code": "3675",
@@ -244,16 +244,6 @@
     {
       "code": "8042",
       "name": "金山電",
-      "count": 13,
-      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
-      "period": "115/05/28~115/06/10",
-      "endDate": "2026-06-10",
-      "announceDate": "115/05/27",
-      "market": "上櫃"
-    },
-    {
-      "code": "8291",
-      "name": "尚茂",
       "count": 13,
       "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
       "period": "115/05/28~115/06/10",
@@ -769,6 +759,46 @@
       "period": "115/06/08~115/06/22",
       "endDate": "2026-06-22",
       "announceDate": "115/06/05",
+      "market": "上櫃"
+    },
+    {
+      "code": "6890",
+      "name": "來億-KY",
+      "count": 1,
+      "condition": "連續三次",
+      "period": "115/06/09～115/06/23",
+      "endDate": "2026-06-23",
+      "announceDate": "115/06/08",
+      "market": "上市"
+    },
+    {
+      "code": "3114",
+      "name": "好德",
+      "count": 6,
+      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
+      "period": "115/06/09~115/06/23",
+      "endDate": "2026-06-23",
+      "announceDate": "115/06/08",
+      "market": "上櫃"
+    },
+    {
+      "code": "5426",
+      "name": "振發",
+      "count": 6,
+      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
+      "period": "115/06/09~115/06/23",
+      "endDate": "2026-06-23",
+      "announceDate": "115/06/08",
+      "market": "上櫃"
+    },
+    {
+      "code": "8291",
+      "name": "尚茂",
+      "count": 6,
+      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
+      "period": "115/06/09~115/06/23",
+      "endDate": "2026-06-23",
+      "announceDate": "115/06/08",
       "market": "上櫃"
     }
   ]

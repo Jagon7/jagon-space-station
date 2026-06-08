@@ -1,5 +1,5 @@
 {
-  "date": "2026-06-07",
+  "date": "2026-06-08",
   "data": [
     {
       "code": "2344",
@@ -611,6 +611,32 @@
       "effectiveDate": "2026-06-22",
       "withdrawDate": null,
       "underwriter": "中國信託證券"
+    },
+    {
+      "code": "3028",
+      "name": "增你強",
+      "market": "上市",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 5.0,
+      "currency": "台幣",
+      "filingDate": "2026-06-05",
+      "effectiveDate": "2026-06-24",
+      "withdrawDate": null,
+      "underwriter": "富邦證券"
+    },
+    {
+      "code": "3028",
+      "name": "增你強",
+      "market": "上市",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 20.0,
+      "currency": "台幣",
+      "filingDate": "2026-06-05",
+      "effectiveDate": "2026-06-24",
+      "withdrawDate": null,
+      "underwriter": "富邦證券"
     }
   ]
 }
