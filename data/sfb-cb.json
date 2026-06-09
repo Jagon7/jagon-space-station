@@ -1,5 +1,5 @@
 {
-  "date": "2026-06-08",
+  "date": "2026-06-09",
   "data": [
     {
       "code": "2344",
@@ -486,7 +486,7 @@
       "code": "6187",
       "name": "萬潤科技",
       "market": "上櫃",
-      "status": "審查中",
+      "status": "生效",
       "cbType": "轉換公司債(無擔保)",
       "amount": 30.0,
       "currency": "台幣",
@@ -637,6 +637,19 @@
       "effectiveDate": "2026-06-24",
       "withdrawDate": null,
       "underwriter": "富邦證券"
+    },
+    {
+      "code": "2530",
+      "name": "大華建設",
+      "market": "上市",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 9.0,
+      "currency": "台幣",
+      "filingDate": "2026-06-08",
+      "effectiveDate": "2026-06-25",
+      "withdrawDate": null,
+      "underwriter": "台新證券"
     }
   ]
 }
