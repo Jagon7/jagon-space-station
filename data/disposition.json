@@ -1,36 +1,6 @@
 {
-  "date": "2026-06-09",
+  "date": "2026-06-10",
   "data": [
-    {
-      "code": "3491",
-      "name": "昇達科",
-      "count": 7,
-      "condition": "最近30個營業日內有12個營業日",
-      "period": "115/05/26~115/06/08",
-      "endDate": "2026-06-08",
-      "announceDate": "115/05/25",
-      "market": "上櫃"
-    },
-    {
-      "code": "2455",
-      "name": "全新",
-      "count": 1,
-      "condition": "連續五次",
-      "period": "115/05/27～115/06/09",
-      "endDate": "2026-06-09",
-      "announceDate": "115/05/26",
-      "market": "上市"
-    },
-    {
-      "code": "3090",
-      "name": "日電貿",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/05/27～115/06/09",
-      "endDate": "2026-06-09",
-      "announceDate": "115/05/26",
-      "market": "上市"
-    },
     {
       "code": "4127",
       "name": "天良",
@@ -424,7 +394,7 @@
     {
       "code": "2492",
       "name": "華新科",
-      "count": 3,
+      "count": 2,
       "condition": "連續三次",
       "period": "115/06/04～115/06/17",
       "endDate": "2026-06-17",
@@ -622,26 +592,6 @@
       "market": "上市"
     },
     {
-      "code": "3147",
-      "name": "大綜",
-      "count": 8,
-      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
-      "period": "115/06/08~115/06/22",
-      "endDate": "2026-06-22",
-      "announceDate": "115/06/05",
-      "market": "上櫃"
-    },
-    {
-      "code": "3581",
-      "name": "博磊",
-      "count": 8,
-      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
-      "period": "115/06/08~115/06/22",
-      "endDate": "2026-06-22",
-      "announceDate": "115/06/05",
-      "market": "上櫃"
-    },
-    {
       "code": "5701",
       "name": "劍湖山",
       "count": 8,
@@ -700,6 +650,26 @@
       "endDate": "2026-06-24",
       "announceDate": "115/06/09",
       "market": "上市"
+    },
+    {
+      "code": "3147",
+      "name": "大綜",
+      "count": 3,
+      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
+      "period": "115/06/11~115/06/25",
+      "endDate": "2026-06-25",
+      "announceDate": "115/06/10",
+      "market": "上櫃"
+    },
+    {
+      "code": "3581",
+      "name": "博磊",
+      "count": 3,
+      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
+      "period": "115/06/11~115/06/25",
+      "endDate": "2026-06-25",
+      "announceDate": "115/06/10",
+      "market": "上櫃"
     }
   ]
 }

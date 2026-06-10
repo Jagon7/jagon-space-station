@@ -1,5 +1,5 @@
 {
-  "date": "2026-06-09",
+  "date": "2026-06-10",
   "data": [
     {
       "code": "2344",
@@ -650,6 +650,19 @@
       "effectiveDate": "2026-06-25",
       "withdrawDate": null,
       "underwriter": "台新證券"
+    },
+    {
+      "code": "1623",
+      "name": "大東電業",
+      "market": "上市",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 20.0,
+      "currency": "台幣",
+      "filingDate": "2026-06-09",
+      "effectiveDate": "2026-06-26",
+      "withdrawDate": null,
+      "underwriter": "國泰證券"
     }
   ]
 }
