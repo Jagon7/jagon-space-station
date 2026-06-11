@@ -1,18 +1,48 @@
 {
-  "date": "2026-06-10",
+  "date": "2026-06-11",
   "data": [
     {
-      "name": "建材營造",
-      "count": 8,
+      "name": "電子零組件",
+      "count": 6,
       "momentum": "strong"
     },
     {
-      "name": "電子零組件",
-      "count": 3,
+      "name": "半導體",
+      "count": 4,
       "momentum": "normal"
     },
     {
-      "name": "其他電子",
+      "name": "光電",
+      "count": 1,
+      "momentum": "weak"
+    },
+    {
+      "name": "化工",
+      "count": 1,
+      "momentum": "weak"
+    },
+    {
+      "name": "電子通路",
+      "count": 1,
+      "momentum": "weak"
+    },
+    {
+      "name": "汽車",
+      "count": 1,
+      "momentum": "weak"
+    },
+    {
+      "name": "電腦週邊",
+      "count": 1,
+      "momentum": "weak"
+    },
+    {
+      "name": "貿易百貨",
+      "count": 1,
+      "momentum": "weak"
+    },
+    {
+      "name": "建材營造",
       "count": 1,
       "momentum": "weak"
     },
