@@ -1,5 +1,5 @@
 {
-  "date": "2026-06-11",
+  "date": "2026-06-12",
   "data": [
     {
       "code": "2344",
@@ -499,7 +499,7 @@
       "code": "6584",
       "name": "南俊國際",
       "market": "上櫃",
-      "status": "審查中",
+      "status": "生效",
       "cbType": "轉換公司債(無擔保)",
       "amount": 8.0,
       "currency": "台幣",
@@ -512,7 +512,7 @@
       "code": "8222",
       "name": "寶一科技",
       "market": "上市",
-      "status": "審查中",
+      "status": "生效",
       "cbType": "轉換公司債(有擔保)",
       "amount": 4.0,
       "currency": "台幣",
@@ -663,6 +663,32 @@
       "effectiveDate": "2026-06-26",
       "withdrawDate": null,
       "underwriter": "國泰證券"
+    },
+    {
+      "code": "3583",
+      "name": "辛耘企業",
+      "market": "上市",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 5.0,
+      "currency": "台幣",
+      "filingDate": "2026-06-11",
+      "effectiveDate": "2026-06-30",
+      "withdrawDate": null,
+      "underwriter": "元大證券"
+    },
+    {
+      "code": "3583",
+      "name": "辛耘企業",
+      "market": "上市",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 15.0,
+      "currency": "台幣",
+      "filingDate": "2026-06-11",
+      "effectiveDate": "2026-06-30",
+      "withdrawDate": null,
+      "underwriter": "元大證券"
     }
   ]
 }
