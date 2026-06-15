@@ -1,5 +1,5 @@
 {
-  "date": "2026-06-14",
+  "date": "2026-06-15",
   "data": [
     {
       "code": "2344",
@@ -525,7 +525,7 @@
       "code": "6693",
       "name": "廣閎科技",
       "market": "上櫃",
-      "status": "審查中",
+      "status": "生效",
       "cbType": "轉換公司債(無擔保)",
       "amount": 5.0,
       "currency": "台幣",
@@ -538,7 +538,7 @@
       "code": "8096",
       "name": "擎亞電子",
       "market": "上櫃",
-      "status": "審查中",
+      "status": "生效",
       "cbType": "轉換公司債(無擔保)",
       "amount": 8.0,
       "currency": "台幣",
@@ -551,7 +551,7 @@
       "code": "8096",
       "name": "擎亞電子",
       "market": "上櫃",
-      "status": "審查中",
+      "status": "生效",
       "cbType": "轉換公司債(無擔保)",
       "amount": 5.0,
       "currency": "台幣",
@@ -564,7 +564,7 @@
       "code": "9958",
       "name": "世紀鋼鐵",
       "market": "上市",
-      "status": "審查中",
+      "status": "生效",
       "cbType": "轉換公司債(無擔保)",
       "amount": 15.0,
       "currency": "台幣",
@@ -689,6 +689,32 @@
       "effectiveDate": "2026-06-30",
       "withdrawDate": null,
       "underwriter": "元大證券"
+    },
+    {
+      "code": "3597",
+      "name": "映興電子",
+      "market": "上櫃",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 2.0,
+      "currency": "台幣",
+      "filingDate": "2026-06-12",
+      "effectiveDate": "2026-07-01",
+      "withdrawDate": null,
+      "underwriter": "德信證券"
+    },
+    {
+      "code": "6869",
+      "name": "雲豹能源",
+      "market": "上市",
+      "status": "審查中",
+      "cbType": "轉換公司債(有擔保)",
+      "amount": 18.0,
+      "currency": "台幣",
+      "filingDate": "2026-06-12",
+      "effectiveDate": "2026-07-01",
+      "withdrawDate": null,
+      "underwriter": "凱基證券"
     }
   ]
 }
