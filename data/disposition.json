@@ -1,5 +1,5 @@
 {
-  "date": "2026-06-15",
+  "date": "2026-06-16",
   "data": [
     {
       "code": "2061",
@@ -402,16 +402,6 @@
       "market": "上櫃"
     },
     {
-      "code": "8291",
-      "name": "尚茂",
-      "count": 9,
-      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
-      "period": "115/06/12~115/06/26",
-      "endDate": "2026-06-26",
-      "announceDate": "115/06/11",
-      "market": "上櫃"
-    },
-    {
       "code": "6830",
       "name": "汎銓",
       "count": 1,
@@ -480,6 +470,66 @@
       "endDate": "2026-06-30",
       "announceDate": "115/06/15",
       "market": "上市"
+    },
+    {
+      "code": "2243",
+      "name": "宏旭-KY",
+      "count": 1,
+      "condition": "連續五次",
+      "period": "115/06/17～115/07/01",
+      "endDate": "2026-07-01",
+      "announceDate": "115/06/16",
+      "market": "上市"
+    },
+    {
+      "code": "3167",
+      "name": "大量",
+      "count": 1,
+      "condition": "連續五次",
+      "period": "115/06/17～115/07/01",
+      "endDate": "2026-07-01",
+      "announceDate": "115/06/16",
+      "market": "上市"
+    },
+    {
+      "code": "6173",
+      "name": "信昌電",
+      "count": 5,
+      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
+      "period": "115/06/17~115/07/01",
+      "endDate": "2026-07-01",
+      "announceDate": "115/06/16",
+      "market": "上櫃"
+    },
+    {
+      "code": "6187",
+      "name": "萬潤",
+      "count": 5,
+      "condition": "最近10個營業日內有6個營業日",
+      "period": "115/06/17~115/07/01",
+      "endDate": "2026-07-01",
+      "announceDate": "115/06/16",
+      "market": "上櫃"
+    },
+    {
+      "code": "6241",
+      "name": "鑫永洋",
+      "count": 5,
+      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
+      "period": "115/06/17~115/07/01",
+      "endDate": "2026-07-01",
+      "announceDate": "115/06/16",
+      "market": "上櫃"
+    },
+    {
+      "code": "8291",
+      "name": "尚茂",
+      "count": 5,
+      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
+      "period": "115/06/17~115/07/01",
+      "endDate": "2026-07-01",
+      "announceDate": "115/06/16",
+      "market": "上櫃"
     }
   ]
 }
