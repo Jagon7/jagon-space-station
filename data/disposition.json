@@ -1,5 +1,5 @@
 {
-  "date": "2026-06-21",
+  "date": "2026-06-22",
   "data": [
     {
       "code": "3288",
@@ -242,16 +242,6 @@
       "market": "上市"
     },
     {
-      "code": "2243",
-      "name": "宏旭-KY",
-      "count": 1,
-      "condition": "連續五次",
-      "period": "115/06/17～115/07/01",
-      "endDate": "2026-07-01",
-      "announceDate": "115/06/16",
-      "market": "上市"
-    },
-    {
       "code": "3167",
       "name": "大量",
       "count": 1,
@@ -482,6 +472,26 @@
       "market": "上櫃"
     },
     {
+      "code": "2243",
+      "name": "宏旭-KY",
+      "count": 2,
+      "condition": "連續三次",
+      "period": "115/06/23～115/07/06",
+      "endDate": "2026-07-06",
+      "announceDate": "115/06/22",
+      "market": "上市"
+    },
+    {
+      "code": "4551",
+      "name": "智伸科",
+      "count": 1,
+      "condition": "連續三次",
+      "period": "115/06/23～115/07/06",
+      "endDate": "2026-07-06",
+      "announceDate": "115/06/22",
+      "market": "上市"
+    },
+    {
       "code": "3441",
       "name": "聯一光",
       "count": 7,
@@ -490,6 +500,16 @@
       "endDate": "2026-07-07",
       "announceDate": "115/06/18",
       "market": "上櫃"
+    },
+    {
+      "code": "3090",
+      "name": "日電貿",
+      "count": 1,
+      "condition": "連續三次及當日沖銷標準",
+      "period": "115/06/23～115/07/08",
+      "endDate": "2026-07-08",
+      "announceDate": "115/06/22",
+      "market": "上市"
     }
   ]
 }

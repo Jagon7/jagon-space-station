@@ -1,5 +1,5 @@
 {
-  "date": "2026-06-21",
+  "date": "2026-06-22",
   "data": [
     {
       "code": "2344",
@@ -603,7 +603,7 @@
       "code": "6134",
       "name": "萬旭電業",
       "market": "上櫃",
-      "status": "審查中",
+      "status": "生效",
       "cbType": "轉換公司債(有擔保)",
       "amount": 3.0,
       "currency": "台幣",
@@ -715,6 +715,19 @@
       "effectiveDate": "2026-07-01",
       "withdrawDate": null,
       "underwriter": "凱基證券"
+    },
+    {
+      "code": "2451",
+      "name": "創見資訊",
+      "market": "上市",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 30.0,
+      "currency": "台幣",
+      "filingDate": "2026-06-18",
+      "effectiveDate": "2026-07-07",
+      "withdrawDate": null,
+      "underwriter": "元大證券"
     }
   ]
 }
