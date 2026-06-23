@@ -1,96 +1,6 @@
 {
-  "date": "2026-06-22",
+  "date": "2026-06-23",
   "data": [
-    {
-      "code": "3288",
-      "name": "點晶",
-      "count": 4,
-      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
-      "period": "115/06/05~115/06/18",
-      "endDate": "2026-06-18",
-      "announceDate": "115/06/04",
-      "market": "上櫃"
-    },
-    {
-      "code": "3523",
-      "name": "迎輝",
-      "count": 4,
-      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
-      "period": "115/06/05~115/06/18",
-      "endDate": "2026-06-18",
-      "announceDate": "115/06/04",
-      "market": "上櫃"
-    },
-    {
-      "code": "4707",
-      "name": "磐亞",
-      "count": 4,
-      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
-      "period": "115/06/05~115/06/18",
-      "endDate": "2026-06-18",
-      "announceDate": "115/06/04",
-      "market": "上櫃"
-    },
-    {
-      "code": "8358",
-      "name": "金居",
-      "count": 4,
-      "condition": "連續5個營業日",
-      "period": "115/06/05~115/06/18",
-      "endDate": "2026-06-18",
-      "announceDate": "115/06/04",
-      "market": "上櫃"
-    },
-    {
-      "code": "1718",
-      "name": "中纖",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/06/08～115/06/22",
-      "endDate": "2026-06-22",
-      "announceDate": "115/06/05",
-      "market": "上市"
-    },
-    {
-      "code": "2491",
-      "name": "吉祥全",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/06/08～115/06/22",
-      "endDate": "2026-06-22",
-      "announceDate": "115/06/05",
-      "market": "上市"
-    },
-    {
-      "code": "3149",
-      "name": "正達",
-      "count": 1,
-      "condition": "連續五次",
-      "period": "115/06/08～115/06/22",
-      "endDate": "2026-06-22",
-      "announceDate": "115/06/05",
-      "market": "上市"
-    },
-    {
-      "code": "4807",
-      "name": "日成-KY",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/06/08～115/06/22",
-      "endDate": "2026-06-22",
-      "announceDate": "115/06/05",
-      "market": "上市"
-    },
-    {
-      "code": "6442",
-      "name": "光聖",
-      "count": 1,
-      "condition": "最近十個營業日已有六次",
-      "period": "115/06/08～115/06/22",
-      "endDate": "2026-06-22",
-      "announceDate": "115/06/05",
-      "market": "上市"
-    },
     {
       "code": "5701",
       "name": "劍湖山",
@@ -352,26 +262,6 @@
       "market": "上櫃"
     },
     {
-      "code": "5227",
-      "name": "立凱-KY",
-      "count": 11,
-      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
-      "period": "115/06/18~115/07/02",
-      "endDate": "2026-07-02",
-      "announceDate": "115/06/17",
-      "market": "上櫃"
-    },
-    {
-      "code": "5468",
-      "name": "凱鈺",
-      "count": 11,
-      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
-      "period": "115/06/18~115/07/02",
-      "endDate": "2026-07-02",
-      "announceDate": "115/06/17",
-      "market": "上櫃"
-    },
-    {
       "code": "6613",
       "name": "朋億*",
       "count": 11,
@@ -492,6 +382,146 @@
       "market": "上市"
     },
     {
+      "code": "1303",
+      "name": "南亞",
+      "count": 1,
+      "condition": "連續三次",
+      "period": "115/06/24～115/07/07",
+      "endDate": "2026-07-07",
+      "announceDate": "115/06/23",
+      "market": "上市"
+    },
+    {
+      "code": "2305",
+      "name": "全友",
+      "count": 1,
+      "condition": "連續三次",
+      "period": "115/06/24～115/07/07",
+      "endDate": "2026-07-07",
+      "announceDate": "115/06/23",
+      "market": "上市"
+    },
+    {
+      "code": "2342",
+      "name": "茂矽",
+      "count": 1,
+      "condition": "連續三次",
+      "period": "115/06/24～115/07/07",
+      "endDate": "2026-07-07",
+      "announceDate": "115/06/23",
+      "market": "上市"
+    },
+    {
+      "code": "2492",
+      "name": "華新科",
+      "count": 1,
+      "condition": "連續三次",
+      "period": "115/06/24～115/07/07",
+      "endDate": "2026-07-07",
+      "announceDate": "115/06/23",
+      "market": "上市"
+    },
+    {
+      "code": "4764",
+      "name": "雙鍵",
+      "count": 1,
+      "condition": "連續三次",
+      "period": "115/06/24～115/07/07",
+      "endDate": "2026-07-07",
+      "announceDate": "115/06/23",
+      "market": "上市"
+    },
+    {
+      "code": "6415",
+      "name": "矽力*-KY",
+      "count": 1,
+      "condition": "連續三次",
+      "period": "115/06/24～115/07/07",
+      "endDate": "2026-07-07",
+      "announceDate": "115/06/23",
+      "market": "上市"
+    },
+    {
+      "code": "7610",
+      "name": "聯友金屬-創",
+      "count": 1,
+      "condition": "連續三次",
+      "period": "115/06/24～115/07/07",
+      "endDate": "2026-07-07",
+      "announceDate": "115/06/23",
+      "market": "上市"
+    },
+    {
+      "code": "8996",
+      "name": "高力",
+      "count": 1,
+      "condition": "連續三次",
+      "period": "115/06/24～115/07/07",
+      "endDate": "2026-07-07",
+      "announceDate": "115/06/23",
+      "market": "上市"
+    },
+    {
+      "code": "2061",
+      "name": "風青",
+      "count": 11,
+      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
+      "period": "115/06/24~115/07/07",
+      "endDate": "2026-07-07",
+      "announceDate": "115/06/23",
+      "market": "上櫃"
+    },
+    {
+      "code": "4923",
+      "name": "力士",
+      "count": 11,
+      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
+      "period": "115/06/24~115/07/07",
+      "endDate": "2026-07-07",
+      "announceDate": "115/06/23",
+      "market": "上櫃"
+    },
+    {
+      "code": "5227",
+      "name": "立凱-KY",
+      "count": 11,
+      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
+      "period": "115/06/24~115/07/07",
+      "endDate": "2026-07-07",
+      "announceDate": "115/06/23",
+      "market": "上櫃"
+    },
+    {
+      "code": "5468",
+      "name": "凱鈺",
+      "count": 11,
+      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
+      "period": "115/06/24~115/07/07",
+      "endDate": "2026-07-07",
+      "announceDate": "115/06/23",
+      "market": "上櫃"
+    },
+    {
+      "code": "6693",
+      "name": "廣閎科",
+      "count": 11,
+      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
+      "period": "115/06/24~115/07/07",
+      "endDate": "2026-07-07",
+      "announceDate": "115/06/23",
+      "market": "上櫃"
+    },
+    {
+      "code": "8096",
+      "name": "擎亞",
+      "count": 11,
+      "condition": "最近10個營業日內有6個營業日",
+      "period": "115/06/24~115/07/07",
+      "endDate": "2026-07-07",
+      "announceDate": "115/06/23",
+      "market": "上櫃"
+    },
+    {
       "code": "3441",
       "name": "聯一光",
       "count": 7,
@@ -510,6 +540,16 @@
       "endDate": "2026-07-08",
       "announceDate": "115/06/22",
       "market": "上市"
+    },
+    {
+      "code": "3624",
+      "name": "光頡",
+      "count": 11,
+      "condition": "連續5個營業日及沖銷標準",
+      "period": "115/06/24~115/07/09",
+      "endDate": "2026-07-09",
+      "announceDate": "115/06/23",
+      "market": "上櫃"
     }
   ]
 }
