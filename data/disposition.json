@@ -1,16 +1,6 @@
 {
-  "date": "2026-06-23",
+  "date": "2026-06-24",
   "data": [
-    {
-      "code": "5701",
-      "name": "劍湖山",
-      "count": 8,
-      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
-      "period": "115/06/08~115/06/22",
-      "endDate": "2026-06-22",
-      "announceDate": "115/06/05",
-      "market": "上櫃"
-    },
     {
       "code": "3114",
       "name": "好德",
@@ -64,7 +54,7 @@
     {
       "code": "6890",
       "name": "來億-KY",
-      "count": 2,
+      "count": 1,
       "condition": "連續三次",
       "period": "115/06/12～115/06/26",
       "endDate": "2026-06-26",
@@ -532,6 +522,16 @@
       "market": "上櫃"
     },
     {
+      "code": "2316",
+      "name": "楠梓電",
+      "count": 1,
+      "condition": "連續三次",
+      "period": "115/06/25～115/07/08",
+      "endDate": "2026-07-08",
+      "announceDate": "115/06/24",
+      "market": "上市"
+    },
+    {
       "code": "3090",
       "name": "日電貿",
       "count": 1,
@@ -540,6 +540,36 @@
       "endDate": "2026-07-08",
       "announceDate": "115/06/22",
       "market": "上市"
+    },
+    {
+      "code": "6715",
+      "name": "嘉基",
+      "count": 1,
+      "condition": "連續三次",
+      "period": "115/06/25～115/07/08",
+      "endDate": "2026-07-08",
+      "announceDate": "115/06/24",
+      "market": "上市"
+    },
+    {
+      "code": "3675",
+      "name": "德微",
+      "count": 3,
+      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
+      "period": "115/06/25~115/07/08",
+      "endDate": "2026-07-08",
+      "announceDate": "115/06/24",
+      "market": "上櫃"
+    },
+    {
+      "code": "7712",
+      "name": "博盛半導體",
+      "count": 3,
+      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
+      "period": "115/06/25~115/07/08",
+      "endDate": "2026-07-08",
+      "announceDate": "115/06/24",
+      "market": "上櫃"
     },
     {
       "code": "3624",
