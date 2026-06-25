@@ -1,5 +1,5 @@
 {
-  "date": "2026-06-24",
+  "date": "2026-06-25",
   "data": [
     {
       "code": "2344",
@@ -460,7 +460,7 @@
       "code": "8054",
       "name": "安國國際科技",
       "market": "上櫃",
-      "status": "審查中",
+      "status": "生效",
       "cbType": "轉換公司債(有擔保)",
       "amount": 4.0,
       "currency": "台幣",
@@ -642,7 +642,7 @@
       "code": "2530",
       "name": "大華建設",
       "market": "上市",
-      "status": "審查中",
+      "status": "生效",
       "cbType": "轉換公司債(無擔保)",
       "amount": 9.0,
       "currency": "台幣",
@@ -819,6 +819,19 @@
       "effectiveDate": "2026-07-09",
       "withdrawDate": null,
       "underwriter": "台新證券"
+    },
+    {
+      "code": "8916",
+      "name": "光隆實業",
+      "market": "上櫃",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 2.0,
+      "currency": "台幣",
+      "filingDate": "2026-06-24",
+      "effectiveDate": "2026-07-10",
+      "withdrawDate": null,
+      "underwriter": "永豐金證券"
     }
   ]
 }

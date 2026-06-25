@@ -1,36 +1,6 @@
 {
-  "date": "2026-06-24",
+  "date": "2026-06-25",
   "data": [
-    {
-      "code": "3114",
-      "name": "好德",
-      "count": 6,
-      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
-      "period": "115/06/09~115/06/23",
-      "endDate": "2026-06-23",
-      "announceDate": "115/06/08",
-      "market": "上櫃"
-    },
-    {
-      "code": "5426",
-      "name": "振發",
-      "count": 6,
-      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
-      "period": "115/06/09~115/06/23",
-      "endDate": "2026-06-23",
-      "announceDate": "115/06/08",
-      "market": "上櫃"
-    },
-    {
-      "code": "8454",
-      "name": "富邦媒",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/06/10～115/06/24",
-      "endDate": "2026-06-24",
-      "announceDate": "115/06/09",
-      "market": "上市"
-    },
     {
       "code": "3147",
       "name": "大綜",
@@ -50,16 +20,6 @@
       "endDate": "2026-06-25",
       "announceDate": "115/06/10",
       "market": "上櫃"
-    },
-    {
-      "code": "6890",
-      "name": "來億-KY",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/06/12～115/06/26",
-      "endDate": "2026-06-26",
-      "announceDate": "115/06/11",
-      "market": "上市"
     },
     {
       "code": "4542",
@@ -92,26 +52,6 @@
       "market": "上櫃"
     },
     {
-      "code": "6830",
-      "name": "汎銓",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/06/15～115/06/29",
-      "endDate": "2026-06-29",
-      "announceDate": "115/06/12",
-      "market": "上市"
-    },
-    {
-      "code": "6924",
-      "name": "榮惠-KY創",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/06/15～115/06/29",
-      "endDate": "2026-06-29",
-      "announceDate": "115/06/12",
-      "market": "上市"
-    },
-    {
       "code": "4402",
       "name": "郡都開發",
       "count": 4,
@@ -130,26 +70,6 @@
       "endDate": "2026-06-29",
       "announceDate": "115/06/12",
       "market": "上櫃"
-    },
-    {
-      "code": "8021",
-      "name": "尖點",
-      "count": 1,
-      "condition": "連續五次",
-      "period": "115/06/16～115/06/30",
-      "endDate": "2026-06-30",
-      "announceDate": "115/06/15",
-      "market": "上市"
-    },
-    {
-      "code": "3167",
-      "name": "大量",
-      "count": 1,
-      "condition": "連續五次",
-      "period": "115/06/17～115/07/01",
-      "endDate": "2026-07-01",
-      "announceDate": "115/06/16",
-      "market": "上市"
     },
     {
       "code": "6173",
@@ -190,36 +110,6 @@
       "endDate": "2026-07-01",
       "announceDate": "115/06/16",
       "market": "上櫃"
-    },
-    {
-      "code": "2383",
-      "name": "台光電",
-      "count": 1,
-      "condition": "最近十個營業日已有六次",
-      "period": "115/06/18～115/07/02",
-      "endDate": "2026-07-02",
-      "announceDate": "115/06/17",
-      "market": "上市"
-    },
-    {
-      "code": "2493",
-      "name": "揚博",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/06/18～115/07/02",
-      "endDate": "2026-07-02",
-      "announceDate": "115/06/17",
-      "market": "上市"
-    },
-    {
-      "code": "3026",
-      "name": "禾伸堂",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/06/18～115/07/02",
-      "endDate": "2026-07-02",
-      "announceDate": "115/06/17",
-      "market": "上市"
     },
     {
       "code": "3285",
@@ -292,46 +182,6 @@
       "market": "上櫃"
     },
     {
-      "code": "1714",
-      "name": "和桐",
-      "count": 2,
-      "condition": "連續三次",
-      "period": "115/06/22～115/07/03",
-      "endDate": "2026-07-03",
-      "announceDate": "115/06/18",
-      "market": "上市"
-    },
-    {
-      "code": "2455",
-      "name": "全新",
-      "count": 1,
-      "condition": "連續五次",
-      "period": "115/06/22～115/07/03",
-      "endDate": "2026-07-03",
-      "announceDate": "115/06/18",
-      "market": "上市"
-    },
-    {
-      "code": "2478",
-      "name": "大毅",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/06/22～115/07/03",
-      "endDate": "2026-07-03",
-      "announceDate": "115/06/18",
-      "market": "上市"
-    },
-    {
-      "code": "3532",
-      "name": "台勝科",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/06/22～115/07/03",
-      "endDate": "2026-07-03",
-      "announceDate": "115/06/18",
-      "market": "上市"
-    },
-    {
       "code": "3163",
       "name": "波若威",
       "count": 7,
@@ -350,106 +200,6 @@
       "endDate": "2026-07-03",
       "announceDate": "115/06/18",
       "market": "上櫃"
-    },
-    {
-      "code": "2243",
-      "name": "宏旭-KY",
-      "count": 2,
-      "condition": "連續三次",
-      "period": "115/06/23～115/07/06",
-      "endDate": "2026-07-06",
-      "announceDate": "115/06/22",
-      "market": "上市"
-    },
-    {
-      "code": "4551",
-      "name": "智伸科",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/06/23～115/07/06",
-      "endDate": "2026-07-06",
-      "announceDate": "115/06/22",
-      "market": "上市"
-    },
-    {
-      "code": "1303",
-      "name": "南亞",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/06/24～115/07/07",
-      "endDate": "2026-07-07",
-      "announceDate": "115/06/23",
-      "market": "上市"
-    },
-    {
-      "code": "2305",
-      "name": "全友",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/06/24～115/07/07",
-      "endDate": "2026-07-07",
-      "announceDate": "115/06/23",
-      "market": "上市"
-    },
-    {
-      "code": "2342",
-      "name": "茂矽",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/06/24～115/07/07",
-      "endDate": "2026-07-07",
-      "announceDate": "115/06/23",
-      "market": "上市"
-    },
-    {
-      "code": "2492",
-      "name": "華新科",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/06/24～115/07/07",
-      "endDate": "2026-07-07",
-      "announceDate": "115/06/23",
-      "market": "上市"
-    },
-    {
-      "code": "4764",
-      "name": "雙鍵",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/06/24～115/07/07",
-      "endDate": "2026-07-07",
-      "announceDate": "115/06/23",
-      "market": "上市"
-    },
-    {
-      "code": "6415",
-      "name": "矽力*-KY",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/06/24～115/07/07",
-      "endDate": "2026-07-07",
-      "announceDate": "115/06/23",
-      "market": "上市"
-    },
-    {
-      "code": "7610",
-      "name": "聯友金屬-創",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/06/24～115/07/07",
-      "endDate": "2026-07-07",
-      "announceDate": "115/06/23",
-      "market": "上市"
-    },
-    {
-      "code": "8996",
-      "name": "高力",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/06/24～115/07/07",
-      "endDate": "2026-07-07",
-      "announceDate": "115/06/23",
-      "market": "上市"
     },
     {
       "code": "2061",
@@ -522,36 +272,6 @@
       "market": "上櫃"
     },
     {
-      "code": "2316",
-      "name": "楠梓電",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/06/25～115/07/08",
-      "endDate": "2026-07-08",
-      "announceDate": "115/06/24",
-      "market": "上市"
-    },
-    {
-      "code": "3090",
-      "name": "日電貿",
-      "count": 1,
-      "condition": "連續三次及當日沖銷標準",
-      "period": "115/06/23～115/07/08",
-      "endDate": "2026-07-08",
-      "announceDate": "115/06/22",
-      "market": "上市"
-    },
-    {
-      "code": "6715",
-      "name": "嘉基",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/06/25～115/07/08",
-      "endDate": "2026-07-08",
-      "announceDate": "115/06/24",
-      "market": "上市"
-    },
-    {
       "code": "3675",
       "name": "德微",
       "count": 3,
@@ -569,6 +289,36 @@
       "period": "115/06/25~115/07/08",
       "endDate": "2026-07-08",
       "announceDate": "115/06/24",
+      "market": "上櫃"
+    },
+    {
+      "code": "5425",
+      "name": "台半",
+      "count": 3,
+      "condition": "連續5個營業日",
+      "period": "115/06/26~115/07/09",
+      "endDate": "2026-07-09",
+      "announceDate": "115/06/25",
+      "market": "上櫃"
+    },
+    {
+      "code": "5489",
+      "name": "彩富",
+      "count": 3,
+      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
+      "period": "115/06/26~115/07/09",
+      "endDate": "2026-07-09",
+      "announceDate": "115/06/25",
+      "market": "上櫃"
+    },
+    {
+      "code": "6620",
+      "name": "漢達",
+      "count": 3,
+      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
+      "period": "115/06/26~115/07/09",
+      "endDate": "2026-07-09",
+      "announceDate": "115/06/25",
       "market": "上櫃"
     },
     {
