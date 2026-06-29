@@ -1,4 +1,699 @@
 {
-  "date": "2026-06-28",
-  "data": []
+  "date": "2026-06-29",
+  "data": [
+    {
+      "etfCode": "00919",
+      "etfName": "群益台灣精選高息",
+      "category": "高股息",
+      "navPerUnit": 29.43,
+      "totalUnits": 18038635000,
+      "changes": [
+        {
+          "code": "2881",
+          "name": "富邦金",
+          "action": "buy",
+          "prevShares": 583940000,
+          "currShares": 584180000,
+          "diffShares": 240000,
+          "closePrice": 134.0,
+          "diffValue": 32160000,
+          "weight": 15.17
+        },
+        {
+          "code": "4915",
+          "name": "致伸",
+          "action": "buy",
+          "prevShares": 28906000,
+          "currShares": 29006000,
+          "diffShares": 100000,
+          "closePrice": 73.5,
+          "diffValue": 7350000,
+          "weight": 0.41
+        },
+        {
+          "code": "8454",
+          "name": "富邦媒",
+          "action": "buy",
+          "prevShares": 12008000,
+          "currShares": 12038000,
+          "diffShares": 30000,
+          "closePrice": 325.5,
+          "diffValue": 9765000,
+          "weight": 0.76
+        }
+      ]
+    },
+    {
+      "etfCode": "0056",
+      "etfName": "元大高股息",
+      "category": "高股息",
+      "navPerUnit": 0.0,
+      "totalUnits": 0,
+      "changes": [
+        {
+          "code": "1102",
+          "name": "亞泥",
+          "action": "new",
+          "prevShares": 0,
+          "currShares": 144265162,
+          "diffShares": 144265162,
+          "closePrice": 35.75,
+          "diffValue": 5157479541,
+          "weight": 0.92
+        },
+        {
+          "code": "1216",
+          "name": "統一",
+          "action": "buy",
+          "prevShares": 241564393,
+          "currShares": 243499973,
+          "diffShares": 1935580,
+          "closePrice": 74.6,
+          "diffValue": 144394268,
+          "weight": 3.23
+        },
+        {
+          "code": "1303",
+          "name": "南亞",
+          "action": "buy",
+          "prevShares": 79228530,
+          "currShares": 86812408,
+          "diffShares": 7583878,
+          "closePrice": 148.0,
+          "diffValue": 1122413944,
+          "weight": 2.28
+        },
+        {
+          "code": "1513",
+          "name": "中興電",
+          "action": "buy",
+          "prevShares": 21373136,
+          "currShares": 22156880,
+          "diffShares": 783744,
+          "closePrice": 175.5,
+          "diffValue": 137547072,
+          "weight": 0.69
+        },
+        {
+          "code": "2027",
+          "name": "大成鋼",
+          "action": "buy",
+          "prevShares": 98867983,
+          "currShares": 101470519,
+          "diffShares": 2602536,
+          "closePrice": 39.9,
+          "diffValue": 103841186,
+          "weight": 0.72
+        },
+        {
+          "code": "2105",
+          "name": "正新",
+          "action": "buy",
+          "prevShares": 146254050,
+          "currShares": 146446320,
+          "diffShares": 192270,
+          "closePrice": 29.4,
+          "diffValue": 5652738,
+          "weight": 0.76
+        },
+        {
+          "code": "2301",
+          "name": "光寶科",
+          "action": "sell",
+          "prevShares": 74046679,
+          "currShares": 73831017,
+          "diffShares": -215662,
+          "closePrice": 201.5,
+          "diffValue": -43455893,
+          "weight": 2.64
+        },
+        {
+          "code": "2303",
+          "name": "聯電",
+          "action": "sell",
+          "prevShares": 198063507,
+          "currShares": 179111735,
+          "diffShares": -18951772,
+          "closePrice": 164.0,
+          "diffValue": -3108090608,
+          "weight": 5.22
+        },
+        {
+          "code": "2324",
+          "name": "仁寶",
+          "action": "buy",
+          "prevShares": 192614355,
+          "currShares": 194514823,
+          "diffShares": 1900468,
+          "closePrice": 34.8,
+          "diffValue": 66136286,
+          "weight": 1.2
+        },
+        {
+          "code": "2344",
+          "name": "華邦電",
+          "action": "buy",
+          "prevShares": 152621623,
+          "currShares": 160566393,
+          "diffShares": 7944770,
+          "closePrice": 206.5,
+          "diffValue": 1640595005,
+          "weight": 5.89
+        },
+        {
+          "code": "2347",
+          "name": "聯強",
+          "action": "buy",
+          "prevShares": 79440816,
+          "currShares": 79544958,
+          "diffShares": 104142,
+          "closePrice": 92.8,
+          "diffValue": 9664377,
+          "weight": 1.31
+        },
+        {
+          "code": "2353",
+          "name": "宏碁",
+          "action": "buy",
+          "prevShares": 129099175,
+          "currShares": 131123505,
+          "diffShares": 2024330,
+          "closePrice": 31.9,
+          "diffValue": 64576127,
+          "weight": 0.74
+        },
+        {
+          "code": "2356",
+          "name": "英業達",
+          "action": "new",
+          "prevShares": 0,
+          "currShares": 159691047,
+          "diffShares": 159691047,
+          "closePrice": 63.3,
+          "diffValue": 10108443275,
+          "weight": 1.8
+        },
+        {
+          "code": "2357",
+          "name": "華碩",
+          "action": "buy",
+          "prevShares": 33632590,
+          "currShares": 33675906,
+          "diffShares": 43316,
+          "closePrice": 701.0,
+          "diffValue": 30364516,
+          "weight": 4.19
+        },
+        {
+          "code": "2376",
+          "name": "技嘉",
+          "action": "buy",
+          "prevShares": 30973673,
+          "currShares": 31040385,
+          "diffShares": 66712,
+          "closePrice": 319.5,
+          "diffValue": 21314484,
+          "weight": 1.76
+        },
+        {
+          "code": "2377",
+          "name": "微星",
+          "action": "remove",
+          "prevShares": 37789200,
+          "currShares": 0,
+          "diffShares": -37789200,
+          "closePrice": 131.5,
+          "diffValue": -4969279800,
+          "weight": 0.0
+        },
+        {
+          "code": "2379",
+          "name": "瑞昱",
+          "action": "buy",
+          "prevShares": 24845914,
+          "currShares": 24878078,
+          "diffShares": 32164,
+          "closePrice": 740.0,
+          "diffValue": 23801360,
+          "weight": 3.27
+        },
+        {
+          "code": "2382",
+          "name": "廣達",
+          "action": "buy",
+          "prevShares": 83831241,
+          "currShares": 84282817,
+          "diffShares": 451576,
+          "closePrice": 362.0,
+          "diffValue": 163470512,
+          "weight": 5.42
+        },
+        {
+          "code": "2385",
+          "name": "群光",
+          "action": "new",
+          "prevShares": 0,
+          "currShares": 33125967,
+          "diffShares": 33125967,
+          "closePrice": 102.0,
+          "diffValue": 3378848634,
+          "weight": 0.6
+        },
+        {
+          "code": "2408",
+          "name": "南亞科",
+          "action": "buy",
+          "prevShares": 59190581,
+          "currShares": 62504831,
+          "diffShares": 3314250,
+          "closePrice": 449.0,
+          "diffValue": 1488098250,
+          "weight": 4.98
+        },
+        {
+          "code": "2449",
+          "name": "京元電子",
+          "action": "new",
+          "prevShares": 0,
+          "currShares": 32289708,
+          "diffShares": 32289708,
+          "closePrice": 308.0,
+          "diffValue": 9945230064,
+          "weight": 1.77
+        },
+        {
+          "code": "2454",
+          "name": "聯發科",
+          "action": "sell",
+          "prevShares": 4124184,
+          "currShares": 3769590,
+          "diffShares": -354594,
+          "closePrice": 3880.0,
+          "diffValue": -1375824720,
+          "weight": 2.6
+        },
+        {
+          "code": "2474",
+          "name": "可成",
+          "action": "new",
+          "prevShares": 0,
+          "currShares": 25719778,
+          "diffShares": 25719778,
+          "closePrice": 200.0,
+          "diffValue": 5143955600,
+          "weight": 0.91
+        },
+        {
+          "code": "2603",
+          "name": "長榮",
+          "action": "new",
+          "prevShares": 0,
+          "currShares": 90904744,
+          "diffShares": 90904744,
+          "closePrice": 181.0,
+          "diffValue": 16453758664,
+          "weight": 2.92
+        },
+        {
+          "code": "2618",
+          "name": "長榮航",
+          "action": "buy",
+          "prevShares": 242194076,
+          "currShares": 244134458,
+          "diffShares": 1940382,
+          "closePrice": 43.8,
+          "diffValue": 84988731,
+          "weight": 1.9
+        },
+        {
+          "code": "2645",
+          "name": "長榮航太",
+          "action": "buy",
+          "prevShares": 13323059,
+          "currShares": 13340535,
+          "diffShares": 17476,
+          "closePrice": 170.5,
+          "diffValue": 2979658,
+          "weight": 0.4
+        },
+        {
+          "code": "2880",
+          "name": "華南金",
+          "action": "buy",
+          "prevShares": 661244753,
+          "currShares": 667070845,
+          "diffShares": 5826092,
+          "closePrice": 36.9,
+          "diffValue": 214982794,
+          "weight": 4.37
+        },
+        {
+          "code": "2883",
+          "name": "凱基金",
+          "action": "new",
+          "prevShares": 0,
+          "currShares": 578623734,
+          "diffShares": 578623734,
+          "closePrice": 29.9,
+          "diffValue": 17300849646,
+          "weight": 3.07
+        },
+        {
+          "code": "2885",
+          "name": "元大金",
+          "action": "sell",
+          "prevShares": 295362489,
+          "currShares": 286741249,
+          "diffShares": -8621240,
+          "closePrice": 66.3,
+          "diffValue": -571588212,
+          "weight": 3.38
+        },
+        {
+          "code": "2886",
+          "name": "兆豐金",
+          "action": "remove",
+          "prevShares": 521442107,
+          "currShares": 0,
+          "diffShares": -521442107,
+          "closePrice": 46.15,
+          "diffValue": -24064553238,
+          "weight": 0.0
+        },
+        {
+          "code": "2887",
+          "name": "台新新光金",
+          "action": "buy",
+          "prevShares": 429409998,
+          "currShares": 432971746,
+          "diffShares": 3561748,
+          "closePrice": 31.9,
+          "diffValue": 113619761,
+          "weight": 2.45
+        },
+        {
+          "code": "2890",
+          "name": "永豐金",
+          "action": "buy",
+          "prevShares": 688258729,
+          "currShares": 693744619,
+          "diffShares": 5485890,
+          "closePrice": 39.15,
+          "diffValue": 214772593,
+          "weight": 4.82
+        },
+        {
+          "code": "2891",
+          "name": "中信金",
+          "action": "sell",
+          "prevShares": 439525276,
+          "currShares": 438840484,
+          "diffShares": -684792,
+          "closePrice": 70.3,
+          "diffValue": -48140877,
+          "weight": 5.48
+        },
+        {
+          "code": "3005",
+          "name": "神基",
+          "action": "buy",
+          "prevShares": 28778094,
+          "currShares": 28841956,
+          "diffShares": 63862,
+          "closePrice": 96.0,
+          "diffValue": 6130752,
+          "weight": 0.49
+        },
+        {
+          "code": "3023",
+          "name": "信邦",
+          "action": "new",
+          "prevShares": 0,
+          "currShares": 10917625,
+          "diffShares": 10917625,
+          "closePrice": 306.5,
+          "diffValue": 3346252062,
+          "weight": 0.59
+        },
+        {
+          "code": "3034",
+          "name": "聯詠",
+          "action": "remove",
+          "prevShares": 27725928,
+          "currShares": 0,
+          "diffShares": -27725928,
+          "closePrice": 509.0,
+          "diffValue": -14112497352,
+          "weight": 0.0
+        },
+        {
+          "code": "3036",
+          "name": "文曄",
+          "action": "buy",
+          "prevShares": 61097363,
+          "currShares": 61176379,
+          "diffShares": 79016,
+          "closePrice": 215.5,
+          "diffValue": 17027948,
+          "weight": 2.34
+        },
+        {
+          "code": "3044",
+          "name": "健鼎",
+          "action": "buy",
+          "prevShares": 24926329,
+          "currShares": 25003507,
+          "diffShares": 77178,
+          "closePrice": 508.0,
+          "diffValue": 39206424,
+          "weight": 2.26
+        },
+        {
+          "code": "3045",
+          "name": "3045",
+          "action": "remove",
+          "prevShares": 137709049,
+          "currShares": 0,
+          "diffShares": -137709049,
+          "closePrice": 0.0,
+          "diffValue": 0,
+          "weight": 0.0
+        },
+        {
+          "code": "3231",
+          "name": "3231",
+          "action": "remove",
+          "prevShares": 155789731,
+          "currShares": 0,
+          "diffShares": -155789731,
+          "closePrice": 0.0,
+          "diffValue": 0,
+          "weight": 0.0
+        },
+        {
+          "code": "3702",
+          "name": "大聯大",
+          "action": "buy",
+          "prevShares": 74245767,
+          "currShares": 74345353,
+          "diffShares": 99586,
+          "closePrice": 106.5,
+          "diffValue": 10605909,
+          "weight": 1.41
+        },
+        {
+          "code": "3711",
+          "name": "日月光投控",
+          "action": "new",
+          "prevShares": 0,
+          "currShares": 25302868,
+          "diffShares": 25302868,
+          "closePrice": 632.0,
+          "diffValue": 15991412576,
+          "weight": 2.84
+        },
+        {
+          "code": "4904",
+          "name": "遠傳",
+          "action": "new",
+          "prevShares": 0,
+          "currShares": 139793432,
+          "diffShares": 139793432,
+          "closePrice": 107.0,
+          "diffValue": 14957897224,
+          "weight": 2.66
+        },
+        {
+          "code": "4938",
+          "name": "和碩",
+          "action": "buy",
+          "prevShares": 116234025,
+          "currShares": 119118779,
+          "diffShares": 2884754,
+          "closePrice": 81.0,
+          "diffValue": 233665074,
+          "weight": 1.71
+        },
+        {
+          "code": "5876",
+          "name": "上海商銀",
+          "action": "sell",
+          "prevShares": 209192374,
+          "currShares": 209121030,
+          "diffShares": -71344,
+          "closePrice": 42.4,
+          "diffValue": -3024985,
+          "weight": 1.57
+        },
+        {
+          "code": "6239",
+          "name": "力成",
+          "action": "buy",
+          "prevShares": 35020433,
+          "currShares": 35100619,
+          "diffShares": 80186,
+          "closePrice": 314.0,
+          "diffValue": 25178404,
+          "weight": 1.96
+        },
+        {
+          "code": "6285",
+          "name": "6285",
+          "action": "remove",
+          "prevShares": 22565128,
+          "currShares": 0,
+          "diffShares": -22565128,
+          "closePrice": 0.0,
+          "diffValue": 0,
+          "weight": 0.0
+        },
+        {
+          "code": "9904",
+          "name": "寶成",
+          "action": "buy",
+          "prevShares": 106571873,
+          "currShares": 106719059,
+          "diffShares": 147186,
+          "closePrice": 25.3,
+          "diffValue": 3723805,
+          "weight": 0.48
+        }
+      ]
+    },
+    {
+      "etfCode": "00981A",
+      "etfName": "統一台股增長",
+      "category": "主動型",
+      "navPerUnit": 29.91,
+      "totalUnits": 9312709000,
+      "changes": [
+        {
+          "code": "6223",
+          "name": "6223",
+          "action": "buy",
+          "prevShares": 2352000,
+          "currShares": 2367000,
+          "diffShares": 15000,
+          "closePrice": 0.0,
+          "diffValue": 0,
+          "weight": 0.0
+        },
+        {
+          "code": "6510",
+          "name": "6510",
+          "action": "sell",
+          "prevShares": 930000,
+          "currShares": 830000,
+          "diffShares": -100000,
+          "closePrice": 0.0,
+          "diffValue": 0,
+          "weight": 0.0
+        }
+      ]
+    },
+    {
+      "etfCode": "00403A",
+      "etfName": "統一台股升級50",
+      "category": "主動型",
+      "navPerUnit": 10.59,
+      "totalUnits": 15744519000,
+      "changes": [
+        {
+          "code": "1560",
+          "name": "中砂",
+          "action": "buy",
+          "prevShares": 800000,
+          "currShares": 900000,
+          "diffShares": 100000,
+          "closePrice": 703.0,
+          "diffValue": 70300000,
+          "weight": 0.46
+        },
+        {
+          "code": "2368",
+          "name": "金像電",
+          "action": "sell",
+          "prevShares": 3700000,
+          "currShares": 2900000,
+          "diffShares": -800000,
+          "closePrice": 1190.0,
+          "diffValue": -952000000,
+          "weight": 2.5
+        },
+        {
+          "code": "3189",
+          "name": "景碩",
+          "action": "buy",
+          "prevShares": 2940000,
+          "currShares": 3200000,
+          "diffShares": 260000,
+          "closePrice": 797.0,
+          "diffValue": 207220000,
+          "weight": 1.85
+        },
+        {
+          "code": "3665",
+          "name": "貿聯-KY",
+          "action": "sell",
+          "prevShares": 250000,
+          "currShares": 166000,
+          "diffShares": -84000,
+          "closePrice": 1855.0,
+          "diffValue": -155820000,
+          "weight": 0.22
+        },
+        {
+          "code": "6442",
+          "name": "光聖",
+          "action": "sell",
+          "prevShares": 322000,
+          "currShares": 300000,
+          "diffShares": -22000,
+          "closePrice": 1680.0,
+          "diffValue": -36960000,
+          "weight": 0.37
+        }
+      ]
+    },
+    {
+      "etfCode": "00982A",
+      "etfName": "群益台灣強棒",
+      "category": "主動型",
+      "navPerUnit": 23.66,
+      "totalUnits": 2167436000,
+      "changes": [
+        {
+          "code": "5536",
+          "name": "5536",
+          "action": "sell",
+          "prevShares": 3735000,
+          "currShares": 3734000,
+          "diffShares": -1000,
+          "closePrice": 0.0,
+          "diffValue": 0,
+          "weight": 0.0
+        }
+      ]
+    }
+  ]
 }
