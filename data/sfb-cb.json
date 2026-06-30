@@ -1,5 +1,5 @@
 {
-  "date": "2026-06-29",
+  "date": "2026-06-30",
   "data": [
     {
       "code": "2344",
@@ -161,7 +161,7 @@
       "code": "3149",
       "name": "正達國際光電",
       "market": "上市",
-      "status": "審查中",
+      "status": "生效",
       "cbType": "轉換公司債(有擔保)",
       "amount": 6.5,
       "currency": "台幣",
@@ -668,7 +668,7 @@
       "code": "3583",
       "name": "辛耘企業",
       "market": "上市",
-      "status": "審查中",
+      "status": "生效",
       "cbType": "轉換公司債(無擔保)",
       "amount": 5.0,
       "currency": "台幣",
@@ -681,7 +681,7 @@
       "code": "3583",
       "name": "辛耘企業",
       "market": "上市",
-      "status": "審查中",
+      "status": "生效",
       "cbType": "轉換公司債(無擔保)",
       "amount": 15.0,
       "currency": "台幣",
