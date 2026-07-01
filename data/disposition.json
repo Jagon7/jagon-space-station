@@ -1,36 +1,6 @@
 {
-  "date": "2026-06-30",
+  "date": "2026-07-01",
   "data": [
-    {
-      "code": "4402",
-      "name": "郡都開發",
-      "count": 4,
-      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
-      "period": "115/06/15~115/06/29",
-      "endDate": "2026-06-29",
-      "announceDate": "115/06/12",
-      "market": "上櫃"
-    },
-    {
-      "code": "5345",
-      "name": "馥鴻",
-      "count": 4,
-      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
-      "period": "115/06/15~115/06/29",
-      "endDate": "2026-06-29",
-      "announceDate": "115/06/12",
-      "market": "上櫃"
-    },
-    {
-      "code": "8021",
-      "name": "尖點",
-      "count": 1,
-      "condition": "連續五次",
-      "period": "115/06/16～115/06/30",
-      "endDate": "2026-06-30",
-      "announceDate": "115/06/15",
-      "market": "上市"
-    },
     {
       "code": "3167",
       "name": "大量",
@@ -184,7 +154,7 @@
     {
       "code": "1714",
       "name": "和桐",
-      "count": 2,
+      "count": 1,
       "condition": "連續三次",
       "period": "115/06/22～115/07/03",
       "endDate": "2026-07-03",
@@ -640,6 +610,16 @@
       "endDate": "2026-07-14",
       "announceDate": "115/06/30",
       "market": "上櫃"
+    },
+    {
+      "code": "2303",
+      "name": "聯電",
+      "count": 1,
+      "condition": "最近十個營業日已有六次",
+      "period": "115/07/02～115/07/15",
+      "endDate": "2026-07-15",
+      "announceDate": "115/07/01",
+      "market": "上市"
     }
   ]
 }

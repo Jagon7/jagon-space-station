@@ -1,5 +1,5 @@
 {
-  "date": "2026-06-30",
+  "date": "2026-07-01",
   "data": [
     {
       "code": "2344",
@@ -694,7 +694,7 @@
       "code": "3597",
       "name": "映興電子",
       "market": "上櫃",
-      "status": "審查中",
+      "status": "生效",
       "cbType": "轉換公司債(無擔保)",
       "amount": 2.0,
       "currency": "台幣",
@@ -707,7 +707,7 @@
       "code": "6869",
       "name": "雲豹能源",
       "market": "上市",
-      "status": "審查中",
+      "status": "生效",
       "cbType": "轉換公司債(有擔保)",
       "amount": 18.0,
       "currency": "台幣",
@@ -832,6 +832,97 @@
       "effectiveDate": "2026-07-10",
       "withdrawDate": null,
       "underwriter": "永豐金證券"
+    },
+    {
+      "code": "2303",
+      "name": "聯電",
+      "market": "上市",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 120.0,
+      "currency": "台幣",
+      "filingDate": "2026-06-30",
+      "effectiveDate": "2026-07-16",
+      "withdrawDate": null,
+      "underwriter": "宏遠證券"
+    },
+    {
+      "code": "2303",
+      "name": "聯電",
+      "market": "上市",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 40.0,
+      "currency": "台幣",
+      "filingDate": "2026-06-30",
+      "effectiveDate": "2026-07-16",
+      "withdrawDate": null,
+      "underwriter": "宏遠證券"
+    },
+    {
+      "code": "3128",
+      "name": "昇銳",
+      "market": "上櫃",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 3.0,
+      "currency": "台幣",
+      "filingDate": "2026-06-30",
+      "effectiveDate": "2026-07-16",
+      "withdrawDate": null,
+      "underwriter": "群益金鼎證券"
+    },
+    {
+      "code": "5536",
+      "name": "聖暉工程*",
+      "market": "上櫃",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 15.0,
+      "currency": "台幣",
+      "filingDate": "2026-06-30",
+      "effectiveDate": "2026-07-16",
+      "withdrawDate": null,
+      "underwriter": "國票證券"
+    },
+    {
+      "code": "5536",
+      "name": "聖暉工程*",
+      "market": "上櫃",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 15.0,
+      "currency": "台幣",
+      "filingDate": "2026-06-30",
+      "effectiveDate": "2026-07-16",
+      "withdrawDate": null,
+      "underwriter": "國票證券"
+    },
+    {
+      "code": "8155",
+      "name": "博智電子",
+      "market": "上櫃",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 30.0,
+      "currency": "台幣",
+      "filingDate": "2026-06-30",
+      "effectiveDate": "2026-07-16",
+      "withdrawDate": null,
+      "underwriter": "凱基證券"
+    },
+    {
+      "code": "8155",
+      "name": "博智電子",
+      "market": "上櫃",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 20.0,
+      "currency": "台幣",
+      "filingDate": "2026-06-30",
+      "effectiveDate": "2026-07-16",
+      "withdrawDate": null,
+      "underwriter": "凱基證券"
     }
   ]
 }
