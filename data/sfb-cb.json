@@ -1,5 +1,5 @@
 {
-  "date": "2026-07-02",
+  "date": "2026-07-03",
   "data": [
     {
       "code": "2344",
@@ -923,6 +923,19 @@
       "effectiveDate": "2026-07-16",
       "withdrawDate": null,
       "underwriter": "凱基證券"
+    },
+    {
+      "code": "3512",
+      "name": "皇龍開發",
+      "market": "上櫃",
+      "status": "審查中",
+      "cbType": "轉換公司債(有擔保)",
+      "amount": 6.0,
+      "currency": "台幣",
+      "filingDate": "2026-07-01",
+      "effectiveDate": "2026-07-17",
+      "withdrawDate": null,
+      "underwriter": "台新證券"
     }
   ]
 }
