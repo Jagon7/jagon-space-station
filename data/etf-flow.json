@@ -1,4 +1,124 @@
 {
-  "date": "2026-07-04",
-  "data": []
+  "date": "2026-07-05",
+  "data": [
+    {
+      "etfCode": "00929",
+      "etfName": "復華台灣科技優息",
+      "category": "高股息",
+      "navPerUnit": 0.0,
+      "totalUnits": 4549139000,
+      "changes": [
+        {
+          "code": "2303",
+          "name": "聯電",
+          "action": "sell",
+          "prevShares": 59363000,
+          "currShares": 45176000,
+          "diffShares": -14187000,
+          "closePrice": 170.5,
+          "diffValue": -2418883500,
+          "weight": 21.85
+        },
+        {
+          "code": "2347",
+          "name": "聯強",
+          "action": "new",
+          "prevShares": 0,
+          "currShares": 35963000,
+          "diffShares": 35963000,
+          "closePrice": 94.8,
+          "diffValue": 3409292400,
+          "weight": 9.67
+        },
+        {
+          "code": "2357",
+          "name": "華碩",
+          "action": "sell",
+          "prevShares": 7474000,
+          "currShares": 6688000,
+          "diffShares": -786000,
+          "closePrice": 675.0,
+          "diffValue": -530550000,
+          "weight": 12.81
+        },
+        {
+          "code": "2404",
+          "name": "漢唐",
+          "action": "sell",
+          "prevShares": 3358000,
+          "currShares": 3106000,
+          "diffShares": -252000,
+          "closePrice": 1350.0,
+          "diffValue": -340200000,
+          "weight": 11.9
+        },
+        {
+          "code": "2454",
+          "name": "聯發科",
+          "action": "sell",
+          "prevShares": 1213000,
+          "currShares": 873000,
+          "diffShares": -340000,
+          "closePrice": 4195.0,
+          "diffValue": -1426300000,
+          "weight": 10.39
+        },
+        {
+          "code": "2474",
+          "name": "可成",
+          "action": "buy",
+          "prevShares": 15426000,
+          "currShares": 17665000,
+          "diffShares": 2239000,
+          "closePrice": 207.0,
+          "diffValue": 463473000,
+          "weight": 10.38
+        },
+        {
+          "code": "3008",
+          "name": "大立光",
+          "action": "sell",
+          "prevShares": 947000,
+          "currShares": 788000,
+          "diffShares": -159000,
+          "closePrice": 4230.0,
+          "diffValue": -672570000,
+          "weight": 9.46
+        },
+        {
+          "code": "3034",
+          "name": "聯詠",
+          "action": "buy",
+          "prevShares": 8686000,
+          "currShares": 8871000,
+          "diffShares": 185000,
+          "closePrice": 538.0,
+          "diffValue": 99530000,
+          "weight": 13.54
+        },
+        {
+          "code": "3260",
+          "name": "3260",
+          "action": "buy",
+          "prevShares": 8887000,
+          "currShares": 8953000,
+          "diffShares": 66000,
+          "closePrice": 0.0,
+          "diffValue": 0,
+          "weight": 0.0
+        },
+        {
+          "code": "5536",
+          "name": "5536",
+          "action": "remove",
+          "prevShares": 2164000,
+          "currShares": 0,
+          "diffShares": -2164000,
+          "closePrice": 0.0,
+          "diffValue": 0,
+          "weight": 0.0
+        }
+      ]
+    }
+  ]
 }
