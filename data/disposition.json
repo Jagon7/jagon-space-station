@@ -1,5 +1,5 @@
 {
-  "date": "2026-07-05",
+  "date": "2026-07-06",
   "data": [
     {
       "code": "3163",
@@ -520,6 +520,26 @@
       "endDate": "2026-07-17",
       "announceDate": "115/07/03",
       "market": "上櫃"
+    },
+    {
+      "code": "1515",
+      "name": "力山",
+      "count": 1,
+      "condition": "連續三次",
+      "period": "115/07/07～115/07/20",
+      "endDate": "2026-07-20",
+      "announceDate": "115/07/06",
+      "market": "上市"
+    },
+    {
+      "code": "1718",
+      "name": "中纖",
+      "count": 1,
+      "condition": "連續三次",
+      "period": "115/07/07～115/07/20",
+      "endDate": "2026-07-20",
+      "announceDate": "115/07/06",
+      "market": "上市"
     }
   ]
 }

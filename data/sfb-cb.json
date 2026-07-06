@@ -1,5 +1,5 @@
 {
-  "date": "2026-07-05",
+  "date": "2026-07-06",
   "data": [
     {
       "code": "2344",
@@ -934,6 +934,58 @@
       "currency": "台幣",
       "filingDate": "2026-07-01",
       "effectiveDate": "2026-07-17",
+      "withdrawDate": null,
+      "underwriter": "台新證券"
+    },
+    {
+      "code": "3081",
+      "name": "聯亞光電",
+      "market": "上櫃",
+      "status": "審查中",
+      "cbType": "轉換公司債(有擔保)",
+      "amount": 12.0,
+      "currency": "台幣",
+      "filingDate": "2026-07-03",
+      "effectiveDate": "2026-07-21",
+      "withdrawDate": null,
+      "underwriter": "元大證券"
+    },
+    {
+      "code": "3081",
+      "name": "聯亞光電",
+      "market": "上櫃",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 18.0,
+      "currency": "台幣",
+      "filingDate": "2026-07-03",
+      "effectiveDate": "2026-07-21",
+      "withdrawDate": null,
+      "underwriter": "元大證券"
+    },
+    {
+      "code": "8936",
+      "name": "國統國際",
+      "market": "上櫃",
+      "status": "審查中",
+      "cbType": "轉換公司債(有擔保)",
+      "amount": 6.0,
+      "currency": "台幣",
+      "filingDate": "2026-07-03",
+      "effectiveDate": "2026-07-21",
+      "withdrawDate": null,
+      "underwriter": "台新證券"
+    },
+    {
+      "code": "8936",
+      "name": "國統國際",
+      "market": "上櫃",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 6.0,
+      "currency": "台幣",
+      "filingDate": "2026-07-03",
+      "effectiveDate": "2026-07-21",
       "withdrawDate": null,
       "underwriter": "台新證券"
     }
