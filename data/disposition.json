@@ -1,46 +1,6 @@
 {
-  "date": "2026-07-06",
+  "date": "2026-07-07",
   "data": [
-    {
-      "code": "3163",
-      "name": "波若威",
-      "count": 7,
-      "condition": "最近10個營業日內有6個營業日",
-      "period": "115/06/22~115/07/03",
-      "endDate": "2026-07-03",
-      "announceDate": "115/06/18",
-      "market": "上櫃"
-    },
-    {
-      "code": "6488",
-      "name": "環球晶",
-      "count": 7,
-      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
-      "period": "115/06/22~115/07/03",
-      "endDate": "2026-07-03",
-      "announceDate": "115/06/18",
-      "market": "上櫃"
-    },
-    {
-      "code": "2243",
-      "name": "宏旭-KY",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/06/23～115/07/06",
-      "endDate": "2026-07-06",
-      "announceDate": "115/06/22",
-      "market": "上市"
-    },
-    {
-      "code": "4551",
-      "name": "智伸科",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/06/23～115/07/06",
-      "endDate": "2026-07-06",
-      "announceDate": "115/06/22",
-      "market": "上市"
-    },
     {
       "code": "1303",
       "name": "南亞",
@@ -184,7 +144,7 @@
     {
       "code": "3441",
       "name": "聯一光",
-      "count": 7,
+      "count": 1,
       "condition": "連續3個營業日及沖銷標準",
       "period": "115/06/22~115/07/07",
       "endDate": "2026-07-07",
@@ -540,6 +500,26 @@
       "endDate": "2026-07-20",
       "announceDate": "115/07/06",
       "market": "上市"
+    },
+    {
+      "code": "2466",
+      "name": "冠西電",
+      "count": 1,
+      "condition": "連續三次",
+      "period": "115/07/08～115/07/21",
+      "endDate": "2026-07-21",
+      "announceDate": "115/07/07",
+      "market": "上市"
+    },
+    {
+      "code": "6617",
+      "name": "共信-KY",
+      "count": 2,
+      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
+      "period": "115/07/08~115/07/21",
+      "endDate": "2026-07-21",
+      "announceDate": "115/07/07",
+      "market": "上櫃"
     }
   ]
 }

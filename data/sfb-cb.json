@@ -1,5 +1,5 @@
 {
-  "date": "2026-07-06",
+  "date": "2026-07-07",
   "data": [
     {
       "code": "2344",
@@ -720,7 +720,7 @@
       "code": "2451",
       "name": "創見資訊",
       "market": "上市",
-      "status": "審查中",
+      "status": "生效",
       "cbType": "轉換公司債(無擔保)",
       "amount": 30.0,
       "currency": "台幣",
@@ -988,6 +988,32 @@
       "effectiveDate": "2026-07-21",
       "withdrawDate": null,
       "underwriter": "台新證券"
+    },
+    {
+      "code": "3141",
+      "name": "晶宏半導體",
+      "market": "上櫃",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 5.0,
+      "currency": "台幣",
+      "filingDate": "2026-07-06",
+      "effectiveDate": "2026-07-22",
+      "withdrawDate": null,
+      "underwriter": "統一證券"
+    },
+    {
+      "code": "3141",
+      "name": "晶宏半導體",
+      "market": "上櫃",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 5.0,
+      "currency": "台幣",
+      "filingDate": "2026-07-06",
+      "effectiveDate": "2026-07-22",
+      "withdrawDate": null,
+      "underwriter": "統一證券"
     }
   ]
 }
