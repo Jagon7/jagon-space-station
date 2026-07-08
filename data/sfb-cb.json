@@ -1,5 +1,5 @@
 {
-  "date": "2026-07-07",
+  "date": "2026-07-08",
   "data": [
     {
       "code": "2344",
@@ -733,7 +733,7 @@
       "code": "2486",
       "name": "一詮精密",
       "market": "上市",
-      "status": "審查中",
+      "status": "生效",
       "cbType": "轉換公司債(無擔保)",
       "amount": 20.0,
       "currency": "台幣",
@@ -746,7 +746,7 @@
       "code": "4764",
       "name": "雙鍵化工",
       "market": "上市",
-      "status": "審查中",
+      "status": "生效",
       "cbType": "轉換公司債(有擔保)",
       "amount": 5.0,
       "currency": "台幣",
@@ -759,7 +759,7 @@
       "code": "6683",
       "name": "雍智科技",
       "market": "上櫃",
-      "status": "審查中",
+      "status": "生效",
       "cbType": "轉換公司債(無擔保)",
       "amount": 15.3,
       "currency": "台幣",
@@ -772,7 +772,7 @@
       "code": "6903",
       "name": "巨漢",
       "market": "上櫃",
-      "status": "審查中",
+      "status": "生效",
       "cbType": "轉換公司債(無擔保)",
       "amount": 5.0,
       "currency": "台幣",
@@ -785,7 +785,7 @@
       "code": "6903",
       "name": "巨漢",
       "market": "上櫃",
-      "status": "審查中",
+      "status": "生效",
       "cbType": "轉換公司債(無擔保)",
       "amount": 10.0,
       "currency": "台幣",
@@ -798,13 +798,13 @@
       "code": "5386",
       "name": "青雲國際科技",
       "market": "上櫃",
-      "status": "審查中",
+      "status": "自行撤回",
       "cbType": "轉換公司債(無擔保)",
       "amount": 6.5,
       "currency": "台幣",
       "filingDate": "2026-06-23",
-      "effectiveDate": "2026-07-09",
-      "withdrawDate": null,
+      "effectiveDate": null,
+      "withdrawDate": "2026-07-07",
       "underwriter": "中國信託證券"
     },
     {
@@ -1014,6 +1014,19 @@
       "effectiveDate": "2026-07-22",
       "withdrawDate": null,
       "underwriter": "統一證券"
+    },
+    {
+      "code": "7631",
+      "name": "聚賢研發-創",
+      "market": "上市",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 4.0,
+      "currency": "台幣",
+      "filingDate": "2026-07-07",
+      "effectiveDate": "2026-07-23",
+      "withdrawDate": null,
+      "underwriter": "宏遠證券"
     }
   ]
 }

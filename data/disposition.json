@@ -1,86 +1,6 @@
 {
-  "date": "2026-07-07",
+  "date": "2026-07-08",
   "data": [
-    {
-      "code": "1303",
-      "name": "南亞",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/06/24～115/07/07",
-      "endDate": "2026-07-07",
-      "announceDate": "115/06/23",
-      "market": "上市"
-    },
-    {
-      "code": "2305",
-      "name": "全友",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/06/24～115/07/07",
-      "endDate": "2026-07-07",
-      "announceDate": "115/06/23",
-      "market": "上市"
-    },
-    {
-      "code": "2342",
-      "name": "茂矽",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/06/24～115/07/07",
-      "endDate": "2026-07-07",
-      "announceDate": "115/06/23",
-      "market": "上市"
-    },
-    {
-      "code": "2492",
-      "name": "華新科",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/06/24～115/07/07",
-      "endDate": "2026-07-07",
-      "announceDate": "115/06/23",
-      "market": "上市"
-    },
-    {
-      "code": "4764",
-      "name": "雙鍵",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/06/24～115/07/07",
-      "endDate": "2026-07-07",
-      "announceDate": "115/06/23",
-      "market": "上市"
-    },
-    {
-      "code": "6415",
-      "name": "矽力*-KY",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/06/24～115/07/07",
-      "endDate": "2026-07-07",
-      "announceDate": "115/06/23",
-      "market": "上市"
-    },
-    {
-      "code": "7610",
-      "name": "聯友金屬-創",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/06/24～115/07/07",
-      "endDate": "2026-07-07",
-      "announceDate": "115/06/23",
-      "market": "上市"
-    },
-    {
-      "code": "8996",
-      "name": "高力",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/06/24～115/07/07",
-      "endDate": "2026-07-07",
-      "announceDate": "115/06/23",
-      "market": "上市"
-    },
     {
       "code": "2061",
       "name": "風青",
@@ -432,16 +352,6 @@
       "market": "上市"
     },
     {
-      "code": "3055",
-      "name": "蔚華科",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/07/06～115/07/17",
-      "endDate": "2026-07-17",
-      "announceDate": "115/07/03",
-      "market": "上市"
-    },
-    {
       "code": "7795",
       "name": "長廣",
       "count": 1,
@@ -520,6 +430,46 @@
       "endDate": "2026-07-21",
       "announceDate": "115/07/07",
       "market": "上櫃"
+    },
+    {
+      "code": "3055",
+      "name": "蔚華科",
+      "count": 2,
+      "condition": "連續三次",
+      "period": "115/07/09～115/07/22",
+      "endDate": "2026-07-22",
+      "announceDate": "115/07/08",
+      "market": "上市"
+    },
+    {
+      "code": "4707",
+      "name": "磐亞",
+      "count": 3,
+      "condition": "最近10個營業日內有6個營業日",
+      "period": "115/07/09~115/07/22",
+      "endDate": "2026-07-22",
+      "announceDate": "115/07/08",
+      "market": "上櫃"
+    },
+    {
+      "code": "6174",
+      "name": "安碁",
+      "count": 3,
+      "condition": "最近10個營業日內有6個營業日",
+      "period": "115/07/09~115/07/22",
+      "endDate": "2026-07-22",
+      "announceDate": "115/07/08",
+      "market": "上櫃"
+    },
+    {
+      "code": "8261",
+      "name": "富鼎",
+      "count": 1,
+      "condition": "連續三次及當日沖銷標準",
+      "period": "115/07/09～115/07/24",
+      "endDate": "2026-07-24",
+      "announceDate": "115/07/08",
+      "market": "上市"
     }
   ]
 }
