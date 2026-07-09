@@ -1,5 +1,5 @@
 {
-  "date": "2026-07-08",
+  "date": "2026-07-09",
   "data": [
     {
       "code": "2344",
@@ -811,7 +811,7 @@
       "code": "8438",
       "name": "昶昕實業",
       "market": "上市",
-      "status": "審查中",
+      "status": "生效",
       "cbType": "轉換公司債(無擔保)",
       "amount": 3.0,
       "currency": "台幣",
@@ -829,7 +829,7 @@
       "amount": 2.0,
       "currency": "台幣",
       "filingDate": "2026-06-24",
-      "effectiveDate": "2026-07-10",
+      "effectiveDate": null,
       "withdrawDate": null,
       "underwriter": "永豐金證券"
     },
@@ -1027,6 +1027,19 @@
       "effectiveDate": "2026-07-23",
       "withdrawDate": null,
       "underwriter": "宏遠證券"
+    },
+    {
+      "code": "3711",
+      "name": "日月光投控",
+      "market": "上市",
+      "status": "審查中",
+      "cbType": "轉換公司債(海外無擔保)",
+      "amount": 1000.0,
+      "currency": "美元",
+      "filingDate": "2026-07-08",
+      "effectiveDate": "2026-07-24",
+      "withdrawDate": null,
+      "underwriter": "凱基證券"
     }
   ]
 }
