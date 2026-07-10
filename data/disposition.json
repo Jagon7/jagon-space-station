@@ -1,56 +1,6 @@
 {
-  "date": "2026-07-09",
+  "date": "2026-07-10",
   "data": [
-    {
-      "code": "3675",
-      "name": "德微",
-      "count": 3,
-      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
-      "period": "115/06/25~115/07/08",
-      "endDate": "2026-07-08",
-      "announceDate": "115/06/24",
-      "market": "上櫃"
-    },
-    {
-      "code": "7712",
-      "name": "博盛半導體",
-      "count": 3,
-      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
-      "period": "115/06/25~115/07/08",
-      "endDate": "2026-07-08",
-      "announceDate": "115/06/24",
-      "market": "上櫃"
-    },
-    {
-      "code": "2481",
-      "name": "強茂",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/06/26～115/07/09",
-      "endDate": "2026-07-09",
-      "announceDate": "115/06/25",
-      "market": "上市"
-    },
-    {
-      "code": "6141",
-      "name": "柏承",
-      "count": 1,
-      "condition": "最近十個營業日已有六次",
-      "period": "115/06/26～115/07/09",
-      "endDate": "2026-07-09",
-      "announceDate": "115/06/25",
-      "market": "上市"
-    },
-    {
-      "code": "6834",
-      "name": "天二科技",
-      "count": 1,
-      "condition": "連續五次",
-      "period": "115/06/26～115/07/09",
-      "endDate": "2026-07-09",
-      "announceDate": "115/06/25",
-      "market": "上市"
-    },
     {
       "code": "5425",
       "name": "台半",
