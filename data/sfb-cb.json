@@ -1,5 +1,5 @@
 {
-  "date": "2026-07-12",
+  "date": "2026-07-13",
   "data": [
     {
       "code": "2344",
@@ -842,7 +842,7 @@
       "amount": 120.0,
       "currency": "台幣",
       "filingDate": "2026-06-30",
-      "effectiveDate": "2026-07-16",
+      "effectiveDate": "2026-07-17",
       "withdrawDate": null,
       "underwriter": "宏遠證券"
     },
@@ -855,7 +855,7 @@
       "amount": 40.0,
       "currency": "台幣",
       "filingDate": "2026-06-30",
-      "effectiveDate": "2026-07-16",
+      "effectiveDate": "2026-07-17",
       "withdrawDate": null,
       "underwriter": "宏遠證券"
     },
@@ -868,7 +868,7 @@
       "amount": 3.0,
       "currency": "台幣",
       "filingDate": "2026-06-30",
-      "effectiveDate": "2026-07-16",
+      "effectiveDate": "2026-07-17",
       "withdrawDate": null,
       "underwriter": "群益金鼎證券"
     },
@@ -881,7 +881,7 @@
       "amount": 15.0,
       "currency": "台幣",
       "filingDate": "2026-06-30",
-      "effectiveDate": "2026-07-16",
+      "effectiveDate": "2026-07-17",
       "withdrawDate": null,
       "underwriter": "國票證券"
     },
@@ -894,7 +894,7 @@
       "amount": 15.0,
       "currency": "台幣",
       "filingDate": "2026-06-30",
-      "effectiveDate": "2026-07-16",
+      "effectiveDate": "2026-07-17",
       "withdrawDate": null,
       "underwriter": "國票證券"
     },
@@ -907,7 +907,7 @@
       "amount": 30.0,
       "currency": "台幣",
       "filingDate": "2026-06-30",
-      "effectiveDate": "2026-07-16",
+      "effectiveDate": "2026-07-17",
       "withdrawDate": null,
       "underwriter": "凱基證券"
     },
@@ -920,7 +920,7 @@
       "amount": 20.0,
       "currency": "台幣",
       "filingDate": "2026-06-30",
-      "effectiveDate": "2026-07-16",
+      "effectiveDate": "2026-07-17",
       "withdrawDate": null,
       "underwriter": "凱基證券"
     },
@@ -933,7 +933,7 @@
       "amount": 6.0,
       "currency": "台幣",
       "filingDate": "2026-07-01",
-      "effectiveDate": "2026-07-17",
+      "effectiveDate": "2026-07-20",
       "withdrawDate": null,
       "underwriter": "台新證券"
     },
@@ -946,7 +946,7 @@
       "amount": 12.0,
       "currency": "台幣",
       "filingDate": "2026-07-03",
-      "effectiveDate": "2026-07-21",
+      "effectiveDate": "2026-07-22",
       "withdrawDate": null,
       "underwriter": "元大證券"
     },
@@ -959,7 +959,7 @@
       "amount": 18.0,
       "currency": "台幣",
       "filingDate": "2026-07-03",
-      "effectiveDate": "2026-07-21",
+      "effectiveDate": "2026-07-22",
       "withdrawDate": null,
       "underwriter": "元大證券"
     },
@@ -972,7 +972,7 @@
       "amount": 6.0,
       "currency": "台幣",
       "filingDate": "2026-07-03",
-      "effectiveDate": "2026-07-21",
+      "effectiveDate": "2026-07-22",
       "withdrawDate": null,
       "underwriter": "台新證券"
     },
@@ -985,7 +985,7 @@
       "amount": 6.0,
       "currency": "台幣",
       "filingDate": "2026-07-03",
-      "effectiveDate": "2026-07-21",
+      "effectiveDate": "2026-07-22",
       "withdrawDate": null,
       "underwriter": "台新證券"
     },
@@ -998,7 +998,7 @@
       "amount": 5.0,
       "currency": "台幣",
       "filingDate": "2026-07-06",
-      "effectiveDate": "2026-07-22",
+      "effectiveDate": "2026-07-23",
       "withdrawDate": null,
       "underwriter": "統一證券"
     },
@@ -1011,7 +1011,7 @@
       "amount": 5.0,
       "currency": "台幣",
       "filingDate": "2026-07-06",
-      "effectiveDate": "2026-07-22",
+      "effectiveDate": "2026-07-23",
       "withdrawDate": null,
       "underwriter": "統一證券"
     },
@@ -1024,7 +1024,7 @@
       "amount": 4.0,
       "currency": "台幣",
       "filingDate": "2026-07-07",
-      "effectiveDate": "2026-07-23",
+      "effectiveDate": "2026-07-24",
       "withdrawDate": null,
       "underwriter": "宏遠證券"
     },
@@ -1037,7 +1037,7 @@
       "amount": 1000.0,
       "currency": "美元",
       "filingDate": "2026-07-08",
-      "effectiveDate": "2026-07-24",
+      "effectiveDate": "2026-07-27",
       "withdrawDate": null,
       "underwriter": "凱基證券"
     }
