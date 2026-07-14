@@ -1,5 +1,5 @@
 {
-  "date": "2026-07-13",
+  "date": "2026-07-14",
   "data": [
     {
       "code": "2344",
@@ -1040,6 +1040,19 @@
       "effectiveDate": "2026-07-27",
       "withdrawDate": null,
       "underwriter": "凱基證券"
+    },
+    {
+      "code": "4967",
+      "name": "十銓科技",
+      "market": "上市",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 30.0,
+      "currency": "台幣",
+      "filingDate": "2026-07-13",
+      "effectiveDate": "2026-07-29",
+      "withdrawDate": null,
+      "underwriter": "永豐金證券"
     }
   ]
 }
