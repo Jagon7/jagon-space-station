@@ -1,16 +1,6 @@
 {
-  "date": "2026-07-15",
+  "date": "2026-07-16",
   "data": [
-    {
-      "code": "2303",
-      "name": "聯電",
-      "count": 1,
-      "condition": "最近十個營業日已有六次",
-      "period": "115/07/02～115/07/15",
-      "endDate": "2026-07-15",
-      "announceDate": "115/07/01",
-      "market": "上市"
-    },
     {
       "code": "1435",
       "name": "中福",
@@ -289,6 +279,36 @@
       "period": "115/07/16~115/07/29",
       "endDate": "2026-07-29",
       "announceDate": "115/07/15",
+      "market": "上櫃"
+    },
+    {
+      "code": "6173",
+      "name": "信昌電",
+      "count": 3,
+      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
+      "period": "115/07/17~115/07/30",
+      "endDate": "2026-07-30",
+      "announceDate": "115/07/16",
+      "market": "上櫃"
+    },
+    {
+      "code": "6907",
+      "name": "雅特力-KY",
+      "count": 3,
+      "condition": "最近10個營業日內有6個營業日",
+      "period": "115/07/17~115/07/30",
+      "endDate": "2026-07-30",
+      "announceDate": "115/07/16",
+      "market": "上櫃"
+    },
+    {
+      "code": "7714",
+      "name": "創泓科技",
+      "count": 3,
+      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
+      "period": "115/07/17~115/07/30",
+      "endDate": "2026-07-30",
+      "announceDate": "115/07/16",
       "market": "上櫃"
     }
   ]
