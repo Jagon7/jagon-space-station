@@ -1,56 +1,6 @@
 {
-  "date": "2026-07-16",
+  "date": "2026-07-17",
   "data": [
-    {
-      "code": "1435",
-      "name": "中福",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/07/03～115/07/16",
-      "endDate": "2026-07-16",
-      "announceDate": "115/07/02",
-      "market": "上市"
-    },
-    {
-      "code": "3189",
-      "name": "景碩",
-      "count": 1,
-      "condition": "最近十個營業日已有六次",
-      "period": "115/07/03～115/07/16",
-      "endDate": "2026-07-16",
-      "announceDate": "115/07/02",
-      "market": "上市"
-    },
-    {
-      "code": "6226",
-      "name": "光鼎",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/07/03～115/07/16",
-      "endDate": "2026-07-16",
-      "announceDate": "115/07/02",
-      "market": "上市"
-    },
-    {
-      "code": "8021",
-      "name": "尖點",
-      "count": 1,
-      "condition": "最近十個營業日已有六次",
-      "period": "115/07/03～115/07/16",
-      "endDate": "2026-07-16",
-      "announceDate": "115/07/02",
-      "market": "上市"
-    },
-    {
-      "code": "8033",
-      "name": "雷虎",
-      "count": 1,
-      "condition": "最近十個營業日已有六次",
-      "period": "115/07/03～115/07/16",
-      "endDate": "2026-07-16",
-      "announceDate": "115/07/02",
-      "market": "上市"
-    },
     {
       "code": "1447",
       "name": "力鵬",
@@ -212,16 +162,6 @@
       "market": "上櫃"
     },
     {
-      "code": "2434",
-      "name": "統懋",
-      "count": 1,
-      "condition": "最近十個營業日已有六次",
-      "period": "115/07/15～115/07/28",
-      "endDate": "2026-07-28",
-      "announceDate": "115/07/14",
-      "market": "上市"
-    },
-    {
       "code": "6831",
       "name": "邁科",
       "count": 1,
@@ -309,6 +249,36 @@
       "period": "115/07/17~115/07/30",
       "endDate": "2026-07-30",
       "announceDate": "115/07/16",
+      "market": "上櫃"
+    },
+    {
+      "code": "2434",
+      "name": "統懋",
+      "count": 2,
+      "condition": "連續三次",
+      "period": "115/07/20～115/07/31",
+      "endDate": "2026-07-31",
+      "announceDate": "*115/07/17",
+      "market": "上市"
+    },
+    {
+      "code": "3090",
+      "name": "日電貿",
+      "count": 1,
+      "condition": "連續三次",
+      "period": "115/07/20～115/07/31",
+      "endDate": "2026-07-31",
+      "announceDate": "*115/07/17",
+      "market": "上市"
+    },
+    {
+      "code": "8383",
+      "name": "千附",
+      "count": 1,
+      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
+      "period": "115/07/20~115/07/31",
+      "endDate": "2026-07-31",
+      "announceDate": "115/07/17",
       "market": "上櫃"
     }
   ]
