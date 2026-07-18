@@ -1,36 +1,6 @@
 {
-  "date": "2026-07-17",
+  "date": "2026-07-18",
   "data": [
-    {
-      "code": "1447",
-      "name": "力鵬",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/07/06～115/07/17",
-      "endDate": "2026-07-17",
-      "announceDate": "115/07/03",
-      "market": "上市"
-    },
-    {
-      "code": "1617",
-      "name": "榮星",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/07/06～115/07/17",
-      "endDate": "2026-07-17",
-      "announceDate": "115/07/03",
-      "market": "上市"
-    },
-    {
-      "code": "7795",
-      "name": "長廣",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/07/06～115/07/17",
-      "endDate": "2026-07-17",
-      "announceDate": "115/07/03",
-      "market": "上市"
-    },
     {
       "code": "3147",
       "name": "大綜",
@@ -104,7 +74,7 @@
     {
       "code": "3055",
       "name": "蔚華科",
-      "count": 2,
+      "count": 1,
       "condition": "連續三次",
       "period": "115/07/09～115/07/22",
       "endDate": "2026-07-22",
@@ -258,7 +228,7 @@
       "condition": "連續三次",
       "period": "115/07/20～115/07/31",
       "endDate": "2026-07-31",
-      "announceDate": "*115/07/17",
+      "announceDate": "115/07/17",
       "market": "上市"
     },
     {
@@ -268,7 +238,7 @@
       "condition": "連續三次",
       "period": "115/07/20～115/07/31",
       "endDate": "2026-07-31",
-      "announceDate": "*115/07/17",
+      "announceDate": "115/07/17",
       "market": "上市"
     },
     {
