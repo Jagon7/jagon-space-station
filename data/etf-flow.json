@@ -1,4 +1,113 @@
 {
-  "date": "2026-07-18",
-  "data": []
+  "date": "2026-07-19",
+  "data": [
+    {
+      "etfCode": "00929",
+      "etfName": "復華台灣科技優息",
+      "category": "高股息",
+      "navPerUnit": 0.0,
+      "totalUnits": 4659139000,
+      "changes": [
+        {
+          "code": "2347",
+          "name": "聯強",
+          "action": "buy",
+          "prevShares": 43790000,
+          "currShares": 44375000,
+          "diffShares": 585000,
+          "closePrice": 85.3,
+          "diffValue": 49900500,
+          "weight": 11.07
+        },
+        {
+          "code": "2357",
+          "name": "華碩",
+          "action": "buy",
+          "prevShares": 5382000,
+          "currShares": 5482000,
+          "diffShares": 100000,
+          "closePrice": 700.0,
+          "diffValue": 70000000,
+          "weight": 11.22
+        },
+        {
+          "code": "2382",
+          "name": "廣達",
+          "action": "buy",
+          "prevShares": 10846000,
+          "currShares": 11037000,
+          "diffShares": 191000,
+          "closePrice": 325.5,
+          "diffValue": 62170500,
+          "weight": 10.51
+        },
+        {
+          "code": "3034",
+          "name": "聯詠",
+          "action": "buy",
+          "prevShares": 9622000,
+          "currShares": 9734000,
+          "diffShares": 112000,
+          "closePrice": 460.5,
+          "diffValue": 51576000,
+          "weight": 13.11
+        },
+        {
+          "code": "3045",
+          "name": "台灣大",
+          "action": "new",
+          "prevShares": 0,
+          "currShares": 32516000,
+          "diffShares": 32516000,
+          "closePrice": 111.0,
+          "diffValue": 3609276000,
+          "weight": 10.56
+        },
+        {
+          "code": "3260",
+          "name": "3260",
+          "action": "buy",
+          "prevShares": 9501000,
+          "currShares": 9544000,
+          "diffShares": 43000,
+          "closePrice": 0.0,
+          "diffValue": 0,
+          "weight": 0.0
+        },
+        {
+          "code": "5434",
+          "name": "崇越",
+          "action": "buy",
+          "prevShares": 6446000,
+          "currShares": 6485000,
+          "diffShares": 39000,
+          "closePrice": 562.0,
+          "diffValue": 21918000,
+          "weight": 10.66
+        },
+        {
+          "code": "5483",
+          "name": "5483",
+          "action": "remove",
+          "prevShares": 14524000,
+          "currShares": 0,
+          "diffShares": -14524000,
+          "closePrice": 0.0,
+          "diffValue": 0,
+          "weight": 0.0
+        },
+        {
+          "code": "6409",
+          "name": "旭隼",
+          "action": "buy",
+          "prevShares": 3590000,
+          "currShares": 3692000,
+          "diffShares": 102000,
+          "closePrice": 967.0,
+          "diffValue": 98634000,
+          "weight": 10.44
+        }
+      ]
+    }
+  ]
 }
