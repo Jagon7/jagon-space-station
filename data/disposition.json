@@ -1,5 +1,5 @@
 {
-  "date": "2026-07-19",
+  "date": "2026-07-20",
   "data": [
     {
       "code": "3147",
@@ -162,16 +162,6 @@
       "market": "上櫃"
     },
     {
-      "code": "2492",
-      "name": "華新科",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/07/16～115/07/29",
-      "endDate": "2026-07-29",
-      "announceDate": "115/07/15",
-      "market": "上市"
-    },
-    {
       "code": "8096",
       "name": "擎亞",
       "count": 4,
@@ -249,6 +239,26 @@
       "period": "115/07/20~115/07/31",
       "endDate": "2026-07-31",
       "announceDate": "115/07/17",
+      "market": "上櫃"
+    },
+    {
+      "code": "2492",
+      "name": "華新科",
+      "count": 2,
+      "condition": "連續三次",
+      "period": "115/07/21～115/08/03",
+      "endDate": "2026-08-03",
+      "announceDate": "*115/07/20",
+      "market": "上市"
+    },
+    {
+      "code": "4139",
+      "name": "馬光-KY",
+      "count": 1,
+      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
+      "period": "115/07/21~115/08/03",
+      "endDate": "2026-08-03",
+      "announceDate": "115/07/20",
       "market": "上櫃"
     }
   ]

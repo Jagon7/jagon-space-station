@@ -1,5 +1,5 @@
 {
-  "date": "2026-07-19",
+  "date": "2026-07-20",
   "data": [
     {
       "code": "2344",
@@ -928,7 +928,7 @@
       "code": "3512",
       "name": "皇龍開發",
       "market": "上櫃",
-      "status": "審查中",
+      "status": "生效",
       "cbType": "轉換公司債(有擔保)",
       "amount": 6.0,
       "currency": "台幣",
@@ -1105,6 +1105,58 @@
       "effectiveDate": "2026-07-31",
       "withdrawDate": null,
       "underwriter": "群益金鼎證券"
+    },
+    {
+      "code": "1795",
+      "name": "美時化學製藥",
+      "market": "上市",
+      "status": "審查中",
+      "cbType": "轉換公司債(海外無擔保)",
+      "amount": 300.0,
+      "currency": "美元",
+      "filingDate": "2026-07-17",
+      "effectiveDate": "2026-08-04",
+      "withdrawDate": null,
+      "underwriter": "元大證券"
+    },
+    {
+      "code": "2464",
+      "name": "盟立",
+      "market": "上市",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 10.0,
+      "currency": "台幣",
+      "filingDate": "2026-07-17",
+      "effectiveDate": "2026-08-04",
+      "withdrawDate": null,
+      "underwriter": "中國信託證券"
+    },
+    {
+      "code": "4973",
+      "name": "廣穎電通",
+      "market": "上櫃",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 5.0,
+      "currency": "台幣",
+      "filingDate": "2026-07-17",
+      "effectiveDate": "2026-08-04",
+      "withdrawDate": null,
+      "underwriter": "台新證券"
+    },
+    {
+      "code": "8422",
+      "name": "可寧衛*",
+      "market": "上市",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 25.0,
+      "currency": "台幣",
+      "filingDate": "2026-07-17",
+      "effectiveDate": "2026-08-04",
+      "withdrawDate": null,
+      "underwriter": "中國信託證券"
     }
   ]
 }
