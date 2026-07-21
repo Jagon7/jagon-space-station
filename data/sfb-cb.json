@@ -1,5 +1,5 @@
 {
-  "date": "2026-07-20",
+  "date": "2026-07-21",
   "data": [
     {
       "code": "2344",
@@ -1157,6 +1157,19 @@
       "effectiveDate": "2026-08-04",
       "withdrawDate": null,
       "underwriter": "中國信託證券"
+    },
+    {
+      "code": "7738",
+      "name": "東聯互動",
+      "market": "上櫃",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 5.0,
+      "currency": "台幣",
+      "filingDate": "2026-07-20",
+      "effectiveDate": "2026-08-05",
+      "withdrawDate": null,
+      "underwriter": "永豐金證券"
     }
   ]
 }
