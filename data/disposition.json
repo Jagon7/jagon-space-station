@@ -1,16 +1,6 @@
 {
-  "date": "2026-07-21",
+  "date": "2026-07-22",
   "data": [
-    {
-      "code": "2466",
-      "name": "冠西電",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/07/08～115/07/21",
-      "endDate": "2026-07-21",
-      "announceDate": "115/07/07",
-      "market": "上市"
-    },
     {
       "code": "6617",
       "name": "共信-KY",
@@ -208,7 +198,7 @@
       "condition": "連續三次",
       "period": "115/07/22～115/08/04",
       "endDate": "2026-08-04",
-      "announceDate": "*115/07/21",
+      "announceDate": "115/07/21",
       "market": "上市"
     },
     {
@@ -218,7 +208,7 @@
       "condition": "連續三次",
       "period": "115/07/22～115/08/04",
       "endDate": "2026-08-04",
-      "announceDate": "*115/07/21",
+      "announceDate": "115/07/21",
       "market": "上市"
     },
     {
@@ -279,6 +269,26 @@
       "period": "115/07/22~115/08/04",
       "endDate": "2026-08-04",
       "announceDate": "115/07/21",
+      "market": "上櫃"
+    },
+    {
+      "code": "8028",
+      "name": "昇陽半導體",
+      "count": 1,
+      "condition": "連續五次",
+      "period": "115/07/23～115/08/05",
+      "endDate": "2026-08-05",
+      "announceDate": "*115/07/22",
+      "market": "上市"
+    },
+    {
+      "code": "6217",
+      "name": "中探針",
+      "count": 2,
+      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
+      "period": "115/07/23~115/08/05",
+      "endDate": "2026-08-05",
+      "announceDate": "115/07/22",
       "market": "上櫃"
     }
   ]
