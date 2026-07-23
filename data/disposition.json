@@ -1,26 +1,6 @@
 {
-  "date": "2026-07-22",
+  "date": "2026-07-23",
   "data": [
-    {
-      "code": "6617",
-      "name": "共信-KY",
-      "count": 2,
-      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
-      "period": "115/07/08~115/07/21",
-      "endDate": "2026-07-21",
-      "announceDate": "115/07/07",
-      "market": "上櫃"
-    },
-    {
-      "code": "3055",
-      "name": "蔚華科",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/07/09～115/07/22",
-      "endDate": "2026-07-22",
-      "announceDate": "115/07/08",
-      "market": "上市"
-    },
     {
       "code": "4707",
       "name": "磐亞",
@@ -182,16 +162,6 @@
       "market": "上市"
     },
     {
-      "code": "4139",
-      "name": "馬光-KY",
-      "count": 1,
-      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
-      "period": "115/07/21~115/08/03",
-      "endDate": "2026-08-03",
-      "announceDate": "115/07/20",
-      "market": "上櫃"
-    },
-    {
       "code": "2483",
       "name": "百容",
       "count": 1,
@@ -278,7 +248,7 @@
       "condition": "連續五次",
       "period": "115/07/23～115/08/05",
       "endDate": "2026-08-05",
-      "announceDate": "*115/07/22",
+      "announceDate": "115/07/22",
       "market": "上市"
     },
     {
@@ -289,6 +259,36 @@
       "period": "115/07/23~115/08/05",
       "endDate": "2026-08-05",
       "announceDate": "115/07/22",
+      "market": "上櫃"
+    },
+    {
+      "code": "3167",
+      "name": "大量",
+      "count": 1,
+      "condition": "最近三十個營業日已有十二次",
+      "period": "115/07/24～115/08/06",
+      "endDate": "2026-08-06",
+      "announceDate": "*115/07/23",
+      "market": "上市"
+    },
+    {
+      "code": "4139",
+      "name": "馬光-KY",
+      "count": 5,
+      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
+      "period": "115/07/24~115/08/06",
+      "endDate": "2026-08-06",
+      "announceDate": "115/07/23",
+      "market": "上櫃"
+    },
+    {
+      "code": "6182",
+      "name": "合晶",
+      "count": 5,
+      "condition": "連續3個營業日及沖銷標準",
+      "period": "115/07/24~115/08/10",
+      "endDate": "2026-08-10",
+      "announceDate": "115/07/23",
       "market": "上櫃"
     }
   ]
