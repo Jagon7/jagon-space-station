@@ -1,36 +1,6 @@
 {
-  "date": "2026-07-23",
+  "date": "2026-07-24",
   "data": [
-    {
-      "code": "4707",
-      "name": "磐亞",
-      "count": 3,
-      "condition": "最近10個營業日內有6個營業日",
-      "period": "115/07/09~115/07/22",
-      "endDate": "2026-07-22",
-      "announceDate": "115/07/08",
-      "market": "上櫃"
-    },
-    {
-      "code": "6174",
-      "name": "安碁",
-      "count": 3,
-      "condition": "最近10個營業日內有6個營業日",
-      "period": "115/07/09~115/07/22",
-      "endDate": "2026-07-22",
-      "announceDate": "115/07/08",
-      "market": "上櫃"
-    },
-    {
-      "code": "4169",
-      "name": "泰宗",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/07/10～115/07/23",
-      "endDate": "2026-07-23",
-      "announceDate": "115/07/09",
-      "market": "上市"
-    },
     {
       "code": "8261",
       "name": "富鼎",
@@ -86,16 +56,6 @@
       "name": "擎亞",
       "count": 4,
       "condition": "連續5個營業日",
-      "period": "115/07/16~115/07/29",
-      "endDate": "2026-07-29",
-      "announceDate": "115/07/15",
-      "market": "上櫃"
-    },
-    {
-      "code": "8291",
-      "name": "尚茂",
-      "count": 4,
-      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
       "period": "115/07/16~115/07/29",
       "endDate": "2026-07-29",
       "announceDate": "115/07/15",
@@ -268,7 +228,7 @@
       "condition": "最近三十個營業日已有十二次",
       "period": "115/07/24～115/08/06",
       "endDate": "2026-08-06",
-      "announceDate": "*115/07/23",
+      "announceDate": "115/07/23",
       "market": "上市"
     },
     {
@@ -279,6 +239,36 @@
       "period": "115/07/24~115/08/06",
       "endDate": "2026-08-06",
       "announceDate": "115/07/23",
+      "market": "上櫃"
+    },
+    {
+      "code": "7610",
+      "name": "聯友金屬-創",
+      "count": 1,
+      "condition": "連續三次",
+      "period": "115/07/27～115/08/07",
+      "endDate": "2026-08-07",
+      "announceDate": "*115/07/24",
+      "market": "上市"
+    },
+    {
+      "code": "8033",
+      "name": "雷虎",
+      "count": 1,
+      "condition": "連續五次",
+      "period": "115/07/27～115/08/07",
+      "endDate": "2026-08-07",
+      "announceDate": "*115/07/24",
+      "market": "上市"
+    },
+    {
+      "code": "8291",
+      "name": "尚茂",
+      "count": 3,
+      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
+      "period": "115/07/27~115/08/07",
+      "endDate": "2026-08-07",
+      "announceDate": "115/07/24",
       "market": "上櫃"
     },
     {

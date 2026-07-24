@@ -1,5 +1,5 @@
 {
-  "date": "2026-07-23",
+  "date": "2026-07-24",
   "data": [
     {
       "code": "2344",
@@ -1024,7 +1024,7 @@
       "amount": 4.0,
       "currency": "台幣",
       "filingDate": "2026-07-07",
-      "effectiveDate": "2026-07-24",
+      "effectiveDate": "2026-08-10",
       "withdrawDate": null,
       "underwriter": "宏遠證券"
     },
