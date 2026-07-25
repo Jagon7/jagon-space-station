@@ -1,16 +1,6 @@
 {
-  "date": "2026-07-24",
+  "date": "2026-07-25",
   "data": [
-    {
-      "code": "8261",
-      "name": "富鼎",
-      "count": 1,
-      "condition": "連續三次及當日沖銷標準",
-      "period": "115/07/09～115/07/24",
-      "endDate": "2026-07-24",
-      "announceDate": "115/07/08",
-      "market": "上市"
-    },
     {
       "code": "8027",
       "name": "鈦昇",
@@ -248,7 +238,7 @@
       "condition": "連續三次",
       "period": "115/07/27～115/08/07",
       "endDate": "2026-08-07",
-      "announceDate": "*115/07/24",
+      "announceDate": "115/07/24",
       "market": "上市"
     },
     {
@@ -258,7 +248,7 @@
       "condition": "連續五次",
       "period": "115/07/27～115/08/07",
       "endDate": "2026-08-07",
-      "announceDate": "*115/07/24",
+      "announceDate": "115/07/24",
       "market": "上市"
     },
     {
