@@ -1,5 +1,5 @@
 {
-  "date": "2026-07-26",
+  "date": "2026-07-27",
   "data": [
     {
       "code": "2344",
@@ -829,7 +829,7 @@
       "amount": 2.0,
       "currency": "台幣",
       "filingDate": "2026-06-24",
-      "effectiveDate": null,
+      "effectiveDate": "2026-08-10",
       "withdrawDate": null,
       "underwriter": "永豐金證券"
     },
@@ -1170,6 +1170,19 @@
       "effectiveDate": "2026-08-05",
       "withdrawDate": null,
       "underwriter": "永豐金證券"
+    },
+    {
+      "code": "1560",
+      "name": "中國砂輪",
+      "market": "上市",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 10.0,
+      "currency": "台幣",
+      "filingDate": "2026-07-24",
+      "effectiveDate": "2026-08-11",
+      "withdrawDate": null,
+      "underwriter": "元大證券"
     }
   ]
 }
