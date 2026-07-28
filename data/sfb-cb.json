@@ -1,5 +1,5 @@
 {
-  "date": "2026-07-27",
+  "date": "2026-07-28",
   "data": [
     {
       "code": "2344",
@@ -1183,6 +1183,19 @@
       "effectiveDate": "2026-08-11",
       "withdrawDate": null,
       "underwriter": "元大證券"
+    },
+    {
+      "code": "6597",
+      "name": "立誠光電",
+      "market": "上櫃",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 4.5,
+      "currency": "台幣",
+      "filingDate": "2026-07-27",
+      "effectiveDate": "2026-08-12",
+      "withdrawDate": null,
+      "underwriter": "福邦證券"
     }
   ]
 }

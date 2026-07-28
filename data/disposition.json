@@ -1,5 +1,5 @@
 {
-  "date": "2026-07-27",
+  "date": "2026-07-28",
   "data": [
     {
       "code": "8027",
@@ -10,6 +10,16 @@
       "endDate": "2026-07-27",
       "announceDate": "115/07/13",
       "market": "上櫃"
+    },
+    {
+      "code": "6831",
+      "name": "邁科",
+      "count": 1,
+      "condition": "最近十個營業日已有六次",
+      "period": "115/07/15～115/07/28",
+      "endDate": "2026-07-28",
+      "announceDate": "115/07/14",
+      "market": "上市"
     },
     {
       "code": "4542",
@@ -62,6 +72,26 @@
       "market": "上櫃"
     },
     {
+      "code": "2434",
+      "name": "統懋",
+      "count": 2,
+      "condition": "連續三次",
+      "period": "115/07/20～115/07/31",
+      "endDate": "2026-07-31",
+      "announceDate": "115/07/17",
+      "market": "上市"
+    },
+    {
+      "code": "3090",
+      "name": "日電貿",
+      "count": 1,
+      "condition": "連續三次",
+      "period": "115/07/20～115/07/31",
+      "endDate": "2026-07-31",
+      "announceDate": "115/07/17",
+      "market": "上市"
+    },
+    {
       "code": "8383",
       "name": "千附",
       "count": 1,
@@ -70,6 +100,36 @@
       "endDate": "2026-07-31",
       "announceDate": "115/07/17",
       "market": "上櫃"
+    },
+    {
+      "code": "2492",
+      "name": "華新科",
+      "count": 2,
+      "condition": "連續三次",
+      "period": "115/07/21～115/08/03",
+      "endDate": "2026-08-03",
+      "announceDate": "115/07/20",
+      "market": "上市"
+    },
+    {
+      "code": "2483",
+      "name": "百容",
+      "count": 1,
+      "condition": "連續三次",
+      "period": "115/07/22～115/08/04",
+      "endDate": "2026-08-04",
+      "announceDate": "115/07/21",
+      "market": "上市"
+    },
+    {
+      "code": "3026",
+      "name": "禾伸堂",
+      "count": 1,
+      "condition": "連續三次",
+      "period": "115/07/22～115/08/04",
+      "endDate": "2026-08-04",
+      "announceDate": "115/07/21",
+      "market": "上市"
     },
     {
       "code": "3288",
@@ -132,6 +192,26 @@
       "market": "上櫃"
     },
     {
+      "code": "8028",
+      "name": "昇陽半導體",
+      "count": 1,
+      "condition": "連續五次",
+      "period": "115/07/23～115/08/05",
+      "endDate": "2026-08-05",
+      "announceDate": "115/07/22",
+      "market": "上市"
+    },
+    {
+      "code": "3167",
+      "name": "大量",
+      "count": 1,
+      "condition": "最近三十個營業日已有十二次",
+      "period": "115/07/24～115/08/06",
+      "endDate": "2026-08-06",
+      "announceDate": "115/07/23",
+      "market": "上市"
+    },
+    {
       "code": "4139",
       "name": "馬光-KY",
       "count": 5,
@@ -142,6 +222,26 @@
       "market": "上櫃"
     },
     {
+      "code": "7610",
+      "name": "聯友金屬-創",
+      "count": 1,
+      "condition": "連續三次",
+      "period": "115/07/27～115/08/07",
+      "endDate": "2026-08-07",
+      "announceDate": "115/07/24",
+      "market": "上市"
+    },
+    {
+      "code": "8033",
+      "name": "雷虎",
+      "count": 1,
+      "condition": "連續五次",
+      "period": "115/07/27～115/08/07",
+      "endDate": "2026-08-07",
+      "announceDate": "115/07/24",
+      "market": "上市"
+    },
+    {
       "code": "8291",
       "name": "尚茂",
       "count": 3,
@@ -150,6 +250,16 @@
       "endDate": "2026-08-07",
       "announceDate": "115/07/24",
       "market": "上櫃"
+    },
+    {
+      "code": "6969",
+      "name": "成信實業*-創",
+      "count": 1,
+      "condition": "連續三次",
+      "period": "115/07/28～115/08/10",
+      "endDate": "2026-08-10",
+      "announceDate": "115/07/27",
+      "market": "上市"
     },
     {
       "code": "6217",
