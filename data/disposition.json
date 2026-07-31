@@ -1,16 +1,6 @@
 {
-  "date": "2026-07-30",
+  "date": "2026-07-31",
   "data": [
-    {
-      "code": "8096",
-      "name": "擎亞",
-      "count": 4,
-      "condition": "連續5個營業日",
-      "period": "115/07/16~115/07/29",
-      "endDate": "2026-07-29",
-      "announceDate": "115/07/15",
-      "market": "上櫃"
-    },
     {
       "code": "6907",
       "name": "雅特力-KY",
@@ -82,28 +72,8 @@
       "market": "上市"
     },
     {
-      "code": "3026",
-      "name": "禾伸堂",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/07/22～115/08/04",
-      "endDate": "2026-08-04",
-      "announceDate": "115/07/21",
-      "market": "上市"
-    },
-    {
       "code": "3288",
       "name": "點晶",
-      "count": 7,
-      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
-      "period": "115/07/22~115/08/04",
-      "endDate": "2026-08-04",
-      "announceDate": "115/07/21",
-      "market": "上櫃"
-    },
-    {
-      "code": "3624",
-      "name": "光頡",
       "count": 7,
       "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
       "period": "115/07/22~115/08/04",
@@ -202,16 +172,6 @@
       "market": "上市"
     },
     {
-      "code": "6182",
-      "name": "合晶",
-      "count": 5,
-      "condition": "連續3個營業日及沖銷標準",
-      "period": "115/07/24~115/08/10",
-      "endDate": "2026-08-10",
-      "announceDate": "115/07/23",
-      "market": "上櫃"
-    },
-    {
       "code": "7610",
       "name": "聯友金屬-創",
       "count": 2,
@@ -228,7 +188,7 @@
       "condition": "連續三次",
       "period": "115/07/31～115/08/13",
       "endDate": "2026-08-13",
-      "announceDate": "*115/07/30",
+      "announceDate": "115/07/30",
       "market": "上市"
     },
     {
@@ -238,7 +198,7 @@
       "condition": "連續三次",
       "period": "115/07/31～115/08/13",
       "endDate": "2026-08-13",
-      "announceDate": "*115/07/30",
+      "announceDate": "115/07/30",
       "market": "上市"
     },
     {
@@ -248,7 +208,7 @@
       "condition": "連續三次",
       "period": "115/07/31～115/08/13",
       "endDate": "2026-08-13",
-      "announceDate": "*115/07/30",
+      "announceDate": "115/07/30",
       "market": "上市"
     },
     {
@@ -258,7 +218,7 @@
       "condition": "連續三次",
       "period": "115/07/31～115/08/13",
       "endDate": "2026-08-13",
-      "announceDate": "*115/07/30",
+      "announceDate": "115/07/30",
       "market": "上市"
     },
     {
@@ -269,6 +229,76 @@
       "period": "115/07/31~115/08/13",
       "endDate": "2026-08-13",
       "announceDate": "115/07/30",
+      "market": "上櫃"
+    },
+    {
+      "code": "3026",
+      "name": "禾伸堂",
+      "count": 2,
+      "condition": "連續三次",
+      "period": "115/08/03～115/08/14",
+      "endDate": "2026-08-14",
+      "announceDate": "*115/07/31",
+      "market": "上市"
+    },
+    {
+      "code": "4169",
+      "name": "泰宗",
+      "count": 1,
+      "condition": "連續三次",
+      "period": "115/08/03～115/08/14",
+      "endDate": "2026-08-14",
+      "announceDate": "*115/07/31",
+      "market": "上市"
+    },
+    {
+      "code": "6531",
+      "name": "愛普*",
+      "count": 1,
+      "condition": "連續三次",
+      "period": "115/08/03～115/08/14",
+      "endDate": "2026-08-14",
+      "announceDate": "*115/07/31",
+      "market": "上市"
+    },
+    {
+      "code": "3624",
+      "name": "光頡",
+      "count": 5,
+      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
+      "period": "115/08/03~115/08/14",
+      "endDate": "2026-08-14",
+      "announceDate": "115/07/31",
+      "market": "上櫃"
+    },
+    {
+      "code": "6182",
+      "name": "合晶",
+      "count": 5,
+      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
+      "period": "115/08/03~115/08/14",
+      "endDate": "2026-08-14",
+      "announceDate": "115/07/31",
+      "market": "上櫃"
+    },
+    {
+      "code": "6739",
+      "name": "竹陞科技",
+      "count": 5,
+      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
+      "period": "115/08/03~115/08/14",
+      "endDate": "2026-08-14",
+      "announceDate": "115/07/31",
+      "market": "上櫃"
+    },
+    {
+      "code": "7828",
+      "name": "創新服務",
+      "count": 5,
+      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
+      "period": "115/08/03~115/08/14",
+      "endDate": "2026-08-14",
+      "announceDate": "115/07/31",
       "market": "上櫃"
     },
     {
@@ -290,6 +320,16 @@
       "endDate": "2026-08-14",
       "announceDate": "115/07/29",
       "market": "上櫃"
+    },
+    {
+      "code": "8046",
+      "name": "南電",
+      "count": 1,
+      "condition": "連續三次及當日沖銷標準",
+      "period": "115/08/03～115/08/18",
+      "endDate": "2026-08-18",
+      "announceDate": "*115/07/31",
+      "market": "上市"
     }
   ]
 }

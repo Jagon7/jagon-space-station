@@ -1,5 +1,5 @@
 {
-  "date": "2026-07-30",
+  "date": "2026-07-31",
   "data": [
     {
       "code": "2344",
@@ -1032,7 +1032,7 @@
       "code": "3711",
       "name": "日月光投控",
       "market": "上市",
-      "status": "審查中",
+      "status": "生效",
       "cbType": "轉換公司債(海外無擔保)",
       "amount": 1000.0,
       "currency": "美元",
@@ -1084,7 +1084,7 @@
       "code": "3016",
       "name": "嘉晶電子",
       "market": "上市",
-      "status": "審查中",
+      "status": "生效",
       "cbType": "轉換公司債(無擔保)",
       "amount": 3.5,
       "currency": "台幣",
@@ -1097,7 +1097,7 @@
       "code": "3219",
       "name": "倚強科",
       "market": "上櫃",
-      "status": "審查中",
+      "status": "生效",
       "cbType": "轉換公司債(無擔保)",
       "amount": 6.0,
       "currency": "台幣",
@@ -1128,7 +1128,7 @@
       "amount": 10.0,
       "currency": "台幣",
       "filingDate": "2026-07-17",
-      "effectiveDate": "2026-08-04",
+      "effectiveDate": "2026-08-17",
       "withdrawDate": null,
       "underwriter": "中國信託證券"
     },
@@ -1194,6 +1194,19 @@
       "currency": "台幣",
       "filingDate": "2026-07-27",
       "effectiveDate": "2026-08-12",
+      "withdrawDate": null,
+      "underwriter": "福邦證券"
+    },
+    {
+      "code": "2317",
+      "name": "鴻海精密",
+      "market": "上市",
+      "status": "審查中",
+      "cbType": "轉換公司債(海外無擔保)",
+      "amount": 1500.0,
+      "currency": "美元",
+      "filingDate": "2026-07-30",
+      "effectiveDate": "2026-08-17",
       "withdrawDate": null,
       "underwriter": "福邦證券"
     }
