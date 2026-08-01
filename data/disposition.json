@@ -1,46 +1,6 @@
 {
-  "date": "2026-07-31",
+  "date": "2026-08-01",
   "data": [
-    {
-      "code": "6907",
-      "name": "雅特力-KY",
-      "count": 3,
-      "condition": "最近10個營業日內有6個營業日",
-      "period": "115/07/17~115/07/30",
-      "endDate": "2026-07-30",
-      "announceDate": "115/07/16",
-      "market": "上櫃"
-    },
-    {
-      "code": "7714",
-      "name": "創泓科技",
-      "count": 3,
-      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
-      "period": "115/07/17~115/07/30",
-      "endDate": "2026-07-30",
-      "announceDate": "115/07/16",
-      "market": "上櫃"
-    },
-    {
-      "code": "2434",
-      "name": "統懋",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/07/20～115/07/31",
-      "endDate": "2026-07-31",
-      "announceDate": "115/07/17",
-      "market": "上市"
-    },
-    {
-      "code": "3090",
-      "name": "日電貿",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/07/20～115/07/31",
-      "endDate": "2026-07-31",
-      "announceDate": "115/07/17",
-      "market": "上市"
-    },
     {
       "code": "8383",
       "name": "千附",
@@ -238,7 +198,7 @@
       "condition": "連續三次",
       "period": "115/08/03～115/08/14",
       "endDate": "2026-08-14",
-      "announceDate": "*115/07/31",
+      "announceDate": "115/07/31",
       "market": "上市"
     },
     {
@@ -248,7 +208,7 @@
       "condition": "連續三次",
       "period": "115/08/03～115/08/14",
       "endDate": "2026-08-14",
-      "announceDate": "*115/07/31",
+      "announceDate": "115/07/31",
       "market": "上市"
     },
     {
@@ -258,7 +218,7 @@
       "condition": "連續三次",
       "period": "115/08/03～115/08/14",
       "endDate": "2026-08-14",
-      "announceDate": "*115/07/31",
+      "announceDate": "115/07/31",
       "market": "上市"
     },
     {
@@ -328,7 +288,7 @@
       "condition": "連續三次及當日沖銷標準",
       "period": "115/08/03～115/08/18",
       "endDate": "2026-08-18",
-      "announceDate": "*115/07/31",
+      "announceDate": "115/07/31",
       "market": "上市"
     }
   ]
