@@ -1,4 +1,69 @@
 {
-  "date": "2026-08-01",
-  "data": []
+  "date": "2026-08-02",
+  "data": [
+    {
+      "etfCode": "00929",
+      "etfName": "復華台灣科技優息",
+      "category": "高股息",
+      "navPerUnit": 0.0,
+      "totalUnits": 4825139000,
+      "changes": [
+        {
+          "code": "2379",
+          "name": "瑞昱",
+          "action": "buy",
+          "prevShares": 5820000,
+          "currShares": 5972000,
+          "diffShares": 152000,
+          "closePrice": 683.0,
+          "diffValue": 103816000,
+          "weight": 11.06
+        },
+        {
+          "code": "2412",
+          "name": "中華電",
+          "action": "buy",
+          "prevShares": 24881000,
+          "currShares": 25898000,
+          "diffShares": 1017000,
+          "closePrice": 139.5,
+          "diffValue": 141871500,
+          "weight": 9.8
+        },
+        {
+          "code": "2474",
+          "name": "可成",
+          "action": "buy",
+          "prevShares": 20517000,
+          "currShares": 21105000,
+          "diffShares": 588000,
+          "closePrice": 183.0,
+          "diffValue": 107604000,
+          "weight": 10.48
+        },
+        {
+          "code": "3045",
+          "name": "台灣大",
+          "action": "buy",
+          "prevShares": 34303000,
+          "currShares": 35274000,
+          "diffShares": 971000,
+          "closePrice": 112.5,
+          "diffValue": 109237500,
+          "weight": 10.76
+        },
+        {
+          "code": "4904",
+          "name": "遠傳",
+          "action": "buy",
+          "prevShares": 33157000,
+          "currShares": 34365000,
+          "diffShares": 1208000,
+          "closePrice": 105.0,
+          "diffValue": 126840000,
+          "weight": 9.79
+        }
+      ]
+    }
+  ]
 }
