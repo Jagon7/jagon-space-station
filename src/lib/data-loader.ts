@@ -7,7 +7,7 @@ import type {
 import * as mock from "./mock-data";
 
 const DATA_DIR = path.join(process.cwd(), "data");
-const GITHUB_RAW = "https://raw.githubusercontent.com/Jagon7/taiwan-stock-radar/main/data";
+const GITHUB_RAW = "https://raw.githubusercontent.com/Jagon7/jagon-space-station/main/data";
 const IS_PROD = process.env.NODE_ENV === "production";
 
 type Dated<T> = { date: string; data: T };
