@@ -1,26 +1,6 @@
 {
-  "date": "2026-08-03",
+  "date": "2026-08-04",
   "data": [
-    {
-      "code": "8383",
-      "name": "千附",
-      "count": 1,
-      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
-      "period": "115/07/20~115/07/31",
-      "endDate": "2026-07-31",
-      "announceDate": "115/07/17",
-      "market": "上櫃"
-    },
-    {
-      "code": "2492",
-      "name": "華新科",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/07/21～115/08/03",
-      "endDate": "2026-08-03",
-      "announceDate": "115/07/20",
-      "market": "上市"
-    },
     {
       "code": "2483",
       "name": "百容",
@@ -300,6 +280,16 @@
       "endDate": "2026-08-18",
       "announceDate": "115/07/31",
       "market": "上市"
+    },
+    {
+      "code": "3362",
+      "name": "先進光",
+      "count": 3,
+      "condition": "連續5個營業日及沖銷標準",
+      "period": "115/08/05~115/08/20",
+      "endDate": "2026-08-20",
+      "announceDate": "115/08/04",
+      "market": "上櫃"
     }
   ]
 }
