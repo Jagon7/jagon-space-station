@@ -1,66 +1,6 @@
 {
-  "date": "2026-08-05",
+  "date": "2026-08-06",
   "data": [
-    {
-      "code": "3288",
-      "name": "點晶",
-      "count": 7,
-      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
-      "period": "115/07/22~115/08/04",
-      "endDate": "2026-08-04",
-      "announceDate": "115/07/21",
-      "market": "上櫃"
-    },
-    {
-      "code": "3675",
-      "name": "德微",
-      "count": 7,
-      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
-      "period": "115/07/22~115/08/04",
-      "endDate": "2026-08-04",
-      "announceDate": "115/07/21",
-      "market": "上櫃"
-    },
-    {
-      "code": "6173",
-      "name": "信昌電",
-      "count": 7,
-      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
-      "period": "115/07/22~115/08/04",
-      "endDate": "2026-08-04",
-      "announceDate": "115/07/21",
-      "market": "上櫃"
-    },
-    {
-      "code": "6683",
-      "name": "雍智科技",
-      "count": 7,
-      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
-      "period": "115/07/22~115/08/04",
-      "endDate": "2026-08-04",
-      "announceDate": "115/07/21",
-      "market": "上櫃"
-    },
-    {
-      "code": "6727",
-      "name": "亞泰金屬",
-      "count": 7,
-      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
-      "period": "115/07/22~115/08/04",
-      "endDate": "2026-08-04",
-      "announceDate": "115/07/21",
-      "market": "上櫃"
-    },
-    {
-      "code": "8028",
-      "name": "昇陽半導體",
-      "count": 1,
-      "condition": "連續五次",
-      "period": "115/07/23～115/08/05",
-      "endDate": "2026-08-05",
-      "announceDate": "115/07/22",
-      "market": "上市"
-    },
     {
       "code": "4139",
       "name": "馬光-KY",

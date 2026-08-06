@@ -1,5 +1,5 @@
 {
-  "date": "2026-08-05",
+  "date": "2026-08-06",
   "data": [
     {
       "code": "2344",
@@ -829,7 +829,7 @@
       "amount": 2.0,
       "currency": "台幣",
       "filingDate": "2026-06-24",
-      "effectiveDate": "2026-08-10",
+      "effectiveDate": null,
       "withdrawDate": null,
       "underwriter": "永豐金證券"
     },
@@ -1235,6 +1235,19 @@
       "effectiveDate": "2026-08-18",
       "withdrawDate": null,
       "underwriter": "元大證券"
+    },
+    {
+      "code": "7743",
+      "name": "金利食安",
+      "market": "上櫃",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 2.0,
+      "currency": "台幣",
+      "filingDate": "2026-08-05",
+      "effectiveDate": "2026-08-21",
+      "withdrawDate": null,
+      "underwriter": "永豐金證券"
     }
   ]
 }
