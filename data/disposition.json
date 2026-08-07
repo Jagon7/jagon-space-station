@@ -1,5 +1,5 @@
 {
-  "date": "2026-08-06",
+  "date": "2026-08-07",
   "data": [
     {
       "code": "4139",
@@ -74,7 +74,7 @@
     {
       "code": "3167",
       "name": "大量",
-      "count": 2,
+      "count": 1,
       "condition": "連續三次",
       "period": "115/07/31～115/08/13",
       "endDate": "2026-08-13",
@@ -102,6 +102,26 @@
       "market": "上櫃"
     },
     {
+      "code": "2059",
+      "name": "川湖",
+      "count": 1,
+      "condition": "連續三次",
+      "period": "115/08/10～115/08/14",
+      "endDate": "2026-08-14",
+      "announceDate": "*115/08/07",
+      "market": "上市"
+    },
+    {
+      "code": "2455",
+      "name": "全新",
+      "count": 1,
+      "condition": "連續三次",
+      "period": "115/08/10～115/08/14",
+      "endDate": "2026-08-14",
+      "announceDate": "*115/08/07",
+      "market": "上市"
+    },
+    {
       "code": "3026",
       "name": "禾伸堂",
       "count": 1,
@@ -109,6 +129,36 @@
       "period": "115/08/03～115/08/14",
       "endDate": "2026-08-14",
       "announceDate": "115/07/31",
+      "market": "上市"
+    },
+    {
+      "code": "3037",
+      "name": "欣興",
+      "count": 1,
+      "condition": "連續三次",
+      "period": "115/08/10～115/08/14",
+      "endDate": "2026-08-14",
+      "announceDate": "*115/08/07",
+      "market": "上市"
+    },
+    {
+      "code": "3189",
+      "name": "景碩",
+      "count": 1,
+      "condition": "連續三次",
+      "period": "115/08/10～115/08/14",
+      "endDate": "2026-08-14",
+      "announceDate": "*115/08/07",
+      "market": "上市"
+    },
+    {
+      "code": "3653",
+      "name": "健策",
+      "count": 1,
+      "condition": "連續三次",
+      "period": "115/08/10～115/08/14",
+      "endDate": "2026-08-14",
+      "announceDate": "*115/08/07",
       "market": "上市"
     },
     {
@@ -130,6 +180,16 @@
       "endDate": "2026-08-14",
       "announceDate": "115/07/31",
       "market": "上市"
+    },
+    {
+      "code": "6274",
+      "name": "台燿",
+      "count": 4,
+      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
+      "period": "115/08/10~115/08/14",
+      "endDate": "2026-08-14",
+      "announceDate": "115/08/07",
+      "market": "上櫃"
     },
     {
       "code": "3624",

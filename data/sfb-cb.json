@@ -1,5 +1,5 @@
 {
-  "date": "2026-08-06",
+  "date": "2026-08-07",
   "data": [
     {
       "code": "2344",
@@ -1248,6 +1248,19 @@
       "effectiveDate": "2026-08-21",
       "withdrawDate": null,
       "underwriter": "永豐金證券"
+    },
+    {
+      "code": "4198",
+      "name": "欣大健康",
+      "market": "上櫃",
+      "status": "審查中",
+      "cbType": "轉換公司債(有擔保)",
+      "amount": 3.0,
+      "currency": "台幣",
+      "filingDate": "2026-08-06",
+      "effectiveDate": "2026-09-03",
+      "withdrawDate": null,
+      "underwriter": "統一證券"
     }
   ]
 }
