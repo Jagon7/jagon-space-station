@@ -1,26 +1,6 @@
 {
-  "date": "2026-08-07",
+  "date": "2026-08-08",
   "data": [
-    {
-      "code": "4139",
-      "name": "馬光-KY",
-      "count": 5,
-      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
-      "period": "115/07/24~115/08/06",
-      "endDate": "2026-08-06",
-      "announceDate": "115/07/23",
-      "market": "上櫃"
-    },
-    {
-      "code": "8033",
-      "name": "雷虎",
-      "count": 1,
-      "condition": "連續五次",
-      "period": "115/07/27～115/08/07",
-      "endDate": "2026-08-07",
-      "announceDate": "115/07/24",
-      "market": "上市"
-    },
     {
       "code": "8291",
       "name": "尚茂",
@@ -44,7 +24,7 @@
     {
       "code": "7610",
       "name": "聯友金屬-創",
-      "count": 2,
+      "count": 1,
       "condition": "連續三次",
       "period": "115/07/30～115/08/12",
       "endDate": "2026-08-12",
@@ -108,7 +88,7 @@
       "condition": "連續三次",
       "period": "115/08/10～115/08/14",
       "endDate": "2026-08-14",
-      "announceDate": "*115/08/07",
+      "announceDate": "115/08/07",
       "market": "上市"
     },
     {
@@ -118,7 +98,7 @@
       "condition": "連續三次",
       "period": "115/08/10～115/08/14",
       "endDate": "2026-08-14",
-      "announceDate": "*115/08/07",
+      "announceDate": "115/08/07",
       "market": "上市"
     },
     {
@@ -138,7 +118,7 @@
       "condition": "連續三次",
       "period": "115/08/10～115/08/14",
       "endDate": "2026-08-14",
-      "announceDate": "*115/08/07",
+      "announceDate": "115/08/07",
       "market": "上市"
     },
     {
@@ -148,7 +128,7 @@
       "condition": "連續三次",
       "period": "115/08/10～115/08/14",
       "endDate": "2026-08-14",
-      "announceDate": "*115/08/07",
+      "announceDate": "115/08/07",
       "market": "上市"
     },
     {
@@ -158,7 +138,7 @@
       "condition": "連續三次",
       "period": "115/08/10～115/08/14",
       "endDate": "2026-08-14",
-      "announceDate": "*115/08/07",
+      "announceDate": "115/08/07",
       "market": "上市"
     },
     {
