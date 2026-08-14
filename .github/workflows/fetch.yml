@@ -26,11 +26,13 @@ jobs:
         run: python3 -m playwright install chromium --with-deps
 
       - name: Fetch stock data
+        id: fetch
         run: python3 scripts/fetch_data.py
         env:
           JSS_DATA_DIR: ./data
 
       - name: Commit and push data
+        if: always() && steps.fetch.conclusion != 'cancelled'
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email 'github-actions[bot]@users.noreply.github.com'

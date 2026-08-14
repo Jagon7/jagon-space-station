@@ -56,6 +56,28 @@ def save(filename: str, data: dict):
     path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
     log(f"✓ {filename} 已寫入（{path}）")
 
+HAD_CRITICAL_FAILURE = False
+
+def save_guarded(filename: str, items: list) -> list:
+    """
+    寫入前比對舊檔：如果這次抓到空的、但舊檔案有資料，判定為抓取異常
+    （來源改版/連線失敗等），保留舊資料不覆蓋，並標記本次執行失敗，
+    讓 GitHub Actions 顯示紅叉、觸發失敗通知信，而不是悄悄寫入空資料。
+    """
+    global HAD_CRITICAL_FAILURE
+    path = JSS_DATA_DIR / filename
+    if not items and path.exists():
+        try:
+            prev = json.loads(path.read_text(encoding="utf-8"))
+            if prev.get("data"):
+                log(f"✗ {filename} 本次抓取為空但舊檔有 {len(prev['data'])} 筆，判定抓取異常，保留舊資料")
+                HAD_CRITICAL_FAILURE = True
+                return prev["data"]
+        except Exception:
+            pass
+    save(filename, {"date": TODAY_AD, "data": items})
+    return items
+
 def fetch(url: str, timeout: int = 20) -> dict | list | None:
     try:
         r = SESSION.get(url, timeout=timeout)
@@ -1508,14 +1530,18 @@ def main():
     save("market-summary.json", market)
     save("notice.json",        {"date": TODAY_AD, "data": notice})
     save("disposition.json",   {"date": TODAY_AD, "data": disposition})
-    save("cb-watch.json",      {"date": TODAY_AD, "data": cb_issuances})
-    save("sfb-cb.json",        {"date": TODAY_AD, "data": sfb_cb})
+    cb_issuances = save_guarded("cb-watch.json", cb_issuances)
+    sfb_cb       = save_guarded("sfb-cb.json",   sfb_cb)
     save("announcements.json", {"date": TODAY_AD, "data": announcements})
     save("etf-flow.json",      etf_flow)
     save("last-updated.json",  {"updatedAt": datetime.datetime.utcnow().isoformat() + "Z", "date": TODAY_AD})
 
     log(f"=== 完成 ===")
     log(f"  漲停：{len(limit_stocks)} 檔 | 族群：{len(sectors)} 個 | 注意：{len(notice)} 檔 | 處置：{len(disposition)} 檔 | CB詢圈：{len(cb_issuances)} 筆 | ETF異動ETF：{len(etf_flow['data'])} 檔")
+
+    if HAD_CRITICAL_FAILURE:
+        log("=== 有抓取異常，結束時回傳失敗（讓 Actions 顯示紅叉並寄通知信）===")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
