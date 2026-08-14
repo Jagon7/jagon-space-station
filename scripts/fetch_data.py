@@ -800,7 +800,7 @@ def fetch_sfb_cb() -> list[dict]:
     roc_year = str(TODAY.year - 1911)
     pattern = (
         r'https://www\.fsc\.gov\.tw/userfiles/file/'
-        + roc_year + r'\d{4}'
+        + roc_year + r'\d+'
         + r'%E7%94%B3%E5%A0%B1%E6%A1%88%E4%BB%B6%E5%BD%99%E7%B8%BD%E8%A1%A8\.xlsx'
     )
     matches = _re.findall(pattern, html)
