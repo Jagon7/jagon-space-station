@@ -131,3 +131,13 @@ export type SectorPerformance = {
   name: string;
   changePercent: number;
 };
+
+export type SectorStock = {
+  code: string;
+  name: string;
+  market: string;
+  changePercent: number;
+  closePrice: number;
+  volume: number;
+  tradeValue: number;
+};

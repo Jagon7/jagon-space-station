@@ -87,6 +87,17 @@ def fetch(url: str, timeout: int = 20) -> dict | list | None:
         log(f"✗ fetch 失敗 {url[:60]}... → {e}")
         return None
 
+def fetch_csv(url: str, timeout: int = 20) -> list[dict]:
+    """TWSE 部分 rwd/afterTrading 報表無論 URL 帶不帶 response=json 都固定回 CSV，不是 JSON"""
+    import csv, io
+    try:
+        r = SESSION.get(url, timeout=timeout)
+        r.raise_for_status()
+        return list(csv.DictReader(io.StringIO(r.text)))
+    except Exception as e:
+        log(f"✗ fetch_csv 失敗 {url[:60]}... → {e}")
+        return []
+
 def fetch_post(url: str, data: dict = None, timeout: int = 20) -> dict | None:
     try:
         r = SESSION.post(url, data=data or {}, timeout=timeout)
@@ -214,39 +225,37 @@ def build_sector_map() -> dict[str, str]:
     log(f"  產業別對照表：{len(result)} 筆")
     return result
 
-# ── 漲停股 ─────────────────────────────────────────────────
-def fetch_limit_up(sector_map: dict, insti_map: dict = None) -> list[dict]:
-    log("抓取漲停股清單...")
+# ── 全市場報價 ──────────────────────────────────────────────
+def fetch_all_stocks(sector_map: dict, insti_map: dict = None) -> list[dict]:
+    """全市場（上市+上櫃）當日報價，含族群、漲跌幅 — 漲停清單跟族群個股排行共用同一份，避免重複打 API"""
+    log("抓取全市場報價...")
     stocks = []
 
     # ── 上市 (TWSE) ──
     # openapi.twse.com.tw 更新較慢（隔日），改用 www.twse.com.tw 當天即時
-    twse_resp = fetch("https://www.twse.com.tw/rwd/zh/afterTrading/STOCK_DAY_ALL?response=json")
-    twse = twse_resp.get("data", []) if twse_resp else []
-    # fields: [代號, 名稱, 成交股數, 成交金額, 開盤, 最高, 最低, 收盤, 漲跌, 筆數]
+    # 這個 report 端點無論有沒有帶 response=json 一律回 CSV（Content-Type: text/csv），
+    # 舊版用 fetch()/r.json() 每次都會解析失敗、整個上市股票（含台積電這種量體）
+    # 從沒進過族群/漲停清單，一直只有上櫃資料
+    twse = fetch_csv("https://www.twse.com.tw/rwd/zh/afterTrading/STOCK_DAY_ALL?response=json")
     for row in twse:
-        if len(row) < 9:
-            continue
-        code  = row[0].strip()
-        close = parse_price(row[7])
-        chg   = parse_price(row[8])
-        vol   = int(parse_price(row[2]) / 1000)  # 股 → 張
-        tv    = parse_price(row[3])
-        pct   = calc_change_pct(close, chg)
-        if not (LIMIT_UP_MIN <= pct <= LIMIT_UP_MAX):
-            continue
+        code = (row.get("證券代號") or "").strip()
         if not code.isdigit():
             continue
+        close = parse_price(row.get("收盤價", 0))
+        chg   = parse_price(row.get("漲跌價差", 0))
+        vol   = int(parse_price(row.get("成交股數", 0)) / 1000)  # 股 → 張
+        tv    = parse_price(row.get("成交金額", 0))
+        pct   = calc_change_pct(close, chg)
         insti = (insti_map or {}).get(code, {})
         stocks.append({
             "code":       code,
-            "name":       row[1].strip(),
+            "name":       (row.get("證券名稱") or "").strip(),
             "sector":     sector_map.get(code, "其他"),
             "change":     pct,
             "volume":     vol,
             "tradeValue": tv,
             "closePrice": close,
-            "openPrice":  parse_price(row[4]),
+            "openPrice":  parse_price(row.get("開盤價", 0)),
             "limitTime":  "--:--",
             "market":     "上市",
             "instiForeign": insti.get("foreign", None),
@@ -261,15 +270,13 @@ def fetch_limit_up(sector_map: dict, insti_map: dict = None) -> list[dict]:
     if tpex:
         for row in tpex:
             code  = row.get("SecuritiesCompanyCode", "").strip()
+            if not code.isdigit():
+                continue
             close = parse_price(row.get("Close", 0))
             chg   = parse_price(row.get("Change", 0))
             vol   = int(parse_price(row.get("TradingShares", 0)) / 1000)
             tv    = parse_price(row.get("TransactionAmount", 0))
             pct   = calc_change_pct(close, chg)
-            if not (LIMIT_UP_MIN <= pct <= LIMIT_UP_MAX):
-                continue
-            if not code.isdigit():
-                continue
             insti = (insti_map or {}).get(code, {})
             stocks.append({
                 "code":       code,
@@ -291,8 +298,32 @@ def fetch_limit_up(sector_map: dict, insti_map: dict = None) -> list[dict]:
 
     # 依當日成交金額由大到小排序
     stocks.sort(key=lambda s: -s["tradeValue"])
+    log(f"  全市場報價：{len(stocks)} 檔（上市+上櫃）")
+    return stocks
+
+def filter_limit_up(all_stocks: list[dict]) -> list[dict]:
+    stocks = [s for s in all_stocks if LIMIT_UP_MIN <= s["change"] <= LIMIT_UP_MAX]
     log(f"  漲停股：{len(stocks)} 檔（上市+上櫃）")
     return stocks
+
+def build_sector_stocks(all_stocks: list[dict]) -> dict[str, list[dict]]:
+    """族群個股排行 — 依族群分組，組內依漲跌幅由大到小排序"""
+    from collections import defaultdict
+    grouped: dict[str, list[dict]] = defaultdict(list)
+    for s in all_stocks:
+        grouped[s["sector"]].append({
+            "code":          s["code"],
+            "name":          s["name"],
+            "market":        s["market"],
+            "changePercent": s["change"],
+            "closePrice":    s["closePrice"],
+            "volume":        s["volume"],
+            "tradeValue":    s["tradeValue"],
+        })
+    for lst in grouped.values():
+        lst.sort(key=lambda s: s["changePercent"], reverse=True)
+    log(f"  族群個股排行：{len(grouped)} 個族群")
+    return dict(grouped)
 
 # ── 族群統計 ────────────────────────────────────────────────
 def summarize_sectors(stocks: list[dict]) -> list[dict]:
@@ -1627,7 +1658,9 @@ def main():
 
     sector_map    = build_sector_map()
     insti_map     = fetch_institutional()
-    limit_stocks  = fetch_limit_up(sector_map, insti_map)
+    all_stocks    = fetch_all_stocks(sector_map, insti_map)
+    limit_stocks  = filter_limit_up(all_stocks)
+    sector_stocks = build_sector_stocks(all_stocks)
     sectors       = summarize_sectors(limit_stocks)
     market        = fetch_market_summary(len(limit_stocks), len(sectors))
     notice        = fetch_notice_stocks()
@@ -1654,6 +1687,7 @@ def main():
     save("announcements.json", {"date": TODAY_AD, "data": announcements})
     save("etf-flow.json",      etf_flow)
     save("sector-performance.json", {"date": TODAY_AD, "data": sector_perf})
+    save("sector-stocks.json", {"date": TODAY_AD, "data": sector_stocks})
     save("last-updated.json",  {"updatedAt": datetime.datetime.utcnow().isoformat() + "Z", "date": TODAY_AD})
 
     log(f"=== 完成 ===")

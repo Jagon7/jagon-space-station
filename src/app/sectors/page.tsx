@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
 
+import Link from "next/link";
 import PageShell from "@/components/PageShell";
 import { getSectorPerformance, getLastUpdated } from "@/lib/data-loader";
 import { TrendingUp, TrendingDown } from "lucide-react";
@@ -47,8 +48,9 @@ export default async function SectorsPage() {
             const barWidth = `${(Math.abs(s.changePercent) / maxAbs) * 100}%`;
             const Icon = isUp ? TrendingUp : TrendingDown;
             return (
-              <div
+              <Link
                 key={s.name}
+                href={`/sectors/${encodeURIComponent(s.name)}`}
                 className="flex items-center gap-4 px-5 py-3 border-b border-[#1e2a3a]/50 last:border-0 hover:bg-[#1e2a3a]/20 transition-colors"
               >
                 <span className="w-6 text-xs font-mono text-slate-600 text-right flex-shrink-0">{i + 1}</span>
@@ -64,7 +66,7 @@ export default async function SectorsPage() {
                   <Icon className="w-3.5 h-3.5" />
                   {isUp ? "+" : ""}{s.changePercent.toFixed(2)}%
                 </span>
-              </div>
+              </Link>
             );
           })}
         </div>
