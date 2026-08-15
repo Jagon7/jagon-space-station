@@ -304,6 +304,39 @@ def summarize_sectors(stocks: list[dict]) -> list[dict]:
         result.append({"name": sector, "count": count, "momentum": momentum})
     return result
 
+# TWSE 官方類股指數名稱跟 INDUSTRY_MAP 顯示名稱少數幾個對不上，手動對齊
+SECTOR_INDEX_ALIAS = {"化工": "化學", "電腦週邊": "電腦及週邊設備"}
+
+def fetch_sector_performance() -> list[dict]:
+    """
+    全市場族群強弱排行 — 用 TWSE 官方類股指數當日漲跌幅（不是漲停家數），
+    這是市值加權的真實族群表現，比自己算個股平均漲跌幅更準也更快。
+    """
+    log("抓取類股指數漲跌...")
+    data = fetch("https://openapi.twse.com.tw/v1/exchangeReport/MI_INDEX") or []
+
+    by_name: dict[str, float] = {}
+    for row in data:
+        name = row.get("指數", "")
+        if not name.endswith("類指數") or "報酬" in name:
+            continue
+        try:
+            # 漲跌百分比字串本身就帶負號（"-1.45"），漲跌欄位只是輔助標記，
+            # 不需要也不該再依它二次翻負號
+            by_name[name[:-3]] = float(row.get("漲跌百分比", 0) or 0)
+        except (TypeError, ValueError):
+            continue
+
+    results = []
+    for sector_name in dict.fromkeys(INDUSTRY_MAP.values()):
+        twse_name = SECTOR_INDEX_ALIAS.get(sector_name, sector_name)
+        if twse_name in by_name:
+            results.append({"name": sector_name, "changePercent": by_name[twse_name]})
+
+    results.sort(key=lambda s: s["changePercent"], reverse=True)
+    log(f"族群強弱：{len(results)} 個族群")
+    return results
+
 # ── 大盤統計 ────────────────────────────────────────────────
 def _fetch_taiex_change() -> float:
     """加權指數當日漲跌百分比（號稱 0.0 是沒抓到，不是真的平盤）"""
@@ -311,8 +344,8 @@ def _fetch_taiex_change() -> float:
     for row in data:
         if row.get("指數") == "發行量加權股價指數":
             try:
-                pct = float(row.get("漲跌百分比", 0) or 0)
-                return -pct if row.get("漲跌") == "-" else pct
+                # 漲跌百分比字串本身就帶負號，不需要再依漲跌欄位二次翻負號
+                return float(row.get("漲跌百分比", 0) or 0)
             except (TypeError, ValueError):
                 return 0.0
     return 0.0
@@ -1603,6 +1636,7 @@ def main():
     sfb_cb        = fetch_sfb_cb()
     announcements = fetch_announcements()
     etf_flow      = fetch_etf_flow()
+    sector_perf   = fetch_sector_performance()
 
     market["noticeCount"]       = len(notice)
     market["dispositionCount"]  = len(disposition)
@@ -1619,6 +1653,7 @@ def main():
     sfb_cb       = save_guarded("sfb-cb.json",   sfb_cb)
     save("announcements.json", {"date": TODAY_AD, "data": announcements})
     save("etf-flow.json",      etf_flow)
+    save("sector-performance.json", {"date": TODAY_AD, "data": sector_perf})
     save("last-updated.json",  {"updatedAt": datetime.datetime.utcnow().isoformat() + "Z", "date": TODAY_AD})
 
     log(f"=== 完成 ===")

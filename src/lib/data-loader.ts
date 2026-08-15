@@ -3,7 +3,7 @@ import path from "path";
 import type {
   LimitUpStock, NoticeStock, DispositionStock, Announcement,
   MarketSummary, SectorSummary, CBIssuance, SFBCBRecord, EtfFlowData,
-  MarketHistoryEntry,
+  MarketHistoryEntry, SectorPerformance,
 } from "./types";
 import * as mock from "./mock-data";
 
@@ -50,6 +50,11 @@ export async function getMarketSummary(): Promise<MarketSummary> {
 
 export async function getMarketHistory(): Promise<MarketHistoryEntry[]> {
   const file = await readJson<Dated<MarketHistoryEntry[]>>("market-history.json");
+  return file?.data ?? [];
+}
+
+export async function getSectorPerformance(): Promise<SectorPerformance[]> {
+  const file = await readJson<Dated<SectorPerformance[]>>("sector-performance.json");
   return file?.data ?? [];
 }
 

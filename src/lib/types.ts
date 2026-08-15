@@ -126,3 +126,8 @@ export type MarketHistoryEntry = {
   taiexChange: number;
   topSectors: { name: string; count: number }[];
 };
+
+export type SectorPerformance = {
+  name: string;
+  changePercent: number;
+};

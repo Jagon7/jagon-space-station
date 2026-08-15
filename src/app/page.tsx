@@ -10,22 +10,22 @@ import Footer from "@/components/Footer";
 import {
   getLimitUpStocks, getMarketSummary, getNoticeStocks,
   getDispositionStocks, getAnnouncements, getSectors, getLastUpdated,
-  getEtfFlow,
+  getEtfFlow, getSectorPerformance,
 } from "@/lib/data-loader";
 
 export default async function Home() {
-  const [stocks, summary, notice, disposition, announcements, sectors, updatedAt, etfFlow] =
+  const [stocks, summary, notice, disposition, announcements, sectors, updatedAt, etfFlow, sectorPerf] =
     await Promise.all([
       getLimitUpStocks(), getMarketSummary(), getNoticeStocks(),
       getDispositionStocks(), getAnnouncements(), getSectors(), getLastUpdated(),
-      getEtfFlow(),
+      getEtfFlow(), getSectorPerformance(),
     ]);
 
   return (
     <>
       <Navbar />
       <main className="flex-1">
-        <HeroSection summary={summary} />
+        <HeroSection summary={summary} topSector={sectorPerf[0]} />
         <MarketSummaryCards
           stocks={stocks}
           sectors={sectors}

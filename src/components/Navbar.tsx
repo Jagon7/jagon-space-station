@@ -16,6 +16,7 @@ const navItems: NavItem[] = [
       { label: "漲停訊號", href: "/limit-up" },
       { label: "隔日追蹤", href: "/next-day" },
       { label: "統計戰報", href: "/stats" },
+      { label: "族群強弱", href: "/sectors" },
     ],
   },
   {
@@ -34,7 +35,6 @@ const navItems: NavItem[] = [
     children: [
       { label: "券差偵測", href: "/short",       badge: "20:08" },
       { label: "處置預警",      href: "/disposition",  badge: "19:00" },
-      { label: "主動 ETF",      href: "/etf",          badge: "22:30" },
       { label: "ETF 成分股動態", href: "/etf-flow",     badge: "22:30" },
     ],
   },

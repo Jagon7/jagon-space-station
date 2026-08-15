@@ -1,5 +1,6 @@
+import Link from "next/link";
 import { TrendingUp, Shield, Bell, BarChart2 } from "lucide-react";
-import type { MarketSummary } from "@/lib/types";
+import type { MarketSummary, SectorPerformance } from "@/lib/types";
 
 const features = [
   { icon: TrendingUp, label: "強勢訊號偵測",   desc: "即時鎖定每日漲停股，解析族群輪動脈絡" },
@@ -13,14 +14,22 @@ const moodColor: Record<string, string> = {
   中性: "text-[#f59e0b]", 偏弱: "text-[#00d4aa]", 弱勢: "text-[#22c55e]",
 };
 
-type Props = { summary: MarketSummary };
+type Props = { summary: MarketSummary; topSector?: SectorPerformance };
 
-export default function HeroSection({ summary }: Props) {
+export default function HeroSection({ summary, topSector }: Props) {
+  const sectorUp = (topSector?.changePercent ?? 0) >= 0;
   const stats = [
-    { label: "鎖定漲停", value: String(summary.limitUpCount), unit: "檔", color: "text-[#00d4aa]", border: "border-[#00d4aa]/20" },
-    { label: "觸及族群", value: String(summary.sectorCount),  unit: "個", color: "text-[#3b82f6]", border: "border-[#3b82f6]/20" },
-    { label: "處置威脅", value: String(summary.dispositionCount), unit: "檔", color: "text-[#f59e0b]", border: "border-[#f59e0b]/20" },
-    { label: "截收公告", value: String(summary.announcementCount || "—"), unit: "則", color: "text-[#a78bfa]", border: "border-[#a78bfa]/20" },
+    { label: "鎖定漲停", value: String(summary.limitUpCount), unit: "檔", color: "text-[#00d4aa]", border: "border-[#00d4aa]/20", href: undefined as string | undefined },
+    {
+      label: "強勢族群",
+      value: topSector ? topSector.name : "—",
+      unit: topSector ? `${sectorUp ? "+" : ""}${topSector.changePercent.toFixed(2)}%` : "",
+      color: topSector ? (sectorUp ? "text-[#ef4444]" : "text-[#22c55e]") : "text-[#3b82f6]",
+      border: "border-[#3b82f6]/20",
+      href: "/sectors" as string | undefined,
+    },
+    { label: "處置威脅", value: String(summary.dispositionCount), unit: "檔", color: "text-[#f59e0b]", border: "border-[#f59e0b]/20", href: undefined as string | undefined },
+    { label: "截收公告", value: String(summary.announcementCount || "—"), unit: "則", color: "text-[#a78bfa]", border: "border-[#a78bfa]/20", href: undefined as string | undefined },
   ];
 
   return (
@@ -70,15 +79,22 @@ export default function HeroSection({ summary }: Props) {
 
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-12">
-          {stats.map((s) => (
-            <div key={s.label} className={`rounded-xl border ${s.border} bg-[#0d1220] p-4 text-center card-hover`}>
-              <div className={`text-3xl font-bold font-mono ${s.color} mb-1`}>
-                {s.value}
-                <span className="text-sm font-normal ml-1 opacity-70">{s.unit}</span>
+          {stats.map((s) => {
+            const card = (
+              <div className={`rounded-xl border ${s.border} bg-[#0d1220] p-4 text-center card-hover ${s.href ? "cursor-pointer" : ""}`}>
+                <div className={`text-3xl font-bold font-mono ${s.color} mb-1`}>
+                  {s.value}
+                  <span className="text-sm font-normal ml-1 opacity-70">{s.unit}</span>
+                </div>
+                <div className="text-[11px] text-slate-500 tracking-wide uppercase font-mono">{s.label}</div>
               </div>
-              <div className="text-[11px] text-slate-500 tracking-wide uppercase font-mono">{s.label}</div>
-            </div>
-          ))}
+            );
+            return s.href ? (
+              <Link key={s.label} href={s.href} className="block">{card}</Link>
+            ) : (
+              <div key={s.label}>{card}</div>
+            );
+          })}
         </div>
 
         {/* Features */}
