@@ -900,6 +900,12 @@ def fetch_sfb_cb() -> list[dict]:
 # 各投信申購買回清單（PCF）資料來源設定
 # 每日盤後更新，透過比較昨日 vs 今日持股股數計算增減
 ETF_CONFIG = {
+    # 市值型 ETF
+    "0050": {
+        "name": "元大台灣50",       "category": "市值型",
+        "source": "yuanta",         # 元大投信
+        "product_id": "0050",
+    },
     # 高股息 ETF
     "00919": {
         "name": "群益台灣精選高息", "category": "高股息",
@@ -920,6 +926,16 @@ ETF_CONFIG = {
         "name": "元大高股息",       "category": "高股息",
         "source": "yuanta",         # 元大投信
         "product_id": "0056",
+    },
+    "00940": {
+        "name": "元大台灣價值高息", "category": "高股息",
+        "source": "yuanta",         # 元大投信
+        "product_id": "00940",
+    },
+    "00713": {
+        "name": "元大台灣高息低波", "category": "高股息",
+        "source": "yuanta",         # 元大投信
+        "product_id": "00713",
     },
     # 主動型 ETF
     "00981A": {
@@ -1545,6 +1561,16 @@ def update_market_history(market: dict, sectors: list[dict]) -> list[dict]:
 
 # ── 主流程 ──────────────────────────────────────────────────
 def main():
+    if "--etf-only" in sys.argv:
+        # 國泰(cathay) PCF 要到近午夜才發布，19:00 主排程常抓不到；
+        # 這個模式給隔天開盤前的第二次排程單獨補抓 ETF 成分股動態用，
+        # 不動 last-updated.json（那個代表「全站」資料新鮮度）。
+        log(f"=== JSS ETF-only 資料抓取開始 {TODAY_AD} ===")
+        etf_flow = fetch_etf_flow()
+        save("etf-flow.json", etf_flow)
+        log(f"=== 完成（ETF-only）=== ETF異動ETF：{len(etf_flow['data'])} 檔")
+        return
+
     log(f"=== JSS 資料抓取開始 {TODAY_AD} ===")
     log(f"輸出目錄：{JSS_DATA_DIR}")
 

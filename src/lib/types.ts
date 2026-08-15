@@ -108,7 +108,7 @@ export type EtfFlowChange = {
 export type EtfFlowItem = {
   etfCode: string;
   etfName: string;
-  category: "高股息" | "主動型";
+  category: "高股息" | "主動型" | "市值型";
   navPerUnit: number;
   totalUnits: number;
   changes: EtfFlowChange[];

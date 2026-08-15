@@ -57,7 +57,10 @@ function EtfSection({ etf }: { etf: EtfFlowItem }) {
   const sellCount = etf.changes.filter(c => c.diffShares < 0).length;
   const totalBuyVal  = etf.changes.filter(c => c.diffShares > 0).reduce((s, c) => s + c.diffValue, 0);
   const totalSellVal = etf.changes.filter(c => c.diffShares < 0).reduce((s, c) => s + Math.abs(c.diffValue), 0);
-  const catColor = etf.category === "主動型" ? "text-[#a78bfa] bg-[#a78bfa]/10" : "text-[#22c55e] bg-[#22c55e]/10";
+  const catColor =
+    etf.category === "主動型" ? "text-[#a78bfa] bg-[#a78bfa]/10" :
+    etf.category === "市值型" ? "text-[#3b82f6] bg-[#3b82f6]/10" :
+    "text-[#22c55e] bg-[#22c55e]/10";
 
   return (
     <div className="rounded-xl border border-[#1e2a3a] bg-[#0d1220] overflow-hidden">
@@ -170,6 +173,7 @@ export default async function EtfFlowPage() {
   }
 
   const stockAgg = buildStockAgg(flow.data);
+  const capEtfs      = flow.data.filter(e => e.category === "市值型");
   const highDivEtfs  = flow.data.filter(e => e.category === "高股息");
   const activeEtfs   = flow.data.filter(e => e.category === "主動型");
   const totalBuyVal  = flow.data.reduce((s, e) => s + e.changes.filter(c => c.diffShares > 0).reduce((a, c) => a + c.diffValue, 0), 0);
@@ -203,12 +207,13 @@ export default async function EtfFlowPage() {
       </div>
 
       {/* KPI */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-8">
         {[
           { label: "追蹤 ETF",   value: `${flow.data.length} 檔`,     color: "text-slate-200" },
           { label: "ETF 合計買入", value: `+${fmt(totalBuyVal)}`,       color: "text-[#ef4444]" },
           { label: "ETF 合計賣出", value: `-${fmt(totalSellVal)}`,      color: "text-[#3b82f6]" },
           { label: "主動型 ETF",  value: `${activeEtfs.length} 檔`,    color: "text-[#a78bfa]" },
+          { label: "市值型 ETF",  value: `${capEtfs.length} 檔`,       color: "text-[#3b82f6]" },
         ].map((k) => (
           <div key={k.label} className="rounded-xl border border-[#1e2a3a] bg-[#0d1220] p-4 text-center">
             <div className={`text-xl font-bold font-mono ${k.color}`}>{k.value}</div>
@@ -272,6 +277,21 @@ export default async function EtfFlowPage() {
           </div>
         </div>
       </div>
+
+      {/* ── 市值型 ETF ── */}
+      {capEtfs.length > 0 && (
+        <div className="mb-8">
+          <div className="flex items-center gap-3 mb-4">
+            <h2 className="text-sm font-semibold text-white">市值型 ETF</h2>
+            <span className="text-[10px] font-mono text-[#3b82f6] bg-[#3b82f6]/10 px-2 py-0.5 rounded border border-[#3b82f6]/30">
+              {capEtfs.length} 檔
+            </span>
+          </div>
+          <div className="space-y-4">
+            {capEtfs.map(etf => <EtfSection key={etf.etfCode} etf={etf} />)}
+          </div>
+        </div>
+      )}
 
       {/* ── 高股息 ETF ── */}
       {highDivEtfs.length > 0 && (
