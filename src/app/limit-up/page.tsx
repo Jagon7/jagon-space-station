@@ -2,7 +2,7 @@ export const dynamic = "force-dynamic";
 
 import PageShell from "@/components/PageShell";
 import { LimitUpTrendChart, SectorTrendChart } from "@/components/charts/LimitUpChart";
-import { getLimitUpStocks, getMarketSummary, getLastUpdated } from "@/lib/data-loader";
+import { getLimitUpStocks, getMarketSummary, getMarketHistory, getLastUpdated } from "@/lib/data-loader";
 
 function InstiCell({ value, bold }: { value?: number | null; bold?: boolean }) {
   if (value == null) return <td className="px-3 py-3 text-right font-mono text-slate-700 text-xs">—</td>;
@@ -16,8 +16,8 @@ function InstiCell({ value, bold }: { value?: number | null; bold?: boolean }) {
 }
 
 export default async function LimitUpPage() {
-  const [stocks, summary, updatedAt] =
-    await Promise.all([getLimitUpStocks(), getMarketSummary(), getLastUpdated()]);
+  const [stocks, summary, history, updatedAt] =
+    await Promise.all([getLimitUpStocks(), getMarketSummary(), getMarketHistory(), getLastUpdated()]);
   const updatedTime = new Date(updatedAt).toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" });
 
   const sectors = Array.from(new Set(stocks.map((s) => s.sector)));
@@ -30,8 +30,8 @@ export default async function LimitUpPage() {
     >
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-8">
-        <LimitUpTrendChart />
-        <SectorTrendChart />
+        <LimitUpTrendChart history={history} />
+        <SectorTrendChart history={history} />
       </div>
 
       {/* Sector filter tabs */}

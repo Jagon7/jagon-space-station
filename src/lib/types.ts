@@ -118,3 +118,11 @@ export type EtfFlowData = {
   date: string;
   data: EtfFlowItem[];
 };
+
+export type MarketHistoryEntry = {
+  date: string;
+  limitUpCount: number;
+  marketMood: MarketSummary["marketMood"];
+  taiexChange: number;
+  topSectors: { name: string; count: number }[];
+};

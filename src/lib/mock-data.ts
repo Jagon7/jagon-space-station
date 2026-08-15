@@ -38,14 +38,6 @@ export const mockAnnouncements: Announcement[] = [
   { time: "16:30", code: "2308", name: "台達電",   type: "財報",     important: false, content: "113Q1 EPS 2.8 元" },
 ];
 
-export const mockSectorTrend = [
-  { date: "05/01", aiServer: 6, semiconductor: 5, pcb: 3, panel: 2 },
-  { date: "05/02", aiServer: 5, semiconductor: 6, pcb: 4, panel: 3 },
-  { date: "05/05", aiServer: 7, semiconductor: 4, pcb: 5, panel: 2 },
-  { date: "05/06", aiServer: 9, semiconductor: 7, pcb: 3, panel: 4 },
-  { date: "05/07", aiServer: 8, semiconductor: 7, pcb: 5, panel: 4 },
-];
-
 export const mockCBIssuances: CBIssuance[] = [
   {
     code: "6176", name: "瑞儀光電", cbSeries: "瑞儀二",
@@ -95,14 +87,6 @@ export const mockCBIssuances: CBIssuance[] = [
     amount: 200, conversionPrice: 118.5, closePrice: 112.8,
     market: "上市", underwriter: "元大證券",
   },
-];
-
-export const mockLimitUpTrend = [
-  { date: "05/01", count: 32, mood: 65 },
-  { date: "05/02", count: 28, mood: 58 },
-  { date: "05/05", count: 41, mood: 74 },
-  { date: "05/06", count: 55, mood: 85 },
-  { date: "05/07", count: 48, mood: 79 },
 ];
 
 export const mockEtfFlow: EtfFlowData = {

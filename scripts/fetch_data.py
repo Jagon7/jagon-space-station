@@ -305,10 +305,22 @@ def summarize_sectors(stocks: list[dict]) -> list[dict]:
     return result
 
 # ── 大盤統計 ────────────────────────────────────────────────
+def _fetch_taiex_change() -> float:
+    """加權指數當日漲跌百分比（號稱 0.0 是沒抓到，不是真的平盤）"""
+    data = fetch("https://openapi.twse.com.tw/v1/exchangeReport/MI_INDEX") or []
+    for row in data:
+        if row.get("指數") == "發行量加權股價指數":
+            try:
+                pct = float(row.get("漲跌百分比", 0) or 0)
+                return -pct if row.get("漲跌") == "-" else pct
+            except (TypeError, ValueError):
+                return 0.0
+    return 0.0
+
 def fetch_market_summary(limit_up_count: int, sector_count: int) -> dict:
     log("抓取大盤統計...")
     limit_up_total = limit_up_count
-    taiex_change   = 0.0
+    taiex_change   = _fetch_taiex_change()
     mood           = "中性"
 
     # 氣氛判斷用純股票漲停家數（與清單一致）
@@ -1504,6 +1516,33 @@ def fetch_etf_flow() -> dict:
     log(f"ETF 成分股動態：共 {len(etf_items)} 檔 ETF 有異動")
     return {"date": TODAY_AD, "data": etf_items}
 
+# ── 統計戰報：每日快照累積成歷史序列 ─────────────────────────
+HISTORY_MAX_DAYS = 30
+
+def update_market_history(market: dict, sectors: list[dict]) -> list[dict]:
+    path = JSS_DATA_DIR / "market-history.json"
+    try:
+        history = json.loads(path.read_text(encoding="utf-8")).get("data", [])
+    except Exception:
+        history = []
+
+    top_sectors = sorted(sectors, key=lambda s: s.get("count", 0), reverse=True)[:5]
+    entry = {
+        "date":         TODAY_AD,
+        "limitUpCount": market["limitUpCount"],
+        "marketMood":   market["marketMood"],
+        "taiexChange":  market["taiexChange"],
+        "topSectors":   [{"name": s["name"], "count": s["count"]} for s in top_sectors],
+    }
+
+    history = [h for h in history if h.get("date") != TODAY_AD]
+    history.append(entry)
+    history.sort(key=lambda h: h["date"])
+    history = history[-HISTORY_MAX_DAYS:]
+
+    save("market-history.json", {"date": TODAY_AD, "data": history})
+    return history
+
 # ── 主流程 ──────────────────────────────────────────────────
 def main():
     log(f"=== JSS 資料抓取開始 {TODAY_AD} ===")
@@ -1521,8 +1560,10 @@ def main():
     announcements = fetch_announcements()
     etf_flow      = fetch_etf_flow()
 
-    market["noticeCount"]      = len(notice)
-    market["dispositionCount"] = len(disposition)
+    market["noticeCount"]       = len(notice)
+    market["dispositionCount"]  = len(disposition)
+    market["announcementCount"] = len(announcements)
+    market_history = update_market_history(market, sectors)
 
     # ── 寫檔 ──
     save("limit-up.json",      {"date": TODAY_AD, "data": limit_stocks})
@@ -1537,7 +1578,7 @@ def main():
     save("last-updated.json",  {"updatedAt": datetime.datetime.utcnow().isoformat() + "Z", "date": TODAY_AD})
 
     log(f"=== 完成 ===")
-    log(f"  漲停：{len(limit_stocks)} 檔 | 族群：{len(sectors)} 個 | 注意：{len(notice)} 檔 | 處置：{len(disposition)} 檔 | CB詢圈：{len(cb_issuances)} 筆 | ETF異動ETF：{len(etf_flow['data'])} 檔")
+    log(f"  漲停：{len(limit_stocks)} 檔 | 族群：{len(sectors)} 個 | 注意：{len(notice)} 檔 | 處置：{len(disposition)} 檔 | CB詢圈：{len(cb_issuances)} 筆 | ETF異動ETF：{len(etf_flow['data'])} 檔 | 統計戰報歷史：{len(market_history)} 天")
 
     if HAD_CRITICAL_FAILURE:
         log("=== 有抓取異常，結束時回傳失敗（讓 Actions 顯示紅叉並寄通知信）===")
