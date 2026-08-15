@@ -29,7 +29,7 @@ export default function HeroSection({ summary, topSector }: Props) {
       href: "/sectors" as string | undefined,
     },
     { label: "處置威脅", value: String(summary.dispositionCount), unit: "檔", color: "text-[#f59e0b]", border: "border-[#f59e0b]/20", href: "/disposition" as string | undefined },
-    { label: "截收公告", value: String(summary.announcementCount || "—"), unit: "則", color: "text-[#a78bfa]", border: "border-[#a78bfa]/20", href: undefined as string | undefined },
+    { label: "截收公告", value: String(summary.announcementCount || "—"), unit: "則", color: "text-[#a78bfa]", border: "border-[#a78bfa]/20", href: "/announcements" as string | undefined },
   ];
 
   return (
