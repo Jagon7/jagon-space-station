@@ -1387,7 +1387,7 @@ def _fetch_sinotrust_pcf(product_id: str, date_str: str = "") -> dict:
     return {"stocks": stocks, "navPerUnit": nav, "totalUnits": total_units, "pcfDate": pcf_date}
 
 def _fetch_pcf(source: str, product_id: str, date_str: str) -> dict[str, int]:
-    """根據投信代碼分發到對應抓取函式"""
+    """根據投信代碼分發到對應抓取函式；空結果重試一次（投信官網偶爾間歇性回空）"""
     fn = {
         "capital":   _fetch_capital_pcf,
         "yuanta":    _fetch_yuanta_pcf,
@@ -1395,7 +1395,13 @@ def _fetch_pcf(source: str, product_id: str, date_str: str) -> dict[str, int]:
         "fuhhwa":    _fetch_fuhhwa_pcf,
         "sinotrust": _fetch_sinotrust_pcf,
     }.get(source)
-    return fn(product_id, date_str) if fn else {}
+    if not fn:
+        return {}
+    result = fn(product_id, date_str)
+    if not result.get("stocks"):
+        time.sleep(3)
+        result = fn(product_id, date_str)
+    return result
 
 def _get_close_prices(codes: list[str]) -> dict[str, float]:
     """批次取得收盤價，從 TWSE STOCK_DAY_ALL"""
