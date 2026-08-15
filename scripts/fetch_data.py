@@ -1386,8 +1386,15 @@ def _fetch_sinotrust_pcf(product_id: str, date_str: str = "") -> dict:
 
     return {"stocks": stocks, "navPerUnit": nav, "totalUnits": total_units, "pcfDate": pcf_date}
 
+# 正常 ETF 成分股籃子至少有幾十檔，低於這個數字視為截斷/異常回應
+MIN_PCF_STOCKS = 5
+
 def _fetch_pcf(source: str, product_id: str, date_str: str) -> dict[str, int]:
-    """根據投信代碼分發到對應抓取函式；空結果重試一次（投信官網偶爾間歇性回空）"""
+    """
+    根據投信代碼分發到對應抓取函式；結果過小（含 0 檔）重試一次
+    （投信官網偶爾回空，或回傳被截斷的部分內容而非真的空 —
+    後者不會被 `if not stocks` 擋到，之前 00713 就曾只抓到 1 檔就被當成正常資料）
+    """
     fn = {
         "capital":   _fetch_capital_pcf,
         "yuanta":    _fetch_yuanta_pcf,
@@ -1398,9 +1405,14 @@ def _fetch_pcf(source: str, product_id: str, date_str: str) -> dict[str, int]:
     if not fn:
         return {}
     result = fn(product_id, date_str)
-    if not result.get("stocks"):
+    if len(result.get("stocks", {})) < MIN_PCF_STOCKS:
         time.sleep(3)
-        result = fn(product_id, date_str)
+        retry = fn(product_id, date_str)
+        if len(retry.get("stocks", {})) >= len(result.get("stocks", {})):
+            result = retry
+    if 0 < len(result.get("stocks", {})) < MIN_PCF_STOCKS:
+        log(f"  ⚠ {product_id} PCF 只抓到 {len(result['stocks'])} 檔，疑似截斷，視為失敗")
+        return {}
     return result
 
 def _get_close_prices(codes: list[str]) -> dict[str, float]:
