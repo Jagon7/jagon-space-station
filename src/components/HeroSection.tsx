@@ -19,7 +19,7 @@ type Props = { summary: MarketSummary; topSector?: SectorPerformance };
 export default function HeroSection({ summary, topSector }: Props) {
   const sectorUp = (topSector?.changePercent ?? 0) >= 0;
   const stats = [
-    { label: "鎖定漲停", value: String(summary.limitUpCount), unit: "檔", color: "text-[#00d4aa]", border: "border-[#00d4aa]/20", href: undefined as string | undefined },
+    { label: "鎖定漲停", value: String(summary.limitUpCount), unit: "檔", color: "text-[#00d4aa]", border: "border-[#00d4aa]/20", href: "/limit-up" as string | undefined },
     {
       label: "強勢族群",
       value: topSector ? topSector.name : "—",
@@ -28,7 +28,7 @@ export default function HeroSection({ summary, topSector }: Props) {
       border: "border-[#3b82f6]/20",
       href: "/sectors" as string | undefined,
     },
-    { label: "處置威脅", value: String(summary.dispositionCount), unit: "檔", color: "text-[#f59e0b]", border: "border-[#f59e0b]/20", href: undefined as string | undefined },
+    { label: "處置威脅", value: String(summary.dispositionCount), unit: "檔", color: "text-[#f59e0b]", border: "border-[#f59e0b]/20", href: "/disposition" as string | undefined },
     { label: "截收公告", value: String(summary.announcementCount || "—"), unit: "則", color: "text-[#a78bfa]", border: "border-[#a78bfa]/20", href: undefined as string | undefined },
   ];
 
