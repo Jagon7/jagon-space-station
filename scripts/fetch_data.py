@@ -871,10 +871,43 @@ def fetch_cb_issuances() -> list[dict]:
     log(f"  CB 詢圈：{len(results)} 筆")
     return results
 
-# ── 公告（MOPS - 基礎版）─────────────────────────────────────
+# ── 公告（MOPS 每日重大訊息）───────────────────────────────────
+def _format_mops_time(raw: str) -> str:
+    s = str(raw).strip().zfill(6)
+    if len(s) < 6 or not s.isdigit():
+        return "--:--"
+    return f"{s[:2]}:{s[2:4]}"
+
 def fetch_announcements() -> list[dict]:
-    log("公告資料：使用空清單（待接 MOPS API）")
-    return []
+    """MOPS 每日重大訊息（上市 t187ap04_L + 上櫃 mopsfin_t187ap04_O）"""
+    log("抓取 MOPS 重大訊息...")
+    results = []
+
+    sources = [
+        ("https://openapi.twse.com.tw/v1/opendata/t187ap04_L", "公司代號", "公司名稱"),
+        ("https://www.tpex.org.tw/openapi/v1/mopsfin_t187ap04_O", "SecuritiesCompanyCode", "CompanyName"),
+    ]
+    for url, code_key, name_key in sources:
+        data = fetch(url) or []
+        for row in data:
+            code = str(row.get(code_key, "")).strip()
+            # TWSE 那份的欄位名稱帶了個尾隨空白："主旨 "
+            subject = str(row.get("主旨") or row.get("主旨 ") or "").strip()
+            if not code or not subject:
+                continue
+            results.append({
+                "time":      _format_mops_time(row.get("發言時間", "")),
+                "date":      roc_to_ad(row.get("發言日期", "")),
+                "code":      code,
+                "name":      str(row.get(name_key, "")).strip(),
+                "type":      "重大訊息",
+                "important": False,
+                "content":   " ".join(subject.split()),
+            })
+
+    results.sort(key=lambda a: (a["date"], a["time"]), reverse=True)
+    log(f"  重大訊息：{len(results)} 則")
+    return results
 
 # ── FSC 申報案件彙總表（轉換公司債）─────────────────────────────
 def fetch_sfb_cb() -> list[dict]:

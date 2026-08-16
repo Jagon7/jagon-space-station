@@ -30,12 +30,12 @@ export const mockDispositionStocks: DispositionStock[] = [
 ];
 
 export const mockAnnouncements: Announcement[] = [
-  { time: "20:35", code: "2330", name: "台積電",   type: "法說會",   important: true,  content: "Q2 營收預估超預期" },
-  { time: "19:12", code: "6547", name: "高端疫苗", type: "財報",     important: false, content: "113Q1 EPS 公告" },
-  { time: "18:44", code: "2317", name: "鴻海",     type: "重大訊息", important: true,  content: "取得大型 AI 伺服器訂單" },
-  { time: "17:20", code: "3711", name: "日月光",   type: "庫藏股",   important: false, content: "買回 5000 張計畫" },
-  { time: "16:55", code: "2382", name: "廣達",     type: "重大訊息", important: true,  content: "與 NVIDIA 深化合作協議" },
-  { time: "16:30", code: "2308", name: "台達電",   type: "財報",     important: false, content: "113Q1 EPS 2.8 元" },
+  { time: "20:35", date: "2026-05-07", code: "2330", name: "台積電",   type: "法說會",   important: true,  content: "Q2 營收預估超預期" },
+  { time: "19:12", date: "2026-05-07", code: "6547", name: "高端疫苗", type: "財報",     important: false, content: "113Q1 EPS 公告" },
+  { time: "18:44", date: "2026-05-07", code: "2317", name: "鴻海",     type: "重大訊息", important: true,  content: "取得大型 AI 伺服器訂單" },
+  { time: "17:20", date: "2026-05-07", code: "3711", name: "日月光",   type: "庫藏股",   important: false, content: "買回 5000 張計畫" },
+  { time: "16:55", date: "2026-05-07", code: "2382", name: "廣達",     type: "重大訊息", important: true,  content: "與 NVIDIA 深化合作協議" },
+  { time: "16:30", date: "2026-05-07", code: "2308", name: "台達電",   type: "財報",     important: false, content: "113Q1 EPS 2.8 元" },
 ];
 
 export const mockCBIssuances: CBIssuance[] = [

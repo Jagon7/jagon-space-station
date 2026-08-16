@@ -45,6 +45,7 @@ export type DispositionStock = {
 
 export type Announcement = {
   time: string;
+  date: string;
   code: string;
   name: string;
   type: string;
