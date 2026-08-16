@@ -2,56 +2,6 @@
   "date": "2026-08-16",
   "data": [
     {
-      "code": "6274",
-      "name": "台燿",
-      "count": 4,
-      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
-      "period": "115/08/10~115/08/14",
-      "endDate": "2026-08-14",
-      "announceDate": "115/08/07",
-      "market": "上櫃"
-    },
-    {
-      "code": "3624",
-      "name": "光頡",
-      "count": 5,
-      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
-      "period": "115/08/03~115/08/14",
-      "endDate": "2026-08-14",
-      "announceDate": "115/07/31",
-      "market": "上櫃"
-    },
-    {
-      "code": "6182",
-      "name": "合晶",
-      "count": 5,
-      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
-      "period": "115/08/03~115/08/14",
-      "endDate": "2026-08-14",
-      "announceDate": "115/07/31",
-      "market": "上櫃"
-    },
-    {
-      "code": "6739",
-      "name": "竹陞科技",
-      "count": 5,
-      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
-      "period": "115/08/03~115/08/14",
-      "endDate": "2026-08-14",
-      "announceDate": "115/07/31",
-      "market": "上櫃"
-    },
-    {
-      "code": "7828",
-      "name": "創新服務",
-      "count": 5,
-      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
-      "period": "115/08/03~115/08/14",
-      "endDate": "2026-08-14",
-      "announceDate": "115/07/31",
-      "market": "上櫃"
-    },
-    {
       "code": "2491",
       "name": "吉祥全",
       "count": 1,
