@@ -557,6 +557,10 @@ def fetch_disposition_stocks() -> list[dict]:
             latest[key] = s
     stocks = list(latest.values())
 
+    # TWSE 官方名單一過期就立刻下架，TPEx 過期後還會多留幾天 —
+    # 統一成跟 TWSE 一致的行為：期滿當天仍顯示，隔天就從名單移除
+    stocks = [s for s in stocks if s["endDate"] >= TODAY_AD]
+
     # 處置快結束的排前面
     stocks.sort(key=lambda s: s["endDate"])
     log(f"  處置股：{len(stocks)} 檔（上市 {len(twse)} + 上櫃 {len(tpex)}）")

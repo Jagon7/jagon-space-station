@@ -2,7 +2,7 @@ export const dynamic = "force-dynamic";
 
 import PageShell from "@/components/PageShell";
 import { getNoticeStocks, getDispositionStocks, getLastUpdated } from "@/lib/data-loader";
-import { AlertTriangle, ShieldAlert, Info } from "lucide-react";
+import { AlertTriangle, ShieldAlert, Info, Timer } from "lucide-react";
 
 function daysRemaining(endDate: string): number {
   const today = new Date(); today.setHours(0, 0, 0, 0);
@@ -14,6 +14,10 @@ export default async function DispositionPage() {
   const [notice, disposition, updatedAt] =
     await Promise.all([getNoticeStocks(), getDispositionStocks(), getLastUpdated()]);
   const updatedTime = new Date(updatedAt).toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" });
+
+  const expiringSoon = disposition
+    .filter((s) => daysRemaining(s.endDate) <= 3)
+    .sort((a, b) => daysRemaining(a.endDate) - daysRemaining(b.endDate));
 
   return (
     <PageShell
@@ -30,6 +34,42 @@ export default async function DispositionPage() {
           <p className="text-slate-600">本站資料來源：台灣證券交易所公告，僅供參考，不構成任何投資建議。</p>
         </div>
       </div>
+
+      {/* ── 即將出關（3 天內） ── */}
+      {expiringSoon.length > 0 && (
+        <section className="mb-8">
+          <div className="flex items-center gap-2 mb-3">
+            <Timer className="w-4 h-4 text-[#22c55e]" />
+            <h2 className="text-sm font-semibold text-white">即將出關</h2>
+            <span className="text-[10px] font-mono text-[#22c55e] bg-[#22c55e]/10 border border-[#22c55e]/20 px-1.5 py-0.5 rounded">
+              {expiringSoon.length} 檔 · 3 天內
+            </span>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {expiringSoon.map((s) => {
+              const days = daysRemaining(s.endDate);
+              return (
+                <div
+                  key={`${s.code}-${s.announceDate}`}
+                  className="rounded-xl border border-[#22c55e]/30 bg-[#22c55e]/5 p-4 flex items-center justify-between"
+                >
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-sm text-slate-300">{s.code}</span>
+                      <span className="font-semibold text-white">{s.name}</span>
+                      {s.market && <span className="text-[10px] font-mono text-slate-600 bg-[#1e2a3a] px-1 py-0.5 rounded">{s.market}</span>}
+                    </div>
+                    <div className="text-[11px] text-slate-500 font-mono mt-1">至 {s.period.split(/[~～]/)[1] ?? s.endDate}</div>
+                  </div>
+                  <span className="text-lg font-bold font-mono text-[#22c55e] flex-shrink-0">
+                    {days <= 0 ? "今日" : `${days}天`}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
       {/* ── 處置股 ── */}
       <section className="mb-8">
