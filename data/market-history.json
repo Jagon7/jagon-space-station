@@ -1,8 +1,36 @@
 {
-  "date": "2026-08-15",
+  "date": "2026-08-16",
   "data": [
     {
       "date": "2026-08-15",
+      "limitUpCount": 33,
+      "marketMood": "中性",
+      "taiexChange": -0.46,
+      "topSectors": [
+        {
+          "name": "航運",
+          "count": 4
+        },
+        {
+          "name": "光電",
+          "count": 4
+        },
+        {
+          "name": "電子零組件",
+          "count": 2
+        },
+        {
+          "name": "塑膠",
+          "count": 1
+        },
+        {
+          "name": "電腦週邊",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "date": "2026-08-16",
       "limitUpCount": 33,
       "marketMood": "中性",
       "taiexChange": -0.46,
