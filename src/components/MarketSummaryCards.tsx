@@ -6,21 +6,15 @@ function daysRemaining(endDate: string): number {
   return Math.round((end.getTime() - today.getTime()) / 86400000);
 }
 import Link from "next/link";
-import type { LimitUpStock, NoticeStock, DispositionStock, Announcement, SectorSummary } from "@/lib/types";
+import type { LimitUpStock, NoticeStock, DispositionStock, Announcement, SectorPerformance } from "@/lib/types";
 
 type Props = {
-  stocks:        LimitUpStock[];
-  sectors:       SectorSummary[];
-  notice:        NoticeStock[];
-  disposition:   DispositionStock[];
-  announcements: Announcement[];
-  updatedAt:     string;
-};
-
-const momentumStyle = {
-  strong: { bar: "bg-[#ef4444]", dot: "bg-[#ef4444]", tag: "text-[#ef4444] bg-red-900/30 border-red-700/30" },
-  normal: { bar: "bg-[#f59e0b]", dot: "bg-[#f59e0b]", tag: "text-[#f59e0b] bg-yellow-900/30 border-yellow-700/30" },
-  weak:   { bar: "bg-slate-600", dot: "bg-slate-600",  tag: "text-slate-400 bg-slate-800/40 border-slate-600/30" },
+  stocks:            LimitUpStock[];
+  sectorPerformance: SectorPerformance[];
+  notice:            NoticeStock[];
+  disposition:       DispositionStock[];
+  announcements:     Announcement[];
+  updatedAt:         string;
 };
 
 function CardHeader({ icon: Icon, title, href, badge, iconColor = "text-[#00d4aa]" }: {
@@ -40,11 +34,12 @@ function CardHeader({ icon: Icon, title, href, badge, iconColor = "text-[#00d4aa
   );
 }
 
-export default function MarketSummaryCards({ stocks, sectors, notice, disposition, announcements, updatedAt }: Props) {
+export default function MarketSummaryCards({ stocks, sectorPerformance, notice, disposition, announcements, updatedAt }: Props) {
   const updatedTime = new Date(updatedAt).toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" });
   const displayDate = new Date(updatedAt).toLocaleDateString("zh-TW", { year: "numeric", month: "2-digit", day: "2-digit" });
   const topStocks   = stocks.slice(0, 5);
-  const maxCount    = sectors[0]?.count ?? 1;
+  const topSectors  = sectorPerformance.slice(0, 8);
+  const maxAbsChange = Math.max(1, ...topSectors.map((s) => Math.abs(s.changePercent)));
 
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
@@ -81,29 +76,37 @@ export default function MarketSummaryCards({ stocks, sectors, notice, dispositio
 
         {/* 族群雷達 */}
         <div className="rounded-xl border border-[#1e2a3a] bg-[#0d1220] p-5 card-hover">
-          <CardHeader icon={Users} title="資金族群雷達" href="/stats" badge={`${sectors.length} 族群`} />
-          {sectors.length > 0 ? (
+          <CardHeader icon={Users} title="資金族群雷達" href="/sectors" badge={`${sectorPerformance.length} 族群`} />
+          {topSectors.length > 0 ? (
             <div className="space-y-3">
-              {sectors.map((s) => {
-                const style = momentumStyle[s.momentum];
+              {topSectors.map((s) => {
+                const isUp = s.changePercent >= 0;
+                const color = isUp ? "text-[#ef4444]" : "text-[#22c55e]";
+                const barColor = isUp ? "bg-[#ef4444]" : "bg-[#22c55e]";
                 return (
-                  <div key={s.name} className="flex items-center justify-between">
+                  <Link
+                    key={s.name}
+                    href={`/sectors/${encodeURIComponent(s.name)}`}
+                    className="flex items-center justify-between group"
+                  >
                     <div className="flex items-center gap-2">
-                      <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${style.dot}`} />
-                      <span className="text-sm text-slate-300">{s.name}</span>
+                      <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${barColor}`} />
+                      <span className="text-sm text-slate-300 group-hover:text-white transition-colors">{s.name}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="h-1.5 rounded-full bg-[#1e2a3a] w-24 overflow-hidden">
-                        <div className={`h-full rounded-full ${style.bar}`} style={{ width: `${(s.count / maxCount) * 100}%` }} />
+                        <div className={`h-full rounded-full ${barColor}`} style={{ width: `${(Math.abs(s.changePercent) / maxAbsChange) * 100}%` }} />
                       </div>
-                      <span className={`text-xs font-mono border px-1.5 py-0.5 rounded ${style.tag}`}>{s.count} 檔</span>
+                      <span className={`text-xs font-mono font-semibold w-14 text-right ${color}`}>
+                        {isUp ? "+" : ""}{s.changePercent.toFixed(2)}%
+                      </span>
                     </div>
-                  </div>
+                  </Link>
                 );
               })}
             </div>
           ) : (
-            <p className="text-xs text-slate-600 font-mono">今日無明顯族群集中</p>
+            <p className="text-xs text-slate-600 font-mono">請等待 Actions 執行後重新整理</p>
           )}
         </div>
 

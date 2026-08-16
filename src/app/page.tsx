@@ -9,15 +9,15 @@ import ResearchGrid from "@/components/ResearchGrid";
 import Footer from "@/components/Footer";
 import {
   getLimitUpStocks, getMarketSummary, getNoticeStocks,
-  getDispositionStocks, getAnnouncements, getSectors, getLastUpdated,
+  getDispositionStocks, getAnnouncements, getLastUpdated,
   getEtfFlow, getSectorPerformance,
 } from "@/lib/data-loader";
 
 export default async function Home() {
-  const [stocks, summary, notice, disposition, announcements, sectors, updatedAt, etfFlow, sectorPerf] =
+  const [stocks, summary, notice, disposition, announcements, updatedAt, etfFlow, sectorPerf] =
     await Promise.all([
       getLimitUpStocks(), getMarketSummary(), getNoticeStocks(),
-      getDispositionStocks(), getAnnouncements(), getSectors(), getLastUpdated(),
+      getDispositionStocks(), getAnnouncements(), getLastUpdated(),
       getEtfFlow(), getSectorPerformance(),
     ]);
 
@@ -28,7 +28,7 @@ export default async function Home() {
         <HeroSection summary={summary} topSector={sectorPerf[0]} />
         <MarketSummaryCards
           stocks={stocks}
-          sectors={sectors}
+          sectorPerformance={sectorPerf}
           notice={notice}
           disposition={disposition}
           announcements={announcements}
