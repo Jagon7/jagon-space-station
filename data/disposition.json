@@ -1,5 +1,5 @@
 {
-  "date": "2026-08-16",
+  "date": "2026-08-17",
   "data": [
     {
       "code": "2491",
@@ -270,6 +270,26 @@
       "endDate": "2026-08-21",
       "announceDate": "115/08/12",
       "market": "上櫃"
+    },
+    {
+      "code": "7795",
+      "name": "長廣",
+      "count": 1,
+      "condition": "連續三次",
+      "period": "115/08/18～115/08/24",
+      "endDate": "2026-08-24",
+      "announceDate": "*115/08/17",
+      "market": "上市"
+    },
+    {
+      "code": "8033",
+      "name": "雷虎",
+      "count": 1,
+      "condition": "連續五次",
+      "period": "115/08/18～115/08/24",
+      "endDate": "2026-08-24",
+      "announceDate": "*115/08/17",
+      "market": "上市"
     }
   ]
 }

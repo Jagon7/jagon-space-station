@@ -1,53 +1,38 @@
 {
-  "date": "2026-08-16",
+  "date": "2026-08-17",
   "data": [
     {
-      "name": "航運",
-      "count": 4,
-      "momentum": "normal"
-    },
-    {
       "name": "光電",
-      "count": 4,
-      "momentum": "normal"
+      "count": 6,
+      "momentum": "strong"
     },
     {
       "name": "電子零組件",
-      "count": 2,
-      "momentum": "weak"
+      "count": 5,
+      "momentum": "normal"
     },
     {
-      "name": "塑膠",
+      "name": "通信網路",
+      "count": 3,
+      "momentum": "normal"
+    },
+    {
+      "name": "航運",
       "count": 1,
       "momentum": "weak"
     },
     {
-      "name": "電腦週邊",
+      "name": "其他電子",
       "count": 1,
       "momentum": "weak"
     },
     {
-      "name": "貿易百貨",
+      "name": "化工",
       "count": 1,
       "momentum": "weak"
     },
     {
-      "name": "玻璃陶瓷",
-      "count": 1,
-      "momentum": "weak"
-    },
-    {
-      "name": "資訊服務",
-      "count": 1,
-      "momentum": "weak"
-    },
-    {
-      "name": "電機機械",
-      "count": 1,
-      "momentum": "weak"
-    },
-    {
-      "name": "鋼鐵",
+      "name": "建材營造",
       "count": 1,
       "momentum": "weak"
     }
