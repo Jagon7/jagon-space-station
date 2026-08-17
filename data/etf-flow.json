@@ -1,4 +1,135 @@
 {
   "date": "2026-08-17",
-  "data": []
+  "data": [
+    {
+      "etfCode": "00929",
+      "etfName": "復華台灣科技優息",
+      "category": "高股息",
+      "navPerUnit": 29.11,
+      "totalUnits": 4924139000,
+      "changes": [
+        {
+          "code": "2347",
+          "name": "聯強",
+          "action": "buy",
+          "prevShares": 47068000,
+          "currShares": 47420000,
+          "diffShares": 352000,
+          "closePrice": 88.8,
+          "diffValue": 31257600,
+          "weight": 10.9
+        },
+        {
+          "code": "2357",
+          "name": "華碩",
+          "action": "buy",
+          "prevShares": 5759000,
+          "currShares": 5792000,
+          "diffShares": 33000,
+          "closePrice": 938.0,
+          "diffValue": 30954000,
+          "weight": 14.07
+        },
+        {
+          "code": "2376",
+          "name": "技嘉",
+          "action": "remove",
+          "prevShares": 9520000,
+          "currShares": 0,
+          "diffShares": -9520000,
+          "closePrice": 358.0,
+          "diffValue": -3408160000,
+          "weight": 0.0
+        },
+        {
+          "code": "2379",
+          "name": "瑞昱",
+          "action": "buy",
+          "prevShares": 5972000,
+          "currShares": 6021000,
+          "diffShares": 49000,
+          "closePrice": 717.0,
+          "diffValue": 35133000,
+          "weight": 11.18
+        },
+        {
+          "code": "2382",
+          "name": "廣達",
+          "action": "new",
+          "prevShares": 0,
+          "currShares": 11265000,
+          "diffShares": 11265000,
+          "closePrice": 333.5,
+          "diffValue": 3756877500,
+          "weight": 9.73
+        },
+        {
+          "code": "2474",
+          "name": "可成",
+          "action": "buy",
+          "prevShares": 21105000,
+          "currShares": 21281000,
+          "diffShares": 176000,
+          "closePrice": 204.0,
+          "diffValue": 35904000,
+          "weight": 11.24
+        },
+        {
+          "code": "3034",
+          "name": "聯詠",
+          "action": "buy",
+          "prevShares": 9852000,
+          "currShares": 9937000,
+          "diffShares": 85000,
+          "closePrice": 509.0,
+          "diffValue": 43265000,
+          "weight": 13.1
+        },
+        {
+          "code": "3045",
+          "name": "台灣大",
+          "action": "buy",
+          "prevShares": 35274000,
+          "currShares": 35599000,
+          "diffShares": 325000,
+          "closePrice": 111.0,
+          "diffValue": 36075000,
+          "weight": 10.23
+        },
+        {
+          "code": "3231",
+          "name": "緯創",
+          "action": "buy",
+          "prevShares": 20089000,
+          "currShares": 20234000,
+          "diffShares": 145000,
+          "closePrice": 187.0,
+          "diffValue": 27115000,
+          "weight": 9.8
+        },
+        {
+          "code": "3260",
+          "name": "3260",
+          "action": "buy",
+          "prevShares": 9790000,
+          "currShares": 9871000,
+          "diffShares": 81000,
+          "closePrice": 0.0,
+          "diffValue": 0,
+          "weight": 0.0
+        },
+        {
+          "code": "6409",
+          "name": "旭隼",
+          "action": "buy",
+          "prevShares": 3801000,
+          "currShares": 3829000,
+          "diffShares": 28000,
+          "closePrice": 983.0,
+          "diffValue": 27524000,
+          "weight": 9.75
+        }
+      ]
+    }
+  ]
 }
