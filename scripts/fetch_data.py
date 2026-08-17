@@ -338,24 +338,36 @@ def summarize_sectors(stocks: list[dict]) -> list[dict]:
 # TWSE 官方類股指數名稱跟 INDUSTRY_MAP 顯示名稱少數幾個對不上，手動對齊
 SECTOR_INDEX_ALIAS = {"化工": "化學", "電腦週邊": "電腦及週邊設備"}
 
+def _fetch_mi_index_rows() -> list[list]:
+    """
+    即時版大盤/類股指數。openapi.twse.com.tw/v1/exchangeReport/MI_INDEX 落後
+    好幾天沒更新（實測 8/17 週一晚上還在回 8/14 週五的舊資料），改用
+    www.twse.com.tw 的即時版（跟 STOCK_DAY_ALL 同一套邏輯，這個踩過的坑）。
+    回傳 tables[0]：['指數','收盤指數','漲跌(+/-)','漲跌點數','漲跌百分比(%)','特殊處理註記']
+    """
+    data = fetch("https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX?response=json&type=ALL")
+    if not data:
+        return []
+    tables = data.get("tables", [])
+    return tables[0].get("data", []) if tables else []
+
 def fetch_sector_performance() -> list[dict]:
     """
     全市場族群強弱排行 — 用 TWSE 官方類股指數當日漲跌幅（不是漲停家數），
     這是市值加權的真實族群表現，比自己算個股平均漲跌幅更準也更快。
     """
     log("抓取類股指數漲跌...")
-    data = fetch("https://openapi.twse.com.tw/v1/exchangeReport/MI_INDEX") or []
+    rows = _fetch_mi_index_rows()
 
     by_name: dict[str, float] = {}
-    for row in data:
-        name = row.get("指數", "")
+    for row in rows:
+        name = row[0] if row else ""
         if not name.endswith("類指數") or "報酬" in name:
             continue
         try:
-            # 漲跌百分比字串本身就帶負號（"-1.45"），漲跌欄位只是輔助標記，
-            # 不需要也不該再依它二次翻負號
-            by_name[name[:-3]] = float(row.get("漲跌百分比", 0) or 0)
-        except (TypeError, ValueError):
+            # 漲跌百分比字串本身就帶負號（"-1.45"），漲跌(+/-)欄位只是輔助標記
+            by_name[name[:-3]] = float(str(row[4]).replace(",", ""))
+        except (TypeError, ValueError, IndexError):
             continue
 
     results = []
@@ -371,13 +383,11 @@ def fetch_sector_performance() -> list[dict]:
 # ── 大盤統計 ────────────────────────────────────────────────
 def _fetch_taiex_change() -> float:
     """加權指數當日漲跌百分比（號稱 0.0 是沒抓到，不是真的平盤）"""
-    data = fetch("https://openapi.twse.com.tw/v1/exchangeReport/MI_INDEX") or []
-    for row in data:
-        if row.get("指數") == "發行量加權股價指數":
+    for row in _fetch_mi_index_rows():
+        if row and row[0] == "發行量加權股價指數":
             try:
-                # 漲跌百分比字串本身就帶負號，不需要再依漲跌欄位二次翻負號
-                return float(row.get("漲跌百分比", 0) or 0)
-            except (TypeError, ValueError):
+                return float(str(row[4]).replace(",", ""))
+            except (TypeError, ValueError, IndexError):
                 return 0.0
     return 0.0
 
