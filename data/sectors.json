@@ -1,38 +1,28 @@
 {
-  "date": "2026-08-17",
+  "date": "2026-08-18",
   "data": [
     {
-      "name": "光電",
-      "count": 6,
-      "momentum": "strong"
-    },
-    {
-      "name": "電子零組件",
-      "count": 5,
-      "momentum": "normal"
-    },
-    {
-      "name": "通信網路",
-      "count": 3,
-      "momentum": "normal"
-    },
-    {
       "name": "航運",
+      "count": 2,
+      "momentum": "weak"
+    },
+    {
+      "name": "電機機械",
       "count": 1,
       "momentum": "weak"
     },
     {
-      "name": "其他電子",
+      "name": "電子通路",
       "count": 1,
       "momentum": "weak"
     },
     {
-      "name": "化工",
+      "name": "光電",
       "count": 1,
       "momentum": "weak"
     },
     {
-      "name": "建材營造",
+      "name": "綠能環保",
       "count": 1,
       "momentum": "weak"
     }

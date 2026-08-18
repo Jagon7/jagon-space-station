@@ -1,146 +1,6 @@
 {
-  "date": "2026-08-17",
+  "date": "2026-08-18",
   "data": [
-    {
-      "code": "2491",
-      "name": "吉祥全",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/08/11～115/08/17",
-      "endDate": "2026-08-17",
-      "announceDate": "115/08/10",
-      "market": "上市"
-    },
-    {
-      "code": "3006",
-      "name": "晶豪科",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/08/11～115/08/17",
-      "endDate": "2026-08-17",
-      "announceDate": "115/08/10",
-      "market": "上市"
-    },
-    {
-      "code": "3167",
-      "name": "大量",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/08/11～115/08/17",
-      "endDate": "2026-08-17",
-      "announceDate": "115/08/10",
-      "market": "上市"
-    },
-    {
-      "code": "3450",
-      "name": "聯鈞",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/08/11～115/08/17",
-      "endDate": "2026-08-17",
-      "announceDate": "115/08/10",
-      "market": "上市"
-    },
-    {
-      "code": "6451",
-      "name": "訊芯-KY",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/08/11～115/08/17",
-      "endDate": "2026-08-17",
-      "announceDate": "115/08/10",
-      "market": "上市"
-    },
-    {
-      "code": "6531",
-      "name": "愛普*",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/08/11～115/08/17",
-      "endDate": "2026-08-17",
-      "announceDate": "115/08/10",
-      "market": "上市"
-    },
-    {
-      "code": "7610",
-      "name": "聯友金屬-創",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/08/11～115/08/17",
-      "endDate": "2026-08-17",
-      "announceDate": "115/08/10",
-      "market": "上市"
-    },
-    {
-      "code": "8021",
-      "name": "尖點",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/08/11～115/08/17",
-      "endDate": "2026-08-17",
-      "announceDate": "115/08/10",
-      "market": "上市"
-    },
-    {
-      "code": "1815",
-      "name": "富喬",
-      "count": 9,
-      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
-      "period": "115/08/11~115/08/17",
-      "endDate": "2026-08-17",
-      "announceDate": "115/08/10",
-      "market": "上櫃"
-    },
-    {
-      "code": "3081",
-      "name": "聯亞",
-      "count": 9,
-      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
-      "period": "115/08/11~115/08/17",
-      "endDate": "2026-08-17",
-      "announceDate": "115/08/10",
-      "market": "上櫃"
-    },
-    {
-      "code": "4971",
-      "name": "IET-KY",
-      "count": 9,
-      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
-      "period": "115/08/11~115/08/17",
-      "endDate": "2026-08-17",
-      "announceDate": "115/08/10",
-      "market": "上櫃"
-    },
-    {
-      "code": "5351",
-      "name": "鈺創",
-      "count": 9,
-      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
-      "period": "115/08/11~115/08/17",
-      "endDate": "2026-08-17",
-      "announceDate": "115/08/10",
-      "market": "上櫃"
-    },
-    {
-      "code": "6217",
-      "name": "中探針",
-      "count": 9,
-      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
-      "period": "115/08/11~115/08/17",
-      "endDate": "2026-08-17",
-      "announceDate": "115/08/10",
-      "market": "上櫃"
-    },
-    {
-      "code": "4556",
-      "name": "旭然",
-      "count": 1,
-      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
-      "period": "115/08/04~115/08/17",
-      "endDate": "2026-08-17",
-      "announceDate": "115/08/03",
-      "market": "上櫃"
-    },
     {
       "code": "6426",
       "name": "統新",
@@ -184,7 +44,7 @@
     {
       "code": "6213",
       "name": "聯茂",
-      "count": 2,
+      "count": 1,
       "condition": "連續三次",
       "period": "115/08/14～115/08/20",
       "endDate": "2026-08-20",
@@ -278,7 +138,7 @@
       "condition": "連續三次",
       "period": "115/08/18～115/08/24",
       "endDate": "2026-08-24",
-      "announceDate": "*115/08/17",
+      "announceDate": "115/08/17",
       "market": "上市"
     },
     {
@@ -288,8 +148,18 @@
       "condition": "連續五次",
       "period": "115/08/18～115/08/24",
       "endDate": "2026-08-24",
-      "announceDate": "*115/08/17",
+      "announceDate": "115/08/17",
       "market": "上市"
+    },
+    {
+      "code": "3498",
+      "name": "陽程",
+      "count": 1,
+      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
+      "period": "115/08/19~115/08/25",
+      "endDate": "2026-08-25",
+      "announceDate": "115/08/18",
+      "market": "上櫃"
     }
   ]
 }

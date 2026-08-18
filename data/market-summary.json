@@ -1,10 +1,10 @@
 {
-  "date": "2026-08-17",
-  "limitUpCount": 34,
-  "sectorCount": 7,
-  "dispositionCount": 29,
-  "announcementCount": 11,
-  "marketMood": "中性",
-  "taiexChange": 0.1,
-  "noticeCount": 38
+  "date": "2026-08-18",
+  "limitUpCount": 16,
+  "sectorCount": 5,
+  "dispositionCount": 16,
+  "announcementCount": 144,
+  "marketMood": "偏弱",
+  "taiexChange": -1.2,
+  "noticeCount": 42
 }
