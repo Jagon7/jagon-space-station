@@ -1,26 +1,6 @@
 {
-  "date": "2026-08-18",
+  "date": "2026-08-19",
   "data": [
-    {
-      "code": "6426",
-      "name": "統新",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/08/12～115/08/18",
-      "endDate": "2026-08-18",
-      "announceDate": "115/08/11",
-      "market": "上市"
-    },
-    {
-      "code": "8046",
-      "name": "南電",
-      "count": 1,
-      "condition": "連續三次及當日沖銷標準",
-      "period": "115/08/03～115/08/18",
-      "endDate": "2026-08-18",
-      "announceDate": "115/07/31",
-      "market": "上市"
-    },
     {
       "code": "7711",
       "name": "永擎",
@@ -74,31 +54,11 @@
     {
       "code": "3362",
       "name": "先進光",
-      "count": 3,
+      "count": 2,
       "condition": "連續5個營業日及沖銷標準",
       "period": "115/08/05~115/08/20",
       "endDate": "2026-08-20",
       "announceDate": "115/08/04",
-      "market": "上櫃"
-    },
-    {
-      "code": "6225",
-      "name": "天瀚",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/08/17～115/08/21",
-      "endDate": "2026-08-21",
-      "announceDate": "115/08/14",
-      "market": "上市"
-    },
-    {
-      "code": "5475",
-      "name": "德宏",
-      "count": 2,
-      "condition": "最近10個營業日內有6個營業日",
-      "period": "115/08/17~115/08/21",
-      "endDate": "2026-08-21",
-      "announceDate": "115/08/14",
       "market": "上櫃"
     },
     {
@@ -159,6 +119,36 @@
       "period": "115/08/19~115/08/25",
       "endDate": "2026-08-25",
       "announceDate": "115/08/18",
+      "market": "上櫃"
+    },
+    {
+      "code": "6225",
+      "name": "天瀚",
+      "count": 2,
+      "condition": "連續三次",
+      "period": "115/08/20～115/08/26",
+      "endDate": "2026-08-26",
+      "announceDate": "*115/08/19",
+      "market": "上市"
+    },
+    {
+      "code": "3490",
+      "name": "單井",
+      "count": 2,
+      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
+      "period": "115/08/20~115/08/26",
+      "endDate": "2026-08-26",
+      "announceDate": "115/08/19",
+      "market": "上櫃"
+    },
+    {
+      "code": "5475",
+      "name": "德宏",
+      "count": 2,
+      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
+      "period": "115/08/20~115/08/26",
+      "endDate": "2026-08-26",
+      "announceDate": "115/08/19",
       "market": "上櫃"
     }
   ]

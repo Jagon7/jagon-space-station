@@ -1,5 +1,5 @@
 {
-  "date": "2026-08-18",
+  "date": "2026-08-19",
   "data": [
     {
       "code": "2344",
@@ -1313,6 +1313,19 @@
       "effectiveDate": "2026-08-26",
       "withdrawDate": null,
       "underwriter": "統一證券"
+    },
+    {
+      "code": "3260",
+      "name": "威剛科技",
+      "market": "上櫃",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 30.0,
+      "currency": "台幣",
+      "filingDate": "2026-08-18",
+      "effectiveDate": "2026-09-03",
+      "withdrawDate": null,
+      "underwriter": "群益金鼎證券"
     }
   ]
 }

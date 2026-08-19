@@ -1,30 +1,4 @@
 {
-  "date": "2026-08-18",
-  "data": [
-    {
-      "name": "航運",
-      "count": 2,
-      "momentum": "weak"
-    },
-    {
-      "name": "電機機械",
-      "count": 1,
-      "momentum": "weak"
-    },
-    {
-      "name": "電子通路",
-      "count": 1,
-      "momentum": "weak"
-    },
-    {
-      "name": "光電",
-      "count": 1,
-      "momentum": "weak"
-    },
-    {
-      "name": "綠能環保",
-      "count": 1,
-      "momentum": "weak"
-    }
-  ]
+  "date": "2026-08-19",
+  "data": []
 }
