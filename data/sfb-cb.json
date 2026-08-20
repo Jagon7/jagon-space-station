@@ -1,5 +1,5 @@
 {
-  "date": "2026-08-19",
+  "date": "2026-08-20",
   "data": [
     {
       "code": "2344",
@@ -1326,6 +1326,19 @@
       "effectiveDate": "2026-09-03",
       "withdrawDate": null,
       "underwriter": "群益金鼎證券"
+    },
+    {
+      "code": "8021",
+      "name": "尖點科技",
+      "market": "上市",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 4.8,
+      "currency": "台幣",
+      "filingDate": "2026-08-19",
+      "effectiveDate": "2026-09-04",
+      "withdrawDate": null,
+      "underwriter": "福邦證券"
     }
   ]
 }
