@@ -1,5 +1,5 @@
 {
-  "date": "2026-08-20",
+  "date": "2026-08-21",
   "data": [
     {
       "code": "2344",
@@ -1240,7 +1240,7 @@
       "code": "7743",
       "name": "金利食安",
       "market": "上櫃",
-      "status": "審查中",
+      "status": "生效",
       "cbType": "轉換公司債(無擔保)",
       "amount": 2.0,
       "currency": "台幣",
@@ -1339,6 +1339,32 @@
       "effectiveDate": "2026-09-04",
       "withdrawDate": null,
       "underwriter": "福邦證券"
+    },
+    {
+      "code": "2357",
+      "name": "華碩電腦",
+      "market": "上市",
+      "status": "審查中",
+      "cbType": "轉換公司債(海外無擔保)",
+      "amount": 1500.0,
+      "currency": "美元",
+      "filingDate": "2026-08-20",
+      "effectiveDate": "2026-09-07",
+      "withdrawDate": null,
+      "underwriter": "凱基證券"
+    },
+    {
+      "code": "2756",
+      "name": "聯發國際",
+      "market": "上櫃",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 4.0,
+      "currency": "台幣",
+      "filingDate": "2026-08-20",
+      "effectiveDate": "2026-09-07",
+      "withdrawDate": null,
+      "underwriter": "統一證券"
     }
   ]
 }
