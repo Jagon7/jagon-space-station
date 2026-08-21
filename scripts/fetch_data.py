@@ -943,10 +943,12 @@ def fetch_sfb_cb() -> list[dict]:
         return []
 
     roc_year = str(TODAY.year - 1911)
+    # 檔名格式一直在變（數字長度、有沒有 (1) 版次後綴...），只鎖定「開頭是年度+數字」
+    # 跟「申報案件彙總表」這段文字，中間到 .xlsx 前的內容不要求完全比對
     pattern = (
         r'https://www\.fsc\.gov\.tw/userfiles/file/'
         + roc_year + r'\d+'
-        + r'%E7%94%B3%E5%A0%B1%E6%A1%88%E4%BB%B6%E5%BD%99%E7%B8%BD%E8%A1%A8\.xlsx'
+        + r'%E7%94%B3%E5%A0%B1%E6%A1%88%E4%BB%B6%E5%BD%99%E7%B8%BD%E8%A1%A8[^"]*?\.xlsx'
     )
     matches = _re.findall(pattern, html)
     if not matches:
