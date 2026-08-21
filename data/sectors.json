@@ -1,4 +1,45 @@
 {
-  "date": "2026-08-20",
-  "data": []
+  "date": "2026-08-21",
+  "data": [
+    {
+      "name": "航運",
+      "count": 4,
+      "momentum": "normal"
+    },
+    {
+      "name": "光電",
+      "count": 4,
+      "momentum": "normal"
+    },
+    {
+      "name": "半導體",
+      "count": 1,
+      "momentum": "weak"
+    },
+    {
+      "name": "其他電子",
+      "count": 1,
+      "momentum": "weak"
+    },
+    {
+      "name": "綠能環保",
+      "count": 1,
+      "momentum": "weak"
+    },
+    {
+      "name": "化工",
+      "count": 1,
+      "momentum": "weak"
+    },
+    {
+      "name": "觀光餐旅",
+      "count": 1,
+      "momentum": "weak"
+    },
+    {
+      "name": "生技醫療",
+      "count": 1,
+      "momentum": "weak"
+    }
+  ]
 }
