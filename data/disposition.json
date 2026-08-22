@@ -1,36 +1,6 @@
 {
-  "date": "2026-08-21",
+  "date": "2026-08-22",
   "data": [
-    {
-      "code": "6716",
-      "name": "應廣",
-      "count": 2,
-      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
-      "period": "115/08/17~115/08/21",
-      "endDate": "2026-08-21",
-      "announceDate": "115/08/14",
-      "market": "上櫃"
-    },
-    {
-      "code": "3163",
-      "name": "波若威",
-      "count": 3,
-      "condition": "連續5個營業日",
-      "period": "115/08/13~115/08/21",
-      "endDate": "2026-08-21",
-      "announceDate": "115/08/12",
-      "market": "上櫃"
-    },
-    {
-      "code": "4931",
-      "name": "新盛力",
-      "count": 3,
-      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
-      "period": "115/08/13~115/08/21",
-      "endDate": "2026-08-21",
-      "announceDate": "115/08/12",
-      "market": "上櫃"
-    },
     {
       "code": "7795",
       "name": "長廣",

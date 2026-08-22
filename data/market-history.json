@@ -1,5 +1,5 @@
 {
-  "date": "2026-08-21",
+  "date": "2026-08-22",
   "data": [
     {
       "date": "2026-08-15",
@@ -152,6 +152,34 @@
         {
           "name": "綠能環保",
           "count": 1
+        }
+      ]
+    },
+    {
+      "date": "2026-08-22",
+      "limitUpCount": 28,
+      "marketMood": "中性",
+      "taiexChange": 0.65,
+      "topSectors": [
+        {
+          "name": "光電",
+          "count": 6
+        },
+        {
+          "name": "航運",
+          "count": 4
+        },
+        {
+          "name": "半導體",
+          "count": 4
+        },
+        {
+          "name": "電子零組件",
+          "count": 3
+        },
+        {
+          "name": "生技醫療",
+          "count": 2
         }
       ]
     }

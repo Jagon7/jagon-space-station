@@ -1,19 +1,29 @@
 {
-  "date": "2026-08-21",
+  "date": "2026-08-22",
   "data": [
+    {
+      "name": "光電",
+      "count": 6,
+      "momentum": "strong"
+    },
     {
       "name": "航運",
       "count": 4,
       "momentum": "normal"
     },
     {
-      "name": "光電",
+      "name": "半導體",
       "count": 4,
       "momentum": "normal"
     },
     {
-      "name": "半導體",
-      "count": 1,
+      "name": "電子零組件",
+      "count": 3,
+      "momentum": "normal"
+    },
+    {
+      "name": "生技醫療",
+      "count": 2,
       "momentum": "weak"
     },
     {
@@ -32,12 +42,12 @@
       "momentum": "weak"
     },
     {
-      "name": "觀光餐旅",
+      "name": "通信網路",
       "count": 1,
       "momentum": "weak"
     },
     {
-      "name": "生技醫療",
+      "name": "觀光餐旅",
       "count": 1,
       "momentum": "weak"
     }
