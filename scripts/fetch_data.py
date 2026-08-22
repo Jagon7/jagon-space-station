@@ -214,11 +214,13 @@ def build_sector_map() -> dict[str, str]:
                 result[code] = INDUSTRY_MAP.get(ind, "其他")
 
     # 上櫃公司（TPEx）
-    data = fetch("https://www.tpex.org.tw/openapi/v1/tpex_mainboard_listed_companies")
+    # 舊網址 tpex_mainboard_listed_companies 已經下架（改回傳 302 轉到別的頁面，
+    # 不是 JSON），改用 mopsfin_t187ap03_O，欄位也改名成 SecuritiesIndustryCode
+    data = fetch("https://www.tpex.org.tw/openapi/v1/mopsfin_t187ap03_O")
     if data:
         for row in data:
             code = row.get("SecuritiesCompanyCode", "").strip()
-            ind  = row.get("IndustryCode", "").strip()
+            ind  = row.get("SecuritiesIndustryCode", "").strip()
             if code:
                 result[code] = INDUSTRY_MAP.get(ind, "其他")
 
