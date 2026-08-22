@@ -1713,6 +1713,11 @@ def main():
     limit_stocks  = filter_limit_up(all_stocks)
     sector_stocks = build_sector_stocks(all_stocks)
     sectors       = summarize_sectors(limit_stocks)
+
+    reasons = fetch_limit_up_reasons(limit_stocks)
+    for s in limit_stocks:
+        if s["code"] in reasons:
+            s["reason"] = reasons[s["code"]]
     market        = fetch_market_summary(len(limit_stocks), len(sectors))
     notice        = fetch_notice_stocks()
     disposition   = fetch_disposition_stocks()
