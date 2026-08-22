@@ -162,24 +162,24 @@
       "taiexChange": 0.65,
       "topSectors": [
         {
-          "name": "光電",
-          "count": 6
-        },
-        {
-          "name": "航運",
-          "count": 4
-        },
-        {
           "name": "半導體",
-          "count": 4
+          "count": 3
         },
         {
           "name": "電子零組件",
           "count": 3
         },
         {
-          "name": "生技醫療",
+          "name": "光電",
           "count": 2
+        },
+        {
+          "name": "通信網路",
+          "count": 1
+        },
+        {
+          "name": "電腦週邊",
+          "count": 1
         }
       ]
     }
