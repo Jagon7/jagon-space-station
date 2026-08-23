@@ -1,9 +1,19 @@
 {
-  "date": "2026-08-22",
+  "date": "2026-08-23",
   "data": [
     {
+      "name": "光電",
+      "count": 6,
+      "momentum": "strong"
+    },
+    {
+      "name": "航運",
+      "count": 4,
+      "momentum": "normal"
+    },
+    {
       "name": "半導體",
-      "count": 3,
+      "count": 4,
       "momentum": "normal"
     },
     {
@@ -12,8 +22,23 @@
       "momentum": "normal"
     },
     {
-      "name": "光電",
+      "name": "生技醫療",
       "count": 2,
+      "momentum": "weak"
+    },
+    {
+      "name": "其他電子",
+      "count": 1,
+      "momentum": "weak"
+    },
+    {
+      "name": "綠能環保",
+      "count": 1,
+      "momentum": "weak"
+    },
+    {
+      "name": "化工",
+      "count": 1,
       "momentum": "weak"
     },
     {
@@ -22,22 +47,7 @@
       "momentum": "weak"
     },
     {
-      "name": "電腦週邊",
-      "count": 1,
-      "momentum": "weak"
-    },
-    {
-      "name": "建材營造",
-      "count": 1,
-      "momentum": "weak"
-    },
-    {
-      "name": "生技醫療",
-      "count": 1,
-      "momentum": "weak"
-    },
-    {
-      "name": "塑膠",
+      "name": "觀光餐旅",
       "count": 1,
       "momentum": "weak"
     }
