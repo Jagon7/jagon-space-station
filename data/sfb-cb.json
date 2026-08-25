@@ -1,5 +1,5 @@
 {
-  "date": "2026-08-24",
+  "date": "2026-08-25",
   "data": [
     {
       "code": "2344",
@@ -1266,7 +1266,7 @@
       "code": "2454",
       "name": "聯發科技",
       "market": "上市",
-      "status": "審查中",
+      "status": "生效",
       "cbType": "轉換公司債(海外無擔保)",
       "amount": 4000.0,
       "currency": "美元",
@@ -1279,7 +1279,7 @@
       "code": "4541",
       "name": "晟田科技",
       "market": "上櫃",
-      "status": "審查中",
+      "status": "生效",
       "cbType": "轉換公司債(有擔保)",
       "amount": 3.0,
       "currency": "台幣",
@@ -1292,7 +1292,7 @@
       "code": "4541",
       "name": "晟田科技",
       "market": "上櫃",
-      "status": "審查中",
+      "status": "生效",
       "cbType": "轉換公司債(無擔保)",
       "amount": 2.0,
       "currency": "台幣",
@@ -1365,6 +1365,45 @@
       "effectiveDate": "2026-09-07",
       "withdrawDate": null,
       "underwriter": "統一證券"
+    },
+    {
+      "code": "2316",
+      "name": "楠梓電子",
+      "market": "上市",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 35.0,
+      "currency": "台幣",
+      "filingDate": "2026-08-24",
+      "effectiveDate": "2026-09-21",
+      "withdrawDate": null,
+      "underwriter": "富邦證券"
+    },
+    {
+      "code": "3289",
+      "name": "宜特科技",
+      "market": "上櫃",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 12.0,
+      "currency": "台幣",
+      "filingDate": "2026-08-24",
+      "effectiveDate": "2026-09-09",
+      "withdrawDate": null,
+      "underwriter": "台新證券"
+    },
+    {
+      "code": "6174",
+      "name": "安碁科技",
+      "market": "上櫃",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 3.0,
+      "currency": "台幣",
+      "filingDate": "2026-08-24",
+      "effectiveDate": "2026-09-09",
+      "withdrawDate": null,
+      "underwriter": "兆豐證券"
     }
   ]
 }

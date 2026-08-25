@@ -1,26 +1,6 @@
 {
-  "date": "2026-08-24",
+  "date": "2026-08-25",
   "data": [
-    {
-      "code": "7795",
-      "name": "長廣",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/08/18～115/08/24",
-      "endDate": "2026-08-24",
-      "announceDate": "115/08/17",
-      "market": "上市"
-    },
-    {
-      "code": "8033",
-      "name": "雷虎",
-      "count": 1,
-      "condition": "連續五次",
-      "period": "115/08/18～115/08/24",
-      "endDate": "2026-08-24",
-      "announceDate": "115/08/17",
-      "market": "上市"
-    },
     {
       "code": "3490",
       "name": "單井",
@@ -88,8 +68,48 @@
       "condition": "連續三次",
       "period": "115/08/25～115/08/31",
       "endDate": "2026-08-31",
-      "announceDate": "*115/08/24",
+      "announceDate": "115/08/24",
       "market": "上市"
+    },
+    {
+      "code": "3625",
+      "name": "西勝",
+      "count": 3,
+      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
+      "period": "115/08/25~115/08/31",
+      "endDate": "2026-08-31",
+      "announceDate": "115/08/24",
+      "market": "上櫃"
+    },
+    {
+      "code": "4304",
+      "name": "勝昱",
+      "count": 3,
+      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
+      "period": "115/08/25~115/08/31",
+      "endDate": "2026-08-31",
+      "announceDate": "115/08/24",
+      "market": "上櫃"
+    },
+    {
+      "code": "4971",
+      "name": "IET-KY",
+      "count": 3,
+      "condition": "連續5個營業日",
+      "period": "115/08/25~115/08/31",
+      "endDate": "2026-08-31",
+      "announceDate": "115/08/24",
+      "market": "上櫃"
+    },
+    {
+      "code": "3234",
+      "name": "光環",
+      "count": 2,
+      "condition": "最近10個營業日內有6個營業日",
+      "period": "115/08/26~115/09/01",
+      "endDate": "2026-09-01",
+      "announceDate": "115/08/25",
+      "market": "上櫃"
     }
   ]
 }
