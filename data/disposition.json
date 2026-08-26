@@ -1,5 +1,5 @@
 {
-  "date": "2026-08-25",
+  "date": "2026-08-26",
   "data": [
     {
       "code": "3490",
@@ -34,16 +34,6 @@
     {
       "code": "3498",
       "name": "陽程",
-      "count": 7,
-      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
-      "period": "115/08/24~115/08/28",
-      "endDate": "2026-08-28",
-      "announceDate": "115/08/21",
-      "market": "上櫃"
-    },
-    {
-      "code": "5314",
-      "name": "世紀*",
       "count": 7,
       "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
       "period": "115/08/24~115/08/28",
@@ -109,6 +99,36 @@
       "period": "115/08/26~115/09/01",
       "endDate": "2026-09-01",
       "announceDate": "115/08/25",
+      "market": "上櫃"
+    },
+    {
+      "code": "2486",
+      "name": "一詮",
+      "count": 1,
+      "condition": "連續五次",
+      "period": "115/08/27～115/09/02",
+      "endDate": "2026-09-02",
+      "announceDate": "*115/08/26",
+      "market": "上市"
+    },
+    {
+      "code": "5314",
+      "name": "世紀*",
+      "count": 7,
+      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
+      "period": "115/08/27~115/09/02",
+      "endDate": "2026-09-02",
+      "announceDate": "115/08/26",
+      "market": "上櫃"
+    },
+    {
+      "code": "3362",
+      "name": "先進光",
+      "count": 7,
+      "condition": "連續5個營業日及沖銷標準",
+      "period": "115/08/27~115/09/04",
+      "endDate": "2026-09-04",
+      "announceDate": "115/08/26",
       "market": "上櫃"
     }
   ]

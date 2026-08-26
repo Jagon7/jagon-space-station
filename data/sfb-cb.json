@@ -1,5 +1,5 @@
 {
-  "date": "2026-08-25",
+  "date": "2026-08-26",
   "data": [
     {
       "code": "2344",
@@ -1154,7 +1154,7 @@
       "amount": 25.0,
       "currency": "台幣",
       "filingDate": "2026-07-17",
-      "effectiveDate": "2026-08-26",
+      "effectiveDate": "2026-09-10",
       "withdrawDate": null,
       "underwriter": "中國信託證券"
     },
@@ -1305,7 +1305,7 @@
       "code": "2221",
       "name": "大甲永和機械",
       "market": "上櫃",
-      "status": "審查中",
+      "status": "生效",
       "cbType": "轉換公司債(無擔保)",
       "amount": 5.0,
       "currency": "台幣",
