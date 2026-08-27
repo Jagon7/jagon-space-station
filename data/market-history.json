@@ -1,5 +1,5 @@
 {
-  "date": "2026-08-26",
+  "date": "2026-08-27",
   "data": [
     {
       "date": "2026-08-15",
@@ -292,6 +292,34 @@
         {
           "name": "通信網路",
           "count": 4
+        }
+      ]
+    },
+    {
+      "date": "2026-08-27",
+      "limitUpCount": 55,
+      "marketMood": "偏強",
+      "taiexChange": 0.31,
+      "topSectors": [
+        {
+          "name": "電子零組件",
+          "count": 19
+        },
+        {
+          "name": "光電",
+          "count": 9
+        },
+        {
+          "name": "半導體",
+          "count": 9
+        },
+        {
+          "name": "其他電子",
+          "count": 3
+        },
+        {
+          "name": "塑膠",
+          "count": 2
         }
       ]
     }

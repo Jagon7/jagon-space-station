@@ -1,26 +1,6 @@
 {
-  "date": "2026-08-26",
+  "date": "2026-08-27",
   "data": [
-    {
-      "code": "3490",
-      "name": "單井",
-      "count": 2,
-      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
-      "period": "115/08/20~115/08/26",
-      "endDate": "2026-08-26",
-      "announceDate": "115/08/19",
-      "market": "上櫃"
-    },
-    {
-      "code": "5475",
-      "name": "德宏",
-      "count": 2,
-      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
-      "period": "115/08/20~115/08/26",
-      "endDate": "2026-08-26",
-      "announceDate": "115/08/19",
-      "market": "上櫃"
-    },
     {
       "code": "2455",
       "name": "全新",
@@ -54,7 +34,7 @@
     {
       "code": "6225",
       "name": "天瀚",
-      "count": 2,
+      "count": 1,
       "condition": "連續三次",
       "period": "115/08/25～115/08/31",
       "endDate": "2026-08-31",
@@ -108,7 +88,7 @@
       "condition": "連續五次",
       "period": "115/08/27～115/09/02",
       "endDate": "2026-09-02",
-      "announceDate": "*115/08/26",
+      "announceDate": "115/08/26",
       "market": "上市"
     },
     {
@@ -119,6 +99,16 @@
       "period": "115/08/27~115/09/02",
       "endDate": "2026-09-02",
       "announceDate": "115/08/26",
+      "market": "上櫃"
+    },
+    {
+      "code": "4979",
+      "name": "華星光",
+      "count": 3,
+      "condition": "連續5個營業日",
+      "period": "115/08/28~115/09/03",
+      "endDate": "2026-09-03",
+      "announceDate": "115/08/27",
       "market": "上櫃"
     },
     {
