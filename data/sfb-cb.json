@@ -1,5 +1,5 @@
 {
-  "date": "2026-08-27",
+  "date": "2026-08-28",
   "data": [
     {
       "code": "2344",
@@ -1404,6 +1404,19 @@
       "effectiveDate": "2026-09-09",
       "withdrawDate": null,
       "underwriter": "兆豐證券"
+    },
+    {
+      "code": "4958",
+      "name": "F-臻鼎",
+      "market": "上市",
+      "status": "審查中",
+      "cbType": "轉換公司債(海外無擔保)",
+      "amount": 800.0,
+      "currency": "美元",
+      "filingDate": "2026-08-27",
+      "effectiveDate": "2026-09-14",
+      "withdrawDate": null,
+      "underwriter": "福邦證券"
     }
   ]
 }

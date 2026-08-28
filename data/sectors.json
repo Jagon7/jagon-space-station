@@ -1,19 +1,19 @@
 {
-  "date": "2026-08-27",
+  "date": "2026-08-28",
   "data": [
     {
       "name": "電子零組件",
-      "count": 19,
-      "momentum": "strong"
-    },
-    {
-      "name": "光電",
-      "count": 9,
+      "count": 11,
       "momentum": "strong"
     },
     {
       "name": "半導體",
-      "count": 9,
+      "count": 7,
+      "momentum": "strong"
+    },
+    {
+      "name": "光電",
+      "count": 6,
       "momentum": "strong"
     },
     {
@@ -22,12 +22,12 @@
       "momentum": "normal"
     },
     {
-      "name": "塑膠",
-      "count": 2,
-      "momentum": "weak"
+      "name": "生技醫療",
+      "count": 3,
+      "momentum": "normal"
     },
     {
-      "name": "電機機械",
+      "name": "化工",
       "count": 2,
       "momentum": "weak"
     },
@@ -37,17 +37,17 @@
       "momentum": "weak"
     },
     {
-      "name": "通信網路",
-      "count": 2,
+      "name": "鋼鐵",
+      "count": 1,
       "momentum": "weak"
     },
     {
       "name": "數位雲端",
-      "count": 2,
+      "count": 1,
       "momentum": "weak"
     },
     {
-      "name": "生技醫療",
+      "name": "通信網路",
       "count": 1,
       "momentum": "weak"
     }
