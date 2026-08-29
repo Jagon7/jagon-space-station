@@ -1,5 +1,5 @@
 {
-  "date": "2026-08-28",
+  "date": "2026-08-29",
   "data": [
     {
       "date": "2026-08-15",
@@ -325,6 +325,34 @@
     },
     {
       "date": "2026-08-28",
+      "limitUpCount": 41,
+      "marketMood": "偏強",
+      "taiexChange": 0.77,
+      "topSectors": [
+        {
+          "name": "電子零組件",
+          "count": 11
+        },
+        {
+          "name": "半導體",
+          "count": 7
+        },
+        {
+          "name": "光電",
+          "count": 6
+        },
+        {
+          "name": "其他電子",
+          "count": 3
+        },
+        {
+          "name": "生技醫療",
+          "count": 3
+        }
+      ]
+    },
+    {
+      "date": "2026-08-29",
       "limitUpCount": 41,
       "marketMood": "偏強",
       "taiexChange": 0.77,
