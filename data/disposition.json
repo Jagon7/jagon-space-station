@@ -1,46 +1,6 @@
 {
-  "date": "2026-08-30",
+  "date": "2026-08-31",
   "data": [
-    {
-      "code": "6225",
-      "name": "天瀚",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/08/25～115/08/31",
-      "endDate": "2026-08-31",
-      "announceDate": "115/08/24",
-      "market": "上市"
-    },
-    {
-      "code": "3625",
-      "name": "西勝",
-      "count": 3,
-      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
-      "period": "115/08/25~115/08/31",
-      "endDate": "2026-08-31",
-      "announceDate": "115/08/24",
-      "market": "上櫃"
-    },
-    {
-      "code": "4304",
-      "name": "勝昱",
-      "count": 3,
-      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
-      "period": "115/08/25~115/08/31",
-      "endDate": "2026-08-31",
-      "announceDate": "115/08/24",
-      "market": "上櫃"
-    },
-    {
-      "code": "4971",
-      "name": "IET-KY",
-      "count": 3,
-      "condition": "連續5個營業日",
-      "period": "115/08/25~115/08/31",
-      "endDate": "2026-08-31",
-      "announceDate": "115/08/24",
-      "market": "上櫃"
-    },
     {
       "code": "3234",
       "name": "光環",
@@ -62,16 +22,6 @@
       "market": "上市"
     },
     {
-      "code": "5314",
-      "name": "世紀*",
-      "count": 7,
-      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
-      "period": "115/08/27~115/09/02",
-      "endDate": "2026-09-02",
-      "announceDate": "115/08/26",
-      "market": "上櫃"
-    },
-    {
       "code": "4979",
       "name": "華星光",
       "count": 3,
@@ -82,6 +32,46 @@
       "market": "上櫃"
     },
     {
+      "code": "3163",
+      "name": "波若威",
+      "count": 4,
+      "condition": "連續5個營業日",
+      "period": "115/08/31~115/09/04",
+      "endDate": "2026-09-04",
+      "announceDate": "115/08/28",
+      "market": "上櫃"
+    },
+    {
+      "code": "3441",
+      "name": "聯一光",
+      "count": 4,
+      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
+      "period": "115/08/31~115/09/04",
+      "endDate": "2026-09-04",
+      "announceDate": "115/08/28",
+      "market": "上櫃"
+    },
+    {
+      "code": "4188",
+      "name": "安克",
+      "count": 4,
+      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
+      "period": "115/08/31~115/09/04",
+      "endDate": "2026-09-04",
+      "announceDate": "115/08/28",
+      "market": "上櫃"
+    },
+    {
+      "code": "6103",
+      "name": "合邦",
+      "count": 4,
+      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
+      "period": "115/08/31~115/09/04",
+      "endDate": "2026-09-04",
+      "announceDate": "115/08/28",
+      "market": "上櫃"
+    },
+    {
       "code": "3362",
       "name": "先進光",
       "count": 7,
@@ -89,6 +79,36 @@
       "period": "115/08/27~115/09/04",
       "endDate": "2026-09-04",
       "announceDate": "115/08/26",
+      "market": "上櫃"
+    },
+    {
+      "code": "6226",
+      "name": "光鼎",
+      "count": 1,
+      "condition": "連續三次",
+      "period": "115/09/01～115/09/07",
+      "endDate": "2026-09-07",
+      "announceDate": "115/08/31",
+      "market": "上市"
+    },
+    {
+      "code": "5314",
+      "name": "世紀*",
+      "count": 2,
+      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
+      "period": "115/09/01~115/09/07",
+      "endDate": "2026-09-07",
+      "announceDate": "115/08/31",
+      "market": "上櫃"
+    },
+    {
+      "code": "4939",
+      "name": "亞電",
+      "count": 2,
+      "condition": "連續3個營業日及沖銷標準",
+      "period": "115/09/01~115/09/09",
+      "endDate": "2026-09-09",
+      "announceDate": "115/08/31",
       "market": "上櫃"
     }
   ]

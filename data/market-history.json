@@ -1,5 +1,5 @@
 {
-  "date": "2026-08-30",
+  "date": "2026-08-31",
   "data": [
     {
       "date": "2026-08-15",
@@ -404,6 +404,34 @@
         {
           "name": "生技醫療",
           "count": 3
+        }
+      ]
+    },
+    {
+      "date": "2026-08-31",
+      "limitUpCount": 12,
+      "marketMood": "偏弱",
+      "taiexChange": -0.44,
+      "topSectors": [
+        {
+          "name": "塑膠",
+          "count": 3
+        },
+        {
+          "name": "通信網路",
+          "count": 2
+        },
+        {
+          "name": "電子零組件",
+          "count": 2
+        },
+        {
+          "name": "電腦週邊",
+          "count": 2
+        },
+        {
+          "name": "光電",
+          "count": 1
         }
       ]
     }

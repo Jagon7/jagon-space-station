@@ -1,5 +1,5 @@
 {
-  "date": "2026-08-30",
+  "date": "2026-08-31",
   "data": [
     {
       "code": "2344",
@@ -1417,6 +1417,19 @@
       "effectiveDate": "2026-09-14",
       "withdrawDate": null,
       "underwriter": "福邦證券"
+    },
+    {
+      "code": "4938",
+      "name": "和碩聯合",
+      "market": "上市",
+      "status": "審查中",
+      "cbType": "轉換公司債(海外無擔保)",
+      "amount": 500.0,
+      "currency": "美元",
+      "filingDate": "2026-08-28",
+      "effectiveDate": "2026-09-15",
+      "withdrawDate": null,
+      "underwriter": "凱基證券"
     }
   ]
 }
