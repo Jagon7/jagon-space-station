@@ -1,5 +1,5 @@
 {
-  "date": "2026-08-31",
+  "date": "2026-09-01",
   "data": [
     {
       "code": "3234",
@@ -102,6 +102,46 @@
       "market": "上櫃"
     },
     {
+      "code": "3406",
+      "name": "玉晶光",
+      "count": 1,
+      "condition": "連續三次",
+      "period": "115/09/02～115/09/08",
+      "endDate": "2026-09-08",
+      "announceDate": "*115/09/01",
+      "market": "上市"
+    },
+    {
+      "code": "6805",
+      "name": "富世達",
+      "count": 1,
+      "condition": "連續三次",
+      "period": "115/09/02～115/09/08",
+      "endDate": "2026-09-08",
+      "announceDate": "*115/09/01",
+      "market": "上市"
+    },
+    {
+      "code": "6933",
+      "name": "AMAX-KY",
+      "count": 1,
+      "condition": "連續三次",
+      "period": "115/09/02～115/09/08",
+      "endDate": "2026-09-08",
+      "announceDate": "*115/09/01",
+      "market": "上市"
+    },
+    {
+      "code": "3629",
+      "name": "地心引力",
+      "count": 3,
+      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
+      "period": "115/09/02~115/09/08",
+      "endDate": "2026-09-08",
+      "announceDate": "115/09/01",
+      "market": "上櫃"
+    },
+    {
       "code": "4939",
       "name": "亞電",
       "count": 2,
@@ -109,6 +149,26 @@
       "period": "115/09/01~115/09/09",
       "endDate": "2026-09-09",
       "announceDate": "115/08/31",
+      "market": "上櫃"
+    },
+    {
+      "code": "3374",
+      "name": "精材",
+      "count": 3,
+      "condition": "連續3個營業日及沖銷標準",
+      "period": "115/09/02~115/09/10",
+      "endDate": "2026-09-10",
+      "announceDate": "115/09/01",
+      "market": "上櫃"
+    },
+    {
+      "code": "8358",
+      "name": "金居",
+      "count": 3,
+      "condition": "連續5個營業日及沖銷標準",
+      "period": "115/09/02~115/09/10",
+      "endDate": "2026-09-10",
+      "announceDate": "115/09/01",
       "market": "上櫃"
     }
   ]

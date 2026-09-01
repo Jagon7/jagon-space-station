@@ -1,5 +1,5 @@
 {
-  "date": "2026-08-31",
+  "date": "2026-09-01",
   "data": [
     {
       "code": "2344",
@@ -1430,6 +1430,32 @@
       "effectiveDate": "2026-09-15",
       "withdrawDate": null,
       "underwriter": "凱基證券"
+    },
+    {
+      "code": "8996",
+      "name": "高力熱處理",
+      "market": "上市",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 25.0,
+      "currency": "台幣",
+      "filingDate": "2026-08-31",
+      "effectiveDate": "2026-09-16",
+      "withdrawDate": null,
+      "underwriter": "富邦證券"
+    },
+    {
+      "code": "8996",
+      "name": "高力熱處理",
+      "market": "上市",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 15.0,
+      "currency": "台幣",
+      "filingDate": "2026-08-31",
+      "effectiveDate": "2026-09-16",
+      "withdrawDate": null,
+      "underwriter": "富邦證券"
     }
   ]
 }
