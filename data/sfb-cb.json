@@ -1,5 +1,5 @@
 {
-  "date": "2026-09-01",
+  "date": "2026-09-02",
   "data": [
     {
       "code": "2344",
@@ -1456,6 +1456,19 @@
       "effectiveDate": "2026-09-16",
       "withdrawDate": null,
       "underwriter": "富邦證券"
+    },
+    {
+      "code": "1727",
+      "name": "中華化工",
+      "market": "上市",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 10.0,
+      "currency": "台幣",
+      "filingDate": "2026-09-01",
+      "effectiveDate": "2026-09-17",
+      "withdrawDate": null,
+      "underwriter": "統一證券"
     }
   ]
 }
