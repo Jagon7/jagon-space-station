@@ -1,5 +1,5 @@
 {
-  "date": "2026-09-02",
+  "date": "2026-09-03",
   "data": [
     {
       "code": "2344",
@@ -1253,7 +1253,7 @@
       "code": "4198",
       "name": "欣大健康",
       "market": "上櫃",
-      "status": "審查中",
+      "status": "生效",
       "cbType": "轉換公司債(有擔保)",
       "amount": 3.0,
       "currency": "台幣",
@@ -1318,7 +1318,7 @@
       "code": "3260",
       "name": "威剛科技",
       "market": "上櫃",
-      "status": "審查中",
+      "status": "生效",
       "cbType": "轉換公司債(無擔保)",
       "amount": 30.0,
       "currency": "台幣",
@@ -1469,6 +1469,19 @@
       "effectiveDate": "2026-09-17",
       "withdrawDate": null,
       "underwriter": "統一證券"
+    },
+    {
+      "code": "6534",
+      "name": "正瀚生技-創",
+      "market": "上市",
+      "status": "審查中",
+      "cbType": "轉換公司債(有擔保)",
+      "amount": 7.0,
+      "currency": "台幣",
+      "filingDate": "2026-09-02",
+      "effectiveDate": "2026-09-18",
+      "withdrawDate": null,
+      "underwriter": "富邦證券"
     }
   ]
 }

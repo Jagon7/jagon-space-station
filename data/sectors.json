@@ -1,10 +1,10 @@
 {
-  "date": "2026-09-02",
+  "date": "2026-09-03",
   "data": [
     {
-      "name": "光電",
-      "count": 4,
-      "momentum": "normal"
+      "name": "電子零組件",
+      "count": 2,
+      "momentum": "weak"
     },
     {
       "name": "通信網路",
@@ -17,17 +17,27 @@
       "momentum": "weak"
     },
     {
-      "name": "電子零組件",
-      "count": 2,
-      "momentum": "weak"
-    },
-    {
-      "name": "電腦週邊",
+      "name": "其他電子",
       "count": 1,
       "momentum": "weak"
     },
     {
-      "name": "電子通路",
+      "name": "數位雲端",
+      "count": 1,
+      "momentum": "weak"
+    },
+    {
+      "name": "光電",
+      "count": 1,
+      "momentum": "weak"
+    },
+    {
+      "name": "生技醫療",
+      "count": 1,
+      "momentum": "weak"
+    },
+    {
+      "name": "綠能環保",
       "count": 1,
       "momentum": "weak"
     }
