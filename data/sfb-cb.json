@@ -1,5 +1,5 @@
 {
-  "date": "2026-09-03",
+  "date": "2026-09-04",
   "data": [
     {
       "code": "2344",
@@ -1331,7 +1331,7 @@
       "code": "8021",
       "name": "尖點科技",
       "market": "上市",
-      "status": "審查中",
+      "status": "生效",
       "cbType": "轉換公司債(無擔保)",
       "amount": 4.8,
       "currency": "台幣",
@@ -1482,6 +1482,32 @@
       "effectiveDate": "2026-09-18",
       "withdrawDate": null,
       "underwriter": "富邦證券"
+    },
+    {
+      "code": "6285",
+      "name": "啓碁科技",
+      "market": "上市",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 60.0,
+      "currency": "台幣",
+      "filingDate": "2026-09-03",
+      "effectiveDate": "2026-09-21",
+      "withdrawDate": null,
+      "underwriter": "凱基證券"
+    },
+    {
+      "code": "6285",
+      "name": "啓碁科技",
+      "market": "上市",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 20.0,
+      "currency": "台幣",
+      "filingDate": "2026-09-03",
+      "effectiveDate": "2026-09-21",
+      "withdrawDate": null,
+      "underwriter": "凱基證券"
     }
   ]
 }

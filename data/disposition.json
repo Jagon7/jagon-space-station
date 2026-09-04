@@ -1,16 +1,6 @@
 {
-  "date": "2026-09-03",
+  "date": "2026-09-04",
   "data": [
-    {
-      "code": "4979",
-      "name": "華星光",
-      "count": 3,
-      "condition": "連續5個營業日",
-      "period": "115/08/28~115/09/03",
-      "endDate": "2026-09-03",
-      "announceDate": "115/08/27",
-      "market": "上櫃"
-    },
     {
       "code": "3163",
       "name": "波若威",
@@ -94,16 +84,6 @@
     {
       "code": "6805",
       "name": "富世達",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/09/02～115/09/08",
-      "endDate": "2026-09-08",
-      "announceDate": "115/09/01",
-      "market": "上市"
-    },
-    {
-      "code": "6933",
-      "name": "AMAX-KY",
       "count": 1,
       "condition": "連續三次",
       "period": "115/09/02～115/09/08",
@@ -209,6 +189,26 @@
       "period": "115/09/03～115/09/11",
       "endDate": "2026-09-11",
       "announceDate": "115/09/02",
+      "market": "上市"
+    },
+    {
+      "code": "6933",
+      "name": "AMAX-KY",
+      "count": 2,
+      "condition": "連續三次",
+      "period": "115/09/07～115/09/11",
+      "endDate": "2026-09-11",
+      "announceDate": "*115/09/04",
+      "market": "上市"
+    },
+    {
+      "code": "2455",
+      "name": "全新",
+      "count": 1,
+      "condition": "連續五次及當日沖銷標準",
+      "period": "115/09/07～115/09/15",
+      "endDate": "2026-09-15",
+      "announceDate": "*115/09/04",
       "market": "上市"
     }
   ]
