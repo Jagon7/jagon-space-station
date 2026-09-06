@@ -1,5 +1,5 @@
 {
-  "date": "2026-09-05",
+  "date": "2026-09-06",
   "data": [
     {
       "date": "2026-08-15",
@@ -549,6 +549,34 @@
     },
     {
       "date": "2026-09-05",
+      "limitUpCount": 39,
+      "marketMood": "中性",
+      "taiexChange": 1.51,
+      "topSectors": [
+        {
+          "name": "電子零組件",
+          "count": 12
+        },
+        {
+          "name": "半導體",
+          "count": 5
+        },
+        {
+          "name": "通信網路",
+          "count": 4
+        },
+        {
+          "name": "電機機械",
+          "count": 4
+        },
+        {
+          "name": "光電",
+          "count": 4
+        }
+      ]
+    },
+    {
+      "date": "2026-09-06",
       "limitUpCount": 39,
       "marketMood": "中性",
       "taiexChange": 1.51,
