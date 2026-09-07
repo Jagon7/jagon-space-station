@@ -1,5 +1,5 @@
 {
-  "date": "2026-09-06",
+  "date": "2026-09-07",
   "data": [
     {
       "code": "2344",
@@ -1344,7 +1344,7 @@
       "code": "2357",
       "name": "華碩電腦",
       "market": "上市",
-      "status": "審查中",
+      "status": "生效",
       "cbType": "轉換公司債(海外無擔保)",
       "amount": 1500.0,
       "currency": "美元",
@@ -1357,7 +1357,7 @@
       "code": "2756",
       "name": "聯發國際",
       "market": "上櫃",
-      "status": "審查中",
+      "status": "生效",
       "cbType": "轉換公司債(無擔保)",
       "amount": 4.0,
       "currency": "台幣",
@@ -1440,7 +1440,7 @@
       "amount": 25.0,
       "currency": "台幣",
       "filingDate": "2026-08-31",
-      "effectiveDate": "2026-09-16",
+      "effectiveDate": "2026-09-21",
       "withdrawDate": null,
       "underwriter": "富邦證券"
     },
@@ -1453,7 +1453,7 @@
       "amount": 15.0,
       "currency": "台幣",
       "filingDate": "2026-08-31",
-      "effectiveDate": "2026-09-16",
+      "effectiveDate": "2026-09-21",
       "withdrawDate": null,
       "underwriter": "富邦證券"
     },
@@ -1485,7 +1485,7 @@
     },
     {
       "code": "6285",
-      "name": "啓碁科技",
+      "name": "啟碁科技",
       "market": "上市",
       "status": "審查中",
       "cbType": "轉換公司債(無擔保)",
@@ -1498,7 +1498,7 @@
     },
     {
       "code": "6285",
-      "name": "啓碁科技",
+      "name": "啟碁科技",
       "market": "上市",
       "status": "審查中",
       "cbType": "轉換公司債(無擔保)",
@@ -1508,6 +1508,45 @@
       "effectiveDate": "2026-09-21",
       "withdrawDate": null,
       "underwriter": "凱基證券"
+    },
+    {
+      "code": "6438",
+      "name": "迅得機械",
+      "market": "上市",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 5.0,
+      "currency": "台幣",
+      "filingDate": "2026-09-04",
+      "effectiveDate": "2026-09-22",
+      "withdrawDate": null,
+      "underwriter": "台新證券"
+    },
+    {
+      "code": "6944",
+      "name": "兆聯實業",
+      "market": "上市",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 13.0,
+      "currency": "台幣",
+      "filingDate": "2026-09-04",
+      "effectiveDate": "2026-09-22",
+      "withdrawDate": null,
+      "underwriter": "富邦證券"
+    },
+    {
+      "code": "6944",
+      "name": "兆聯實業",
+      "market": "上市",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 12.0,
+      "currency": "台幣",
+      "filingDate": "2026-09-04",
+      "effectiveDate": "2026-09-22",
+      "withdrawDate": null,
+      "underwriter": "富邦證券"
     }
   ]
 }
