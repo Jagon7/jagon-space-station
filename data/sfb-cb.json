@@ -1,5 +1,5 @@
 {
-  "date": "2026-09-07",
+  "date": "2026-09-08",
   "data": [
     {
       "code": "2344",
@@ -1547,6 +1547,45 @@
       "effectiveDate": "2026-09-22",
       "withdrawDate": null,
       "underwriter": "富邦證券"
+    },
+    {
+      "code": "4566",
+      "name": "時碩工業",
+      "market": "上市",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 10.0,
+      "currency": "台幣",
+      "filingDate": "2026-09-07",
+      "effectiveDate": "2026-09-23",
+      "withdrawDate": null,
+      "underwriter": "台新證券"
+    },
+    {
+      "code": "4906",
+      "name": "正文科技",
+      "market": "上市",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 12.0,
+      "currency": "台幣",
+      "filingDate": "2026-09-07",
+      "effectiveDate": "2026-09-23",
+      "withdrawDate": null,
+      "underwriter": "凱基證券"
+    },
+    {
+      "code": "4906",
+      "name": "正文科技",
+      "market": "上市",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 8.0,
+      "currency": "台幣",
+      "filingDate": "2026-09-07",
+      "effectiveDate": "2026-09-23",
+      "withdrawDate": null,
+      "underwriter": "凱基證券"
     }
   ]
 }

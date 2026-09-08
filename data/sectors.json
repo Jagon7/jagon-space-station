@@ -1,25 +1,20 @@
 {
-  "date": "2026-09-07",
+  "date": "2026-09-08",
   "data": [
     {
       "name": "半導體",
-      "count": 8,
-      "momentum": "strong"
+      "count": 4,
+      "momentum": "normal"
     },
     {
-      "name": "電子零組件",
-      "count": 7,
-      "momentum": "strong"
-    },
-    {
-      "name": "其他電子",
+      "name": "生技醫療",
       "count": 3,
       "momentum": "normal"
     },
     {
-      "name": "通信網路",
-      "count": 3,
-      "momentum": "normal"
+      "name": "光電",
+      "count": 2,
+      "momentum": "weak"
     },
     {
       "name": "電機機械",
@@ -27,27 +22,32 @@
       "momentum": "weak"
     },
     {
-      "name": "綠能環保",
-      "count": 2,
-      "momentum": "weak"
-    },
-    {
-      "name": "生技醫療",
-      "count": 2,
-      "momentum": "weak"
-    },
-    {
-      "name": "化工",
-      "count": 2,
-      "momentum": "weak"
-    },
-    {
-      "name": "光電",
+      "name": "資訊服務",
       "count": 1,
       "momentum": "weak"
     },
     {
-      "name": "數位雲端",
+      "name": "電子零組件",
+      "count": 1,
+      "momentum": "weak"
+    },
+    {
+      "name": "鋼鐵",
+      "count": 1,
+      "momentum": "weak"
+    },
+    {
+      "name": "化工",
+      "count": 1,
+      "momentum": "weak"
+    },
+    {
+      "name": "綠能環保",
+      "count": 1,
+      "momentum": "weak"
+    },
+    {
+      "name": "電腦週邊",
       "count": 1,
       "momentum": "weak"
     }
