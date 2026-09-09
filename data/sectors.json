@@ -1,9 +1,19 @@
 {
-  "date": "2026-09-08",
+  "date": "2026-09-09",
   "data": [
     {
+      "name": "電子零組件",
+      "count": 6,
+      "momentum": "strong"
+    },
+    {
       "name": "半導體",
-      "count": 4,
+      "count": 3,
+      "momentum": "normal"
+    },
+    {
+      "name": "通信網路",
+      "count": 3,
       "momentum": "normal"
     },
     {
@@ -18,36 +28,26 @@
     },
     {
       "name": "電機機械",
-      "count": 2,
-      "momentum": "weak"
-    },
-    {
-      "name": "資訊服務",
       "count": 1,
       "momentum": "weak"
     },
     {
-      "name": "電子零組件",
+      "name": "油電燃氣",
       "count": 1,
       "momentum": "weak"
     },
     {
-      "name": "鋼鐵",
-      "count": 1,
-      "momentum": "weak"
-    },
-    {
-      "name": "化工",
-      "count": 1,
-      "momentum": "weak"
-    },
-    {
-      "name": "綠能環保",
+      "name": "紡織纖維",
       "count": 1,
       "momentum": "weak"
     },
     {
       "name": "電腦週邊",
+      "count": 1,
+      "momentum": "weak"
+    },
+    {
+      "name": "汽車",
       "count": 1,
       "momentum": "weak"
     }
