@@ -1,36 +1,6 @@
 {
-  "date": "2026-09-09",
+  "date": "2026-09-10",
   "data": [
-    {
-      "code": "3008",
-      "name": "大立光",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/09/03～115/09/09",
-      "endDate": "2026-09-09",
-      "announceDate": "115/09/02",
-      "market": "上市"
-    },
-    {
-      "code": "4908",
-      "name": "前鼎",
-      "count": 5,
-      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
-      "period": "115/09/03~115/09/09",
-      "endDate": "2026-09-09",
-      "announceDate": "115/09/02",
-      "market": "上櫃"
-    },
-    {
-      "code": "4939",
-      "name": "亞電",
-      "count": 1,
-      "condition": "連續3個營業日及沖銷標準",
-      "period": "115/09/01~115/09/09",
-      "endDate": "2026-09-09",
-      "announceDate": "115/08/31",
-      "market": "上櫃"
-    },
     {
       "code": "3664",
       "name": "安瑞-KY",
@@ -102,16 +72,6 @@
       "market": "上櫃"
     },
     {
-      "code": "6538",
-      "name": "倉和",
-      "count": 6,
-      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
-      "period": "115/09/08~115/09/14",
-      "endDate": "2026-09-14",
-      "announceDate": "115/09/07",
-      "market": "上櫃"
-    },
-    {
       "code": "2455",
       "name": "全新",
       "count": 1,
@@ -159,6 +119,36 @@
       "period": "115/09/10~115/09/16",
       "endDate": "2026-09-16",
       "announceDate": "115/09/09",
+      "market": "上櫃"
+    },
+    {
+      "code": "4979",
+      "name": "華星光",
+      "count": 7,
+      "condition": "連續5個營業日",
+      "period": "115/09/11~115/09/17",
+      "endDate": "2026-09-17",
+      "announceDate": "115/09/10",
+      "market": "上櫃"
+    },
+    {
+      "code": "6538",
+      "name": "倉和",
+      "count": 7,
+      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
+      "period": "115/09/11~115/09/17",
+      "endDate": "2026-09-17",
+      "announceDate": "115/09/10",
+      "market": "上櫃"
+    },
+    {
+      "code": "7772",
+      "name": "耀穎",
+      "count": 7,
+      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
+      "period": "115/09/11~115/09/17",
+      "endDate": "2026-09-17",
+      "announceDate": "115/09/10",
       "market": "上櫃"
     }
   ]
