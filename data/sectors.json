@@ -1,28 +1,13 @@
 {
-  "date": "2026-09-11",
+  "date": "2026-09-12",
   "data": [
     {
       "name": "電子零組件",
-      "count": 4,
-      "momentum": "normal"
-    },
-    {
-      "name": "半導體",
-      "count": 3,
-      "momentum": "normal"
-    },
-    {
-      "name": "資訊服務",
       "count": 3,
       "momentum": "normal"
     },
     {
       "name": "光電",
-      "count": 2,
-      "momentum": "weak"
-    },
-    {
-      "name": "電子通路",
       "count": 1,
       "momentum": "weak"
     },
@@ -32,7 +17,12 @@
       "momentum": "weak"
     },
     {
-      "name": "數位雲端",
+      "name": "資訊服務",
+      "count": 1,
+      "momentum": "weak"
+    },
+    {
+      "name": "半導體",
       "count": 1,
       "momentum": "weak"
     },
