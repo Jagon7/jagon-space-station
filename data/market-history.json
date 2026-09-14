@@ -1,34 +1,6 @@
 {
-  "date": "2026-09-13",
+  "date": "2026-09-14",
   "data": [
-    {
-      "date": "2026-08-15",
-      "limitUpCount": 33,
-      "marketMood": "中性",
-      "taiexChange": -0.46,
-      "topSectors": [
-        {
-          "name": "航運",
-          "count": 4
-        },
-        {
-          "name": "光電",
-          "count": 4
-        },
-        {
-          "name": "電子零組件",
-          "count": 2
-        },
-        {
-          "name": "塑膠",
-          "count": 1
-        },
-        {
-          "name": "電腦週邊",
-          "count": 1
-        }
-      ]
-    },
     {
       "date": "2026-08-16",
       "limitUpCount": 33,
@@ -796,6 +768,34 @@
         {
           "name": "半導體",
           "count": 1
+        }
+      ]
+    },
+    {
+      "date": "2026-09-14",
+      "limitUpCount": 25,
+      "marketMood": "中性",
+      "taiexChange": -0.7,
+      "topSectors": [
+        {
+          "name": "資訊服務",
+          "count": 6
+        },
+        {
+          "name": "數位雲端",
+          "count": 6
+        },
+        {
+          "name": "半導體",
+          "count": 3
+        },
+        {
+          "name": "光電",
+          "count": 3
+        },
+        {
+          "name": "電腦週邊",
+          "count": 2
         }
       ]
     }

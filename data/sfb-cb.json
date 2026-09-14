@@ -1,5 +1,5 @@
 {
-  "date": "2026-09-13",
+  "date": "2026-09-14",
   "data": [
     {
       "code": "2344",
@@ -1409,7 +1409,7 @@
       "code": "4958",
       "name": "F-臻鼎",
       "market": "上市",
-      "status": "審查中",
+      "status": "生效",
       "cbType": "轉換公司債(海外無擔保)",
       "amount": 800.0,
       "currency": "美元",
@@ -1599,6 +1599,19 @@
       "effectiveDate": "2026-10-13",
       "withdrawDate": null,
       "underwriter": "台新證券"
+    },
+    {
+      "code": "3339",
+      "name": "泰谷光電科技",
+      "market": "上櫃",
+      "status": "審查中",
+      "cbType": "轉換公司債(有擔保)",
+      "amount": 5.0,
+      "currency": "台幣",
+      "filingDate": "2026-09-11",
+      "effectiveDate": "2026-10-14",
+      "withdrawDate": null,
+      "underwriter": "永豐金證券"
     }
   ]
 }
