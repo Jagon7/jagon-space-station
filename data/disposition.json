@@ -1,36 +1,6 @@
 {
-  "date": "2026-09-15",
+  "date": "2026-09-16",
   "data": [
-    {
-      "code": "2455",
-      "name": "全新",
-      "count": 1,
-      "condition": "連續五次及當日沖銷標準",
-      "period": "115/09/07～115/09/15",
-      "endDate": "2026-09-15",
-      "announceDate": "115/09/04",
-      "market": "上市"
-    },
-    {
-      "code": "8021",
-      "name": "尖點",
-      "count": 1,
-      "condition": "最近十個營業日已有六次",
-      "period": "115/09/09～115/09/15",
-      "endDate": "2026-09-15",
-      "announceDate": "115/09/08",
-      "market": "上市"
-    },
-    {
-      "code": "6620",
-      "name": "漢達",
-      "count": 3,
-      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
-      "period": "115/09/09~115/09/15",
-      "endDate": "2026-09-15",
-      "announceDate": "115/09/08",
-      "market": "上櫃"
-    },
     {
       "code": "4304",
       "name": "勝昱",

@@ -1,5 +1,5 @@
 {
-  "date": "2026-09-15",
+  "date": "2026-09-16",
   "data": [
     {
       "code": "2344",
@@ -1651,6 +1651,19 @@
       "effectiveDate": "2026-10-02",
       "withdrawDate": null,
       "underwriter": "台新證券"
+    },
+    {
+      "code": "3033",
+      "name": "威健實業",
+      "market": "上市",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 40.0,
+      "currency": "台幣",
+      "filingDate": "2026-09-15",
+      "effectiveDate": "2026-10-05",
+      "withdrawDate": null,
+      "underwriter": "華南永昌證券"
     }
   ]
 }
