@@ -1,5 +1,5 @@
 {
-  "date": "2026-09-16",
+  "date": "2026-09-17",
   "data": [
     {
       "code": "2344",
@@ -1461,7 +1461,7 @@
       "code": "1727",
       "name": "中華化工",
       "market": "上市",
-      "status": "審查中",
+      "status": "生效",
       "cbType": "轉換公司債(無擔保)",
       "amount": 10.0,
       "currency": "台幣",
@@ -1479,7 +1479,7 @@
       "amount": 7.0,
       "currency": "台幣",
       "filingDate": "2026-09-02",
-      "effectiveDate": "2026-09-18",
+      "effectiveDate": "2026-10-06",
       "withdrawDate": null,
       "underwriter": "富邦證券"
     },
@@ -1664,6 +1664,45 @@
       "effectiveDate": "2026-10-05",
       "withdrawDate": null,
       "underwriter": "華南永昌證券"
+    },
+    {
+      "code": "2367",
+      "name": "燿華電子",
+      "market": "上市",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 15.0,
+      "currency": "台幣",
+      "filingDate": "2026-09-16",
+      "effectiveDate": "2026-10-06",
+      "withdrawDate": null,
+      "underwriter": "臺銀證券"
+    },
+    {
+      "code": "2492",
+      "name": "華新科",
+      "market": "上市",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 45.0,
+      "currency": "台幣",
+      "filingDate": "2026-09-16",
+      "effectiveDate": "2026-10-06",
+      "withdrawDate": null,
+      "underwriter": "國泰證券"
+    },
+    {
+      "code": "6274",
+      "name": "台燿科技",
+      "market": "上櫃",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 100.0,
+      "currency": "台幣",
+      "filingDate": "2026-09-16",
+      "effectiveDate": "2026-10-06",
+      "withdrawDate": null,
+      "underwriter": "統一證券"
     }
   ]
 }

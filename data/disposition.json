@@ -1,26 +1,6 @@
 {
-  "date": "2026-09-16",
+  "date": "2026-09-17",
   "data": [
-    {
-      "code": "4304",
-      "name": "勝昱",
-      "count": 3,
-      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
-      "period": "115/09/10~115/09/16",
-      "endDate": "2026-09-16",
-      "announceDate": "115/09/09",
-      "market": "上櫃"
-    },
-    {
-      "code": "6872",
-      "name": "浩宇生醫",
-      "count": 3,
-      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
-      "period": "115/09/10~115/09/16",
-      "endDate": "2026-09-16",
-      "announceDate": "115/09/09",
-      "market": "上櫃"
-    },
     {
       "code": "4979",
       "name": "華星光",
@@ -72,13 +52,53 @@
       "market": "上市"
     },
     {
+      "code": "3467",
+      "name": "台灣精材",
+      "count": 4,
+      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
+      "period": "115/09/18~115/09/24",
+      "endDate": "2026-09-24",
+      "announceDate": "115/09/17",
+      "market": "上櫃"
+    },
+    {
       "code": "8227",
       "name": "巨有科技",
-      "count": 2,
+      "count": 4,
       "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
-      "period": "115/09/15~115/09/21",
-      "endDate": "2026-09-21",
-      "announceDate": "115/09/14",
+      "period": "115/09/18~115/09/24",
+      "endDate": "2026-09-24",
+      "announceDate": "115/09/17",
+      "market": "上櫃"
+    },
+    {
+      "code": "8358",
+      "name": "金居",
+      "count": 4,
+      "condition": "連續5個營業日",
+      "period": "115/09/18~115/09/24",
+      "endDate": "2026-09-24",
+      "announceDate": "115/09/17",
+      "market": "上櫃"
+    },
+    {
+      "code": "2305",
+      "name": "全友",
+      "count": 1,
+      "condition": "連續五次及當日沖銷標準",
+      "period": "115/09/18～115/09/30",
+      "endDate": "2026-09-30",
+      "announceDate": "*115/09/17",
+      "market": "上市"
+    },
+    {
+      "code": "3441",
+      "name": "聯一光",
+      "count": 4,
+      "condition": "連續5個營業日及沖銷標準",
+      "period": "115/09/18~115/09/30",
+      "endDate": "2026-09-30",
+      "announceDate": "115/09/17",
       "market": "上櫃"
     }
   ]
