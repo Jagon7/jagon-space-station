@@ -1,24 +1,34 @@
 {
-  "date": "2026-09-17",
+  "date": "2026-09-18",
   "data": [
     {
-      "name": "光電",
-      "count": 10,
-      "momentum": "strong"
-    },
-    {
-      "name": "電腦週邊",
-      "count": 6,
-      "momentum": "strong"
-    },
-    {
       "name": "半導體",
+      "count": 17,
+      "momentum": "strong"
+    },
+    {
+      "name": "電子零組件",
+      "count": 11,
+      "momentum": "strong"
+    },
+    {
+      "name": "其他電子",
+      "count": 8,
+      "momentum": "strong"
+    },
+    {
+      "name": "光電",
+      "count": 7,
+      "momentum": "strong"
+    },
+    {
+      "name": "資訊服務",
       "count": 5,
       "momentum": "normal"
     },
     {
-      "name": "電子零組件",
-      "count": 5,
+      "name": "建材營造",
+      "count": 4,
       "momentum": "normal"
     },
     {
@@ -27,12 +37,7 @@
       "momentum": "normal"
     },
     {
-      "name": "化工",
-      "count": 3,
-      "momentum": "normal"
-    },
-    {
-      "name": "生技醫療",
+      "name": "電腦週邊",
       "count": 3,
       "momentum": "normal"
     },
@@ -42,13 +47,8 @@
       "momentum": "weak"
     },
     {
-      "name": "塑膠",
+      "name": "綠能環保",
       "count": 2,
-      "momentum": "weak"
-    },
-    {
-      "name": "其他電子",
-      "count": 1,
       "momentum": "weak"
     }
   ]
