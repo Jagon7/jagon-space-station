@@ -1,16 +1,6 @@
 {
-  "date": "2026-09-18",
+  "date": "2026-09-19",
   "data": [
-    {
-      "code": "3055",
-      "name": "蔚華科",
-      "count": 1,
-      "condition": "最近十個營業日已有六次",
-      "period": "115/09/14～115/09/18",
-      "endDate": "2026-09-18",
-      "announceDate": "115/09/11",
-      "market": "上市"
-    },
     {
       "code": "8996",
       "name": "高力",
@@ -52,16 +42,6 @@
       "market": "上櫃"
     },
     {
-      "code": "6221",
-      "name": "晉泰",
-      "count": 1,
-      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
-      "period": "115/09/21~115/09/29",
-      "endDate": "2026-09-29",
-      "announceDate": "115/09/18",
-      "market": "上櫃"
-    },
-    {
       "code": "2305",
       "name": "全友",
       "count": 1,
@@ -88,7 +68,7 @@
       "condition": "連續三次及當日沖銷標準",
       "period": "115/09/21～115/10/01",
       "endDate": "2026-10-01",
-      "announceDate": "*115/09/18",
+      "announceDate": "115/09/18",
       "market": "上市"
     }
   ]
