@@ -1,34 +1,6 @@
 {
-  "date": "2026-09-19",
+  "date": "2026-09-20",
   "data": [
-    {
-      "date": "2026-08-21",
-      "limitUpCount": 28,
-      "marketMood": "中性",
-      "taiexChange": 0.65,
-      "topSectors": [
-        {
-          "name": "航運",
-          "count": 4
-        },
-        {
-          "name": "光電",
-          "count": 4
-        },
-        {
-          "name": "半導體",
-          "count": 1
-        },
-        {
-          "name": "其他電子",
-          "count": 1
-        },
-        {
-          "name": "綠能環保",
-          "count": 1
-        }
-      ]
-    },
     {
       "date": "2026-08-22",
       "limitUpCount": 28,
@@ -815,6 +787,34 @@
     },
     {
       "date": "2026-09-19",
+      "limitUpCount": 70,
+      "marketMood": "強勢",
+      "taiexChange": 1.93,
+      "topSectors": [
+        {
+          "name": "半導體",
+          "count": 17
+        },
+        {
+          "name": "電子零組件",
+          "count": 11
+        },
+        {
+          "name": "其他電子",
+          "count": 8
+        },
+        {
+          "name": "光電",
+          "count": 7
+        },
+        {
+          "name": "資訊服務",
+          "count": 5
+        }
+      ]
+    },
+    {
+      "date": "2026-09-20",
       "limitUpCount": 70,
       "marketMood": "強勢",
       "taiexChange": 1.93,
