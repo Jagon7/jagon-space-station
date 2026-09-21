@@ -1,5 +1,5 @@
 {
-  "date": "2026-09-20",
+  "date": "2026-09-21",
   "data": [
     {
       "code": "2344",
@@ -1370,7 +1370,7 @@
       "code": "2316",
       "name": "楠梓電子",
       "market": "上市",
-      "status": "審查中",
+      "status": "生效",
       "cbType": "轉換公司債(無擔保)",
       "amount": 35.0,
       "currency": "台幣",
@@ -1435,7 +1435,7 @@
       "code": "8996",
       "name": "高力熱處理",
       "market": "上市",
-      "status": "審查中",
+      "status": "生效",
       "cbType": "轉換公司債(無擔保)",
       "amount": 25.0,
       "currency": "台幣",
@@ -1448,7 +1448,7 @@
       "code": "8996",
       "name": "高力熱處理",
       "market": "上市",
-      "status": "審查中",
+      "status": "生效",
       "cbType": "轉換公司債(無擔保)",
       "amount": 15.0,
       "currency": "台幣",
@@ -1487,7 +1487,7 @@
       "code": "6285",
       "name": "啟碁科技",
       "market": "上市",
-      "status": "審查中",
+      "status": "生效",
       "cbType": "轉換公司債(無擔保)",
       "amount": 60.0,
       "currency": "台幣",
@@ -1500,7 +1500,7 @@
       "code": "6285",
       "name": "啟碁科技",
       "market": "上市",
-      "status": "審查中",
+      "status": "生效",
       "cbType": "轉換公司債(無擔保)",
       "amount": 20.0,
       "currency": "台幣",
@@ -1703,6 +1703,19 @@
       "effectiveDate": "2026-10-06",
       "withdrawDate": null,
       "underwriter": "統一證券"
+    },
+    {
+      "code": "3702",
+      "name": "大聯大",
+      "market": "上市",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 150.0,
+      "currency": "台幣",
+      "filingDate": "2026-09-18",
+      "effectiveDate": "2026-10-08",
+      "withdrawDate": null,
+      "underwriter": "凱基證券"
     }
   ]
 }
