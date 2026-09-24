@@ -1,29 +1,14 @@
 {
-  "date": "2026-09-23",
+  "date": "2026-09-24",
   "data": [
-    {
-      "name": "半導體",
-      "count": 4,
-      "momentum": "normal"
-    },
     {
       "name": "電子零組件",
       "count": 3,
       "momentum": "normal"
     },
     {
-      "name": "化工",
+      "name": "半導體",
       "count": 2,
-      "momentum": "weak"
-    },
-    {
-      "name": "其他電子",
-      "count": 1,
-      "momentum": "weak"
-    },
-    {
-      "name": "通信網路",
-      "count": 1,
       "momentum": "weak"
     },
     {
@@ -32,17 +17,32 @@
       "momentum": "weak"
     },
     {
-      "name": "橡膠",
+      "name": "電機機械",
+      "count": 1,
+      "momentum": "weak"
+    },
+    {
+      "name": "鋼鐵",
+      "count": 1,
+      "momentum": "weak"
+    },
+    {
+      "name": "玻璃陶瓷",
+      "count": 1,
+      "momentum": "weak"
+    },
+    {
+      "name": "光電",
+      "count": 1,
+      "momentum": "weak"
+    },
+    {
+      "name": "其他電子",
       "count": 1,
       "momentum": "weak"
     },
     {
       "name": "生技醫療",
-      "count": 1,
-      "momentum": "weak"
-    },
-    {
-      "name": "食品",
       "count": 1,
       "momentum": "weak"
     }
