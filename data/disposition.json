@@ -1,36 +1,6 @@
 {
-  "date": "2026-09-24",
+  "date": "2026-09-25",
   "data": [
-    {
-      "code": "3467",
-      "name": "台灣精材",
-      "count": 4,
-      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
-      "period": "115/09/18~115/09/24",
-      "endDate": "2026-09-24",
-      "announceDate": "115/09/17",
-      "market": "上櫃"
-    },
-    {
-      "code": "8227",
-      "name": "巨有科技",
-      "count": 4,
-      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
-      "period": "115/09/18~115/09/24",
-      "endDate": "2026-09-24",
-      "announceDate": "115/09/17",
-      "market": "上櫃"
-    },
-    {
-      "code": "8358",
-      "name": "金居",
-      "count": 4,
-      "condition": "連續5個營業日",
-      "period": "115/09/18~115/09/24",
-      "endDate": "2026-09-24",
-      "announceDate": "115/09/17",
-      "market": "上櫃"
-    },
     {
       "code": "6221",
       "name": "晉泰",
@@ -158,38 +128,8 @@
       "condition": "連續三次",
       "period": "115/09/29～115/10/05",
       "endDate": "2026-10-05",
-      "announceDate": "*115/09/24",
+      "announceDate": "115/09/24",
       "market": "上市"
-    },
-    {
-      "code": "3374",
-      "name": "精材",
-      "count": 6,
-      "condition": "最近10個營業日內有6個營業日",
-      "period": "115/09/29~115/10/05",
-      "endDate": "2026-10-05",
-      "announceDate": "115/09/24",
-      "market": "上櫃"
-    },
-    {
-      "code": "4542",
-      "name": "科嶠",
-      "count": 6,
-      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
-      "period": "115/09/29~115/10/05",
-      "endDate": "2026-10-05",
-      "announceDate": "115/09/24",
-      "market": "上櫃"
-    },
-    {
-      "code": "4979",
-      "name": "華星光",
-      "count": 6,
-      "condition": "連續5個營業日",
-      "period": "115/09/29~115/10/05",
-      "endDate": "2026-10-05",
-      "announceDate": "115/09/24",
-      "market": "上櫃"
     },
     {
       "code": "6218",

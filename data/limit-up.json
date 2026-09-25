@@ -1,5 +1,5 @@
 {
-  "date": "2026-09-24",
+  "date": "2026-09-25",
   "data": [
     {
       "code": "6213",
@@ -89,7 +89,7 @@
     {
       "code": "6207",
       "name": "雷科",
-      "sector": "其他",
+      "sector": "電子零組件",
       "change": 9.65,
       "volume": 11895,
       "tradeValue": 1457036000.0,
@@ -157,7 +157,7 @@
     {
       "code": "3219",
       "name": "倚強科",
-      "sector": "其他",
+      "sector": "其他電子",
       "change": 9.57,
       "volume": 2333,
       "tradeValue": 260795000.0,
@@ -191,7 +191,7 @@
     {
       "code": "6925",
       "name": "意藍",
-      "sector": "其他",
+      "sector": "數位雲端",
       "change": 10.0,
       "volume": 1439,
       "tradeValue": 96559500.0,
@@ -208,7 +208,7 @@
     {
       "code": "6204",
       "name": "艾華",
-      "sector": "其他",
+      "sector": "電子零組件",
       "change": 9.69,
       "volume": 535,
       "tradeValue": 55434800.0,
@@ -225,7 +225,7 @@
     {
       "code": "7825",
       "name": "和亞智慧",
-      "sector": "其他",
+      "sector": "其他電子",
       "change": 9.89,
       "volume": 568,
       "tradeValue": 45667800.0,
@@ -259,7 +259,7 @@
     {
       "code": "8121",
       "name": "越峰",
-      "sector": "其他",
+      "sector": "電子零組件",
       "change": 9.86,
       "volume": 1264,
       "tradeValue": 37749250.0,
@@ -276,7 +276,7 @@
     {
       "code": "3114",
       "name": "好德",
-      "sector": "其他",
+      "sector": "電子零組件",
       "change": 9.95,
       "volume": 870,
       "tradeValue": 29423700.0,
@@ -293,7 +293,7 @@
     {
       "code": "7547",
       "name": "碩網",
-      "sector": "其他",
+      "sector": "數位雲端",
       "change": 10.0,
       "volume": 269,
       "tradeValue": 15904200.0,
@@ -310,7 +310,7 @@
     {
       "code": "6708",
       "name": "天擎",
-      "sector": "其他",
+      "sector": "半導體",
       "change": 9.88,
       "volume": 343,
       "tradeValue": 14466650.0,
@@ -327,7 +327,7 @@
     {
       "code": "5310",
       "name": "天剛",
-      "sector": "其他",
+      "sector": "資訊服務",
       "change": 9.82,
       "volume": 293,
       "tradeValue": 8071500.0,
@@ -378,7 +378,7 @@
     {
       "code": "6103",
       "name": "合邦",
-      "sector": "其他",
+      "sector": "半導體",
       "change": 9.95,
       "volume": 57,
       "tradeValue": 2331300.0,
@@ -395,7 +395,7 @@
     {
       "code": "6228",
       "name": "全譜",
-      "sector": "其他",
+      "sector": "電腦週邊",
       "change": 10.0,
       "volume": 19,
       "tradeValue": 355300.0,
