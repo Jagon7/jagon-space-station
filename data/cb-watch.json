@@ -1,5 +1,5 @@
 {
-  "date": "2026-09-27",
+  "date": "2026-09-28",
   "data": [
     {
       "code": "4939",
@@ -377,6 +377,19 @@
       "closePrice": 1530.0,
       "market": "上市",
       "underwriter": "富邦綜合證券股份有限公司"
+    },
+    {
+      "code": "6438",
+      "name": "迅得",
+      "cbSeries": "第64次",
+      "filingDate": "2026-09-29",
+      "bookBuildDate": "2026-09-29",
+      "listingDate": "2026-10-09",
+      "amount": 5.0,
+      "conversionPrice": null,
+      "closePrice": 157.5,
+      "market": "上市",
+      "underwriter": "台新綜合證券股份有限公司"
     }
   ]
 }
