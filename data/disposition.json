@@ -1,16 +1,6 @@
 {
-  "date": "2026-09-28",
+  "date": "2026-09-29",
   "data": [
-    {
-      "code": "6221",
-      "name": "晉泰",
-      "count": 1,
-      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
-      "period": "115/09/21~115/09/29",
-      "endDate": "2026-09-29",
-      "announceDate": "115/09/18",
-      "market": "上櫃"
-    },
     {
       "code": "2305",
       "name": "全友",
@@ -169,6 +159,26 @@
       "period": "115/09/23~115/10/05",
       "endDate": "2026-10-05",
       "announceDate": "115/09/22",
+      "market": "上櫃"
+    },
+    {
+      "code": "6526",
+      "name": "達發",
+      "count": 1,
+      "condition": "連續三次",
+      "period": "115/09/30～115/10/06",
+      "endDate": "2026-10-06",
+      "announceDate": "115/09/29",
+      "market": "上市"
+    },
+    {
+      "code": "7792",
+      "name": "安葆",
+      "count": 3,
+      "condition": "因連續3個營業日達本中心作業要點第四條第一項第一款(./attention.html)",
+      "period": "115/09/30~115/10/06",
+      "endDate": "2026-10-06",
+      "announceDate": "115/09/29",
       "market": "上櫃"
     },
     {
