@@ -1,36 +1,4 @@
 {
-  "date": "2026-10-03",
-  "data": [
-    {
-      "etfCode": "00929",
-      "etfName": "復華台灣科技優息",
-      "category": "高股息",
-      "navPerUnit": 0.0,
-      "totalUnits": 5315139000,
-      "changes": [
-        {
-          "code": "3260",
-          "name": "3260",
-          "action": "remove",
-          "prevShares": 10592000,
-          "currShares": 0,
-          "diffShares": -10592000,
-          "closePrice": 0.0,
-          "diffValue": 0,
-          "weight": 0.0
-        },
-        {
-          "code": "5434",
-          "name": "崇越",
-          "action": "new",
-          "prevShares": 0,
-          "currShares": 6990000,
-          "diffShares": 6990000,
-          "closePrice": 583.0,
-          "diffValue": 4075170000,
-          "weight": 8.54
-        }
-      ]
-    }
-  ]
+  "date": "2026-10-04",
+  "data": []
 }
