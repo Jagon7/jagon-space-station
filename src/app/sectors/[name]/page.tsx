@@ -1,8 +1,15 @@
-export const dynamic = "force-dynamic";
-
 import PageShell from "@/components/PageShell";
 import { getSectorStocks, getSectorPerformance, getLastUpdated } from "@/lib/data-loader";
 import { TrendingUp, TrendingDown } from "lucide-react";
+
+export const dynamicParams = false;
+
+export async function generateStaticParams() {
+  const sectorStocks = await getSectorStocks();
+  const names = Object.keys(sectorStocks);
+  // Static export requires at least one param; fall back to a placeholder page.
+  return (names.length ? names : ["—"]).map((name) => ({ name }));
+}
 
 export default async function SectorStocksPage({ params }: { params: Promise<{ name: string }> }) {
   const { name: encodedName } = await params;
