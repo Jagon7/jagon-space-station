@@ -8,12 +8,14 @@ import HoldersTab from "./HoldersTab";
 import ChangesTab from "./ChangesTab";
 import ActiveTab from "./ActiveTab";
 import AumTab from "./AumTab";
+import ScheduleTab, { type ScheduleData } from "./ScheduleTab";
 
 const TABS = [
   { key: "holders", label: "個股持有查詢" },
   { key: "changes", label: "每日持股變化" },
   { key: "active", label: "主動式買賣超" },
   { key: "aum", label: "AUM 排行" },
+  { key: "schedule", label: "指數審核行事曆" },
 ] as const;
 type Tab = (typeof TABS)[number]["key"];
 
@@ -35,6 +37,7 @@ export default function EtfDashboard() {
   const core = useEtfJson<CoreData>("core.json");
   const active = useEtfJson<ActiveData>(tab === "active" ? "active.json" : null);
   const aum = useEtfJson<AumData>(tab === "aum" ? "aum.json" : null);
+  const schedule = useEtfJson<ScheduleData>(tab === "schedule" ? "schedule.json" : null);
 
   // 沒指定時預設查被最多 ETF 持有的個股
   const defaultStock = useMemo(() => {
@@ -78,6 +81,7 @@ export default function EtfDashboard() {
           {tab === "changes" && <ChangesTab core={core.data} query={query} setQuery={pickQuery} />}
           {tab === "active" && (active.data ? <ActiveTab core={core.data} active={active.data} onStock={pickStock} /> : <Loading error={active.error} />)}
           {tab === "aum" && (aum.data ? <AumTab aum={aum.data} onEtf={etfChanges} /> : <Loading error={aum.error} />)}
+          {tab === "schedule" && (schedule.data ? <ScheduleTab data={schedule.data} onEtf={etfChanges} /> : <Loading error={schedule.error} />)}
         </>
       )}
     </div>
