@@ -2,7 +2,7 @@ name: Daily Stock Data Fetch
 
 on:
   schedule:
-    - cron: '0 11 * * *'   # 19:00 CST (UTC+8) = 11:00 UTC
+    - cron: '47 10 * * *'  # 18:47 台灣時間；避開整點（GitHub 整點排程常延誤數小時）
   workflow_dispatch:        # 可手動觸發
 
 permissions:
