@@ -121,9 +121,9 @@ export type Column<R> = {
   className?: string;
 };
 
-export function SortTable<R>({ rows, columns, initialSort, rowKey, limit, onRowClick }: {
+export function SortTable<R>({ rows, columns, initialSort, rowKey, limit, onRowClick, rank }: {
   rows: R[]; columns: Column<R>[]; initialSort?: { key: string; desc: boolean };
-  rowKey: (r: R) => string; limit?: number; onRowClick?: (r: R) => void;
+  rowKey: (r: R) => string; limit?: number; onRowClick?: (r: R) => void; rank?: boolean;
 }) {
   const [sort, setSort] = useState(initialSort ?? null);
   const [showAll, setShowAll] = useState(false);
@@ -148,6 +148,7 @@ export function SortTable<R>({ rows, columns, initialSort, rowKey, limit, onRowC
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-[#1e2a3a] text-[11px] text-slate-500">
+              {rank && <th className="pl-4 py-3 font-normal text-left w-8">#</th>}
               {columns.map((c) => {
                 const active = sort?.key === c.key;
                 const Icon = !c.sort ? null : !active ? ChevronsUpDown : sort!.desc ? ChevronDown : ChevronUp;
@@ -169,12 +170,13 @@ export function SortTable<R>({ rows, columns, initialSort, rowKey, limit, onRowC
             </tr>
           </thead>
           <tbody>
-            {shown.map((r) => (
+            {shown.map((r, i) => (
               <tr
                 key={rowKey(r)}
                 onClick={onRowClick ? () => onRowClick(r) : undefined}
                 className={`border-b border-[#1e2a3a]/60 last:border-0 hover:bg-[#111a2c] ${onRowClick ? "cursor-pointer" : ""}`}
               >
+                {rank && <td className="pl-4 py-2.5 font-mono text-xs text-slate-600">{i + 1}</td>}
                 {columns.map((c) => (
                   <td key={c.key} className={`px-4 py-2.5 whitespace-nowrap ${c.align === "right" ? "text-right font-mono" : ""} ${c.className ?? ""}`}>
                     {c.render(r)}

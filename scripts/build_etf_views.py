@@ -207,7 +207,7 @@ def build():
                         for dd in recent if code in aum_doc["days"][dd])
             prev_r = aum_doc["days"][prev_day].get(code) if prev_day else None
             daum = aum - prev_r[1] * prev_r[3] if prev_r else None
-            rows.append([code, prices.names.get(code) or short_name(name), categorize(code, types.get(code, "")),
+            rows.append([code, prices.names.get(code) or short_name(name), categorize(code, types.get(code, ""), name),
                          round(aum), nav, units, du, round(du * nav), round(flow5), round_or_none(daum, 0),
                          prem, code in tracked])
         rows.sort(key=lambda r: -r[3])
@@ -227,8 +227,15 @@ def short_name(full: str) -> str:
     return full
 
 
-def categorize(code: str, fund_type: str) -> str:
+FOREIGN_HINTS = ("美國", "美股", "日本", "日經", "東證", "中國", "滬深", "上證", "深證", "A50", "印度", "越南", "歐洲",
+                 "全球", "標普", "S&P", "NASDAQ", "那斯達克", "費城", "韓國", "香港", "恒生", "德國", "亞洲", "新興",
+                 "國際", "美債", "道瓊", "納斯達克", "ARK")
+
+
+def categorize(code: str, fund_type: str, name: str = "") -> str:
     t = fund_type or ""
+    if "國內" not in t and any(h in name for h in FOREIGN_HINTS):  # 上櫃 ETF 沒有官方類型，用名稱判斷
+        t += "國外"
     suffix = code[-1] if code[-1].isalpha() else ""
     if "槓桿" in t or "反向" in t or suffix in ("L", "R"):
         return "槓桿反向"
@@ -238,7 +245,7 @@ def categorize(code: str, fund_type: str) -> str:
         return "主動式"
     if "債" in t or suffix == "B":
         return "債券"
-    if "國外" in t or "跨國" in t or "海外" in t:
+    if any(k in t for k in ("國外", "跨國", "海外", "境外", "連結式")):
         return "國外股票"
     return "國內股票"
 

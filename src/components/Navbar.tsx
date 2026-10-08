@@ -15,6 +15,7 @@ const navItems: NavItem[] = [
       { label: "氣氛評估", href: "/atmosphere",  badge: "16:45" },
       { label: "漲停訊號", href: "/limit-up" },
       { label: "隔日追蹤", href: "/next-day" },
+      { label: "成交排行", href: "/ranking" },
       { label: "統計戰報", href: "/stats" },
       { label: "族群強弱", href: "/sectors" },
     ],

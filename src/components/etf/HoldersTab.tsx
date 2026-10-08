@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import type { CoreData, Holder } from "./data";
 import { fmtLots, fmtPct, fmtSignedLots, fmtYi, isTw, mmdd, signColor } from "./data";
-import { Empty, KindBadge, Kpi, KpiRow, SearchBox, SortTable, type Column, type Suggestion } from "./ui";
+import { Empty, KindBadge, Kpi, KpiRow, SearchBox, SortTable, type Column, type Suggestion } from "@/components/data-ui";
 
 export function useStockSuggestions(core: CoreData): Suggestion[] {
   return useMemo(
