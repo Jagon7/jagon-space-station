@@ -1,16 +1,6 @@
 {
-  "date": "2026-10-07",
+  "date": "2026-10-08",
   "data": [
-    {
-      "code": "2030",
-      "name": "彰源",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/10/02～115/10/08",
-      "endDate": "2026-10-08",
-      "announceDate": "115/10/01",
-      "market": "上市"
-    },
     {
       "code": "8227",
       "name": "巨有科技",
@@ -84,16 +74,6 @@
     {
       "code": "6533",
       "name": "晶心科",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/10/06～115/10/13",
-      "endDate": "2026-10-13",
-      "announceDate": "115/10/05",
-      "market": "上市"
-    },
-    {
-      "code": "6672",
-      "name": "騰輝電子-KY",
       "count": 1,
       "condition": "連續三次",
       "period": "115/10/06～115/10/13",
@@ -260,6 +240,26 @@
       "endDate": "2026-10-15",
       "announceDate": "115/10/07",
       "market": "上櫃"
+    },
+    {
+      "code": "6672",
+      "name": "騰輝電子-KY",
+      "count": 2,
+      "condition": "連續三次",
+      "period": "115/10/12～115/10/16",
+      "endDate": "2026-10-16",
+      "announceDate": "115/10/08",
+      "market": "上市"
+    },
+    {
+      "code": "8021",
+      "name": "尖點",
+      "count": 1,
+      "condition": "連續五次",
+      "period": "115/10/12～115/10/16",
+      "endDate": "2026-10-16",
+      "announceDate": "115/10/08",
+      "market": "上市"
     },
     {
       "code": "6213",
