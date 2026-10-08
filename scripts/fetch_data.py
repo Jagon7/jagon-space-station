@@ -441,7 +441,10 @@ def _strip_html(text: str) -> str:
 
 # ── 注意股：上市 (TWSE) ──────────────────────────────────────
 def _fetch_twse_notice() -> list[dict]:
-    data = fetch("https://www.twse.com.tw/announcement/notice?response=json")
+    # 不帶日期時預設查「今天」；排程常被 GitHub 延後到台灣時間隔天凌晨才跑，會查到空的一天，
+    # 所以明確指定交易日（runner 是 UTC，TODAY 在台灣時間 08:00 前都還是前一個交易日）
+    d = TODAY.strftime("%Y%m%d")
+    data = fetch(f"https://www.twse.com.tw/announcement/notice?response=json&startDate={d}&endDate={d}")
     if not data or data.get("stat") != "OK":
         return []
     stocks = []
@@ -945,14 +948,18 @@ def fetch_sfb_cb() -> list[dict]:
         return []
 
     roc_year = str(TODAY.year - 1911)
-    # 檔名格式一直在變（數字長度、有沒有 (1) 版次後綴...），只鎖定「開頭是年度+數字」
-    # 跟「申報案件彙總表」這段文字，中間到 .xlsx 前的內容不要求完全比對
-    pattern = (
-        r'https://www\.fsc\.gov\.tw/userfiles/file/'
-        + roc_year + r'\d+'
-        + r'%E7%94%B3%E5%A0%B1%E6%A1%88%E4%BB%B6%E5%BD%99%E7%B8%BD%E8%A1%A8[^"]*?\.xlsx'
+    # 檔名格式一直在變（115 年 10 月起變成 1151008v3.xlsx，連「申報案件彙總表」都不在檔名裡），
+    # 改用連結的 title「115年度申報案件」定位；舊的檔名規則留作備援
+    matches = _re.findall(
+        r'<a href="(https://www\.fsc\.gov\.tw/userfiles/file/[^"]+?\.xlsx)"[^>]*title="' + roc_year + r'年度申報案件',
+        html,
     )
-    matches = _re.findall(pattern, html)
+    if not matches:
+        matches = _re.findall(
+            r'https://www\.fsc\.gov\.tw/userfiles/file/' + roc_year + r'\d+'
+            + r'%E7%94%B3%E5%A0%B1%E6%A1%88%E4%BB%B6%E5%BD%99%E7%B8%BD%E8%A1%A8[^"]*?\.xlsx',
+            html,
+        )
     if not matches:
         log(f"✗ 找不到 {roc_year}年度申報案件 Excel URL")
         return []
