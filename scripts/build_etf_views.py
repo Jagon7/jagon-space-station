@@ -215,6 +215,17 @@ def build():
     else:
         write_json("aum.json", {"date": None, "prev": None, "nFlow": 0, "rows": []})
 
+    # ── 指數審核日程 ───────────────────────────────────────
+    sched = read_json(DATA_DIR / "index_schedule.json", {})
+    names_aum = {r[0]: (r[1], r[3]) for r in rows}
+    write_json("schedule.json", {
+        "updatedAt": sched.get("updatedAt"),
+        "rows": [{**{k: r[k] for k in ("index", "provider", "announce", "effective")},
+                  "etfs": sorted(([c, *names_aum.get(c, (c, 0)), c in tracked] for c in r.get("etfs", [])),
+                                 key=lambda e: -e[2])}
+                 for r in sched.get("rows", [])],
+    })
+
     print(f"ETF 頁資料：{len(etfs)} 檔 ETF、{len(holders)} 檔個股、{len(changes)} 檔有前一份、"
           f"AUM {len(rows)} 檔 → {OUT_DIR.relative_to(ROOT)}")
 
