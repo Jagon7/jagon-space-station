@@ -36,7 +36,7 @@ export default function RankingDashboard() {
   if (!dates.length) return <Empty>成交排行資料尚未產生，下一次收盤後排程就會出現。</Empty>;
 
   const i = dates.indexOf(date!);
-  const d = new Date(`${date}T00:00:00+08:00`);
+  const d = new Date(`${date}T00:00:00Z`);
 
   return (
     <div>
@@ -56,7 +56,7 @@ export default function RankingDashboard() {
           <button disabled={i <= 0} onClick={() => setPicked(dates[i - 1])} className="p-1.5 rounded border border-[#1e2a3a] disabled:opacity-30 hover:border-[#00d4aa]/50">
             <ChevronLeft className="w-4 h-4" />
           </button>
-          <span className="text-slate-200 px-2">{date?.replaceAll("-", "/")}（{WEEK[d.getDay()]}）</span>
+          <span className="text-slate-200 px-2">{date?.replaceAll("-", "/")}（{WEEK[d.getUTCDay()]}）</span>
           <button disabled={i >= dates.length - 1} onClick={() => setPicked(dates[i + 1])} className="p-1.5 rounded border border-[#1e2a3a] disabled:opacity-30 hover:border-[#00d4aa]/50">
             <ChevronRight className="w-4 h-4" />
           </button>
