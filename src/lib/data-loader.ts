@@ -3,7 +3,7 @@ import path from "path";
 import type {
   LimitUpStock, NoticeStock, DispositionStock, Announcement,
   MarketSummary, SectorSummary, CBIssuance, SFBCBRecord, EtfFlowData,
-  MarketHistoryEntry, SectorPerformance, SectorStock,
+  MarketHistoryEntry, SectorPerformance, SectorStock, EtfFlowItem,
 } from "./types";
 import * as mock from "./mock-data";
 
@@ -82,7 +82,36 @@ export async function getLastUpdated(): Promise<string> {
   return file?.updatedAt ?? new Date().toISOString();
 }
 
+/** 首頁 ETF 卡片：由 public/data/etf/core.json（建置前 scripts/build_etf_views.py 產生）整理 */
 export async function getEtfFlow(): Promise<EtfFlowData | null> {
-  const file = await readJson<EtfFlowData>("etf-flow.json");
-  return file ?? mock.mockEtfFlow;
+  type Core = {
+    etfs: { c: string; n: string; k: "A" | "P"; d: string; pd: string | null }[];
+    names: Record<string, string>;
+    close: Record<string, number>;
+    changes: [number, [string, number, number, number | null, number | null, number | null][]][];
+  };
+  let core: Core;
+  try {
+    core = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public", "data", "etf", "core.json"), "utf-8"));
+  } catch {
+    return null;
+  }
+  const data: EtfFlowItem[] = core.changes
+    .filter(([, rows]) => rows.length)
+    .map(([idx, rows]) => {
+      const e = core.etfs[idx];
+      return {
+        etfCode: e.c, etfName: e.n, category: e.k === "A" ? "主動型" : "市值型",
+        navPerUnit: 0, totalUnits: 0,
+        changes: rows.filter(([code]) => !code.includes(" ")).map(([code, ps, cs, , cw, val]) => ({
+          code, name: core.names[code] ?? code,
+          action: ps === 0 ? "new" : cs === 0 ? "remove" : cs > ps ? "buy" : "sell",
+          prevShares: ps, currShares: cs, diffShares: cs - ps,
+          closePrice: core.close[code] ?? 0, diffValue: Math.round((val ?? 0) * 1e8), weight: cw ?? 0,
+        })),
+      };
+    });
+  if (!data.length) return null;
+  const date = core.etfs.map((e) => e.d).sort().at(-1) ?? "";
+  return { date, data };
 }
