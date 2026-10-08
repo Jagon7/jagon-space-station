@@ -38,6 +38,15 @@ jobs:
         env:
           JSS_DATA_DIR: ./data
 
+      - name: Fetch industry chain (Mondays)
+        if: always() && steps.fetch.conclusion != 'cancelled'
+        run: |
+          if [ "$(TZ=Asia/Taipei date +%u)" = "1" ] || [ ! -f data/industry/chain.json ]; then
+            python3 scripts/fetch_industry.py
+          fi
+        env:
+          JSS_DATA_DIR: ./data
+
       - name: Fetch turnover ranking
         if: always() && steps.fetch.conclusion != 'cancelled'
         run: python3 scripts/fetch_ranking.py

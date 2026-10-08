@@ -20,6 +20,7 @@ export default async function SectorsPage() {
       <div className="rounded-xl border border-[#1e2a3a] bg-[#0d1220] p-4 mb-6 text-xs text-slate-400 leading-relaxed">
         <span className="text-white font-semibold">排名依據</span>：TWSE 官方類股指數當日漲跌幅（市值加權），
         不是統計漲停檔數，而是該族群實際的整體漲跌表現。
+        想看更細的分類（上中下游、近千個細類），請到 <Link href="/industry" className="text-[#00d4aa] hover:underline">產業細分類</Link>。
       </div>
 
       <div className="grid grid-cols-2 gap-3 mb-6">
