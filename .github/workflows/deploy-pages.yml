@@ -5,7 +5,7 @@ on:
     branches: [main]
   # 資料抓取 workflow 用 GITHUB_TOKEN 推送，不會觸發 push 事件，所以改在它們跑完後重建
   workflow_run:
-    workflows: ["Daily Stock Data Fetch", "Morning ETF PCF Re-fetch"]
+    workflows: ["Daily Stock Data Fetch", "ETF Holdings Fetch"]
     types: [completed]
   workflow_dispatch:
 
@@ -35,7 +35,7 @@ jobs:
         run: npm ci
 
       - name: Build static site
-        run: npx next build
+        run: npm run build   # prebuild 會先跑 scripts/build_etf_views.py
         env:
           PAGES_BASE_PATH: /${{ github.event.repository.name }}
           TZ: Asia/Taipei

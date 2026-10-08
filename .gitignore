@@ -46,3 +46,4 @@ __pycache__/
 scripts/.ran_*
 scripts/radar.log
 scripts/fetch_data.log
+/public/data/

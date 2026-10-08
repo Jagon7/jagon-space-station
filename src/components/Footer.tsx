@@ -49,7 +49,7 @@ export default function Footer() {
               {[
                 { label: "券差偵察", href: "/short" },
                 { label: "處置威脅", href: "/disposition" },
-                { label: "主動 ETF", href: "/etf" },
+                { label: "主動 ETF", href: "/etf-flow?tab=active" },
                 { label: "情報截收", href: "/announcements" },
               ].map((item) => (
                 <li key={item.href}>

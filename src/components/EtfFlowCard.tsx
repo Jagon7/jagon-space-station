@@ -10,10 +10,10 @@ function fmt(n: number): string {
 
 function ActionBadge({ action }: { action: EtfFlowChange["action"] }) {
   const meta = {
-    new:    { label: "新增", icon: PlusCircle,  color: "text-[#22c55e]", bg: "bg-[#22c55e]/10 border-[#22c55e]/30" },
+    new:    { label: "新增", icon: PlusCircle,  color: "text-[#ef4444]", bg: "bg-[#ef4444]/10 border-[#ef4444]/30" },
     remove: { label: "剔除", icon: MinusCircle, color: "text-slate-400",  bg: "bg-slate-800/40 border-slate-600/30" },
     buy:    { label: "加碼", icon: TrendingUp,  color: "text-[#ef4444]", bg: "bg-red-900/20 border-red-700/30" },
-    sell:   { label: "減碼", icon: TrendingDown, color: "text-[#3b82f6]", bg: "bg-blue-900/20 border-blue-700/30" },
+    sell:   { label: "減碼", icon: TrendingDown, color: "text-[#22c55e]", bg: "bg-green-900/20 border-green-700/30" },
   }[action];
   const Icon = meta.icon;
   return (
@@ -69,12 +69,12 @@ export default function EtfFlowCard({ flow }: { flow: EtfFlowData }) {
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <PieChart className="w-4 h-4 text-[#22c55e]" />
-          <h2 className="text-sm font-semibold text-white tracking-wide">ETF 成分股動態</h2>
+          <h2 className="text-sm font-semibold text-white tracking-wide">ETF 持股動態</h2>
           <span className="text-[10px] font-mono text-slate-500 bg-[#1e2a3a] px-1.5 py-0.5 rounded">
             {flow.data.length} 檔 ETF
           </span>
         </div>
-        <Link href="/etf-flow" className="flex items-center gap-1 text-xs text-slate-500 hover:text-[#22c55e] transition-colors font-mono">
+        <Link href="/etf-flow?tab=changes" className="flex items-center gap-1 text-xs text-slate-500 hover:text-[#22c55e] transition-colors font-mono">
           展開詳情 <ArrowRight className="w-3 h-3" />
         </Link>
       </div>
@@ -87,7 +87,7 @@ export default function EtfFlowCard({ flow }: { flow: EtfFlowData }) {
         </div>
         <div className="rounded-lg border border-[#1e2a3a] bg-[#0a0f1a] px-3 py-2">
           <div className="text-[10px] font-mono text-slate-500 mb-1">ETF 合計賣出</div>
-          <div className="text-sm font-bold font-mono text-[#3b82f6]">-{fmt(totalSell)}</div>
+          <div className="text-sm font-bold font-mono text-[#22c55e]">-{fmt(totalSell)}</div>
         </div>
         <div className="rounded-lg border border-[#1e2a3a] bg-[#0a0f1a] px-3 py-2">
           <div className="text-[10px] font-mono text-slate-500 mb-1">主動型 ETF</div>
@@ -106,7 +106,7 @@ export default function EtfFlowCard({ flow }: { flow: EtfFlowData }) {
             </div>
             <div className="flex items-center gap-2 flex-shrink-0 ml-2">
               <span className="text-[10px] font-mono text-slate-600">{s.etfs.join(" ")}</span>
-              <span className={`text-xs font-mono font-semibold ${s.diffValue >= 0 ? "text-[#ef4444]" : "text-[#3b82f6]"}`}>
+              <span className={`text-xs font-mono font-semibold ${s.diffValue >= 0 ? "text-[#ef4444]" : "text-[#22c55e]"}`}>
                 {s.diffValue >= 0 ? "+" : ""}{fmt(s.diffValue)}
               </span>
             </div>
@@ -115,7 +115,7 @@ export default function EtfFlowCard({ flow }: { flow: EtfFlowData }) {
       </div>
 
       <div className="mt-3 text-[10px] font-mono text-slate-700">
-        資料日期 {flow.date} · 異動金額 = 增減張數 × 收盤價 · 資料來源：各投信官網申購買回清單
+        資料日期 {flow.date} · 異動金額 = 增減張數 × 收盤價 · 資料來源：各投信每日持股公告
       </div>
     </div>
   );

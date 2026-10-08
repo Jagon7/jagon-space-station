@@ -1,16 +1,22 @@
-name: Morning ETF PCF Re-fetch
+name: ETF Holdings Fetch
 
 on:
   schedule:
-    - cron: '30 23 * * *'   # 07:30 CST (UTC+8) = 23:30 UTC, 開盤前
+    - cron: '20 13 * * 1-5'   # 21:20 台灣時間：多數投信已公布當日持股
+    - cron: '5 0 * * 2-6'     # 08:05 台灣時間：補抓較晚公布的投信（國泰等）
   workflow_dispatch:
 
 permissions:
   contents: write
 
+concurrency:
+  group: fetch-etf
+  cancel-in-progress: false
+
 jobs:
   fetch:
     runs-on: ubuntu-latest
+    timeout-minutes: 40
 
     steps:
       - uses: actions/checkout@v7
@@ -20,13 +26,10 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
-        run: pip install -r scripts/requirements.txt
+        run: pip install requests openpyxl
 
-      - name: Install Playwright
-        run: python3 -m playwright install chromium --with-deps
-
-      - name: Re-fetch ETF PCF data
-        run: python3 scripts/fetch_data.py --etf-only
+      - name: Fetch ETF holdings, AUM and prices
+        run: python3 scripts/fetch_etf.py
         env:
           JSS_DATA_DIR: ./data
 
@@ -34,12 +37,12 @@ jobs:
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email 'github-actions[bot]@users.noreply.github.com'
-          git add data/etf-flow.json data/etf-pcf-prev.json
+          git add data/etf/
           if git diff --staged --quiet; then
             echo "No data changes to commit"
             exit 0
           fi
-          git commit -m "data: etf morning refresh $(date -u +%Y-%m-%d)"
+          git commit -m "data: etf holdings $(TZ=Asia/Taipei date +%Y-%m-%d)"
           for i in 1 2 3 4 5; do
             if git push; then
               exit 0

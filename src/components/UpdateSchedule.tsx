@@ -26,9 +26,9 @@ const schedule = [
     dotBorder: "border-[#3b82f6]",
   },
   {
-    time: "22:30",
-    label: "主動 ETF 持股異動",
-    desc: "截收主動型 ETF 最新建倉與減碼動向，追蹤法人資金佈局",
+    time: "21:30",
+    label: "ETF 持股異動",
+    desc: "90 檔台股 ETF（含 31 檔主動式）每日持股、AUM 與資金流入，隔日 08:00 再補抓一次",
     color: "#a78bfa",
     dot: "bg-[#a78bfa]",
     dotBorder: "border-[#a78bfa]",
