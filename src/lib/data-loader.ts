@@ -8,23 +8,12 @@ import type {
 import * as mock from "./mock-data";
 
 const DATA_DIR = path.join(process.cwd(), "data");
-const GITHUB_RAW = "https://raw.githubusercontent.com/Jagon7/jagon-space-station/main/data";
-const IS_PROD = process.env.NODE_ENV === "production";
 
 type Dated<T> = { date: string; data: T };
 
+// The site is statically exported, so data is read from ./data at build time.
+// The deploy workflow rebuilds after every data fetch.
 async function readJson<T>(filename: string): Promise<T | null> {
-  if (IS_PROD) {
-    try {
-      const res = await fetch(`${GITHUB_RAW}/${filename}`, {
-        cache: "no-store",
-      });
-      if (!res.ok) return null;
-      return res.json() as Promise<T>;
-    } catch {
-      return null;
-    }
-  }
   try {
     const raw = fs.readFileSync(path.join(DATA_DIR, filename), "utf-8");
     return JSON.parse(raw) as T;

@@ -1,5 +1,3 @@
-export const dynamic = "force-dynamic";
-
 import PageShell from "@/components/PageShell";
 import { getCBIssuances, getSFBCBRecords, getLastUpdated } from "@/lib/data-loader";
 import type { CBIssuance, SFBCBRecord } from "@/lib/types";

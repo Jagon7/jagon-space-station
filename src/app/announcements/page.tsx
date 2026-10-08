@@ -1,5 +1,3 @@
-export const dynamic = "force-dynamic";
-
 import PageShell from "@/components/PageShell";
 import AnnouncementsFeed from "@/components/AnnouncementsFeed";
 import { getAnnouncements, getLastUpdated } from "@/lib/data-loader";

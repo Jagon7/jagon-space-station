@@ -1,5 +1,3 @@
-export const dynamic = "force-dynamic";
-
 import PageShell from "@/components/PageShell";
 import { getEtfFlow, getLastUpdated } from "@/lib/data-loader";
 import type { EtfFlowItem, EtfFlowChange } from "@/lib/types";
