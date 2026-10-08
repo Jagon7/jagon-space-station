@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useStaticJson } from "@/lib/static-json";
 
 // ── public/data/etf/*.json（由 scripts/build_etf_views.py 產生）的型別 ──
 export type EtfInfo = {
@@ -29,30 +29,9 @@ export type ActiveData = { events: Record<string, ActiveEvent[]>; names: Record<
 export type AumRow = [string, string, string, number, number, number, number, number, number, number | null, number | null, boolean];
 export type AumData = { date: string | null; prev: string | null; nFlow: number; rows: AumRow[] };
 
-const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
-const cache = new Map<string, Promise<unknown>>();
-
 /** file 為 null 時不載入（分頁切到才抓） */
-export function useEtfJson<T>(file: string | null): { data: T | null; error: boolean } {
-  const [state, setState] = useState<{ data: T | null; error: boolean }>({ data: null, error: false });
-  useEffect(() => {
-    if (!file) return;
-    let alive = true;
-    if (!cache.has(file)) {
-      cache.set(file, fetch(`${BASE}/data/etf/${file}`, { cache: "no-cache" }).then((r) => {
-        if (!r.ok) throw new Error(String(r.status));
-        return r.json();
-      }));
-    }
-    cache.get(file)!
-      .then((d) => alive && setState({ data: d as T, error: false }))
-      .catch(() => {
-        cache.delete(file);
-        if (alive) setState({ data: null, error: true });
-      });
-    return () => { alive = false; };
-  }, [file]);
-  return state;
+export function useEtfJson<T>(file: string | null) {
+  return useStaticJson<T>(file ? `etf/${file}` : null);
 }
 
 // ── 格式 ─────────────────────────────────────────────────────

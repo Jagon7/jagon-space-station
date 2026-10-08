@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import type { ActiveData, CoreData } from "./data";
 import { fmtSignedLots, fmtYi, mmdd } from "./data";
-import { Empty, Kpi, KpiRow, Note, Pills, SortTable, type Column } from "./ui";
+import { Empty, Kpi, KpiRow, Note, Pills, SortTable, type Column } from "@/components/data-ui";
 
 type Agg = { code: string; diff: number; value: number; etfs: Set<number> };
 type Period = "1" | "5" | "10" | "20";

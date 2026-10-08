@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import type { ChangeRow, CoreData } from "./data";
 import { fmtLots, fmtPct, fmtSignedLots, fmtYi, isTw, mmdd, signColor } from "./data";
 import { useStockSuggestions } from "./HoldersTab";
-import { Empty, KindBadge, Kpi, KpiRow, Note, Pills, SearchBox, SortTable, type Column } from "./ui";
+import { Empty, KindBadge, Kpi, KpiRow, Note, Pills, SearchBox, SortTable, type Column } from "@/components/data-ui";
 
 type Kind = "all" | "A" | "P";
 type StockRow = { etf: number; row: ChangeRow };

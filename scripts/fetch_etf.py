@@ -233,42 +233,24 @@ def _get(url, **kw):
     return None
 
 
-def _keep_code(c: str) -> bool:
-    """只留股票與 ETF（排除權證、債券等），控制檔案大小。"""
-    import re
-    return bool(re.fullmatch(r"\d{4}|00\d{2,4}[A-Z]?", c))
-
-
 def fetch_prices():
-    doc = read_json(ETF_DIR / "prices.json", {"names": {}, "days": {}})
-    closes, names, day = {}, {}, None
-    twse = _get("https://openapi.twse.com.tw/v1/exchangeReport/STOCK_DAY_ALL") or []
-    for r in twse:
-        c, p = str(r.get("Code", "")).strip(), S.to_num(r.get("ClosingPrice"))
-        if _keep_code(c):
-            names[c] = str(r.get("Name", "")).strip()
-            if p:
-                closes[c] = p
-        if r.get("Date") and not day:
-            day = S.to_iso(r["Date"])
-    tpex = _get("https://www.tpex.org.tw/openapi/v1/tpex_mainboard_daily_close_quotes") or []
-    for r in tpex:
-        c, p = str(r.get("SecuritiesCompanyCode", "")).strip(), S.to_num(r.get("Close"))
-        if _keep_code(c):
-            names[c] = str(r.get("CompanyName", "")).strip()
-            if p:
-                closes[c] = p
-        if r.get("Date") and not day:
-            day = S.to_iso(r["Date"])
-    if not closes:
+    """個股與 ETF 當日收盤價（證交所 + 櫃買），累積最近 KEEP_DAYS 天。"""
+    import market_quotes as Q
+    day, quotes = Q.fetch_quotes()
+    if not quotes:
         log("收盤價：證交所與櫃買都抓不到，略過")
         return
-    day = day or datetime.now(S.TPE).date().isoformat()
-    doc["names"].update(names)
-    doc["days"][day] = closes
-    doc["days"] = dict(sorted(doc["days"].items())[-KEEP_DAYS:])
+    doc = read_json(ETF_DIR / "prices.json", {"names": {}, "days": {}})
+    closes = {q["code"]: q["close"] for q in quotes}
+    days = doc["days"]
+    if day not in days and days and days[max(days)] == closes:  # 假日抓到的是前一交易日
+        log("收盤價：與上一個交易日相同，略過")
+        return
+    doc["names"].update({q["code"]: q["name"] for q in quotes})
+    days[day] = closes
+    doc["days"] = dict(sorted(days.items())[-KEEP_DAYS:])
     write_json(ETF_DIR / "prices.json", doc)
-    log(f"收盤價：{day} 上市 {len(twse)} / 上櫃 {len(tpex)} 筆")
+    log(f"收盤價：{day} 共 {len(quotes)} 檔")
 
 
 # ── 全體 ETF 規模（證交所 ETF 淨值揭露）─────────────────────

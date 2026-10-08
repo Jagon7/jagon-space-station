@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import type { AumData, AumRow } from "./data";
 import { fmtMoney, mmdd, signColor } from "./data";
-import { Empty, Kpi, KpiRow, Note, Pills, SortTable, type Column } from "./ui";
+import { Empty, Kpi, KpiRow, Note, Pills, SortTable, type Column } from "@/components/data-ui";
 
 const CATS = ["全部", "國內股票", "主動式", "國外股票", "債券", "槓桿反向", "期貨商品"] as const;
 type Cat = (typeof CATS)[number];
@@ -21,7 +21,6 @@ export default function AumTab({ aum, onEtf }: { aum: AumData; onEtf: (code: str
   if (!aum.rows.length) return <Empty>ETF 規模資料尚未產生，下一次排程抓取後就會出現。</Empty>;
 
   const columns: Column<AumRow>[] = [
-    { key: "rank", label: "#", render: (r) => <span className="font-mono text-xs text-slate-600">{rows.indexOf(r) + 1}</span> },
     {
       key: "etf", label: "ETF", sort: (r) => r[0],
       render: (r) => (
@@ -67,7 +66,7 @@ export default function AumTab({ aum, onEtf }: { aum: AumData; onEtf: (code: str
       <div className="mb-4 overflow-x-auto">
         <Pills<Cat> value={cat} onChange={setCat} options={CATS.map((c) => ({ value: c, label: c }))} />
       </div>
-      <SortTable rows={rows} columns={columns} rowKey={(r) => r[0]} initialSort={{ key: "aum", desc: true }} limit={100} />
+      <SortTable rows={rows} columns={columns} rowKey={(r) => r[0]} initialSort={{ key: "aum", desc: true }} limit={100} rank />
     </div>
   );
 }

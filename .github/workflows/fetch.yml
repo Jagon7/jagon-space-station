@@ -32,6 +32,12 @@ jobs:
           JSS_DATA_DIR: ./data
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
 
+      - name: Fetch turnover ranking
+        if: always() && steps.fetch.conclusion != 'cancelled'
+        run: python3 scripts/fetch_ranking.py
+        env:
+          JSS_DATA_DIR: ./data
+
       - name: Commit and push data
         if: always() && steps.fetch.conclusion != 'cancelled'
         run: |
