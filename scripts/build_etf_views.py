@@ -221,6 +221,7 @@ def build():
     write_json("schedule.json", {
         "updatedAt": sched.get("updatedAt"),
         "rows": [{**{k: r[k] for k in ("index", "provider", "announce", "effective")},
+                  **({"add": r["add"], "del": r["del"]} if "add" in r else {}),
                   "etfs": sorted(([c, *names_aum.get(c, (c, 0)), c in tracked] for c in r.get("etfs", [])),
                                  key=lambda e: -e[2])}
                  for r in sched.get("rows", [])],

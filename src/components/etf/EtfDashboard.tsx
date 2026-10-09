@@ -81,7 +81,7 @@ export default function EtfDashboard() {
           {tab === "changes" && <ChangesTab core={core.data} query={query} setQuery={pickQuery} />}
           {tab === "active" && (active.data ? <ActiveTab core={core.data} active={active.data} onStock={pickStock} /> : <Loading error={active.error} />)}
           {tab === "aum" && (aum.data ? <AumTab aum={aum.data} onEtf={etfChanges} /> : <Loading error={aum.error} />)}
-          {tab === "schedule" && (schedule.data ? <ScheduleTab data={schedule.data} onEtf={etfChanges} /> : <Loading error={schedule.error} />)}
+          {tab === "schedule" && (schedule.data ? <ScheduleTab data={schedule.data} onEtf={etfChanges} onStock={pickStock} /> : <Loading error={schedule.error} />)}
         </>
       )}
     </div>

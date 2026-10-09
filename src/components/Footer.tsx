@@ -70,7 +70,8 @@ export default function Footer() {
             所有數據均來自公開資訊，本站不對資料正確性與即時性負責，使用者應自行研究判斷。
           </p>
           <p className="text-[11px] text-slate-700 font-mono">
-            © 2026 Jagon Space Station · Data Source: TWSE / MOPS
+            © 2026 Jagon Space Station · Data Source: TWSE / TPEx / MOPS ·{" "}
+            <Link href="/health" className="hover:text-[#00d4aa]">資料健檢</Link>
           </p>
         </div>
       </div>
