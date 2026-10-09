@@ -84,6 +84,55 @@ def tip_rows() -> list[dict]:
     return rows
 
 
+# ── 臺灣指數公司定審結果（納入／刪除名單）─────────────────────
+def parse_section(text: str, label: str) -> list[list[str]]:
+    """「成分股納入（N）:」之後的名單。兩種排法：
+    每行「名稱 代號」，或「代號 名稱、代號 名稱…」連續換行（換行可能切在代號或名稱中間）。"""
+    m = re.search(label + r"\s*[（(](\d+)[)）]\s*[:：]?(.*?)(?=成分股(?:納入|刪除)|\*\s*註|如欲取得|$)", text, re.S)
+    if not m or m.group(1) == "0":
+        return []
+    body, n = m.group(2).strip(), int(m.group(1))
+    out = []
+    items = body.replace("\n", "").split("、") if "、" in body else body.splitlines()
+    for item in items:
+        item = item.strip()
+        mm = re.match(r"(\d{4,6}[A-Z]?)\s*(.+)", item) or re.match(r"(.+?)\s*(\d{4,6}[A-Z]?)$", item)
+        if mm:
+            code, name = (mm.group(1), mm.group(2)) if mm.group(1)[0].isdigit() else (mm.group(2), mm.group(1))
+            out.append([code, name.strip()])
+    if len(out) != n:
+        print(f"  ⚠ {label} 應有 {n} 檔，解析出 {len(out)} 檔：{body[:80]!r}")
+    return out
+
+
+
+def tip_results(cache: dict) -> dict:
+    """{source_id: {"index", "date", "add": [[code, name]], "del": [...]}}；解析過的 PDF 不重抓。"""
+    import pdfplumber
+
+    for page_no in (1, 2, 3):
+        page = get(TIP_LIST, params={"category_id": 1, "page": page_no}).text
+        for block in re.findall(r'<table class="d-lg-none[^>]*>(.*?)</table>', page, re.S):
+            link = re.search(r'href="([^"]*TechnicalNotices/(\d+)/tw)"', block)
+            if not link or link.group(2) in cache:
+                continue
+            pdf = pdfplumber.open(io.BytesIO(get(link.group(1)).content))
+            text = "\n".join(pg.extract_text() or "" for pg in pdf.pages)
+            title = re.search(r"「(.+?)」", text.replace("\n", ""))
+            day = re.search(r"(\d{4})年(\d{1,2})月(\d{1,2})日", text)
+            if not title or not day:
+                continue
+
+            eff = re.search(r"亦即\s*自\s*(\d{4})\s*年\s*(\d{1,2})\s*月\s*(\d{1,2})\s*日", text.replace("\n", ""))
+            cache[link.group(2)] = {
+                "v": 4, "index": title.group(1), "date": f"{day.group(1)}-{int(day.group(2)):02d}-{int(day.group(3)):02d}",
+                "effective": f"{eff.group(1)}-{int(eff.group(2)):02d}-{int(eff.group(3)):02d}" if eff else None,
+                "add": parse_section(text, "成分股納入"), "del": parse_section(text, "成分股刪除"),
+            }
+            time.sleep(0.5)
+    return cache
+
+
 # ── MSCI ────────────────────────────────────────────────────
 def msci_rows() -> list[dict]:
     text = get("https://app2.msci.com/eqb/pressreleases/archive/ir_dates.csv").text
@@ -127,6 +176,20 @@ def main():
         print(f"ETF 標的指數失敗：{e}")
         etfs = prev.get("etfIndex", {})
 
+    results = {k: v for k, v in prev.get("results", {}).items() if v.get("v") == 4}
+    try:
+        results = tip_results(results)
+    except Exception as e:  # noqa: BLE001
+        print(f"臺灣指數公司定審結果失敗：{e}")
+    cutoff_res = (datetime.now(TPE).date() - timedelta(days=KEEP_PAST_DAYS + 30)).isoformat()
+    results = {k: v for k, v in results.items() if v["date"] >= cutoff_res}
+    res_by = {(norm(v["index"]), v["date"]): v for v in results.values()}
+    # 日程表沒列到、但有公布結果的指數（例如臨時異動）也列進來
+    known = {(norm(r["index"]), r["announce"]) for r in rows}
+    for (key, d), v in res_by.items():
+        if (key, d) not in known:
+            rows.append({"index": v["index"], "provider": "臺灣指數公司", "announce": d, "effective": v.get("effective") or d})
+
     by_index: dict[str, list[str]] = {}
     for code, idx in etfs.items():
         by_index.setdefault(norm(idx), []).append(code)
@@ -137,6 +200,9 @@ def main():
         if r["effective"] < cutoff:
             continue
         r["etfs"] = msci_etfs if r["provider"] == "MSCI" else sorted(by_index.get(norm(r["index"]), []))
+        res = res_by.get((norm(r["index"]), r["announce"]))
+        if res:
+            r["add"], r["del"] = res["add"], res["del"]
         uniq[(r["index"], r["announce"])] = r
     out_rows = sorted(uniq.values(), key=lambda r: (r["announce"], -len(r["etfs"]), r["index"]))
     if not out_rows:
@@ -144,7 +210,7 @@ def main():
         return 0
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps({"updatedAt": datetime.now(TPE).isoformat(timespec="minutes"), "rows": out_rows,
-                               "etfIndex": etfs}, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+                               "etfIndex": etfs, "results": results}, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     print(f"指數審核日程：{len(out_rows)} 筆，其中 {sum(1 for r in out_rows if r['etfs'])} 筆有 ETF 追蹤")
     return 0
 

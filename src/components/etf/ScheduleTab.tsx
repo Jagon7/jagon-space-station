@@ -4,7 +4,10 @@ import { useMemo, useState, useSyncExternalStore } from "react";
 import { Empty, Kpi, KpiRow, Note, Pills } from "@/components/data-ui";
 
 // etfs: [code, name, aum, tracked]
-type Row = { index: string; provider: string; announce: string; effective: string; etfs: [string, string, number, boolean][] };
+type Row = {
+  index: string; provider: string; announce: string; effective: string; etfs: [string, string, number, boolean][];
+  add?: [string, string][]; del?: [string, string][];  // 已公告的定審結果：[代號, 名稱]
+};
 export type ScheduleData = { updatedAt: string | null; rows: Row[] };
 type When = "upcoming" | "past";
 type Prov = "all" | "臺灣指數公司" | "MSCI";
@@ -17,7 +20,28 @@ const fmtDate = (d: string) => `${d.replaceAll("-", "/")}（${WEEK[new Date(`${d
 const short = (d: string) => `${Number(d.slice(5, 7))}/${Number(d.slice(8, 10))}`;
 const yi = (v: number) => (v >= 1e12 ? `${(v / 1e12).toFixed(2)}兆` : `${Math.round(v / 1e8).toLocaleString()}億`);
 
-export default function ScheduleTab({ data, onEtf }: { data: ScheduleData; onEtf: (code: string) => void }) {
+function Changes({ r, onStock }: { r: Row; onStock: (code: string) => void }) {
+  if (!r.add) return null;
+  if (!r.add.length && !r.del?.length) return <div className="mt-2 text-[11px] text-slate-500">定審結果：成分股無異動</div>;
+  const list = (label: string, xs: [string, string][], cls: string) => xs.length > 0 && (
+    <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1 text-xs">
+      <span className={`shrink-0 ${cls}`}>{label}（{xs.length}）</span>
+      {xs.map(([code, name]) => (
+        <button key={code} onClick={() => onStock(code)} className="text-slate-300 hover:text-[#00d4aa]">
+          {name}<span className="font-mono text-slate-500 ml-0.5">{code}</span>
+        </button>
+      ))}
+    </div>
+  );
+  return (
+    <div className="mt-2 space-y-1">
+      {list("納入", r.add, "text-[#ef4444]")}
+      {list("刪除", r.del ?? [], "text-[#22c55e]")}
+    </div>
+  );
+}
+
+export default function ScheduleTab({ data, onEtf, onStock }: { data: ScheduleData; onEtf: (code: string) => void; onStock: (code: string) => void }) {
   const today = useSyncExternalStore(noop, todayTpe, () => "");
   const [when, setWhen] = useState<When>("upcoming");
   const [prov, setProv] = useState<Prov>("all");
@@ -40,7 +64,8 @@ export default function ScheduleTab({ data, onEtf }: { data: ScheduleData; onEtf
   return (
     <div>
       <Note>
-        臺灣指數公司每月公布的「指數定期審核日程表」，加上 MSCI 季度審核：各指數在哪一天收盤後公告成分股調整結果、哪一天生效，以及追蹤該指數的 ETF。
+        臺灣指數公司每月公布的「指數定期審核日程表」，加上 MSCI 季度審核：各指數在哪一天收盤後公告成分股調整結果、哪一天生效，以及追蹤該指數的 ETF；
+        已公告的臺灣指數公司定審會列出成分股納入、刪除名單（點股票可查哪些 ETF 持有）。
         被動式 ETF 通常在生效日前後幾天內完成換股，公告到生效之間是觀察資金進出的時間窗。追蹤 ETF 依證交所 ETF 基本資料的標的指數比對（上櫃 ETF 可能對不到）。
       </Note>
       <KpiRow>
@@ -77,6 +102,7 @@ export default function ScheduleTab({ data, onEtf }: { data: ScheduleData; onEtf
                       {r.index}
                       <span className="text-[10px] px-1.5 rounded border border-slate-700 text-slate-500">{r.provider}</span>
                     </div>
+                    <Changes r={r} onStock={onStock} />
                     {r.etfs.length > 0 && (
                       <div className="flex flex-wrap gap-1.5 mt-2">
                         {r.etfs.map(([code, name, aum, tracked]) => (
