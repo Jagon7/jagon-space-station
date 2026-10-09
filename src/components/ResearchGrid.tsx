@@ -130,7 +130,7 @@ export default function ResearchGrid() {
       <div className="mb-6">
         <p className="text-[10px] font-mono text-slate-600 tracking-[0.25em] uppercase mb-1">Mission Modules</p>
         <h2 className="text-lg font-bold text-white">偵測模組總覽</h2>
-        <p className="text-sm text-slate-500 mt-0.5">12 個情報模組，全面制霸台股關鍵訊號</p>
+        <p className="text-sm text-slate-500 mt-0.5">{modules.length} 個情報模組，全面制霸台股關鍵訊號</p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">

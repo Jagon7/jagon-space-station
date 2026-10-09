@@ -16,7 +16,7 @@ const rel = (n: number | null | undefined) => (n == null ? "?" : n > 0 ? `+${n}`
 const med = (xs: number[]) => {
   if (!xs.length) return null;
   const s = [...xs].sort((a, b) => a - b);
-  return s.length % 2 ? s[(s.length - 1) / 2] : (s[s.length / 2 - 1] + s[s.length / 2]) / 2;
+  return Math.round(s.length % 2 ? s[(s.length - 1) / 2] : (s[s.length / 2 - 1] + s[s.length / 2]) / 2);
 };
 
 export default function RebalanceTab({ data, onStock }: { data: RebalanceData; onStock: (code: string) => void }) {

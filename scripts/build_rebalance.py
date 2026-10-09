@@ -15,7 +15,7 @@ from __future__ import annotations
 from datetime import date
 from statistics import median
 
-GAP = 6               # 異動日相隔幾份以內算同一次換股
+GAP = 8               # 異動日相隔幾份以內算同一次換股（有些 ETF 先買新增股、一週後才賣刪除股）
 DONE_EACH = 0.85
 DONE_ALL = 0.97
 
