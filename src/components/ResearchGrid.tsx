@@ -2,7 +2,7 @@ import Link from "next/link";
 import {
   TrendingUp, BarChart2, Shield, Radio, DollarSign,
   FileText, Calendar, ArrowDownUp, Zap, Activity,
-  PieChart, Search, Layers, Ticket,
+  PieChart, Search, Layers, Ticket, Users,
 } from "lucide-react";
 
 const modules = [
@@ -40,6 +40,13 @@ const modules = [
     desc: "可轉債申報、詢圈／競拍、訂價、掛牌排在同一條時間軸，兩週內時程一次看",
     href: "/cb-watch",
     accent: "#a78bfa",
+  },
+  {
+    icon: Users,
+    title: "重點分點追蹤",
+    desc: "每天追蹤 10 個指定券商分點的買賣超，近 N 日累積進出與個股逐日明細",
+    href: "/broker",
+    accent: "#ef4444",
   },
   {
     icon: BarChart2,
