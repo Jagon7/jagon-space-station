@@ -37,6 +37,7 @@ const navItems: NavItem[] = [
     children: [
       { label: "券差偵測", href: "/short",       badge: "20:08" },
       { label: "處置預警",      href: "/disposition",  badge: "19:00" },
+      { label: "分點買賣超",     href: "/broker",       badge: "21:30" },
       { label: "ETF 持股",       href: "/etf-flow",     badge: "21:30" },
     ],
   },

@@ -38,6 +38,11 @@ jobs:
         env:
           JSS_DATA_DIR: ./data
 
+      - name: Fetch broker branch trades
+        run: python3 scripts/fetch_broker.py
+        env:
+          JSS_DATA_DIR: ./data
+
       - name: Fetch CB timeline
         run: python3 scripts/fetch_cb.py
         env:
@@ -47,7 +52,7 @@ jobs:
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email 'github-actions[bot]@users.noreply.github.com'
-          git add data/etf/ data/cb/
+          git add data/etf/ data/cb/ data/broker/
           if git diff --staged --quiet; then
             echo "No data changes to commit"
             exit 0
