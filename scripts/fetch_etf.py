@@ -34,7 +34,7 @@ import etf_sources as S  # noqa: E402
 
 DATA_DIR = Path(os.environ.get("JSS_DATA_DIR", Path(__file__).resolve().parent.parent / "data"))
 ETF_DIR = DATA_DIR / "etf"
-KEEP_SNAPSHOTS = 30
+KEEP_SNAPSHOTS = 130   # 約半年，換股調整時長要用
 KEEP_DAYS = 30
 MIN_HOLDINGS = 5
 

@@ -227,6 +227,13 @@ def build():
                  for r in sched.get("rows", [])],
     })
 
+    # ── 被動式 ETF 換股調整時長 ─────────────────────────────
+    import build_rebalance
+    reb = build_rebalance.build(docs, sched)
+    reb["names"] = {c: names.get(c) or prices.names.get(c, c)
+                    for e in reb["etfs"] for ev in e["events"] for c in ev["add"] + ev["del"]}
+    write_json("rebalance.json", reb)
+
     print(f"ETF 頁資料：{len(etfs)} 檔 ETF、{len(holders)} 檔個股、{len(changes)} 檔有前一份、"
           f"AUM {len(rows)} 檔 → {OUT_DIR.relative_to(ROOT)}")
 

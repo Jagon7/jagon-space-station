@@ -29,7 +29,7 @@ OUT = DATA_DIR / "etf" / "index_schedule.json"
 TPE = timezone(timedelta(hours=8))
 UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0 Safari/537.36"
 TIP_LIST = "https://taiwanindex.com.tw/downloads/technical_notice"
-KEEP_PAST_DAYS = 60
+KEEP_PAST_DAYS = 200
 
 
 def get(url, **kw):
@@ -67,7 +67,7 @@ def tip_rows() -> list[dict]:
         if link and cells and "日程表" in "".join(cells):
             files.append((cells[0], link.group(1)))
     rows = []
-    for file_date, url in files[:4]:  # 最新四份涵蓋前兩個月到下個月
+    for file_date, url in files[:9]:  # 最新九份涵蓋前七個月到下個月（換股調整時長要用）
         pdf = pdfplumber.open(io.BytesIO(get(url).content))
         for pg in pdf.pages:
             for table in pg.extract_tables():
@@ -110,7 +110,7 @@ def tip_results(cache: dict) -> dict:
     """{source_id: {"index", "date", "add": [[code, name]], "del": [...]}}；解析過的 PDF 不重抓。"""
     import pdfplumber
 
-    for page_no in (1, 2, 3):
+    for page_no in range(1, 9):
         page = get(TIP_LIST, params={"category_id": 1, "page": page_no}).text
         for block in re.findall(r'<table class="d-lg-none[^>]*>(.*?)</table>', page, re.S):
             link = re.search(r'href="([^"]*TechnicalNotices/(\d+)/tw)"', block)

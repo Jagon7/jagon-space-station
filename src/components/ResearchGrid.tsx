@@ -2,7 +2,7 @@ import Link from "next/link";
 import {
   TrendingUp, BarChart2, Shield, Radio, DollarSign,
   FileText, Calendar, ArrowDownUp, Zap, Activity,
-  PieChart, Search,
+  PieChart, Search, Layers, Ticket,
 } from "lucide-react";
 
 const modules = [
@@ -19,6 +19,27 @@ const modules = [
     desc: "漲停股隔日開高走低 vs 續強的歷史勝率統計，數據說話",
     href: "/next-day",
     accent: "#3b82f6",
+  },
+  {
+    icon: ArrowDownUp,
+    title: "成交排行",
+    desc: "上市櫃個股與 ETF 依成交金額排序，看今天的錢流向哪些股票、哪些族群",
+    href: "/ranking",
+    accent: "#00d4aa",
+  },
+  {
+    icon: Layers,
+    title: "產業細分類",
+    desc: "47 個產業、上中下游 497 個細類，今日最強與最弱的細產業一目了然",
+    href: "/industry",
+    accent: "#f59e0b",
+  },
+  {
+    icon: Ticket,
+    title: "CB 圈購到掛牌",
+    desc: "可轉債申報、詢圈／競拍、訂價、掛牌排在同一條時間軸，兩週內時程一次看",
+    href: "/cb-watch",
+    accent: "#a78bfa",
   },
   {
     icon: BarChart2,
@@ -109,7 +130,7 @@ export default function ResearchGrid() {
       <div className="mb-6">
         <p className="text-[10px] font-mono text-slate-600 tracking-[0.25em] uppercase mb-1">Mission Modules</p>
         <h2 className="text-lg font-bold text-white">偵測模組總覽</h2>
-        <p className="text-sm text-slate-500 mt-0.5">12 個情報模組，全面制霸台股關鍵訊號</p>
+        <p className="text-sm text-slate-500 mt-0.5">{modules.length} 個情報模組，全面制霸台股關鍵訊號</p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
