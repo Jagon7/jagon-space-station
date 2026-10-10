@@ -45,12 +45,25 @@ function useBranchFiles(ids: number[]) {
 
 export default function BrokerDashboard() {
   const index = useStaticJson<Index>("broker/index.json");
-  const [branch, setBranch] = useState<number | "all">(0);
+  // 可複選分點；記住上次的選擇（只存在這台瀏覽器）
+  const [picked, setPickedState] = useState<number[]>(() => {
+    try {
+      const v = JSON.parse(localStorage.getItem("broker.picked") ?? "null");
+      if (Array.isArray(v) && v.every((x) => Number.isInteger(x))) return v;
+    } catch {}
+    return [0];
+  });
+  const setPicked = (v: number[]) => {
+    const sorted = [...new Set(v)].sort((a, b) => a - b);
+    setPickedState(sorted);
+    try { localStorage.setItem("broker.picked", JSON.stringify(sorted)); } catch {}
+  };
   const [period, setPeriod] = useState<Period>("5");
   const [unit, setUnit] = useState<Unit>("amt");
   const [stock, setStock] = useState("");
 
-  const ids = index.data ? (branch === "all" ? index.data.branches.map((_, i) => i) : [branch]) : [];
+  const ids = index.data ? picked.filter((i) => i < index.data!.branches.length) : [];
+  const multi = ids.length > 1;
   const files = useBranchFiles(ids);
 
   const dates = useMemo(() => index.data?.dates ?? [], [index.data]);
@@ -99,7 +112,10 @@ export default function BrokerDashboard() {
   if (!index.data) return <Empty>載入中…</Empty>;
   if (!dates.length) return <Empty>分點資料尚未產生，下一次排程抓取後就會出現。</Empty>;
 
-  const label = branch === "all" ? "全部追蹤分點" : index.data.branches[branch];
+  const allIds = index.data.branches.map((_, i) => i);
+  const label = !ids.length ? "未選分點" : ids.length === allIds.length ? "全部追蹤分點"
+    : ids.length <= 2 ? ids.map((i) => index.data!.branches[i]).join("＋") : `${ids.length} 個分點`;
+  const toggle = (i: number) => setPicked(ids.includes(i) ? ids.filter((x) => x !== i) : [...ids, i]);
   const v = (a: Agg) => (unit === "amt" ? a.net : a.netLots);
   const fmt = (a: Agg) => (unit === "amt" ? signed(wan(a.net), a.net) : signed(`${a.netLots.toLocaleString()} 張`, a.netLots));
   const buyTotal = buys.reduce((s, a) => s + a.net, 0);
@@ -121,7 +137,7 @@ export default function BrokerDashboard() {
       render: (a) => <span className="text-slate-400">{unit === "amt" ? `${signed(a.netLots.toLocaleString(), a.netLots)} 張` : signed(wan(a.net), a.net)}</span>,
     },
     { key: "days", label: "買超／上榜天數", align: "right", sort: (a) => a.buyDays, render: (a) => <span className="text-slate-400">{a.buyDays}／{a.days}</span> },
-    ...(branch === "all" ? [{ key: "br", label: "分點數", align: "right" as const, sort: (a: Agg) => a.branches.size, render: (a: Agg) => <span className="text-slate-300" title={[...a.branches].join("、")}>{a.branches.size}</span> }] : []),
+    ...(multi ? [{ key: "br", label: "分點數", align: "right" as const, sort: (a: Agg) => a.branches.size, render: (a: Agg) => <span className="text-slate-300" title={[...a.branches].join("、")}>{a.branches.size}</span> }] : []),
     { key: "last", label: "最近上榜", align: "right", sort: (a) => a.last, render: (a) => <span className="text-slate-500">{md(a.last)}</span> },
   ];
 
@@ -132,18 +148,19 @@ export default function BrokerDashboard() {
         所以累積數字是這些上榜紀錄的加總，不是完整成交明細。金額以「萬」顯示，紅色為買超、綠色為賣超。
       </Note>
 
-      <div className="flex flex-wrap gap-1.5 mb-4">
-        <button
-          onClick={() => setBranch("all")}
-          className={`px-3 py-1 rounded-md text-xs border ${branch === "all" ? "border-[#00d4aa]/60 bg-[#00d4aa]/10 text-white" : "border-[#1e2a3a] text-slate-400 hover:text-slate-200"}`}
-        >全部分點</button>
+      <div className="flex flex-wrap items-center gap-1.5 mb-4">
         {index.data.branches.map((b, i) => (
           <button
             key={b}
-            onClick={() => setBranch(i)}
-            className={`px-3 py-1 rounded-md text-xs border ${branch === i ? "border-[#00d4aa]/60 bg-[#00d4aa]/10 text-white" : "border-[#1e2a3a] text-slate-400 hover:text-slate-200"}`}
-          >{b}</button>
+            onClick={() => toggle(i)}
+            aria-pressed={ids.includes(i)}
+            className={`px-3 py-1 rounded-md text-xs border ${ids.includes(i) ? "border-[#00d4aa]/60 bg-[#00d4aa]/10 text-white" : "border-[#1e2a3a] text-slate-400 hover:text-slate-200"}`}
+          >{ids.includes(i) ? "✓ " : ""}{b}</button>
         ))}
+        <span className="mx-1 text-slate-700">|</span>
+        <button onClick={() => setPicked(allIds)} className="px-2.5 py-1 rounded-md text-xs border border-[#1e2a3a] text-slate-400 hover:text-[#00d4aa]">全選</button>
+        <button onClick={() => setPicked([])} className="px-2.5 py-1 rounded-md text-xs border border-[#1e2a3a] text-slate-400 hover:text-[#00d4aa]">清除</button>
+        <span className="text-[11px] text-slate-500 ml-1">可複選，多個分點會合併計算</span>
       </div>
 
       <div className="flex flex-wrap items-center gap-3 mb-6">
@@ -155,7 +172,7 @@ export default function BrokerDashboard() {
         <span className="text-xs text-slate-500 font-mono">{md(dates[from])} ～ {md(dates.at(-1)!)}（{dates.length - from} 個交易日）</span>
       </div>
 
-      {!files ? <Empty>載入中…</Empty> : (
+      {!ids.length ? <Empty>請至少選一個分點。</Empty> : !files ? <Empty>載入中…</Empty> : (
         <>
           <KpiRow>
             <Kpi label="分點" value={label} />
