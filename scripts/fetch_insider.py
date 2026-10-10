@@ -155,21 +155,20 @@ def fetch_transfers(day: date) -> list:
     out = []
     y, m, d = day.year - 1911, f"{day.month:02d}", f"{day.day:02d}"
     for report, mk in (("SY", "sii"), ("OY", "otc")):
-        r = None
-        for i in range(3):
+        page = None
+        for i in range(4):
             try:
                 r = S.post(OV + "ajax_t56sb12", timeout=60, headers={"Referer": OV + "t56sb12_q1"},
                            data={"step": "2", "year": str(y), "month": m, "day": d, "report": report, "firstin": "true"})
-                if r.status_code == 200:
+                text = r.content.decode("utf-8", errors="replace")
+                if r.status_code == 200 and ("hasBorder" in text or "查無" in text or "無資料" in text):
+                    page = text
                     break
             except requests.RequestException:
                 pass
-            time.sleep(5 * (i + 1))
-        if r is None or r.status_code != 200:
+            time.sleep(8 * (i + 1))  # 查太快會被擋，等一下再試
+        if page is None:
             raise RuntimeError(f"轉讓日報表 {day} {report} 查詢失敗")
-        page = r.content.decode("utf-8", errors="replace")
-        if "hasBorder" not in page and "查無" not in page and "無資料" not in page:
-            raise RuntimeError(f"轉讓日報表 {day} {report} 格式不符")
         for tr in re.findall(r"<tr class='(?:odd|even)'>(.*?)</tr>", page, re.S):
             cells = [re.sub(r"<[^>]+>", "", c).replace("&nbsp;", " ").strip() for c in re.split(r"<td[^>]*>", tr)[1:]]
             cells = [re.sub(r"\s+", " ", c) for c in cells]
@@ -177,7 +176,7 @@ def fetch_transfers(day: date) -> list:
                 continue
             out.append([cells[2], cells[3], mk, cells[4], cells[5], cells[6], num(cells[7]), num(cells[8]), cells[9],
                         num(cells[10]), num(cells[12]), num(cells[14]), cells[16].replace(" ", "")])
-        time.sleep(DELAY)
+        time.sleep(1.5)
     return out
 
 
