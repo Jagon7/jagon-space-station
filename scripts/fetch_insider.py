@@ -215,7 +215,10 @@ def main():
     ap.add_argument("codes", nargs="*")
     ap.add_argument("--months", type=int, default=MONTHS)
     ap.add_argument("--minutes", type=float, default=25)
+    ap.add_argument("--shard", default="0/1", help="K/N：只查第 K 份月份（平行回補用）")
+    ap.add_argument("--only-company", action="store_true", help="不抓事前申報與股價")
     a = ap.parse_args()
+    shard_k, shard_n = (int(x) for x in a.shard.split("/"))
     deadline = time.time() + a.minutes * 60
 
     # 1. 每月彙總表：最近 2 個月每次重抓（可能還在更新），更早的抓過就不重抓
@@ -249,7 +252,9 @@ def main():
         return cos[code]
 
     todo = []
-    for ym in avail:
+    for mi_, ym in enumerate(avail):
+        if mi_ % shard_n != shard_k:
+            continue
         cur, prev = irb[ym], irb.get(prev_month(ym))
         for code, (name, mk, inc, dec, mgr, big) in cur.items():
             if a.codes and code not in a.codes:
@@ -289,6 +294,8 @@ def main():
     for c in dirty:
         write_json(OUT / "co" / f"{c}.json", cos[c])
     log(f"本次查了 {done} 筆，剩 {len(todo) - done} 筆")
+    if a.only_company:
+        return 0
 
     # 3. 持股轉讓事前申報：最近 TRANSFER_DAYS 天每個平日一份，最近 3 天每次重抓
     today = datetime.now(TPE).date()
