@@ -10,12 +10,18 @@ jobs:
       - run: |
           cat > p.py <<'PY'
           import re, json, requests
-          H = {"User-Agent": "Mozilla/5.0 Chrome/128.0", "Content-Type": "application/json", "Origin": "https://mops.twse.com.tw", "Referer": "https://mops.twse.com.tw/mops/"}
-          for f in ["t56sb12_q1", "t56sb12_q2"]:
-              t = requests.get(f"https://mops.twse.com.tw/mops/assets/{f}.js", headers=H, timeout=60).text
-              m = re.search(r"inputCode:.*?hideTheKey:\[[^\]]*\]", t, re.S)
-              print("=====", f, m.group(0)[:2500] if m else t[:1500])
-          r = requests.get("https://openapi.twse.com.tw/v1/opendata/t187ap12_L", headers={"User-Agent": H["User-Agent"]}, timeout=60)
-          print("OPENAPI L", r.status_code, r.text[:1500])
+          UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/128.0 Safari/537.36"
+          form = {"encodeURIComponent": "1", "step": "0", "firstin": "1", "off": "1", "year": "115", "month": "10", "day": "08"}
+          for host in ["https://mopsov.twse.com.tw/mops/web/", "https://mops.twse.com.tw/mops/web/"]:
+              for api in ["ajax_t56sb12_q1", "ajax_t56sb12_q2"]:
+                  try:
+                      r = requests.post(host + api, data=form, headers={"User-Agent": UA, "Referer": host}, timeout=60)
+                      t = r.content.decode("utf-8", errors="replace")
+                      print("=====", host, api, r.status_code, len(t)); print(re.sub(r"\s+", " ", t)[:2500])
+                  except Exception as e:
+                      print("ERR", host, api, e)
+          H = {"User-Agent": UA, "Content-Type": "application/json", "Origin": "https://mops.twse.com.tw", "Referer": "https://mops.twse.com.tw/mops/"}
+          r = requests.post("https://mops.twse.com.tw/mops/api/ajax_t56sb12_q1", headers=H, data=json.dumps({"year": "115", "month": "10", "day": "08", "encodeURIComponent": 1, "step": 0, "firstin": 1, "off": 1}), timeout=60)
+          print("API", r.status_code, r.text[:2500])
           PY
           python3 p.py
