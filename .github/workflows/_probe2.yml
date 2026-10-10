@@ -1,0 +1,11 @@
+name: probe-insider-quick (temporary)
+on:
+  push:
+    branches: [claude/youthful-rubin-xo17ci]
+    paths: [.github/workflows/_probe2.yml]
+jobs:
+  quick:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: pip install requests && JSS_DATA_DIR=/tmp/d python3 scripts/fetch_insider.py --minutes 2 --months 3 2330 2454 6669 1101 && find /tmp/d -type f | head -30 && cat /tmp/d/insider/co/*.json | head -c 3000 && ls /tmp/d/insider/px
