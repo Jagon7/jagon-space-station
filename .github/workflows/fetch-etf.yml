@@ -16,7 +16,7 @@ concurrency:
 jobs:
   fetch:
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 60
 
     steps:
       - uses: actions/checkout@v7
@@ -30,6 +30,11 @@ jobs:
 
       - name: Fetch ETF holdings, AUM and prices
         run: python3 scripts/fetch_etf.py
+        env:
+          JSS_DATA_DIR: ./data
+
+      - name: Fetch ETF holdings history (rebalance durations)
+        run: python3 scripts/fetch_etf_history.py --minutes 15
         env:
           JSS_DATA_DIR: ./data
 

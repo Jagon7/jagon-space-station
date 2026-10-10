@@ -5,7 +5,7 @@ import { Empty, Kpi, KpiRow, Note, Pills } from "@/components/data-ui";
 
 type Event = {
   start: string; end: string | null; days: number | null; add: string[]; del: string[]; kind: "regular" | "adhoc";
-  eff?: string; relStart?: number; relEnd?: number | null;
+  eff?: string; effEst?: boolean; relStart?: number; relEnd?: number | null; coarse?: boolean;
 };
 type Etf = { c: string; n: string; i: string; index: string; hist: number; first: string | null; events: Event[] };
 export type RebalanceData = { etfs: Etf[]; names: Record<string, string> };
@@ -46,7 +46,9 @@ export default function RebalanceTab({ data, onStock }: { data: RebalanceData; o
         被動式 ETF 每次指數調整（換股）從開始到大致完成花了幾個交易日。由歷史持股的股數推算（扣掉申購贖回造成的整體增減）：
         刪除股開始減少、或新增股第一次出現＝開始；每檔都完成 85% 以上、整體完成 97% 以上＝完成（零星殘股不算）。
         「期間」是相對指數生效日的交易日差，例如「−1 ～ +6」＝生效日前 1 天開始、生效後第 6 天完成。只異動 1～2 檔的臨時調整另外標示，不算進「通常時長」。
-        只有部分投信能回查歷史持股，其餘從開始追蹤起逐日累積。點一列看每次明細。
+        元大、國泰、群益、復華、中信、統一、野村、第一金、大華銀、玉山可回查一年多的歷史持股（平常每 5 個交易日一份、換股前後逐日）；
+        富邦、凱基、台新、永豐等只能查最新，從開始追蹤起逐日累積。生效日優先用臺灣指數公司與 MSCI 公布的日程；
+        臺灣50、中型100、臺灣高股息等富時合編指數與過去的 MSCI 審核依固定規則推估（標「推估」）。點一列看每次明細。
       </Note>
       <KpiRow>
         <Kpi label="有換股紀錄的 ETF" value={`${rows.filter((r) => r.e.events.length).length}/${rows.length}`} unit="檔被動式" />
@@ -90,7 +92,8 @@ export default function RebalanceTab({ data, onStock }: { data: RebalanceData; o
                                 <div className="flex flex-wrap gap-x-4 text-slate-300">
                                   <span className="font-mono">{v.start} ～ {v.end ?? "進行中"}</span>
                                   {v.days != null && <span>{v.days} 個交易日</span>}
-                                  {v.eff && <span className="text-slate-500">生效日 {v.eff}・期間 {rel(v.relStart)} ～ {rel(v.relEnd)}</span>}
+                                  {v.coarse && <span className="text-slate-500">該段只有每 5 個交易日一份持股，不計時長</span>}
+                                  {v.eff && <span className="text-slate-500">生效日 {v.eff}{v.effEst ? "（推估）" : ""}・期間 {rel(v.relStart)} ～ {rel(v.relEnd)}</span>}
                                   {v.kind === "adhoc" && <span className="text-[#f59e0b]">臨時調整</span>}
                                 </div>
                                 {[["納入", v.add, "text-[#ef4444]"], ["刪除", v.del, "text-[#22c55e]"]].map(([label, codes, cls]) => (codes as string[]).length > 0 && (

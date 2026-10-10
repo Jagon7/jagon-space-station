@@ -29,7 +29,7 @@ OUT = DATA_DIR / "etf" / "index_schedule.json"
 TPE = timezone(timedelta(hours=8))
 UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0 Safari/537.36"
 TIP_LIST = "https://taiwanindex.com.tw/downloads/technical_notice"
-KEEP_PAST_DAYS = 200
+KEEP_PAST_DAYS = 430
 
 
 def get(url, **kw):
@@ -56,32 +56,41 @@ def norm(name: str) -> str:
 
 
 # ── 臺灣指數公司 ─────────────────────────────────────────────
-def tip_rows() -> list[dict]:
+def tip_rows(cache: dict) -> list[dict]:
+    """日程表 PDF 依 id 快取解析結果；TIP 會原檔更新，最新 REFRESH 份每次重抓。cache: {id: rows}"""
     import pdfplumber
 
-    page = get(TIP_LIST, params={"category_id": 3, "page": 1}).text
     files = []
-    for block in re.findall(r'<table class="d-lg-none[^>]*>(.*?)</table>', page, re.S):
-        cells = [re.sub(r"<[^>]+>", "", c).strip() for c in re.findall(r"<td[^>]*>(.*?)</td>", block, re.S)]
-        link = re.search(r'href="([^"]*TechnicalNotices/\d+/tw)"', block)
-        if link and cells and "日程表" in "".join(cells):
-            files.append((cells[0], link.group(1)))
+    for page_no in (1, 2):  # 每頁約 10 份（一個月一份），兩頁涵蓋一年多
+        page = get(TIP_LIST, params={"category_id": 3, "page": page_no}).text
+        for block in re.findall(r'<table class="d-lg-none[^>]*>(.*?)</table>', page, re.S):
+            cells = [re.sub(r"<[^>]+>", "", c).strip() for c in re.findall(r"<td[^>]*>(.*?)</td>", block, re.S)]
+            link = re.search(r'href="([^"]*TechnicalNotices/(\d+)/tw)"', block)
+            if link and cells and "日程表" in "".join(cells):
+                files.append((link.group(2), link.group(1)))
     rows = []
-    for file_date, url in files[:9]:  # 最新九份涵蓋前七個月到下個月（換股調整時長要用）
-        pdf = pdfplumber.open(io.BytesIO(get(url).content))
-        for pg in pdf.pages:
-            for table in pg.extract_tables():
-                for r in table:
-                    cells = [c for c in r if c]
-                    dates = [c for c in cells if re.fullmatch(r"\d{4}/\d{1,2}/\d{1,2}", c.strip())]
-                    if len(dates) >= 2 and "指數" in cells[0]:
-                        rows.append({"index": re.sub(r"\s+", " ", cells[0].replace("\n", "")).strip(), "provider": "臺灣指數公司",
-                                     "announce": dates[0].replace("/", "-"), "effective": dates[-1].replace("/", "-")})
-        time.sleep(1)
-    for r in rows:
-        r["announce"], r["effective"] = (date.fromisoformat("-".join(f"{int(x):02d}" for x in d.split("-"))).isoformat()
-                                         for d in (r["announce"], r["effective"]))
+    for i, (fid, url) in enumerate(files[:16]):
+        if fid not in cache or i < 3:
+            got = []
+            pdf = pdfplumber.open(io.BytesIO(get(url).content))
+            for pg in pdf.pages:
+                for table in pg.extract_tables():
+                    for r in table:
+                        cells = [c for c in r if c]
+                        dates = [c for c in cells if re.fullmatch(r"\d{4}/\d{1,2}/\d{1,2}", c.strip())]
+                        if len(dates) >= 2 and "指數" in cells[0]:
+                            got.append({"index": re.sub(r"\s+", " ", cells[0].replace("\n", "")).strip(),
+                                        "provider": "臺灣指數公司",
+                                        "announce": _iso_slash(dates[0]), "effective": _iso_slash(dates[-1])})
+            cache[fid] = got
+            time.sleep(1)
+        rows += [dict(r) for r in cache[fid]]
     return rows
+
+
+def _iso_slash(s: str) -> str:
+    y, m, d = (int(x) for x in s.strip().split("/"))
+    return date(y, m, d).isoformat()
 
 
 # ── 臺灣指數公司定審結果（納入／刪除名單）─────────────────────
@@ -110,7 +119,7 @@ def tip_results(cache: dict) -> dict:
     """{source_id: {"index", "date", "add": [[code, name]], "del": [...]}}；解析過的 PDF 不重抓。"""
     import pdfplumber
 
-    for page_no in range(1, 9):
+    for page_no in range(1, 16):
         page = get(TIP_LIST, params={"category_id": 1, "page": page_no}).text
         for block in re.findall(r'<table class="d-lg-none[^>]*>(.*?)</table>', page, re.S):
             link = re.search(r'href="([^"]*TechnicalNotices/(\d+)/tw)"', block)
@@ -160,8 +169,9 @@ def main():
     except (OSError, ValueError):
         pass
     rows = []
+    sched_cache = prev.get("scheduleFiles", {})
     try:
-        rows += tip_rows()
+        rows += tip_rows(sched_cache)
     except Exception as e:  # noqa: BLE001
         print(f"臺灣指數公司日程表失敗：{e}")
         rows += [r for r in prev.get("rows", []) if r["provider"] == "臺灣指數公司"]
@@ -210,7 +220,8 @@ def main():
         return 0
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps({"updatedAt": datetime.now(TPE).isoformat(timespec="minutes"), "rows": out_rows,
-                               "etfIndex": etfs, "results": results}, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+                               "etfIndex": etfs, "results": results,
+                               "scheduleFiles": sched_cache}, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     print(f"指數審核日程：{len(out_rows)} 筆，其中 {sum(1 for r in out_rows if r['etfs'])} 筆有 ETF 追蹤")
     return 0
 

@@ -229,7 +229,7 @@ def build():
 
     # ── 被動式 ETF 換股調整時長 ─────────────────────────────
     import build_rebalance
-    reb = build_rebalance.build(docs, sched)
+    reb = build_rebalance.build(docs, sched, DATA_DIR / "history")
     reb["names"] = {c: names.get(c) or prices.names.get(c, c)
                     for e in reb["etfs"] for ev in e["events"] for c in ev["add"] + ev["del"]}
     write_json("rebalance.json", reb)
