@@ -16,7 +16,7 @@ concurrency:
 jobs:
   fetch:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 80
 
     steps:
       - uses: actions/checkout@v7
@@ -48,6 +48,12 @@ jobs:
         env:
           JSS_DATA_DIR: ./data
 
+      - name: Fetch insider shareholding changes
+        run: python3 scripts/fetch_insider.py --minutes 15
+        continue-on-error: true
+        env:
+          JSS_DATA_DIR: ./data
+
       - name: Fetch CB timeline
         run: python3 scripts/fetch_cb.py
         env:
@@ -57,7 +63,7 @@ jobs:
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email 'github-actions[bot]@users.noreply.github.com'
-          git add data/etf/ data/cb/ data/broker/
+          git add data/etf/ data/cb/ data/broker/ data/insider/
           if git diff --staged --quiet; then
             echo "No data changes to commit"
             exit 0

@@ -3,6 +3,7 @@ import {
   TrendingUp, BarChart2, Shield, Radio, DollarSign,
   FileText, Calendar, ArrowDownUp, Zap, Activity,
   PieChart, Search, Layers, Ticket, Users,
+  UserCheck,
 } from "lucide-react";
 
 const modules = [
@@ -47,6 +48,13 @@ const modules = [
     desc: "每天追蹤 10 個指定券商分點的買賣超，近 N 日累積進出與個股逐日明細",
     href: "/broker",
     accent: "#ef4444",
+  },
+  {
+    icon: UserCheck,
+    title: "內部人持股異動",
+    desc: "董監事、經理人、大股東每月在市場買賣多少，疊在股價上看他們在什麼價位進出",
+    href: "/insider",
+    accent: "#38bdf8",
   },
   {
     icon: BarChart2,
