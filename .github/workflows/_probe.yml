@@ -2,7 +2,7 @@ name: probe-mops (temporary)
 on:
   push:
     branches: [claude/youthful-rubin-xo17ci]
-    paths: [scripts/_probe_mops.py, .github/workflows/_probe.yml]
+    paths: [scripts/_probe_mops.py]
 jobs:
   probe:
     runs-on: ubuntu-latest
