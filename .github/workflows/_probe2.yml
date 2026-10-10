@@ -7,18 +7,16 @@ jobs:
   quick:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v7
       - run: |
-          cat > p.py <<'PY'
-          import re, requests
-          UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/128.0 Safari/537.36"
-          for rep in ["SY", "OY"]:
-              form = {"step": "2", "year": "115", "month": "10", "day": "08", "report": rep, "firstin": "true"}
-              r = requests.post("https://mopsov.twse.com.tw/mops/web/ajax_t56sb12", data=form, headers={"User-Agent": UA, "Referer": "https://mopsov.twse.com.tw/mops/web/t56sb12_q1"}, timeout=60)
-              t = r.content.decode("utf-8", errors="replace")
-              t = re.sub(r"<script.*?</script>", "", t, flags=re.S)
-              t = re.sub(r"\s+", " ", t)
-              print("=====", rep, r.status_code, len(t), t.count("<tr"))
-              i = t.find("<table")
-              print(t[i:i+6000])
-          PY
-          python3 p.py
+          pip install requests
+          JSS_DATA_DIR=/tmp/d python3 scripts/fetch_insider.py --months 1 --minutes 3 9999
+          ls /tmp/d/insider/transfer | wc -l
+          python3 -c "
+          import json,glob
+          fs=sorted(glob.glob('/tmp/d/insider/transfer/*.json'))
+          print(fs[0],fs[-1]); n=0
+          for f in fs: n+=len(json.load(open(f)))
+          print('rows',n); print(json.load(open(fs[-2]))[:3])
+          "
+          ls /tmp/d/insider/px | wc -l
