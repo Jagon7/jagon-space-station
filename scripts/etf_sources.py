@@ -235,13 +235,25 @@ def previous_trading_day(announce: str) -> str:
 # ════════════════════════════════════════════════════════════
 # 各投信
 # ════════════════════════════════════════════════════════════
-def yuanta(code, name=""):
+def announce_day(start: date) -> date:
+    """持股基準日 start 對應的 PCF 公告日（下一個平日）；元大、群益、統一、第一金查歷史要帶公告日。"""
+    d = start + timedelta(days=1)
+    while d.weekday() >= 5:
+        d += timedelta(days=1)
+    return d
+
+
+def yuanta(code, name="", start=None):
     page = f"/product/detail/{code}/ratio"
-    d = get_json("https://etfapi.yuantaetfs.com/ectranslation/api/bridge", params={
+    params = {
         "APIType": "ETFAPI", "CompanyName": "YUANTAFUNDS", "PageName": page,
         "DeviceId": str(uuid.uuid4()), "FuncId": "PCF/Daily", "AppName": "ETF", "Device": "3",
         "Platform": "ETF", "ticker": code,
-    }, headers={"Referer": "https://www.yuantaetfs.com" + page})
+    }
+    if start:
+        params["date"] = announce_day(start).strftime("%Y%m%d")
+    d = get_json("https://etfapi.yuantaetfs.com/ectranslation/api/bridge", params=params,
+                 headers={"Referer": "https://www.yuantaetfs.com" + page})
     if isinstance(d, dict) and "PCF" not in d and isinstance(d.get("Data"), dict):
         d = d["Data"]
     pcf = (d or {}).get("PCF") or {}
@@ -303,14 +315,17 @@ def cathay(code, name="", start=None):
 CAPITAL = "https://www.capitalfund.com.tw/CFWeb/api/etf/"
 
 
-def capital(code, name=""):
+def capital(code, name="", start=None):
     def load():
         items = post_json(CAPITAL + "items")
         return {f.get("stockNo"): f.get("fundNo") for f in items.get("data", []) if f.get("stockNo")}
     fid = cached("capital", load).get(code)
     if not fid:
         raise SourceError("群益基金清單找不到")
-    d = (post_json(CAPITAL + "buyback", {"fundId": fid}) or {}).get("data") or {}
+    body = {"fundId": fid}
+    if start:
+        body["date"] = announce_day(start).strftime("%Y/%m/%d")
+    d = (post_json(CAPITAL + "buyback", body) or {}).get("data") or {}
     pcf = d.get("pcf") or {}
     if not pcf.get("date2"):
         raise SourceError("群益沒有 PCF")
@@ -341,7 +356,7 @@ def fuhhwa(code, name="", start=None):
 EZ = "https://www.ezmoney.com.tw/ETF/Transaction/"
 
 
-def president(code, name=""):
+def president(code, name="", start=None):
     def load():
         page = get_text(EZ + "PCF")
         m = re.search(r'id="DataFundList"[^>]*data-content="([^"]*)"', page)
@@ -352,8 +367,9 @@ def president(code, name=""):
     fc = cached("president", load).get(code)
     if not fc:
         raise SourceError("統一基金清單找不到")
-    future = datetime.now(TPE).date() + timedelta(days=30)
-    d = post_json(EZ + "GetPCF", {"fundCode": fc, "date": f"{future.year - 1911}/{future:%m/%d}", "specificDate": False},
+    # 不指定日期時帶未來日、specificDate=false 取最新一份
+    ask = announce_day(start) if start else datetime.now(TPE).date() + timedelta(days=30)
+    d = post_json(EZ + "GetPCF", {"fundCode": fc, "date": f"{ask.year - 1911}/{ask:%m/%d}", "specificDate": bool(start)},
                   headers={"Referer": EZ + "PCF", "X-Requested-With": "XMLHttpRequest"})
     assets = find_key(d, "asset") or []
     stocks = next((a.get("Details") for a in assets if a.get("AssetCode") == "ST"), None) or []
@@ -515,11 +531,12 @@ FSITC = "https://www.fsitc.com.tw/"
 FSITC_IDS = {"00728": "D90", "00408A": "183", "00994A": "182"}
 
 
-def firstsec(code, name=""):
+def firstsec(code, name="", start=None):
     fid = FSITC_IDS.get(code) or _fsitc_scan(code)
     if not fid:
         raise SourceError("第一金找不到基金 ID")
-    d = post_json(FSITC + "WebAPI.aspx/Get_hd", {"pStrFundID": fid, "pStrDate": ""})
+    d = post_json(FSITC + "WebAPI.aspx/Get_hd",
+                  {"pStrFundID": fid, "pStrDate": announce_day(start).strftime("%Y/%m/%d") if start else ""})
     raw = d.get("d") if isinstance(d, dict) else d
     if isinstance(raw, str):
         raw = json.loads(raw) if raw.strip() else []
@@ -678,7 +695,8 @@ def hnitc(code, name=""):
 
 
 # 可以查指定日期（含以前最近一份）的來源，用於補抓歷史
-DATED_SOURCES = {"cathay", "fuhhwa", "ctbc", "nomura", "allianz", "esun", "jpmorgan", "uob"}
+DATED_SOURCES = {"cathay", "fuhhwa", "ctbc", "nomura", "allianz", "esun", "jpmorgan", "uob",
+                 "yuanta", "capital", "president", "firstsec"}
 
 SOURCES = {
     "yuanta": ("元大", yuanta), "fubon": ("富邦", fubon), "cathay": ("國泰", cathay),
