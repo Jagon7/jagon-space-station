@@ -7,5 +7,15 @@ jobs:
   quick:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
-      - run: pip install requests && JSS_DATA_DIR=/tmp/d python3 scripts/fetch_insider.py --minutes 2 --months 3 2330 2454 6669 1101 && find /tmp/d -type f | head -30 && cat /tmp/d/insider/co/*.json | head -c 3000 && ls /tmp/d/insider/px
+      - run: |
+          cat > p.py <<'PY'
+          import re, json, requests
+          H = {"User-Agent": "Mozilla/5.0 Chrome/128.0", "Content-Type": "application/json", "Origin": "https://mops.twse.com.tw", "Referer": "https://mops.twse.com.tw/mops/"}
+          for f in ["t56sb12_q1", "t56sb12_q2"]:
+              t = requests.get(f"https://mops.twse.com.tw/mops/assets/{f}.js", headers=H, timeout=60).text
+              m = re.search(r"inputCode:.*?hideTheKey:\[[^\]]*\]", t, re.S)
+              print("=====", f, m.group(0)[:2500] if m else t[:1500])
+          r = requests.get("https://openapi.twse.com.tw/v1/opendata/t187ap12_L", headers={"User-Agent": H["User-Agent"]}, timeout=60)
+          print("OPENAPI L", r.status_code, r.text[:1500])
+          PY
+          python3 p.py
