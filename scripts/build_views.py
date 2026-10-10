@@ -57,6 +57,11 @@ INSIDER_CASE_MIN = 10_000_000   # 單月淨額至少 1000 萬才算進「歷史�
 ROLE_ORDER = ["董事長", "副董事長", "總經理", "董事", "監察人", "大股東", "副總經理", "協理", "經理"]
 
 
+def _nice_role(role: str) -> str:
+    return "、".join(r.replace("之法人代表人", "代表人").replace("他人名義", "（他人名義）").replace("配偶", "（配偶）")
+                    for r in role.split("、"))
+
+
 def _role_rank(role: str) -> float:
     best = 99.0
     for r in role.split("、"):
@@ -131,6 +136,7 @@ def build_insider():
         avg = {m: round(sum(v) / len(v), 2) for m, v in by_month.items()}
         months, stats = {}, []
         for ym, rows in sorted(doc.get("m", {}).items()):
+            rows = [[_nice_role(r[0])] + r[1:] for r in rows]
             a = avg.get(ym)
             months[ym] = {"avg": a, "rows": rows}
             b, s = sum(r[2] for r in rows), sum(r[4] for r in rows)
