@@ -240,6 +240,13 @@ def main():
             irb[ym] = doc
         elif cached is not None:
             irb[ym] = cached
+    # 彙總表抓不到的月份（但更新的月份已公布）：用下個月的公司名單，每家都查（不寫檔，下次還會再試彙總表）
+    for i, ym in enumerate(months[:a.months]):
+        if ym not in irb and i > 0 and months[i - 1] in irb:  # 只補中間的洞，最新月份可能只是還沒公布
+            near = irb[months[i - 1]]
+            if near:
+                irb[ym] = {c: [v[0], v[1], 1, 0, None, None] for c, v in near.items()}
+                log(f"  {ym} 彙總表抓不到，改用相鄰月份名單（{len(near)} 家）")
     avail = [ym for ym in months[:a.months] if ym in irb]
     log(f"彙總表：{len(avail)} 個月（最新 {avail[0] if avail else '—'}）")
 
@@ -252,9 +259,7 @@ def main():
         return cos[code]
 
     todo = []
-    for mi_, ym in enumerate(avail):
-        if mi_ % shard_n != shard_k:
-            continue
+    for ym in avail:
         cur, prev = irb[ym], irb.get(prev_month(ym))
         for code, (name, mk, inc, dec, mgr, big) in cur.items():
             if a.codes and code not in a.codes:
@@ -263,6 +268,7 @@ def main():
             if inc or dec or p is None or p[4] != mgr or p[5] != big:
                 if ym not in co(code)["m"]:
                     todo.append((ym, code, name, mk))
+    todo = todo[shard_k::shard_n]
     log(f"待查：{len(todo)} 筆（公司×月）")
     done = 0
     dirty = set()

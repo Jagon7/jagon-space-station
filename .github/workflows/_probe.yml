@@ -33,7 +33,7 @@ jobs:
       - run: |
           pip install requests
           python3 scripts/_merge_insider.py shards/*
-          python3 scripts/fetch_insider.py --minutes 15
+          python3 scripts/fetch_insider.py --minutes 30
       - run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898299+github-actions[bot]@users.noreply.github.com"
