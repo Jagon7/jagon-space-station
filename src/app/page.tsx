@@ -2,20 +2,19 @@ import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import MarketSummaryCards from "@/components/MarketSummaryCards";
 import EtfFlowCard from "@/components/EtfFlowCard";
-import UpdateSchedule from "@/components/UpdateSchedule";
 import ResearchGrid from "@/components/ResearchGrid";
 import Footer from "@/components/Footer";
 import {
   getLimitUpStocks, getMarketSummary, getNoticeStocks,
-  getDispositionStocks, getAnnouncements, getLastUpdated,
+  getDispositionStocks, getLastUpdated,
   getEtfFlow, getSectorPerformance,
 } from "@/lib/data-loader";
 
 export default async function Home() {
-  const [stocks, summary, notice, disposition, announcements, updatedAt, etfFlow, sectorPerf] =
+  const [stocks, summary, notice, disposition, updatedAt, etfFlow, sectorPerf] =
     await Promise.all([
       getLimitUpStocks(), getMarketSummary(), getNoticeStocks(),
-      getDispositionStocks(), getAnnouncements(), getLastUpdated(),
+      getDispositionStocks(), getLastUpdated(),
       getEtfFlow(), getSectorPerformance(),
     ]);
 
@@ -29,7 +28,6 @@ export default async function Home() {
           sectorPerformance={sectorPerf}
           notice={notice}
           disposition={disposition}
-          announcements={announcements}
           updatedAt={updatedAt}
         />
         {etfFlow && (
@@ -39,7 +37,6 @@ export default async function Home() {
             </div>
           </section>
         )}
-        <UpdateSchedule />
         <ResearchGrid />
       </main>
       <Footer />

@@ -43,6 +43,7 @@ const navItems: NavItem[] = [
     ],
   },
   { label: "情報截收", href: "/announcements" },
+  { label: "個股查詢", href: "/search" },
   { label: "資料健檢", href: "/health" },
 ];
 

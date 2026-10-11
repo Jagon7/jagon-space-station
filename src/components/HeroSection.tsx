@@ -1,13 +1,5 @@
 import Link from "next/link";
-import { TrendingUp, Shield, Bell, BarChart2 } from "lucide-react";
 import type { MarketSummary, SectorPerformance } from "@/lib/types";
-
-const features = [
-  { icon: TrendingUp, label: "強勢訊號偵測",   desc: "即時鎖定每日漲停股，解析族群輪動脈絡" },
-  { icon: BarChart2,  label: "資金流向偵察",   desc: "券差、主動ETF持股異動，籌碼動向全握" },
-  { icon: Shield,     label: "風險威脅評估",   desc: "提前計算處置門檻機率，化解潛在風險" },
-  { icon: Bell,       label: "情報截收系統",   desc: "每 5 分鐘全頻掃描，重訊零時差抵達" },
-];
 
 const moodColor: Record<string, string> = {
   強勢: "text-[#ef4444]", 偏強: "text-[#f97316]",
@@ -97,20 +89,6 @@ export default function HeroSection({ summary, topSector }: Props) {
           })}
         </div>
 
-        {/* Features */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          {features.map((f) => (
-            <div key={f.label} className="flex items-start gap-3 p-4 rounded-xl border border-[#1e2a3a] bg-[#0d1220] card-hover group">
-              <div className="w-9 h-9 rounded-lg bg-[#1e2a3a] flex items-center justify-center flex-shrink-0 group-hover:bg-[#00d4aa]/10 transition-colors">
-                <f.icon className="w-4 h-4 text-[#00d4aa]" />
-              </div>
-              <div>
-                <div className="text-sm font-semibold text-white">{f.label}</div>
-                <div className="text-xs text-slate-500 mt-0.5 leading-relaxed">{f.desc}</div>
-              </div>
-            </div>
-          ))}
-        </div>
       </div>
     </section>
   );

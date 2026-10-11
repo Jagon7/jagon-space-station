@@ -12,6 +12,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import build_etf_views  # noqa: E402
 import build_market  # noqa: E402
+import build_fund  # noqa: E402
 
 
 def build_ranking():
@@ -217,3 +218,4 @@ if __name__ == "__main__":
     build_broker()
     build_insider()
     build_market.build(DATA_DIR, ROOT / "public" / "data")
+    build_fund.build(DATA_DIR, ROOT / "public" / "data")
