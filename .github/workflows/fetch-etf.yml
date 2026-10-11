@@ -28,6 +28,12 @@ jobs:
       - name: Install dependencies
         run: pip install requests openpyxl pdfplumber
 
+      - name: Fetch market holiday calendar
+        run: python3 scripts/fetch_calendar.py
+        continue-on-error: true
+        env:
+          JSS_DATA_DIR: ./data
+
       - name: Fetch ETF holdings, AUM and prices
         run: python3 scripts/fetch_etf.py
         env:
@@ -64,6 +70,7 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email 'github-actions[bot]@users.noreply.github.com'
           git add data/etf/ data/cb/ data/broker/ data/insider/
+          git add data/calendar.json 2>/dev/null || true
           if git diff --staged --quiet; then
             echo "No data changes to commit"
             exit 0
