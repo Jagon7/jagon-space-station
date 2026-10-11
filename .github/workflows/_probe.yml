@@ -1,31 +1,18 @@
-name: probe-twse (temporary)
+name: backfill-daily (temporary)
 on:
   push:
     branches: [claude/youthful-rubin-xo17ci]
     paths: [.github/workflows/_probe.yml]
+permissions:
+  contents: write
 jobs:
   p:
     runs-on: ubuntu-latest
+    timeout-minutes: 120
     steps:
+      - uses: actions/checkout@v7
+      - run: pip install requests >/dev/null && python3 scripts/fetch_market_daily.py --days 130 --minutes 90
       - run: |
-          cat > p.py <<'PY'
-          import json, requests
-          H = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/128.0 Safari/537.36"}
-          for u in ["https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX?date=20261008&type=ALLBUT0999&response=json",
-                    "https://www.twse.com.tw/rwd/zh/marginTrading/MI_MARGN?date=20261008&selectType=ALL&response=json",
-                    "https://www.twse.com.tw/rwd/zh/marginTrading/TWT93U?date=20261008&response=json",
-                    "https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX?date=20261008&type=MS&response=json"]:
-              r = requests.get(u, headers=H, timeout=60)
-              print("=====", u, r.status_code, len(r.text))
-              try:
-                  d = r.json()
-              except Exception:
-                  print(r.text[:500]); continue
-              print({k: (v if not isinstance(v, list) else len(v)) for k, v in d.items() if k not in ("tables", "data", "fields")})
-              tabs = d.get("tables") or [{"title": d.get("title"), "fields": d.get("fields"), "data": d.get("data", [])}]
-              for t in tabs:
-                  print("TABLE", t.get("title"), len(t.get("data") or []))
-                  print("  fields", t.get("fields"))
-                  print("  rows", json.dumps((t.get("data") or [])[:2], ensure_ascii=False)[:600])
-          PY
-          pip install requests >/dev/null && python3 p.py
+          git config user.name "github-actions[bot]"
+          git config user.email "41898299+github-actions[bot]@users.noreply.github.com"
+          git add data/daily && git commit -qm "daily market data backfill" && git pull --rebase -q && git push
