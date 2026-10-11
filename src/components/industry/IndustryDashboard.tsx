@@ -9,7 +9,7 @@ export type Industry = { id: string; name: string; nodes: IndNode[] };
 /** code → [name, changePct | null, close | null] */
 export type Quotes = Record<string, [string, number | null, number | null]>;
 
-const pctColor = (v: number | null) => (v == null || v === 0 ? "text-slate-400" : v > 0 ? "text-[#ef4444]" : "text-[#22c55e]");
+const pctColor = (v: number | null) => (v == null || v === 0 ? "text-slate-400" : v > 0 ? "text-[#f05252]" : "text-[#22c55e]");
 const fmtPct = (v: number | null) => (v == null ? "—" : `${v > 0 ? "+" : ""}${v.toFixed(2)}%`);
 
 function avg(codes: string[], quotes: Quotes): { avg: number | null; n: number; up: number } {
@@ -54,16 +54,16 @@ export default function IndustryDashboard({ industries, quotes, names, priceDate
   const current = industries.find((i) => i.id === indId);
 
   const subList = (title: string, xs: SubStat[]) => (
-    <div className="rounded-xl border border-[#1e2a3a] bg-[#0d1220] overflow-hidden">
-      <div className="px-4 py-3 border-b border-[#1e2a3a] text-sm font-semibold text-white">{title}</div>
+    <div className="rounded-xl border border-[#243247] bg-[#0d1220] overflow-hidden">
+      <div className="px-4 py-3 border-b border-[#243247] text-sm font-semibold text-white">{title}</div>
       {xs.map((s) => (
         <button
           key={`${s.ind.id}-${s.sub.id}`}
           onClick={() => setIndId(s.ind.id)}
-          className="w-full flex items-center gap-2 px-4 py-2 text-sm border-b border-[#1e2a3a]/50 last:border-0 hover:bg-[#111a2c] text-left"
+          className="w-full flex items-center gap-2 px-4 py-2 text-sm border-b border-[#243247]/50 last:border-0 hover:bg-[#111a2c] text-left"
         >
           <span className="text-slate-200 truncate">{s.sub.name}</span>
-          <span className="text-[11px] text-slate-500 shrink-0">{s.ind.name}・{s.n} 檔</span>
+          <span className="text-[11px] text-[#8b97ab] shrink-0">{s.ind.name}・{s.n} 檔</span>
           <span className={`ml-auto font-mono ${pctColor(s.avg)}`}>{fmtPct(s.avg)}</span>
         </button>
       ))}
@@ -81,13 +81,13 @@ export default function IndustryDashboard({ industries, quotes, names, priceDate
 
       <section className="mb-10">
         <h3 className="text-base font-semibold text-white mb-1">查個股</h3>
-        <p className="text-xs text-slate-500 mb-3">一檔股票可能同時屬於多個產業鏈細類，括號是該細類今日平均漲跌。</p>
+        <p className="text-xs text-[#8b97ab] mb-3">一檔股票可能同時屬於多個產業鏈細類，括號是該細類今日平均漲跌。</p>
         <SearchBox placeholder="輸入代號或名稱" items={suggestions} onPick={setStock} />
         {stock && (
-          <div className="mt-4 rounded-xl border border-[#1e2a3a] bg-[#0d1220] p-4">
+          <div className="mt-4 rounded-xl border border-[#243247] bg-[#0d1220] p-4">
             <div className="flex items-baseline gap-3 mb-3">
               <span className="text-lg font-bold text-white">{names[stock] ?? stock}</span>
-              <span className="font-mono text-sm text-slate-500">{stock}</span>
+              <span className="font-mono text-sm text-[#8b97ab]">{stock}</span>
               {quotes[stock] && <span className={`font-mono text-sm ${pctColor(quotes[stock][1])}`}>{fmtPct(quotes[stock][1])}</span>}
             </div>
             {memberships.length ? (
@@ -96,21 +96,21 @@ export default function IndustryDashboard({ industries, quotes, names, priceDate
                   <button
                     key={`${m.ind.id}-${m.sub.id}`}
                     onClick={() => setIndId(m.ind.id)}
-                    className="rounded-lg border border-[#1e2a3a] px-3 py-1.5 text-xs text-slate-300 hover:border-[#00d4aa]/50"
+                    className="rounded-lg border border-[#243247] px-3 py-1.5 text-xs text-slate-300 hover:border-[#4f8cff]/50"
                   >
                     {m.ind.name}・{m.node.stream && `${m.node.stream}・`}{m.node.name !== m.sub.name && `${m.node.name}・`}{m.sub.name}
                     <span className={`ml-1.5 font-mono ${pctColor(m.avg)}`}>({fmtPct(m.avg)})</span>
                   </button>
                 ))}
               </div>
-            ) : <p className="text-sm text-slate-500">產業價值鏈平台沒有這檔股票的分類。</p>}
+            ) : <p className="text-sm text-[#8b97ab]">產業價值鏈平台沒有這檔股票的分類。</p>}
           </div>
         )}
       </section>
 
       <section className="mb-10">
         <h3 className="text-base font-semibold text-white mb-1">今日細產業強弱</h3>
-        <p className="text-xs text-slate-500 mb-4">{priceDate ?? "—"}・細類內個股漲跌幅簡單平均（至少 3 檔有報價），點選可展開該產業。</p>
+        <p className="text-xs text-[#8b97ab] mb-4">{priceDate ?? "—"}・細類內個股漲跌幅簡單平均（至少 3 檔有報價），點選可展開該產業。</p>
         <div className="grid lg:grid-cols-2 gap-4">
           {subList("最強", strongest)}
           {subList("最弱", weakest)}
@@ -119,14 +119,14 @@ export default function IndustryDashboard({ industries, quotes, names, priceDate
 
       <section>
         <h3 className="text-base font-semibold text-white mb-1">瀏覽產業</h3>
-        <p className="text-xs text-slate-500 mb-4">括號是該產業今日平均漲跌。</p>
+        <p className="text-xs text-[#8b97ab] mb-4">括號是該產業今日平均漲跌。</p>
         <div className="flex flex-wrap gap-1.5 mb-6">
           {indStats.map(({ ind, avg: a }) => (
             <button
               key={ind.id}
               onClick={() => setIndId(ind.id)}
               className={`px-2.5 py-1 rounded-md text-xs border transition-colors ${
-                ind.id === indId ? "border-[#00d4aa]/60 bg-[#00d4aa]/10 text-white" : "border-[#1e2a3a] text-slate-400 hover:text-slate-200"
+                ind.id === indId ? "border-[#4f8cff]/60 bg-[#4f8cff]/10 text-white" : "border-[#243247] text-slate-400 hover:text-slate-200"
               }`}
             >
               {ind.name}<span className={`ml-1 font-mono ${pctColor(a)}`}>{fmtPct(a)}</span>
@@ -136,7 +136,7 @@ export default function IndustryDashboard({ industries, quotes, names, priceDate
         {current ? <Chain ind={current} quotes={quotes} names={names} onStock={setStock} /> : <Empty>請選擇產業。</Empty>}
       </section>
 
-      <p className="mt-10 text-[11px] text-slate-600">
+      <p className="mt-10 text-[11px] text-[#7c8aa0]">
         分類來源：櫃買中心產業價值鏈資訊平台{updatedAt && `（更新 ${updatedAt}）`}；漲跌幅為臺灣證券交易所、證券櫃檯買賣中心 {priceDate ?? ""} 收盤行情，興櫃公司不計入平均。
       </p>
     </div>
@@ -149,24 +149,24 @@ function Chain({ ind, quotes, names, onStock }: { ind: Industry; quotes: Quotes;
     <div className={`grid gap-4 ${streams.length >= 3 ? "lg:grid-cols-3" : streams.length === 2 ? "lg:grid-cols-2" : ""}`}>
       {streams.map((st) => (
         <div key={st}>
-          <div className="text-xs font-mono tracking-widest text-[#00d4aa] mb-2">{st}</div>
+          <div className="text-xs font-mono tracking-widest text-[#4f8cff] mb-2">{st}</div>
           <div className="space-y-3">
             {ind.nodes.filter((n) => (n.stream || "—") === st).map((n) => (
-              <div key={n.id} className="rounded-xl border border-[#1e2a3a] bg-[#0d1220] p-3">
+              <div key={n.id} className="rounded-xl border border-[#243247] bg-[#0d1220] p-3">
                 <div className="text-sm font-semibold text-white mb-2">{n.name}</div>
                 {n.subs.map((s) => {
                   const a = avg(s.codes, quotes);
                   const sorted = [...s.codes].sort((x, y) => (quotes[y]?.[1] ?? -99) - (quotes[x]?.[1] ?? -99));
                   return (
-                    <details key={s.id} className="group border-t border-[#1e2a3a]/60 first:border-0">
+                    <details key={s.id} className="group border-t border-[#243247]/60 first:border-0">
                       <summary className="flex items-center gap-2 py-1.5 text-xs cursor-pointer list-none">
                         <span className="text-slate-300">{s.name}</span>
-                        <span className="text-slate-600">{s.codes.length} 檔</span>
+                        <span className="text-[#7c8aa0]">{s.codes.length} 檔</span>
                         <span className={`ml-auto font-mono ${pctColor(a.avg)}`}>{fmtPct(a.avg)}</span>
                       </summary>
                       <div className="flex flex-wrap gap-x-3 gap-y-1 pb-2 pl-1">
                         {sorted.map((c) => (
-                          <button key={c} onClick={() => onStock(c)} className="text-[11px] text-slate-400 hover:text-[#00d4aa]">
+                          <button key={c} onClick={() => onStock(c)} className="text-[11px] text-slate-400 hover:text-[#4f8cff]">
                             {names[c] ?? c} <span className={`font-mono ${pctColor(quotes[c]?.[1] ?? null)}`}>{quotes[c] ? fmtPct(quotes[c][1]) : "興櫃"}</span>
                           </button>
                         ))}

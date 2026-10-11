@@ -215,7 +215,7 @@ export default function HealthPage() {
   return (
     <PageShell title="每天的資料都有抓到嗎？" subtitle={`檢查時間 ${t}（台北）・最近應開盤日 ${expected}・最新股價 ${latestPrice ?? "—"}`} badge="Data Health">
       <HealthTable rows={rows} />
-      <p className="mt-4 text-[11px] leading-relaxed text-slate-600">
+      <p className="mt-4 text-[11px] leading-relaxed text-[#7c8aa0]">
         落後＝資料日之後已經過了幾個交易日（依證交所休市日表，休市日不算）。多數投信當天晚上公告持股，部分隔天早上才公告，所以 ETF 落後 1 天屬正常；落後 2 天以上就是漏抓。
         權重加總明顯偏離 100%（低於 80% 或高於 110%）代表持股檔可能抓不完整。這一頁在每次排程抓取資料後重新產生。
       </p>

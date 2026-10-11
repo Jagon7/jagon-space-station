@@ -21,7 +21,7 @@ const wan = (v: number) => {
   return Math.abs(x) >= 10000 ? `${(x / 10000).toFixed(2)}億` : `${Math.round(x).toLocaleString()}萬`;
 };
 const signed = (s: string, v: number) => (v > 0 ? `+${s}` : s);
-const color = (v: number) => (v > 0 ? "text-[#ef4444]" : v < 0 ? "text-[#22c55e]" : "text-slate-400");
+const color = (v: number) => (v > 0 ? "text-[#f05252]" : v < 0 ? "text-[#22c55e]" : "text-slate-400");
 const md = (d: string) => `${Number(d.slice(5, 7))}/${Number(d.slice(8, 10))}`;
 
 /** 選「全部分點」時要載入每個分點的檔案 */
@@ -125,9 +125,9 @@ export default function BrokerDashboard() {
     {
       key: "stock", label: "股票", sort: (a) => a.code,
       render: (a) => (
-        <button onClick={() => setStock(a.code)} className="inline-flex items-center gap-2 hover:text-[#00d4aa]">
+        <button onClick={() => setStock(a.code)} className="inline-flex items-center gap-2 hover:text-[#4f8cff]">
           <span className="text-slate-200">{names[a.code] ?? a.code}</span>
-          <span className="font-mono text-xs text-slate-500">{a.code}</span>
+          <span className="font-mono text-xs text-[#8b97ab]">{a.code}</span>
         </button>
       ),
     },
@@ -138,7 +138,7 @@ export default function BrokerDashboard() {
     },
     { key: "days", label: "買超／上榜天數", align: "right", sort: (a) => a.buyDays, render: (a) => <span className="text-slate-400">{a.buyDays}／{a.days}</span> },
     ...(multi ? [{ key: "br", label: "分點數", align: "right" as const, sort: (a: Agg) => a.branches.size, render: (a: Agg) => <span className="text-slate-300" title={[...a.branches].join("、")}>{a.branches.size}</span> }] : []),
-    { key: "last", label: "最近上榜", align: "right", sort: (a) => a.last, render: (a) => <span className="text-slate-500">{md(a.last)}</span> },
+    { key: "last", label: "最近上榜", align: "right", sort: (a) => a.last, render: (a) => <span className="text-[#8b97ab]">{md(a.last)}</span> },
   ];
 
   return (
@@ -154,13 +154,13 @@ export default function BrokerDashboard() {
             key={b}
             onClick={() => toggle(i)}
             aria-pressed={ids.includes(i)}
-            className={`px-3 py-1 rounded-md text-xs border ${ids.includes(i) ? "border-[#00d4aa]/60 bg-[#00d4aa]/10 text-white" : "border-[#1e2a3a] text-slate-400 hover:text-slate-200"}`}
+            className={`px-3 py-1 rounded-md text-xs border ${ids.includes(i) ? "border-[#4f8cff]/60 bg-[#4f8cff]/10 text-white" : "border-[#243247] text-slate-400 hover:text-slate-200"}`}
           >{ids.includes(i) ? "✓ " : ""}{b}</button>
         ))}
         <span className="mx-1 text-slate-700">|</span>
-        <button onClick={() => setPicked(allIds)} className="px-2.5 py-1 rounded-md text-xs border border-[#1e2a3a] text-slate-400 hover:text-[#00d4aa]">全選</button>
-        <button onClick={() => setPicked([])} className="px-2.5 py-1 rounded-md text-xs border border-[#1e2a3a] text-slate-400 hover:text-[#00d4aa]">清除</button>
-        <span className="text-[11px] text-slate-500 ml-1">可複選，多個分點會合併計算</span>
+        <button onClick={() => setPicked(allIds)} className="px-2.5 py-1 rounded-md text-xs border border-[#243247] text-slate-400 hover:text-[#4f8cff]">全選</button>
+        <button onClick={() => setPicked([])} className="px-2.5 py-1 rounded-md text-xs border border-[#243247] text-slate-400 hover:text-[#4f8cff]">清除</button>
+        <span className="text-[11px] text-[#8b97ab] ml-1">可複選，多個分點會合併計算</span>
       </div>
 
       <div className="flex flex-wrap items-center gap-3 mb-6">
@@ -169,14 +169,14 @@ export default function BrokerDashboard() {
           { value: "20", label: "近 20 日" }, { value: "60", label: "近 60 日" },
         ]} />
         <Pills<Unit> value={unit} onChange={setUnit} options={[{ value: "amt", label: "依金額" }, { value: "lots", label: "依張數" }]} />
-        <span className="text-xs text-slate-500 font-mono">{md(dates[from])} ～ {md(dates.at(-1)!)}（{dates.length - from} 個交易日）</span>
+        <span className="text-xs text-[#8b97ab] font-mono">{md(dates[from])} ～ {md(dates.at(-1)!)}（{dates.length - from} 個交易日）</span>
       </div>
 
       {!ids.length ? <Empty>請至少選一個分點。</Empty> : !files ? <Empty>載入中…</Empty> : (
         <>
           <KpiRow>
             <Kpi label="分點" value={label} />
-            <Kpi label="累積買超" value={signed(wan(buyTotal), buyTotal)} sub={`· ${buys.length} 檔`} color="text-[#ef4444]" />
+            <Kpi label="累積買超" value={signed(wan(buyTotal), buyTotal)} sub={`· ${buys.length} 檔`} color="text-[#f05252]" />
             <Kpi label="累積賣超" value={wan(sellTotal)} sub={`· ${sells.length} 檔`} color="text-[#22c55e]" />
             <Kpi label="淨買賣超" value={signed(wan(buyTotal + sellTotal), buyTotal + sellTotal)} color={color(buyTotal + sellTotal)} />
           </KpiRow>
@@ -188,7 +188,7 @@ export default function BrokerDashboard() {
 
           <div className="grid xl:grid-cols-2 gap-4">
             <div>
-              <h3 className="text-sm font-semibold text-[#ef4444] mb-2">累積買超</h3>
+              <h3 className="text-sm font-semibold text-[#f05252] mb-2">累積買超</h3>
               {buys.length ? <SortTable rows={buys} columns={cols} rowKey={(a) => a.code} initialSort={{ key: "net", desc: true }} limit={30} rank /> : <Empty>沒有買超紀錄。</Empty>}
             </div>
             <div>
@@ -214,17 +214,17 @@ function StockDetail({ code, name, files, dates, from, onClose }: {
   }).filter((b) => b.cells.some(Boolean));
 
   return (
-    <div className="mt-4 rounded-xl border border-[#1e2a3a] bg-[#0d1220] p-4">
+    <div className="mt-4 rounded-xl border border-[#243247] bg-[#0d1220] p-4">
       <div className="flex items-baseline gap-3 mb-3">
         <span className="text-lg font-bold text-white">{name}</span>
-        <span className="font-mono text-sm text-slate-500">{code}</span>
-        <button onClick={onClose} className="ml-auto text-xs text-slate-500 hover:text-[#00d4aa]">關閉</button>
+        <span className="font-mono text-sm text-[#8b97ab]">{code}</span>
+        <button onClick={onClose} className="ml-auto text-xs text-[#8b97ab] hover:text-[#4f8cff]">關閉</button>
       </div>
-      {!byBranch.length ? <p className="text-sm text-slate-500">這段期間追蹤的分點都沒有買賣這檔股票（或未進前 50 名）。</p> : (
+      {!byBranch.length ? <p className="text-sm text-[#8b97ab]">這段期間追蹤的分點都沒有買賣這檔股票（或未進前 50 名）。</p> : (
         <div className="overflow-x-auto">
           <table className="text-xs">
             <thead>
-              <tr className="text-slate-500">
+              <tr className="text-[#8b97ab]">
                 <th className="text-left font-normal pr-4 py-1">分點</th>
                 <th className="text-right font-normal pr-4 py-1">合計</th>
                 {days.map((d) => <th key={d} className="text-right font-normal px-2 py-1 font-mono">{md(d)}</th>)}
@@ -232,7 +232,7 @@ function StockDetail({ code, name, files, dates, from, onClose }: {
             </thead>
             <tbody>
               {byBranch.map((b) => (
-                <tr key={b.label} className="border-t border-[#1e2a3a]/60">
+                <tr key={b.label} className="border-t border-[#243247]/60">
                   <td className="pr-4 py-1.5 text-slate-300 whitespace-nowrap">{b.label}</td>
                   <td className={`pr-4 py-1.5 text-right font-mono whitespace-nowrap ${color(b.total)}`}>{signed(wan(b.total), b.total)}</td>
                   {b.cells.map((c, i) => {

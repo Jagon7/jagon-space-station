@@ -54,16 +54,16 @@ const navItems: NavItem[] = [
 
 function DropdownMenu({ items }: { items: MenuItem[] }) {
   return (
-    <div className="absolute top-full left-0 mt-1 w-44 bg-[#0d1220] border border-[#1e2a3a] rounded-lg shadow-xl overflow-hidden z-50">
+    <div className="absolute top-full left-0 mt-1 w-44 bg-[#0d1220] border border-[#243247] rounded-lg shadow-xl overflow-hidden z-50">
       {items.map((item) => (
         <Link
           key={item.href}
           href={item.href}
-          className="flex items-center justify-between px-4 py-2.5 text-sm text-slate-300 hover:bg-[#1e2a3a] hover:text-[#00d4aa] transition-colors"
+          className="flex items-center justify-between px-4 py-2.5 text-sm text-slate-300 hover:bg-[#243247] hover:text-[#4f8cff] transition-colors"
         >
           <span>{item.label}</span>
           {item.badge && (
-            <span className="text-xs text-slate-500 font-mono">{item.badge}</span>
+            <span className="text-xs text-[#8b97ab] font-mono">{item.badge}</span>
           )}
         </Link>
       ))}
@@ -87,18 +87,18 @@ export default function Navbar() {
   }, []);
 
   return (
-    <nav className="sticky top-0 z-50 border-b border-[#1e2a3a] bg-[#080c1a]/95 backdrop-blur-sm">
+    <nav className="sticky top-0 z-50 border-b border-[#243247] bg-[#080c1a]/95 backdrop-blur-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-14" ref={navRef}>
 
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="w-7 h-7 rounded-lg bg-[#00d4aa]/10 border border-[#00d4aa]/30 flex items-center justify-center group-hover:bg-[#00d4aa]/20 transition-colors">
-              <Satellite className="w-4 h-4 text-[#00d4aa]" />
+            <div className="w-7 h-7 rounded-lg bg-[#4f8cff]/10 border border-[#4f8cff]/30 flex items-center justify-center group-hover:bg-[#4f8cff]/20 transition-colors">
+              <Satellite className="w-4 h-4 text-[#4f8cff]" />
             </div>
             <div className="flex flex-col leading-none">
               <span className="font-bold text-white text-sm tracking-widest uppercase">Jagon</span>
-              <span className="text-[9px] text-[#00d4aa]/70 tracking-[0.2em] uppercase font-mono">Space Station</span>
+              <span className="text-[9px] text-[#4f8cff]/70 tracking-[0.2em] uppercase font-mono">Space Station</span>
             </div>
           </Link>
 
@@ -126,9 +126,9 @@ export default function Navbar() {
 
           {/* Status badge */}
           <div className="hidden md:flex items-center gap-3">
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-[#22c55e]/20 bg-[#22c55e]/5">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#22c55e] animate-pulse" />
-              <span className="text-[11px] text-[#22c55e] font-mono tracking-wide">訊號接收中</span>
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-[#4f8cff]/20 bg-[#4f8cff]/5">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#4f8cff] animate-pulse" />
+              <span className="text-[11px] text-[#4f8cff] font-mono tracking-wide">訊號接收中</span>
             </div>
           </div>
 
@@ -140,20 +140,20 @@ export default function Navbar() {
       </div>
 
       {mobileOpen && (
-        <div className="md:hidden border-t border-[#1e2a3a] bg-[#0d1220]">
+        <div className="md:hidden border-t border-[#243247] bg-[#0d1220]">
           {navItems.map((item) => (
             <div key={item.label}>
               {item.href ? (
-                <Link href={item.href} className="block px-4 py-3 text-sm text-slate-300 hover:text-[#00d4aa] border-b border-[#1e2a3a]/50" onClick={() => setMobileOpen(false)}>
+                <Link href={item.href} className="block px-4 py-3 text-sm text-slate-300 hover:text-[#4f8cff] border-b border-[#243247]/50" onClick={() => setMobileOpen(false)}>
                   {item.label}
                 </Link>
               ) : (
                 <>
-                  <div className="px-4 py-2 text-[10px] text-slate-500 uppercase tracking-widest border-b border-[#1e2a3a]/50 font-mono">{item.label}</div>
+                  <div className="px-4 py-2 text-[10px] text-[#8b97ab] uppercase tracking-widest border-b border-[#243247]/50 font-mono">{item.label}</div>
                   {item.children?.map((child) => (
-                    <Link key={child.href} href={child.href} className="flex items-center justify-between px-6 py-2.5 text-sm text-slate-400 hover:text-[#00d4aa] border-b border-[#1e2a3a]/30" onClick={() => setMobileOpen(false)}>
+                    <Link key={child.href} href={child.href} className="flex items-center justify-between px-6 py-2.5 text-sm text-slate-400 hover:text-[#4f8cff] border-b border-[#243247]/30" onClick={() => setMobileOpen(false)}>
                       <span>{child.label}</span>
-                      {child.badge && <span className="text-xs text-slate-600 font-mono">{child.badge}</span>}
+                      {child.badge && <span className="text-xs text-[#7c8aa0] font-mono">{child.badge}</span>}
                     </Link>
                   ))}
                 </>

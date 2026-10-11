@@ -9,7 +9,7 @@ export default function Page() {
       badge="Monthly Revenue"
     >
       <RevenueDashboard />
-      <p className="mt-10 text-[11px] leading-relaxed text-slate-600">
+      <p className="mt-10 text-[11px] leading-relaxed text-[#7c8aa0]">
         資料來源：公開資訊觀測站「每月營業收入彙總表」。每月 10 日前公布，本頁每天更新。本頁資訊僅供參考，不構成任何投資建議。
       </p>
     </PageShell>

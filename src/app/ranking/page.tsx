@@ -9,7 +9,7 @@ export default function RankingPage() {
       badge="Turnover Ranking"
     >
       <RankingDashboard />
-      <p className="mt-10 text-[11px] text-slate-600">
+      <p className="mt-10 text-[11px] text-[#7c8aa0]">
         資料來源：臺灣證券交易所、證券櫃檯買賣中心每日收盤行情；族群分類同族群強弱頁。本頁資訊僅供參考，不構成任何投資建議。
       </p>
     </PageShell>

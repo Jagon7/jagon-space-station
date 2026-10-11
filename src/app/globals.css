@@ -27,7 +27,7 @@
   --radius-lg: var(--radius);
 
   /* Stock colors — registered in @theme so Tailwind generates text-stock-up etc. */
-  --color-stock-up: #ef4444;
+  --color-stock-up: #f05252;
   --color-stock-down: #22c55e;
   --color-stock-warn: #f59e0b;
   --color-stock-neutral: #94a3b8;
@@ -38,18 +38,18 @@
   --foreground: #e2e8f0;
   --card: #0d1220;
   --card-foreground: #e2e8f0;
-  --primary: #00d4aa;
+  --primary: #4f8cff;
   --primary-foreground: #080c1a;
-  --secondary: #1e2a3a;
+  --secondary: #243247;
   --secondary-foreground: #94a3b8;
   --muted: #111827;
-  --muted-foreground: #64748b;
-  --accent: #3b82f6;
+  --muted-foreground: #8b97ab;
+  --accent: #38bdf8;
   --accent-foreground: #ffffff;
-  --border: #1e2a3a;
-  --input: #1e2a3a;
-  --ring: #00d4aa;
-  --destructive: #ef4444;
+  --border: #243247;
+  --input: #243247;
+  --ring: #4f8cff;
+  --destructive: #f05252;
   --radius: 0.625rem;
 }
 
@@ -60,7 +60,7 @@
   body {
     @apply bg-background text-foreground;
     background-image:
-      radial-gradient(ellipse at 20% 50%, rgba(0, 212, 170, 0.03) 0%, transparent 60%),
+      radial-gradient(ellipse at 20% 50%, rgba(79, 140, 255, 0.03) 0%, transparent 60%),
       radial-gradient(ellipse at 80% 20%, rgba(59, 130, 246, 0.04) 0%, transparent 50%);
   }
   html {
@@ -73,7 +73,7 @@
   .bg-surface-2 { background-color: #111827; }
 
   .glow-primary {
-    box-shadow: 0 0 20px rgba(0, 212, 170, 0.15);
+    box-shadow: 0 0 20px rgba(79, 140, 255, 0.15);
   }
   .glow-accent {
     box-shadow: 0 0 20px rgba(59, 130, 246, 0.15);
@@ -82,8 +82,8 @@
     transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
   }
   .card-hover:hover {
-    border-color: rgba(0, 212, 170, 0.3);
-    box-shadow: 0 0 20px rgba(0, 212, 170, 0.08);
+    border-color: rgba(79, 140, 255, 0.3);
+    box-shadow: 0 0 20px rgba(79, 140, 255, 0.08);
     transform: translateY(-1px);
   }
   .grid-scanline {
@@ -91,8 +91,8 @@
       0deg,
       transparent,
       transparent 2px,
-      rgba(0, 212, 170, 0.02) 2px,
-      rgba(0, 212, 170, 0.02) 4px
+      rgba(79, 140, 255, 0.02) 2px,
+      rgba(79, 140, 255, 0.02) 4px
     );
   }
 }
@@ -106,7 +106,7 @@
   font-size: 0.75rem;
   font-weight: 500;
   background-color: rgba(239, 68, 68, 0.15);
-  color: #ef4444;
+  color: #f05252;
   border: 1px solid rgba(239, 68, 68, 0.3);
 }
 .tag-down {
@@ -146,5 +146,5 @@
 /* Custom scrollbar */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: #080c1a; }
-::-webkit-scrollbar-thumb { background: #1e2a3a; border-radius: 3px; }
+::-webkit-scrollbar-thumb { background: #243247; border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: #2a3a4a; }

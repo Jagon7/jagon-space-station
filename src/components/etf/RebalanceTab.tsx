@@ -60,10 +60,10 @@ export default function RebalanceTab({ data, onStock }: { data: RebalanceData; o
         <Pills<Filter> value={filter} onChange={setFilter} options={[{ value: "with", label: "有紀錄" }, { value: "all", label: "全部被動式" }]} />
       </div>
       {!shown.length ? <Empty>目前還沒有偵測到換股，持股歷史累積後就會出現。</Empty> : (
-        <div className="rounded-xl border border-[#1e2a3a] bg-[#0d1220] overflow-x-auto">
+        <div className="rounded-xl border border-[#243247] bg-[#0d1220] overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-[#1e2a3a] text-[11px] text-slate-500 text-left">
+              <tr className="border-b border-[#243247] text-[11px] text-[#8b97ab] text-left">
                 <th className="px-4 py-3 font-normal">ETF</th><th className="px-4 py-3 font-normal">追蹤指數</th>
                 <th className="px-4 py-3 font-normal text-right">定期調整</th><th className="px-4 py-3 font-normal text-right">通常時長</th>
                 <th className="px-4 py-3 font-normal text-right">通常期間</th><th className="px-4 py-3 font-normal">最近一次</th>
@@ -72,9 +72,9 @@ export default function RebalanceTab({ data, onStock }: { data: RebalanceData; o
             <tbody>
               {shown.map(({ e, reg, typDays, typStart, typEnd, last }) => (
                 <Fragment key={e.c}>
-                  <tr onClick={() => setOpen(open === e.c ? null : e.c)} className="border-b border-[#1e2a3a]/60 hover:bg-[#111a2c] cursor-pointer">
-                    <td className="px-4 py-2.5 whitespace-nowrap"><span className="text-slate-200">{e.n}</span> <span className="font-mono text-xs text-slate-500">{e.c}</span></td>
-                    <td className="px-4 py-2.5 text-xs text-slate-500 max-w-xs">{e.index || "—"}</td>
+                  <tr onClick={() => setOpen(open === e.c ? null : e.c)} className="border-b border-[#243247]/60 hover:bg-[#111a2c] cursor-pointer">
+                    <td className="px-4 py-2.5 whitespace-nowrap"><span className="text-slate-200">{e.n}</span> <span className="font-mono text-xs text-[#8b97ab]">{e.c}</span></td>
+                    <td className="px-4 py-2.5 text-xs text-[#8b97ab] max-w-xs">{e.index || "—"}</td>
                     <td className="px-4 py-2.5 text-right font-mono text-slate-300">{reg.length}</td>
                     <td className="px-4 py-2.5 text-right font-mono text-slate-200">{typDays == null ? "—" : `${typDays} 天`}</td>
                     <td className="px-4 py-2.5 text-right font-mono text-slate-400 whitespace-nowrap">{typStart == null ? "—" : `${rel(typStart)} ～ ${rel(typEnd)}`}</td>
@@ -83,25 +83,25 @@ export default function RebalanceTab({ data, onStock }: { data: RebalanceData; o
                     </td>
                   </tr>
                   {open === e.c && (
-                    <tr className="border-b border-[#1e2a3a]/60 bg-[#0a0f1a]">
+                    <tr className="border-b border-[#243247]/60 bg-[#0a0f1a]">
                       <td colSpan={6} className="px-6 py-3">
-                        {!e.events.length ? <p className="text-xs text-slate-500">資料自 {e.first}（{e.hist} 份），尚未偵測到換股。</p> : (
+                        {!e.events.length ? <p className="text-xs text-[#8b97ab]">資料自 {e.first}（{e.hist} 份），尚未偵測到換股。</p> : (
                           <div className="space-y-3">
                             {[...e.events].reverse().map((v) => (
                               <div key={v.start} className="text-xs">
                                 <div className="flex flex-wrap gap-x-4 text-slate-300">
                                   <span className="font-mono">{v.start} ～ {v.end ?? "進行中"}</span>
                                   {v.days != null && <span>{v.days} 個交易日</span>}
-                                  {v.coarse && <span className="text-slate-500">該段只有每 5 個交易日一份持股，不計時長</span>}
-                                  {v.eff && <span className="text-slate-500">生效日 {v.eff}{v.effEst ? "（推估）" : ""}・期間 {rel(v.relStart)} ～ {rel(v.relEnd)}</span>}
+                                  {v.coarse && <span className="text-[#8b97ab]">該段只有每 5 個交易日一份持股，不計時長</span>}
+                                  {v.eff && <span className="text-[#8b97ab]">生效日 {v.eff}{v.effEst ? "（推估）" : ""}・期間 {rel(v.relStart)} ～ {rel(v.relEnd)}</span>}
                                   {v.kind === "adhoc" && <span className="text-[#f59e0b]">臨時調整</span>}
                                 </div>
-                                {[["納入", v.add, "text-[#ef4444]"], ["刪除", v.del, "text-[#22c55e]"]].map(([label, codes, cls]) => (codes as string[]).length > 0 && (
+                                {[["納入", v.add, "text-[#f05252]"], ["刪除", v.del, "text-[#22c55e]"]].map(([label, codes, cls]) => (codes as string[]).length > 0 && (
                                   <div key={label as string} className="flex flex-wrap gap-x-2 mt-1">
                                     <span className={cls as string}>{label as string}</span>
                                     {(codes as string[]).map((c) => (
-                                      <button key={c} onClick={() => onStock(c)} className="text-slate-400 hover:text-[#00d4aa]">
-                                        {data.names[c] ?? c}<span className="font-mono text-slate-600 ml-0.5">{c}</span>
+                                      <button key={c} onClick={() => onStock(c)} className="text-slate-400 hover:text-[#4f8cff]">
+                                        {data.names[c] ?? c}<span className="font-mono text-[#7c8aa0] ml-0.5">{c}</span>
                                       </button>
                                     ))}
                                   </div>

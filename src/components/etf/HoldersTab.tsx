@@ -45,7 +45,7 @@ export default function HoldersTab({ core, stock, setStock }: {
         return (
           <span className="inline-flex items-center gap-2">
             <span className="text-slate-200">{e.n}</span>
-            <span className="font-mono text-xs text-slate-500">{e.c}</span>
+            <span className="font-mono text-xs text-[#8b97ab]">{e.c}</span>
             <KindBadge k={e.k} />
           </span>
         );
@@ -57,7 +57,7 @@ export default function HoldersTab({ core, stock, setStock }: {
     { key: "value", label: "市值（億）", align: "right", sort: (h) => h[3], render: (h) => <span className="text-slate-200">{fmtYi(h[3])}</span> },
     {
       key: "diff", label: "較前一份", align: "right", sort: (h) => h[4],
-      render: (h) => h[4] == null ? <span className="text-slate-600">—</span> : <span className={signColor(h[4])}>{h[4] === 0 ? "0" : fmtSignedLots(h[4], stock)}</span>,
+      render: (h) => h[4] == null ? <span className="text-[#7c8aa0]">—</span> : <span className={signColor(h[4])}>{h[4] === 0 ? "0" : fmtSignedLots(h[4], stock)}</span>,
     },
   ];
 
@@ -71,8 +71,8 @@ export default function HoldersTab({ core, stock, setStock }: {
         <>
           <div className="flex items-baseline gap-3 mb-4">
             <h2 className="text-2xl font-bold text-white">{core.names[stock] ?? stock}</h2>
-            <span className="font-mono text-sm text-slate-500">{stock}</span>
-            {core.close[stock] && <span className="font-mono text-sm text-slate-500">收盤 {core.close[stock].toLocaleString()}</span>}
+            <span className="font-mono text-sm text-[#8b97ab]">{stock}</span>
+            {core.close[stock] && <span className="font-mono text-sm text-[#8b97ab]">收盤 {core.close[stock].toLocaleString()}</span>}
           </div>
           {holders.length ? (
             <>
@@ -100,19 +100,19 @@ export default function HoldersTab({ core, stock, setStock }: {
 
       <section className="mt-10">
         <h3 className="text-base font-semibold text-white mb-1">被最多 ETF 持有的個股</h3>
-        <p className="text-xs text-slate-500 mb-4">依持有的 ETF 檔數排序，點選即可查詢。</p>
+        <p className="text-xs text-[#8b97ab] mb-4">依持有的 ETF 檔數排序，點選即可查詢。</p>
         <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2">
           {mostHeld.map(([code, n]) => (
             <button
               key={code}
               onClick={() => { setStock(code); window.scrollTo({ top: 0, behavior: "smooth" }); }}
               className={`rounded-lg border px-3 py-2 text-left transition-colors ${
-                code === stock ? "border-[#00d4aa]/60 bg-[#00d4aa]/10" : "border-[#1e2a3a] bg-[#0d1220] hover:border-[#00d4aa]/40"
+                code === stock ? "border-[#4f8cff]/60 bg-[#4f8cff]/10" : "border-[#243247] bg-[#0d1220] hover:border-[#4f8cff]/40"
               }`}
             >
               <div className="text-sm text-slate-200 truncate">{core.names[code] ?? code}</div>
-              <div className="flex justify-between font-mono text-[11px] text-slate-500">
-                <span>{code}</span><span className="text-[#00d4aa]">{n} 檔</span>
+              <div className="flex justify-between font-mono text-[11px] text-[#8b97ab]">
+                <span>{code}</span><span className="text-[#4f8cff]">{n} 檔</span>
               </div>
             </button>
           ))}

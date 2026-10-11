@@ -9,7 +9,7 @@ export default function Page() {
       badge="Corporate Events"
     >
       <EventsDashboard />
-      <p className="mt-10 text-[11px] leading-relaxed text-slate-600">
+      <p className="mt-10 text-[11px] leading-relaxed text-[#7c8aa0]">
         資料來源：證交所與櫃買中心除權除息預告表、股東會公告，公開資訊觀測站法人說明會一覽表。本頁資訊僅供參考，不構成任何投資建議。
       </p>
     </PageShell>

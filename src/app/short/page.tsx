@@ -9,7 +9,7 @@ export default function Page() {
       badge="Short Interest"
     >
       <ShortDashboard />
-      <p className="mt-10 text-[11px] leading-relaxed text-slate-600">
+      <p className="mt-10 text-[11px] leading-relaxed text-[#7c8aa0]">
         資料來源：臺灣證券交易所、證券櫃檯買賣中心融資融券餘額與信用額度總量管制餘額表（借券賣出）。本頁資訊僅供參考，不構成任何投資建議。
       </p>
     </PageShell>

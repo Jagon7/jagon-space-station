@@ -13,7 +13,7 @@ type View = "stats" | "day";
 
 const md = (d: string) => `${Number(d.slice(5, 7))}/${Number(d.slice(8, 10))}`;
 const pf = (v: number | null | undefined) => (v == null ? "—" : `${v > 0 ? "+" : ""}${v.toFixed(2)}%`);
-const tone = (v: number | null | undefined) => (v == null || v === 0 ? "text-slate-400" : v > 0 ? "text-[#ef4444]" : "text-[#22c55e]");
+const tone = (v: number | null | undefined) => (v == null || v === 0 ? "text-slate-400" : v > 0 ? "text-[#f05252]" : "text-[#22c55e]");
 const avg = (xs: number[]) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : null);
 
 function stats(rows: Row[]) {
@@ -62,7 +62,7 @@ export default function NextDayDashboard() {
     return { rows, dates, daily };
   }, [data, range]);
 
-  if (!data) return <div className="py-16 text-center text-sm text-slate-500 font-mono">{error ? "資料載入失敗" : "載入中…"}</div>;
+  if (!data) return <div className="py-16 text-center text-sm text-[#8b97ab] font-mono">{error ? "資料載入失敗" : "載入中…"}</div>;
   if (!data.rows.length) return <Empty>行情資料累積中。</Empty>;
   const s = stats(rows);
   const latest = dates.at(-1)!;
@@ -70,7 +70,7 @@ export default function NextDayDashboard() {
   const dayRows = data.rows.filter((r) => r[0] === selDay);
 
   const cols: Column<Row>[] = [
-    { key: "name", label: "股票", render: (r) => <span><span className="text-slate-200">{r[2]}</span> <span className="font-mono text-xs text-slate-500">{r[1]}</span>{r[3] === 1 && <span className="ml-1 text-[10px] text-slate-600">櫃</span>}</span> },
+    { key: "name", label: "股票", render: (r) => <span><span className="text-slate-200">{r[2]}</span> <span className="font-mono text-xs text-[#8b97ab]">{r[1]}</span>{r[3] === 1 && <span className="ml-1 text-[10px] text-[#7c8aa0]">櫃</span>}</span> },
     { key: "streak", label: "連板", align: "right", sort: (r) => r[6], render: (r) => <span className={r[6] >= 2 ? "text-[#f59e0b]" : "text-slate-400"}>{r[6]}{r[7] ? " 一字" : ""}</span> },
     { key: "close", label: "漲停價", align: "right", sort: (r) => r[4], render: (r) => <span className="text-slate-300">{r[4]}</span> },
     { key: "value", label: "成交值（億）", align: "right", sort: (r) => r[5], render: (r) => <span className="text-slate-400">{r[5].toFixed(2)}</span> },
@@ -96,32 +96,32 @@ export default function NextDayDashboard() {
         <>
           <KpiRow>
             <Kpi label="樣本（檔次）" value={s.n.toLocaleString()} sub={`${daily.length} 個交易日`} />
-            <Kpi label="隔日收紅機率" value={s.up == null ? "—" : `${s.up.toFixed(1)}%`} color={(s.up ?? 0) >= 50 ? "text-[#ef4444]" : "text-[#22c55e]"} />
-            <Kpi label="隔日平均開盤／收盤" value={<><span className={tone(s.open)}>{pf(s.open)}</span><span className="text-slate-600 mx-1 text-base">/</span><span className={tone(s.close)}>{pf(s.close)}</span></>} />
-            <Kpi label="續漲停／開高走低" value={<><span className="text-[#ef4444]">{s.again?.toFixed(0)}%</span><span className="text-slate-600 mx-1 text-base">/</span><span className="text-[#22c55e]">{s.fade?.toFixed(0)}%</span></>} />
+            <Kpi label="隔日收紅機率" value={s.up == null ? "—" : `${s.up.toFixed(1)}%`} color={(s.up ?? 0) >= 50 ? "text-[#f05252]" : "text-[#22c55e]"} />
+            <Kpi label="隔日平均開盤／收盤" value={<><span className={tone(s.open)}>{pf(s.open)}</span><span className="text-[#7c8aa0] mx-1 text-base">/</span><span className={tone(s.close)}>{pf(s.close)}</span></>} />
+            <Kpi label="續漲停／開高走低" value={<><span className="text-[#f05252]">{s.again?.toFixed(0)}%</span><span className="text-[#7c8aa0] mx-1 text-base">/</span><span className="text-[#22c55e]">{s.fade?.toFixed(0)}%</span></>} />
           </KpiRow>
 
-          <div className="rounded-xl border border-[#1e2a3a] bg-[#0d1220] p-5 mb-6">
+          <div className="rounded-xl border border-[#243247] bg-[#0d1220] p-5 mb-6">
             <div className="text-sm text-white font-semibold mb-3">每天漲停股隔日平均收盤漲跌</div>
             <ResponsiveContainer width="100%" height={220}>
               <BarChart data={daily} margin={{ top: 5, right: 5, bottom: 0, left: -20 }} onClick={(e) => { const l = (e as { activeLabel?: string } | null)?.activeLabel; if (l) { setDay(l); setView("day"); } }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1e2a3a" vertical={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#243247" vertical={false} />
                 <XAxis dataKey="d" tickFormatter={md} tick={{ fill: "#475569", fontSize: 11 }} axisLine={false} tickLine={false} minTickGap={20} />
                 <YAxis tick={{ fill: "#475569", fontSize: 11 }} axisLine={false} tickLine={false} unit="%" />
-                <Tooltip contentStyle={{ background: "#0d1220", border: "1px solid #1e2a3a", fontSize: 12 }} labelStyle={{ color: "#94a3b8" }}
+                <Tooltip contentStyle={{ background: "#0d1220", border: "1px solid #243247", fontSize: 12 }} labelStyle={{ color: "#94a3b8" }}
                   formatter={(v, _n, p) => [`${typeof v === "number" ? v.toFixed(2) : v}%（${(p.payload as { n: number }).n} 檔漲停）`, "隔日平均收盤"]} />
                 <Bar dataKey="v" cursor="pointer">
-                  {daily.map((d) => <Cell key={d.d} fill={(d.v ?? 0) >= 0 ? "#ef4444" : "#22c55e"} />)}
+                  {daily.map((d) => <Cell key={d.d} fill={(d.v ?? 0) >= 0 ? "#f05252" : "#22c55e"} />)}
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
-            <p className="text-[11px] text-slate-600 mt-1">點任一天的柱子看當天漲停股的隔日明細。</p>
+            <p className="text-[11px] text-[#7c8aa0] mt-1">點任一天的柱子看當天漲停股的隔日明細。</p>
           </div>
 
-          <div className="rounded-xl border border-[#1e2a3a] bg-[#0d1220] overflow-x-auto">
+          <div className="rounded-xl border border-[#243247] bg-[#0d1220] overflow-x-auto">
             <table className="w-full text-sm whitespace-nowrap">
               <thead>
-                <tr className="border-b border-[#1e2a3a] text-[11px] text-slate-500 text-right">
+                <tr className="border-b border-[#243247] text-[11px] text-[#8b97ab] text-right">
                   <th className="px-4 py-2.5 font-normal text-left">分類</th><th className="px-4 py-2.5 font-normal">檔次</th>
                   <th className="px-4 py-2.5 font-normal">隔日收紅</th><th className="px-4 py-2.5 font-normal">平均開盤</th>
                   <th className="px-4 py-2.5 font-normal">平均收盤</th><th className="px-4 py-2.5 font-normal">續漲停</th>
@@ -132,10 +132,10 @@ export default function NextDayDashboard() {
                 {GROUPS.map(([name, f]) => {
                   const g = stats(rows.filter(f));
                   return (
-                    <tr key={name} className="border-b border-[#1e2a3a]/60 last:border-0 text-right font-mono">
+                    <tr key={name} className="border-b border-[#243247]/60 last:border-0 text-right font-mono">
                       <td className="px-4 py-2 text-left font-sans text-slate-200">{name}</td>
                       <td className="px-4 py-2 text-slate-400">{g.n}</td>
-                      <td className={`px-4 py-2 ${(g.up ?? 50) >= 50 ? "text-[#ef4444]" : "text-[#22c55e]"}`}>{g.up == null ? "—" : `${g.up.toFixed(1)}%`}</td>
+                      <td className={`px-4 py-2 ${(g.up ?? 50) >= 50 ? "text-[#f05252]" : "text-[#22c55e]"}`}>{g.up == null ? "—" : `${g.up.toFixed(1)}%`}</td>
                       <td className={`px-4 py-2 ${tone(g.open)}`}>{pf(g.open)}</td>
                       <td className={`px-4 py-2 ${tone(g.close)}`}>{pf(g.close)}</td>
                       <td className="px-4 py-2 text-slate-300">{g.again == null ? "—" : `${g.again.toFixed(0)}%`}</td>
@@ -152,10 +152,10 @@ export default function NextDayDashboard() {
         <>
           <div className="flex flex-wrap items-center gap-2 mb-3">
             <select value={selDay} onChange={(e) => setDay(e.target.value)}
-              className="rounded-lg border border-[#1e2a3a] bg-[#0d1220] px-3 py-2 text-sm text-slate-200 font-mono">
+              className="rounded-lg border border-[#243247] bg-[#0d1220] px-3 py-2 text-sm text-slate-200 font-mono">
               {[...dates].reverse().map((d) => <option key={d} value={d}>{d}</option>)}
             </select>
-            <span className="text-xs text-slate-500">
+            <span className="text-xs text-[#8b97ab]">
               {dayRows.length} 檔漲停{selDay === latest ? "・最新一天，隔日表現明天收盤後更新" : ""}
             </span>
           </div>

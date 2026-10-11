@@ -18,7 +18,7 @@ const yi = (v: number) => {
   const x = v / 1e8;
   return x >= 100 ? Math.round(x).toLocaleString() : x >= 10 ? x.toFixed(1) : x.toFixed(2);
 };
-const pctColor = (v: number | null) => (v == null || v === 0 ? "text-slate-400" : v > 0 ? "text-[#ef4444]" : "text-[#22c55e]");
+const pctColor = (v: number | null) => (v == null || v === 0 ? "text-slate-400" : v > 0 ? "text-[#f05252]" : "text-[#22c55e]");
 const fmtPct = (v: number | null) => (v == null ? "—" : `${v > 0 ? "+" : ""}${v.toFixed(2)}%`);
 const fmtPrice = (v: number) => (v >= 1000 ? v.toLocaleString() : v.toFixed(2));
 const isEtf = (r: Row) => r[0].startsWith("00");
@@ -41,26 +41,26 @@ export default function RankingDashboard() {
   return (
     <div>
       <div className="flex flex-wrap items-center gap-4 mb-6">
-        <div className="flex gap-6 border-b border-[#1e2a3a]">
+        <div className="flex gap-6 border-b border-[#243247]">
           {(["stocks", "sectors"] as Tab[]).map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
-              className={`pb-3 text-sm border-b-2 -mb-px ${tab === t ? "border-[#00d4aa] text-white" : "border-transparent text-slate-500 hover:text-slate-300"}`}
+              className={`pb-3 text-sm border-b-2 -mb-px ${tab === t ? "border-[#4f8cff] text-white" : "border-transparent text-[#8b97ab] hover:text-slate-300"}`}
             >
               {t === "stocks" ? "個股排行" : "族群資金流向"}
             </button>
           ))}
         </div>
         <div className="ml-auto flex items-center gap-2 font-mono text-sm">
-          <button disabled={i <= 0} onClick={() => setPicked(dates[i - 1])} className="p-1.5 rounded border border-[#1e2a3a] disabled:opacity-30 hover:border-[#00d4aa]/50">
+          <button disabled={i <= 0} onClick={() => setPicked(dates[i - 1])} className="p-1.5 rounded border border-[#243247] disabled:opacity-30 hover:border-[#4f8cff]/50">
             <ChevronLeft className="w-4 h-4" />
           </button>
           <span className="text-slate-200 px-2">{date?.replaceAll("-", "/")}（{WEEK[d.getUTCDay()]}）</span>
-          <button disabled={i >= dates.length - 1} onClick={() => setPicked(dates[i + 1])} className="p-1.5 rounded border border-[#1e2a3a] disabled:opacity-30 hover:border-[#00d4aa]/50">
+          <button disabled={i >= dates.length - 1} onClick={() => setPicked(dates[i + 1])} className="p-1.5 rounded border border-[#243247] disabled:opacity-30 hover:border-[#4f8cff]/50">
             <ChevronRight className="w-4 h-4" />
           </button>
-          <span className="text-[11px] text-slate-500 ml-2">{i === dates.length - 1 ? "最新交易日" : ""} · 每日收盤後自動更新</span>
+          <span className="text-[11px] text-[#8b97ab] ml-2">{i === dates.length - 1 ? "最新交易日" : ""} · 每日收盤後自動更新</span>
         </div>
       </div>
 
@@ -86,7 +86,7 @@ function Summary({ rows }: { rows: Row[] }) {
       <Kpi label="全市場成交金額" value={yi(total)} unit="億" />
       <Kpi label="上市 / 上櫃" value={`${yi(twse)} / ${yi(total - twse)}`} unit="億" />
       <Kpi label="前 10 名佔比" value={`${((top10 / total) * 100).toFixed(1)}%`} sub="資金集中度" />
-      <Kpi label="上漲 / 下跌家數" value={<><span className="text-[#ef4444]">{up}</span><span className="text-slate-600"> / </span><span className="text-[#22c55e]">{down}</span></>} />
+      <Kpi label="上漲 / 下跌家數" value={<><span className="text-[#f05252]">{up}</span><span className="text-[#7c8aa0]"> / </span><span className="text-[#22c55e]">{down}</span></>} />
     </KpiRow>
   );
 }
@@ -107,11 +107,11 @@ function StockRanking({ rows }: { rows: Row[] }) {
       render: (r) => (
         <span className="inline-flex items-center gap-2">
           <span className="text-slate-200">{r[1]}</span>
-          <span className="font-mono text-xs text-slate-500">{r[0]}</span>
-          <span className="text-[10px] px-1 rounded border border-slate-700 text-slate-500">{r[2] === "上市" ? "市" : "櫃"}</span>
-          {r[7] && r[7] !== "ETF" && <span className="text-[11px] text-slate-500">{r[7]}</span>}
+          <span className="font-mono text-xs text-[#8b97ab]">{r[0]}</span>
+          <span className="text-[10px] px-1 rounded border border-slate-700 text-[#8b97ab]">{r[2] === "上市" ? "市" : "櫃"}</span>
+          {r[7] && r[7] !== "ETF" && <span className="text-[11px] text-[#8b97ab]">{r[7]}</span>}
           {isEtf(r) && (
-            <Link href={`/etf-flow?tab=changes&q=${r[0]}`} className="text-[10px] px-1.5 rounded border border-[#00d4aa]/40 text-[#00d4aa]">ETF</Link>
+            <Link href={`/etf-flow?tab=changes&q=${r[0]}`} className="text-[10px] px-1.5 rounded border border-[#4f8cff]/40 text-[#4f8cff]">ETF</Link>
           )}
         </span>
       ),
@@ -122,8 +122,8 @@ function StockRanking({ rows }: { rows: Row[] }) {
       key: "value", label: "成交金額（億）", align: "right", sort: (r) => r[5],
       render: (r) => (
         <div className="flex items-center justify-end gap-2">
-          <div className="hidden sm:block w-24 h-1.5 rounded bg-[#1e2a3a] overflow-hidden">
-            <div className="h-full bg-[#00d4aa]/60" style={{ width: `${Math.max(2, (r[5] / max) * 100)}%` }} />
+          <div className="hidden sm:block w-24 h-1.5 rounded bg-[#243247] overflow-hidden">
+            <div className="h-full bg-[#4f8cff]/60" style={{ width: `${Math.max(2, (r[5] / max) * 100)}%` }} />
           </div>
           <span className="text-slate-200 w-14">{yi(r[5])}</span>
         </div>
@@ -168,27 +168,27 @@ function SectorFlow({ rows }: { rows: Row[] }) {
 
   return (
     <>
-      <p className="text-xs text-slate-500 mb-4">
+      <p className="text-xs text-[#8b97ab] mb-4">
         依族群加總個股成交金額（不含 ETF）。漲跌幅為成交金額加權平均，可看資金集中在哪些族群、是追價還是倒貨。
       </p>
-      <div className="rounded-xl border border-[#1e2a3a] bg-[#0d1220] overflow-hidden">
+      <div className="rounded-xl border border-[#243247] bg-[#0d1220] overflow-hidden">
         {sectors.map((s, i) => (
-          <div key={s.name} className="grid grid-cols-12 items-center gap-3 px-4 py-3 border-b border-[#1e2a3a]/60 last:border-0">
+          <div key={s.name} className="grid grid-cols-12 items-center gap-3 px-4 py-3 border-b border-[#243247]/60 last:border-0">
             <div className="col-span-12 sm:col-span-3 flex items-center gap-3">
-              <span className="w-5 font-mono text-xs text-slate-600">{i + 1}</span>
-              <Link href={`/sectors/${encodeURIComponent(s.name)}`} className="text-slate-200 hover:text-[#00d4aa]">{s.name}</Link>
-              <span className="text-[11px] text-slate-500">{s.n} 檔</span>
+              <span className="w-5 font-mono text-xs text-[#7c8aa0]">{i + 1}</span>
+              <Link href={`/sectors/${encodeURIComponent(s.name)}`} className="text-slate-200 hover:text-[#4f8cff]">{s.name}</Link>
+              <span className="text-[11px] text-[#8b97ab]">{s.n} 檔</span>
             </div>
             <div className="col-span-7 sm:col-span-4 flex items-center gap-2">
-              <div className="flex-1 h-2 rounded bg-[#1e2a3a] overflow-hidden">
-                <div className="h-full bg-[#00d4aa]/60" style={{ width: `${(s.value / max) * 100}%` }} />
+              <div className="flex-1 h-2 rounded bg-[#243247] overflow-hidden">
+                <div className="h-full bg-[#4f8cff]/60" style={{ width: `${(s.value / max) * 100}%` }} />
               </div>
               <span className="font-mono text-sm text-slate-200 w-16 text-right">{yi(s.value)}億</span>
-              <span className="font-mono text-xs text-slate-500 w-12 text-right">{((s.value / total) * 100).toFixed(1)}%</span>
+              <span className="font-mono text-xs text-[#8b97ab] w-12 text-right">{((s.value / total) * 100).toFixed(1)}%</span>
             </div>
             <div className={`col-span-2 sm:col-span-1 font-mono text-sm text-right ${pctColor(s.wPct)}`}>{fmtPct(s.wPct)}</div>
             <div className="col-span-3 sm:col-span-1 font-mono text-xs text-right">
-              <span className="text-[#ef4444]">{s.up}</span><span className="text-slate-600">/</span><span className="text-[#22c55e]">{s.down}</span>
+              <span className="text-[#f05252]">{s.up}</span><span className="text-[#7c8aa0]">/</span><span className="text-[#22c55e]">{s.down}</span>
             </div>
             <div className="hidden sm:flex col-span-3 gap-2 text-xs text-slate-400 truncate">
               {s.top.map((r) => (

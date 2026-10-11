@@ -20,8 +20,8 @@ const active = (r: R) => r[10] !== "Y" && iso(r[9]) >= TODAY && iso(r[8]) <= TOD
 function position(r: R) {
   const p = r[14], lo = r[6], hi = r[7];
   if (p == null || lo == null || hi == null) return null;
-  if (p < lo) return { text: "低於區間", cls: "text-[#ef4444]" };
-  if (p > hi) return { text: "高於上限", cls: "text-slate-500" };
+  if (p < lo) return { text: "低於區間", cls: "text-[#f05252]" };
+  if (p > hi) return { text: "高於上限", cls: "text-[#8b97ab]" };
   return { text: `區間內 ${Math.round(((p - lo) / (hi - lo || 1)) * 100)}%`, cls: "text-[#f59e0b]" };
 }
 
@@ -37,7 +37,7 @@ export default function BuybackDashboard() {
     return rs;
   }, [data, filter, support]);
 
-  if (!data) return <div className="py-16 text-center text-sm text-slate-500 font-mono">{error ? "資料載入失敗" : "載入中…"}</div>;
+  if (!data) return <div className="py-16 text-center text-sm text-[#8b97ab] font-mono">{error ? "資料載入失敗" : "載入中…"}</div>;
   if (!data.rows.length) return <Empty>庫藏股資料累積中。</Empty>;
   const all = data.rows;
   const act = all.filter(active);
@@ -51,8 +51,8 @@ export default function BuybackDashboard() {
     { key: "price", label: "最新收盤", align: "right", sort: (r) => r[14], render: (r) => { const p = position(r); return <span className="text-slate-200">{r[14] ?? "—"}{p && <span className={`ml-2 text-xs font-sans ${p.cls}`}>{p.text}</span>}</span>; } },
     { key: "period", label: "買回期間", render: (r) => <span className="font-mono text-xs text-slate-400">{md(r[8])} ～ {md(r[9])}</span> },
     { key: "status", label: "狀態", sort: (r) => (r[10] === "Y" ? 1 : 0), render: (r) => (r[10] === "Y"
-      ? <span className="text-xs text-slate-500">完成 {r[5] && r[11] != null ? `${Math.round((r[11] / r[5]) * 100)}%` : ""}</span>
-      : active(r) ? <span className="text-xs text-[#00d4aa]">執行中</span> : <span className="text-xs text-slate-600">期滿</span>) },
+      ? <span className="text-xs text-[#8b97ab]">完成 {r[5] && r[11] != null ? `${Math.round((r[11] / r[5]) * 100)}%` : ""}</span>
+      : active(r) ? <span className="text-xs text-[#4f8cff]">執行中</span> : <span className="text-xs text-[#7c8aa0]">期滿</span>) },
   ];
 
   return (
@@ -62,9 +62,9 @@ export default function BuybackDashboard() {
         現價低於買回價格區間下限時，公司可能積極買進。資料來自公開資訊觀測站，期滿或完成後才會公告實際買回股數與均價。
       </Note>
       <KpiRow>
-        <Kpi label="執行中" value={act.length} unit="家" color="text-[#00d4aa]" />
+        <Kpi label="執行中" value={act.length} unit="家" color="text-[#4f8cff]" />
         <Kpi label="其中維護股東權益" value={act.filter((r) => r[4] === "3").length} unit="家" color="text-[#f59e0b]" />
-        <Kpi label="現價低於區間下限" value={act.filter((r) => r[14] != null && r[6] != null && r[14] < r[6]).length} unit="家" color="text-[#ef4444]" />
+        <Kpi label="現價低於區間下限" value={act.filter((r) => r[14] != null && r[6] != null && r[14] < r[6]).length} unit="家" color="text-[#f05252]" />
         <Kpi label="近 2 年紀錄" value={all.length} unit="筆" />
       </KpiRow>
       <div className="flex flex-wrap items-center gap-3 mb-3">
@@ -75,10 +75,10 @@ export default function BuybackDashboard() {
         <ExpandTable<R> key={`${filter}${support}`} rows={rows} columns={cols} rowKey={(r) => `${r[0]}-${r[3]}`} initialSort={{ key: "board", desc: true }}
           detail={(r) => (
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-              <div><div className="text-slate-500">預定買回</div><div className="text-slate-200 font-mono">{r[5]?.toLocaleString() ?? "—"} 股</div></div>
-              <div><div className="text-slate-500">已買回</div><div className="text-slate-200 font-mono">{r[11] != null ? `${r[11].toLocaleString()} 股` : "執行中（期滿後公告）"}</div></div>
-              <div><div className="text-slate-500">平均買回價</div><div className="text-slate-200 font-mono">{r[12] ?? "—"}</div></div>
-              <div><div className="text-slate-500">佔已發行股數</div><div className="text-slate-200 font-mono">{r[13] != null ? `${r[13]}%` : "—"}</div></div>
+              <div><div className="text-[#8b97ab]">預定買回</div><div className="text-slate-200 font-mono">{r[5]?.toLocaleString() ?? "—"} 股</div></div>
+              <div><div className="text-[#8b97ab]">已買回</div><div className="text-slate-200 font-mono">{r[11] != null ? `${r[11].toLocaleString()} 股` : "執行中（期滿後公告）"}</div></div>
+              <div><div className="text-[#8b97ab]">平均買回價</div><div className="text-slate-200 font-mono">{r[12] ?? "—"}</div></div>
+              <div><div className="text-[#8b97ab]">佔已發行股數</div><div className="text-slate-200 font-mono">{r[13] != null ? `${r[13]}%` : "—"}</div></div>
             </div>
           )} />}
     </div>

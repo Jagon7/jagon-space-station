@@ -17,27 +17,27 @@ const IDX: Record<Period, number> = { "1": 4, "5": 8, "20": 12, "60": 16 };
 const OFF: Record<Who, number> = { f: 0, t: 1, d: 2, all: 3 };
 const WHO_LABEL: Record<Who, string> = { f: "外資", t: "投信", d: "自營商", all: "三大法人" };
 const md = (d: string) => `${Number(d.slice(5, 7))}/${Number(d.slice(8, 10))}`;
-const tone = (v: number | null | undefined) => (v == null || v === 0 ? "text-slate-500" : v > 0 ? "text-[#ef4444]" : "text-[#22c55e]");
+const tone = (v: number | null | undefined) => (v == null || v === 0 ? "text-[#8b97ab]" : v > 0 ? "text-[#f05252]" : "text-[#22c55e]");
 const lots = (v: number | null | undefined) => (v == null ? "—" : `${v > 0 ? "+" : ""}${v.toLocaleString()}`);
 const yi = (v: number | null | undefined) => (v == null ? "—" : `${v > 0 ? "+" : ""}${Math.abs(v) >= 10 ? v.toFixed(0) : v.toFixed(1)}億`);
 const n = (r: R, i: number) => (r[i] as number | null) ?? null;
 
 function Detail({ code }: { code: string }) {
   const { data, error } = useStaticJson<[string, number | null, number | null, number | null, number | null, number | null][]>(`chips/insti/${code}.json`);
-  if (!data) return <div className="py-8 text-center text-xs text-slate-500">{error ? "沒有資料" : "載入中…"}</div>;
+  if (!data) return <div className="py-8 text-center text-xs text-[#8b97ab]">{error ? "沒有資料" : "載入中…"}</div>;
   const rows = data.map(([d, f, t, dl, , c]) => ({ d, f, t, dl, c }));
   return (
     <ResponsiveContainer width="100%" height={240}>
       <ComposedChart data={rows} margin={{ top: 5, right: 0, bottom: 0, left: -5 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#1e2a3a" vertical={false} />
+        <CartesianGrid strokeDasharray="3 3" stroke="#243247" vertical={false} />
         <XAxis dataKey="d" tickFormatter={md} tick={{ fill: "#475569", fontSize: 11 }} axisLine={false} tickLine={false} minTickGap={20} />
         <YAxis yAxisId="v" tick={{ fill: "#475569", fontSize: 11 }} axisLine={false} tickLine={false} />
         <YAxis yAxisId="p" orientation="right" domain={["auto", "auto"]} tick={{ fill: "#475569", fontSize: 11 }} axisLine={false} tickLine={false} />
-        <Tooltip contentStyle={{ background: "#0d1220", border: "1px solid #1e2a3a", fontSize: 12 }} labelStyle={{ color: "#94a3b8" }}
+        <Tooltip contentStyle={{ background: "#0d1220", border: "1px solid #243247", fontSize: 12 }} labelStyle={{ color: "#94a3b8" }}
           formatter={(v, nm) => [typeof v === "number" ? v.toLocaleString() : String(v), String(nm)]} />
         <Legend formatter={(v) => <span className="text-xs text-slate-400">{v}</span>} />
         <ReferenceLine yAxisId="v" y={0} stroke="#334155" />
-        <Bar yAxisId="v" dataKey="f" name="外資（張）" stackId="a" fill="#3b82f6" />
+        <Bar yAxisId="v" dataKey="f" name="外資（張）" stackId="a" fill="#38bdf8" />
         <Bar yAxisId="v" dataKey="t" name="投信（張）" stackId="a" fill="#f59e0b" />
         <Bar yAxisId="v" dataKey="dl" name="自營商（張）" stackId="a" fill="#a78bfa" />
         <Line yAxisId="p" dataKey="c" name="收盤" stroke="#e2e8f0" dot={false} strokeWidth={1.5} />
@@ -67,7 +67,7 @@ export default function InstitutionalDashboard() {
     return rs;
   }, [data, col, side, special, period, only]);
 
-  if (!data) return <div className="py-16 text-center text-sm text-slate-500 font-mono">{error ? "資料載入失敗" : "載入中…"}</div>;
+  if (!data) return <div className="py-16 text-center text-sm text-[#8b97ab] font-mono">{error ? "資料載入失敗" : "載入中…"}</div>;
   if (!data.rows.length) return <Empty>三大法人資料累積中。</Empty>;
   const last = data.market.at(-1)!;
   const sum5 = (k: 1 | 2 | 3) => data.market.slice(-5).reduce((s, x) => s + x[k], 0);
@@ -98,22 +98,22 @@ export default function InstitutionalDashboard() {
         <Kpi label={`${md(last[0])} 自營商`} value={yi(last[3])} color={tone(last[3])} sub={`5 日 ${yi(sum5(3))}`} />
         <Kpi label="投信連買 ≥ 3 天" value={data.rows.filter((r) => (n(r, 21) ?? 0) >= 3).length} unit="檔" color="text-[#f59e0b]" />
       </KpiRow>
-      <div className="rounded-xl border border-[#1e2a3a] bg-[#0d1220] p-5 mb-6">
+      <div className="rounded-xl border border-[#243247] bg-[#0d1220] p-5 mb-6">
         <div className="text-sm text-white font-semibold mb-3">全市場法人每日買賣超（億元，估計）</div>
         <ResponsiveContainer width="100%" height={200}>
           <BarChart data={chart} margin={{ top: 5, right: 5, bottom: 0, left: -10 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#1e2a3a" vertical={false} />
+            <CartesianGrid strokeDasharray="3 3" stroke="#243247" vertical={false} />
             <XAxis dataKey="d" tickFormatter={md} tick={{ fill: "#475569", fontSize: 11 }} axisLine={false} tickLine={false} minTickGap={20} />
             <YAxis tick={{ fill: "#475569", fontSize: 11 }} axisLine={false} tickLine={false} />
-            <Tooltip contentStyle={{ background: "#0d1220", border: "1px solid #1e2a3a", fontSize: 12 }} labelStyle={{ color: "#94a3b8" }}
+            <Tooltip contentStyle={{ background: "#0d1220", border: "1px solid #243247", fontSize: 12 }} labelStyle={{ color: "#94a3b8" }}
               formatter={(v, nm) => [`${typeof v === "number" ? v.toFixed(1) : v} 億`, nm === "f" ? "外資" : nm === "t" ? "投信" : "自營商"]} />
             <ReferenceLine y={0} stroke="#334155" />
-            <Bar dataKey="f" fill="#3b82f6" />
+            <Bar dataKey="f" fill="#38bdf8" />
             <Bar dataKey="t" fill="#f59e0b" />
             <Bar dataKey="dl" fill="#a78bfa" />
           </BarChart>
         </ResponsiveContainer>
-        <p className="text-[11px] text-slate-600">藍：外資；橘：投信；紫：自營商。</p>
+        <p className="text-[11px] text-[#7c8aa0]">藍：外資；橘：投信；紫：自營商。</p>
       </div>
       <div className="flex flex-wrap items-center gap-3 mb-3">
         <Pills<Who> value={who} onChange={(v) => { setWho(v); setSpecial("none"); setOnly(null); }} options={[{ value: "f", label: "外資" }, { value: "t", label: "投信" }, { value: "d", label: "自營商" }, { value: "all", label: "合計" }]} />
@@ -122,7 +122,7 @@ export default function InstitutionalDashboard() {
         <Pills<Special> value={special} onChange={(v) => { setSpecial(v); setOnly(null); }} options={[{ value: "none", label: "—" }, { value: "tStreak", label: "投信連買 ≥ 3" }, { value: "fStreak", label: "外資連買 ≥ 3" }, { value: "both", label: "土洋同買" }, { value: "opposite", label: "土洋對作" }]} />
         <div className="ml-auto"><SearchBox placeholder="查個股" items={data.rows.map((r) => ({ code: String(r[0]), name: String(r[1]) }))} onPick={setOnly} /></div>
       </div>
-      {only && <button onClick={() => setOnly(null)} className="mb-2 text-xs text-slate-500 hover:text-[#00d4aa]">← 回到排行</button>}
+      {only && <button onClick={() => setOnly(null)} className="mb-2 text-xs text-[#8b97ab] hover:text-[#4f8cff]">← 回到排行</button>}
       {!rows.length ? <Empty>沒有符合條件的股票。</Empty> :
         <ExpandTable<R> key={`${col}${side}${special}${only}`} rows={rows} columns={cols} rowKey={(r) => String(r[0])} detail={(r) => <Detail code={String(r[0])} />}
           initialSort={{ key: special === "tStreak" ? "ts" : special === "fStreak" ? "fs" : "amt", desc: side === "buy" || special !== "none" }} />}

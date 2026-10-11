@@ -9,7 +9,7 @@ export default function Page() {
       badge="Watchlist"
     >
       <WatchlistDashboard />
-      <p className="mt-10 text-[11px] leading-relaxed text-slate-600">訊號為各頁資料的自動彙整，本頁資訊僅供參考，不構成任何投資建議。</p>
+      <p className="mt-10 text-[11px] leading-relaxed text-[#7c8aa0]">訊號為各頁資料的自動彙整，本頁資訊僅供參考，不構成任何投資建議。</p>
     </PageShell>
   );
 }

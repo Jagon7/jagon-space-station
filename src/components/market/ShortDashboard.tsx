@@ -25,21 +25,21 @@ const isSqueeze = (r: R) => (r[12] ?? 0) >= 10 && r[8] >= 300 && (r[4] ?? 0) > 0
 const fmt = (v: number | null | undefined) => (v == null ? "—" : v.toLocaleString());
 const sgn = (v: number | null | undefined) => (v == null ? "—" : `${v > 0 ? "+" : ""}${v.toLocaleString()}`);
 const pf = (v: number | null | undefined) => (v == null ? "—" : `${v > 0 ? "+" : ""}${v.toFixed(1)}%`);
-const tone = (v: number | null | undefined) => (v == null || v === 0 ? "text-slate-500" : v > 0 ? "text-[#ef4444]" : "text-[#22c55e]");
+const tone = (v: number | null | undefined) => (v == null || v === 0 ? "text-[#8b97ab]" : v > 0 ? "text-[#f05252]" : "text-[#22c55e]");
 const md = (d: string) => `${Number(d.slice(5, 7))}/${Number(d.slice(8, 10))}`;
 
 function Detail({ code }: { code: string }) {
   const { data, error } = useStaticJson<Hist>(`market/short/${code}.json`);
-  if (!data) return <div className="py-8 text-center text-xs text-slate-500">{error ? "沒有歷史資料" : "載入中…"}</div>;
+  if (!data) return <div className="py-8 text-center text-xs text-[#8b97ab]">{error ? "沒有歷史資料" : "載入中…"}</div>;
   const rows = data.h.map(([d, c, m, s, b]) => ({ d, c, m, s, b }));
   return (
     <ResponsiveContainer width="100%" height={240}>
       <ComposedChart data={rows} margin={{ top: 5, right: 0, bottom: 0, left: -10 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#1e2a3a" />
+        <CartesianGrid strokeDasharray="3 3" stroke="#243247" />
         <XAxis dataKey="d" tickFormatter={md} tick={{ fill: "#475569", fontSize: 11 }} axisLine={false} tickLine={false} minTickGap={20} />
         <YAxis yAxisId="v" tick={{ fill: "#475569", fontSize: 11 }} axisLine={false} tickLine={false} />
         <YAxis yAxisId="p" orientation="right" domain={["auto", "auto"]} tick={{ fill: "#475569", fontSize: 11 }} axisLine={false} tickLine={false} />
-        <Tooltip contentStyle={{ background: "#0d1220", border: "1px solid #1e2a3a", fontSize: 12 }} labelStyle={{ color: "#94a3b8" }}
+        <Tooltip contentStyle={{ background: "#0d1220", border: "1px solid #243247", fontSize: 12 }} labelStyle={{ color: "#94a3b8" }}
           formatter={(v, n) => [typeof v === "number" ? v.toLocaleString() : String(v), String(n)]} />
         <Legend formatter={(v) => <span className="text-xs text-slate-400">{v}</span>} />
         <Bar yAxisId="v" dataKey="s" name="融券餘額（張）" fill="#22c55e" fillOpacity={0.7} />
@@ -73,7 +73,7 @@ export default function ShortDashboard() {
     }
   }, [data, view, etf, only]);
 
-  if (!data) return <div className="py-16 text-center text-sm text-slate-500 font-mono">{error ? "資料載入失敗" : "載入中…"}</div>;
+  if (!data) return <div className="py-16 text-center text-sm text-[#8b97ab] font-mono">{error ? "資料載入失敗" : "載入中…"}</div>;
   if (!data.rows.length) return <Empty>融資券資料累積中。</Empty>;
   const all = data.rows.filter((r) => STOCK.test(r[0]));
   const tot = (i: number) => all.reduce((s, r) => s + (r[i] as number), 0);
@@ -100,13 +100,13 @@ export default function ShortDashboard() {
           <SearchBox placeholder="查個股，例如 2330" items={data.rows.map((r) => ({ code: r[0], name: r[1] }))} onPick={(c) => { setOnly(c); setOpen(c); }} />
         </div>
       </div>
-      <p className="text-xs text-slate-500 mb-3">{only ? <button onClick={() => { setOnly(null); setOpen(null); }} className="hover:text-[#00d4aa]">← 回到排行</button> : desc}</p>
+      <p className="text-xs text-[#8b97ab] mb-3">{only ? <button onClick={() => { setOnly(null); setOpen(null); }} className="hover:text-[#4f8cff]">← 回到排行</button> : desc}</p>
 
       {!rows.length ? <Empty>目前沒有符合條件的股票。</Empty> : (
-        <div className="rounded-xl border border-[#1e2a3a] bg-[#0d1220] overflow-x-auto">
+        <div className="rounded-xl border border-[#243247] bg-[#0d1220] overflow-x-auto">
           <table className="w-full text-sm whitespace-nowrap">
             <thead>
-              <tr className="border-b border-[#1e2a3a] text-[11px] text-slate-500 text-right">
+              <tr className="border-b border-[#243247] text-[11px] text-[#8b97ab] text-right">
                 <th className="pl-4 py-2.5 font-normal text-left w-8">#</th>
                 <th className="px-3 py-2.5 font-normal text-left">股票</th><th className="px-3 py-2.5 font-normal">收盤</th>
                 <th className="px-3 py-2.5 font-normal">5 日</th><th className="px-3 py-2.5 font-normal">20 日</th>
@@ -118,13 +118,13 @@ export default function ShortDashboard() {
             <tbody>
               {rows.slice(0, 100).map((r, i) => (
                 <Fragment key={r[0]}>
-                  <tr onClick={() => setOpen(open === r[0] ? null : r[0])} className="border-b border-[#1e2a3a]/60 hover:bg-[#111a2c] cursor-pointer text-right font-mono">
-                    <td className="pl-4 py-2 text-left text-xs text-slate-600">{i + 1}</td>
+                  <tr onClick={() => setOpen(open === r[0] ? null : r[0])} className="border-b border-[#243247]/60 hover:bg-[#111a2c] cursor-pointer text-right font-mono">
+                    <td className="pl-4 py-2 text-left text-xs text-[#7c8aa0]">{i + 1}</td>
                     <td className="px-3 py-2 text-left font-sans">
                       <span className="inline-flex items-center gap-1.5">
-                        {open === r[0] ? <ChevronDown className="w-3.5 h-3.5 text-[#00d4aa]" /> : <ChevronRight className="w-3.5 h-3.5 text-slate-600" />}
-                        <span className="text-slate-200">{r[1]}</span><span className="font-mono text-xs text-slate-500">{r[0]}</span>
-                        {r[2] === 1 && <span className="text-[10px] text-slate-600">櫃</span>}
+                        {open === r[0] ? <ChevronDown className="w-3.5 h-3.5 text-[#4f8cff]" /> : <ChevronRight className="w-3.5 h-3.5 text-[#7c8aa0]" />}
+                        <span className="text-slate-200">{r[1]}</span><span className="font-mono text-xs text-[#8b97ab]">{r[0]}</span>
+                        {r[2] === 1 && <span className="text-[10px] text-[#7c8aa0]">櫃</span>}
                       </span>
                     </td>
                     <td className="px-3 py-2 text-slate-300">{r[3]}</td>
@@ -133,19 +133,19 @@ export default function ShortDashboard() {
                     <td className="px-3 py-2 text-slate-400">{fmt(r[6])}</td>
                     <td className="px-3 py-2 text-slate-200">{fmt(r[8])}</td>
                     <td className={`px-3 py-2 ${(r[12] ?? 0) >= 30 ? "text-[#f59e0b] font-semibold" : "text-slate-300"}`}>{r[12] == null ? "—" : `${r[12]}%`}</td>
-                    <td className="px-3 py-2"><span className={tone(r[9])}>{sgn(r[9])}</span><span className="text-slate-600"> / </span><span className={tone(r[10])}>{sgn(r[10])}</span></td>
+                    <td className="px-3 py-2"><span className={tone(r[9])}>{sgn(r[9])}</span><span className="text-[#7c8aa0]"> / </span><span className={tone(r[10])}>{sgn(r[10])}</span></td>
                     <td className="px-3 py-2 text-slate-300">{r[13] ?? "—"}</td>
                     <td className="px-3 py-2 text-slate-400">{fmt(r[15])}</td>
                     <td className={`px-3 py-2 ${tone(r[16])}`}>{sgn(r[16])}</td>
                   </tr>
                   {open === r[0] && (
-                    <tr className="border-b border-[#1e2a3a]/60 bg-[#0a0f1a]"><td colSpan={12} className="px-4 py-3"><Detail code={r[0]} /></td></tr>
+                    <tr className="border-b border-[#243247]/60 bg-[#0a0f1a]"><td colSpan={12} className="px-4 py-3"><Detail code={r[0]} /></td></tr>
                   )}
                 </Fragment>
               ))}
             </tbody>
           </table>
-          {rows.length > 100 && <div className="px-4 py-2 text-[11px] text-slate-600 border-t border-[#1e2a3a]">只列前 100 檔，可用右上搜尋查其他股票</div>}
+          {rows.length > 100 && <div className="px-4 py-2 text-[11px] text-[#7c8aa0] border-t border-[#243247]">只列前 100 檔，可用右上搜尋查其他股票</div>}
         </div>
       )}
     </div>

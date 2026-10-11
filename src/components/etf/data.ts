@@ -74,4 +74,4 @@ export const mmdd = (d: string | null | undefined) => (d ? `${d.slice(5, 7)}/${d
 
 /** 台股慣例：紅漲綠跌 */
 export const signColor = (v: number | null | undefined) =>
-  v == null || v === 0 ? "text-slate-400" : v > 0 ? "text-[#ef4444]" : "text-[#22c55e]";
+  v == null || v === 0 ? "text-slate-400" : v > 0 ? "text-[#f05252]" : "text-[#22c55e]";

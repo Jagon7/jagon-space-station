@@ -10,9 +10,9 @@ function fmt(n: number): string {
 
 function ActionBadge({ action }: { action: EtfFlowChange["action"] }) {
   const meta = {
-    new:    { label: "新增", icon: PlusCircle,  color: "text-[#ef4444]", bg: "bg-[#ef4444]/10 border-[#ef4444]/30" },
+    new:    { label: "新增", icon: PlusCircle,  color: "text-[#f05252]", bg: "bg-[#f05252]/10 border-[#f05252]/30" },
     remove: { label: "剔除", icon: MinusCircle, color: "text-slate-400",  bg: "bg-slate-800/40 border-slate-600/30" },
-    buy:    { label: "加碼", icon: TrendingUp,  color: "text-[#ef4444]", bg: "bg-red-900/20 border-red-700/30" },
+    buy:    { label: "加碼", icon: TrendingUp,  color: "text-[#f05252]", bg: "bg-red-900/20 border-red-700/30" },
     sell:   { label: "減碼", icon: TrendingDown, color: "text-[#22c55e]", bg: "bg-green-900/20 border-green-700/30" },
   }[action];
   const Icon = meta.icon;
@@ -64,33 +64,33 @@ export default function EtfFlowCard({ flow }: { flow: EtfFlowData }) {
   const activeCount = flow.data.filter(e => e.category === "主動型").length;
 
   return (
-    <div className="md:col-span-2 rounded-xl border border-[#1e2a3a] bg-[#0d1220] p-5 card-hover">
+    <div className="md:col-span-2 rounded-xl border border-[#243247] bg-[#0d1220] p-5 card-hover">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <PieChart className="w-4 h-4 text-[#22c55e]" />
           <h2 className="text-sm font-semibold text-white tracking-wide">ETF 持股動態</h2>
-          <span className="text-[10px] font-mono text-slate-500 bg-[#1e2a3a] px-1.5 py-0.5 rounded">
+          <span className="text-[10px] font-mono text-[#8b97ab] bg-[#243247] px-1.5 py-0.5 rounded">
             {flow.data.length} 檔 ETF
           </span>
         </div>
-        <Link href="/etf-flow?tab=changes" className="flex items-center gap-1 text-xs text-slate-500 hover:text-[#22c55e] transition-colors font-mono">
+        <Link href="/etf-flow?tab=changes" className="flex items-center gap-1 text-xs text-[#8b97ab] hover:text-[#22c55e] transition-colors font-mono">
           展開詳情 <ArrowRight className="w-3 h-3" />
         </Link>
       </div>
 
       {/* KPI row */}
       <div className="grid grid-cols-3 gap-3 mb-4">
-        <div className="rounded-lg border border-[#1e2a3a] bg-[#0a0f1a] px-3 py-2">
-          <div className="text-[10px] font-mono text-slate-500 mb-1">ETF 合計買入</div>
-          <div className="text-sm font-bold font-mono text-[#ef4444]">+{fmt(totalBuy)}</div>
+        <div className="rounded-lg border border-[#243247] bg-[#0a0f1a] px-3 py-2">
+          <div className="text-[10px] font-mono text-[#8b97ab] mb-1">ETF 合計買入</div>
+          <div className="text-sm font-bold font-mono text-[#f05252]">+{fmt(totalBuy)}</div>
         </div>
-        <div className="rounded-lg border border-[#1e2a3a] bg-[#0a0f1a] px-3 py-2">
-          <div className="text-[10px] font-mono text-slate-500 mb-1">ETF 合計賣出</div>
+        <div className="rounded-lg border border-[#243247] bg-[#0a0f1a] px-3 py-2">
+          <div className="text-[10px] font-mono text-[#8b97ab] mb-1">ETF 合計賣出</div>
           <div className="text-sm font-bold font-mono text-[#22c55e]">-{fmt(totalSell)}</div>
         </div>
-        <div className="rounded-lg border border-[#1e2a3a] bg-[#0a0f1a] px-3 py-2">
-          <div className="text-[10px] font-mono text-slate-500 mb-1">主動型 ETF</div>
+        <div className="rounded-lg border border-[#243247] bg-[#0a0f1a] px-3 py-2">
+          <div className="text-[10px] font-mono text-[#8b97ab] mb-1">主動型 ETF</div>
           <div className="text-sm font-bold font-mono text-[#a78bfa]">{activeCount} 檔</div>
         </div>
       </div>
@@ -98,15 +98,15 @@ export default function EtfFlowCard({ flow }: { flow: EtfFlowData }) {
       {/* Top stocks grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8">
         {topStocks.map((s, i) => (
-          <div key={s.code} className={`flex items-center justify-between py-2 border-b border-[#1e2a3a]/50 ${i >= topStocks.length - (topStocks.length % 2 === 0 ? 2 : 1) ? "last:border-0 sm:[&:nth-last-child(2)]:border-0" : ""}`}>
+          <div key={s.code} className={`flex items-center justify-between py-2 border-b border-[#243247]/50 ${i >= topStocks.length - (topStocks.length % 2 === 0 ? 2 : 1) ? "last:border-0 sm:[&:nth-last-child(2)]:border-0" : ""}`}>
             <div className="flex items-center gap-2 min-w-0">
-              <span className="font-mono text-xs text-slate-600 w-10 flex-shrink-0">{s.code}</span>
+              <span className="font-mono text-xs text-[#7c8aa0] w-10 flex-shrink-0">{s.code}</span>
               <span className="text-sm text-slate-200 truncate">{s.name}</span>
               <ActionBadge action={s.diffShares >= 0 ? (s.diffShares === s.diffShares ? s.action : "buy") : "sell"} />
             </div>
             <div className="flex items-center gap-2 flex-shrink-0 ml-2">
-              <span className="text-[10px] font-mono text-slate-600">{s.etfs.join(" ")}</span>
-              <span className={`text-xs font-mono font-semibold ${s.diffValue >= 0 ? "text-[#ef4444]" : "text-[#22c55e]"}`}>
+              <span className="text-[10px] font-mono text-[#7c8aa0]">{s.etfs.join(" ")}</span>
+              <span className={`text-xs font-mono font-semibold ${s.diffValue >= 0 ? "text-[#f05252]" : "text-[#22c55e]"}`}>
                 {s.diffValue >= 0 ? "+" : ""}{fmt(s.diffValue)}
               </span>
             </div>

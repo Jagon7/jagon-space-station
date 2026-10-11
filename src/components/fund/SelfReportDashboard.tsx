@@ -22,12 +22,12 @@ function Detail({ r }: { r: R }) {
     <div>
       <ResponsiveContainer width="100%" height={220}>
         <BarChart data={rows} margin={{ top: 5, right: 5, bottom: 0, left: -5 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#1e2a3a" vertical={false} />
+          <CartesianGrid strokeDasharray="3 3" stroke="#243247" vertical={false} />
           <XAxis dataKey="p" tick={{ fill: "#475569", fontSize: 11 }} axisLine={false} tickLine={false} minTickGap={12} />
           <YAxis tick={{ fill: "#475569", fontSize: 11 }} axisLine={false} tickLine={false} />
-          <Tooltip contentStyle={{ background: "#0d1220", border: "1px solid #1e2a3a", fontSize: 12 }} labelStyle={{ color: "#94a3b8" }}
+          <Tooltip contentStyle={{ background: "#0d1220", border: "1px solid #243247", fontSize: 12 }} labelStyle={{ color: "#94a3b8" }}
             formatter={(v) => [`${typeof v === "number" ? v.toFixed(2) : v} 億`, "稅前損益"]} />
-          <Bar dataKey="v">{rows.map((x) => <Cell key={x.p} fill={(x.v ?? 0) >= 0 ? "#ef4444" : "#22c55e"} fillOpacity={0.8} />)}</Bar>
+          <Bar dataKey="v">{rows.map((x) => <Cell key={x.p} fill={(x.v ?? 0) >= 0 ? "#f05252" : "#22c55e"} fillOpacity={0.8} />)}</Bar>
         </BarChart>
       </ResponsiveContainer>
       {r[9] && <p className="mt-2 text-xs text-slate-400">公司說明：{r[9]}</p>}
@@ -43,7 +43,7 @@ export default function SelfReportDashboard() {
   const cur = period && block?.data[period] ? period : block?.periods[0] ?? "";
   const rows = useMemo(() => block?.data[cur] ?? [], [block, cur]);
 
-  if (!data) return <div className="py-16 text-center text-sm text-slate-500 font-mono">{error ? "資料載入失敗" : "載入中…"}</div>;
+  if (!data) return <div className="py-16 text-center text-sm text-[#8b97ab] font-mono">{error ? "資料載入失敗" : "載入中…"}</div>;
   if (!data.m && !data.q) return <Empty>自結損益資料累積中。</Empty>;
 
   const unit = kind === "m" ? "本月" : "本季";
@@ -70,7 +70,7 @@ export default function SelfReportDashboard() {
             ...(data.q ? [{ value: "q" as Kind, label: "季申報" }] : []),
           ]} />
           {block && (
-            <select value={cur} onChange={(e) => setPeriod(e.target.value)} className="rounded-lg border border-[#1e2a3a] bg-[#0d1220] px-3 py-2 text-sm text-slate-300 font-mono">
+            <select value={cur} onChange={(e) => setPeriod(e.target.value)} className="rounded-lg border border-[#243247] bg-[#0d1220] px-3 py-2 text-sm text-slate-300 font-mono">
               {block.periods.map((p) => <option key={p} value={p}>{label(p)}（{block.data[p].length} 家）</option>)}
             </select>
           )}
@@ -79,7 +79,7 @@ export default function SelfReportDashboard() {
       {block && (
         <KpiRow>
           <Kpi label="資料期間" value={label(cur)} sub={`${rows.length} 家公告`} />
-          <Kpi label="稅前較去年同期成長" value={rows.filter((r) => (growth(r[5], r[7]) ?? 0) > 0).length} unit="家" color="text-[#ef4444]" />
+          <Kpi label="稅前較去年同期成長" value={rows.filter((r) => (growth(r[5], r[7]) ?? 0) > 0).length} unit="家" color="text-[#f05252]" />
           <Kpi label="稅前虧損" value={rows.filter((r) => (r[5] ?? 0) < 0).length} unit="家" color="text-[#22c55e]" />
           <Kpi label="有說明差異原因" value={rows.filter((r) => r[9]).length} unit="家" />
         </KpiRow>

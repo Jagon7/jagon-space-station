@@ -20,20 +20,20 @@ type NextDay = { rows: (string | number | null)[][] };
 type Insider = { names: Record<string, string>; cases: (string | number | null)[][] };
 
 const TODAY = new Date(Date.now() + 8 * 3600e3).toISOString().slice(0, 10);
-const tip = { contentStyle: { background: "#0d1220", border: "1px solid #1e2a3a", fontSize: 12 }, labelStyle: { color: "#94a3b8" } };
+const tip = { contentStyle: { background: "#0d1220", border: "1px solid #243247", fontSize: 12 }, labelStyle: { color: "#94a3b8" } };
 
 function Card({ title, href, children }: { title: string; href?: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-xl border border-[#1e2a3a] bg-[#0d1220] p-4">
+    <div className="rounded-xl border border-[#243247] bg-[#0d1220] p-4">
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-sm font-semibold text-white">{title}</h3>
-        {href && <Link href={href} className="text-[11px] text-slate-500 hover:text-[#00d4aa]">完整頁面 →</Link>}
+        {href && <Link href={href} className="text-[11px] text-[#8b97ab] hover:text-[#4f8cff]">完整頁面 →</Link>}
       </div>
       {children}
     </div>
   );
 }
-const Muted = ({ children }: { children: React.ReactNode }) => <p className="text-xs text-slate-500 py-3">{children}</p>;
+const Muted = ({ children }: { children: React.ReactNode }) => <p className="text-xs text-[#8b97ab] py-3">{children}</p>;
 
 function Detail({ code, idx }: { code: string; idx: Index }) {
   const info = idx[code] as [string, string, string, number, number] | undefined;
@@ -56,7 +56,7 @@ function Detail({ code, idx }: { code: string; idx: Index }) {
   const limits = nd.data?.rows.filter((r) => r[1] === code) ?? [];
   const insCases = ins.data?.cases.filter((r) => r[0] === code) ?? [];
 
-  if (!info) return <p className="text-sm text-slate-500 py-10 text-center">查無這檔股票。</p>;
+  if (!info) return <p className="text-sm text-[#8b97ab] py-10 text-center">查無這檔股票。</p>;
   const [name, mk, ind, close, chg] = info;
   const revRows = (rev.data?.h ?? []).slice(-24).map(([m, v, y]) => ({ m: m.slice(2).replace("-", "/"), v: v == null ? null : v / 1e5, y }));
   const incRows = (inc.data?.h ?? []).map(([q, , g, , , e]) => ({ q: `${q.slice(2, 4)}Q${q.slice(-1)}`, e, g }));
@@ -67,14 +67,14 @@ function Detail({ code, idx }: { code: string; idx: Index }) {
       <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1 mb-5">
         <h2 className="text-2xl font-bold text-white">{name}</h2>
         <button onClick={() => wl.toggle(code)} title={wl.has(code) ? "移出自選股" : "加入自選股"}
-          className={`self-center inline-flex items-center gap-1 rounded-lg border px-2 py-1 text-xs ${wl.has(code) ? "border-[#f59e0b] text-[#f59e0b]" : "border-[#1e2a3a] text-slate-400 hover:text-[#f59e0b]"}`}>
+          className={`self-center inline-flex items-center gap-1 rounded-lg border px-2 py-1 text-xs ${wl.has(code) ? "border-[#f59e0b] text-[#f59e0b]" : "border-[#243247] text-slate-400 hover:text-[#f59e0b]"}`}>
           <Star className="w-3.5 h-3.5" fill={wl.has(code) ? "currentColor" : "none"} />{wl.has(code) ? "已加入自選" : "加入自選"}
         </button>
         <span className="font-mono text-slate-400">{code}</span>
-        <span className="text-xs text-slate-500">{mk}{ind ? `・${ind}` : ""}</span>
+        <span className="text-xs text-[#8b97ab]">{mk}{ind ? `・${ind}` : ""}</span>
         <span className="font-mono text-xl text-slate-100">{close}</span>
         <span className={`font-mono ${tone(chg)}`}>{chg > 0 ? "+" : ""}{chg}（{pf(close - chg ? (chg / (close - chg)) * 100 : null)}）</span>
-        <span className="text-[11px] text-slate-600">{String(idx._date ?? "")} 收盤</span>
+        <span className="text-[11px] text-[#7c8aa0]">{String(idx._date ?? "")} 收盤</span>
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card title="月營收（億元）" href="/revenue">
@@ -86,7 +86,7 @@ function Detail({ code, idx }: { code: string; idx: Index }) {
                 <YAxis yAxisId="v" tick={{ fill: "#475569", fontSize: 10 }} axisLine={false} tickLine={false} />
                 <YAxis yAxisId="y" orientation="right" hide />
                 <Tooltip {...tip} formatter={(v, n) => [typeof v === "number" ? v.toFixed(n === "v" ? 2 : 1) : String(v), n === "v" ? "營收（億）" : "年增%"]} />
-                <Bar yAxisId="v" dataKey="v" fill="#3b82f6" fillOpacity={0.75} />
+                <Bar yAxisId="v" dataKey="v" fill="#38bdf8" fillOpacity={0.75} />
                 <Line yAxisId="y" dataKey="y" stroke="#f59e0b" dot={false} connectNulls />
               </ComposedChart>
             </ResponsiveContainer>
@@ -100,7 +100,7 @@ function Detail({ code, idx }: { code: string; idx: Index }) {
                 <YAxis yAxisId="e" tick={{ fill: "#475569", fontSize: 10 }} axisLine={false} tickLine={false} />
                 <YAxis yAxisId="g" orientation="right" hide />
                 <Tooltip {...tip} formatter={(v, n) => [typeof v === "number" ? v.toFixed(n === "e" ? 2 : 1) : String(v), n === "e" ? "EPS" : "毛利率%"]} />
-                <Bar yAxisId="e" dataKey="e">{incRows.map((r) => <Cell key={r.q} fill={(r.e ?? 0) >= 0 ? "#ef4444" : "#22c55e"} fillOpacity={0.75} />)}</Bar>
+                <Bar yAxisId="e" dataKey="e">{incRows.map((r) => <Cell key={r.q} fill={(r.e ?? 0) >= 0 ? "#f05252" : "#22c55e"} fillOpacity={0.75} />)}</Bar>
                 <Line yAxisId="g" dataKey="g" stroke="#f59e0b" dot={false} connectNulls />
               </ComposedChart>
             </ResponsiveContainer>
@@ -110,7 +110,7 @@ function Detail({ code, idx }: { code: string; idx: Index }) {
           {!s ? <Muted>沒有融資券資料（可能不是信用交易標的）。</Muted> : (
             <div className="grid grid-cols-3 gap-3 text-center">
               {[["融資餘額", s[6], "張"], ["融券餘額", s[8], "張"], ["券資比", s[12], "%"], ["融券 5 日增減", s[10], "張"], ["借券賣出餘額", s[15], "張"], ["借券 5 日增減", s[16], "張"]].map(([l, v, u]) => (
-                <div key={l as string}><div className="text-[11px] text-slate-500">{l}</div><div className="font-mono text-slate-200">{v == null ? "—" : `${(v as number).toLocaleString()}${u === "%" ? "%" : ""}`}</div></div>
+                <div key={l as string}><div className="text-[11px] text-[#8b97ab]">{l}</div><div className="font-mono text-slate-200">{v == null ? "—" : `${(v as number).toLocaleString()}${u === "%" ? "%" : ""}`}</div></div>
               ))}
             </div>
           )}
@@ -119,7 +119,7 @@ function Detail({ code, idx }: { code: string; idx: Index }) {
           {!holders.length ? <Muted>目前沒有追蹤中的 ETF 持有。</Muted> : (
             <div className="space-y-1 max-h-48 overflow-y-auto">
               {[...holders].sort((a, b) => b[2] - a[2]).slice(0, 12).map((h) => (
-                <div key={h[0]} className="flex justify-between text-xs"><span className="text-slate-300">{core.data!.etfs[h[0]]?.n} <span className="font-mono text-slate-500">{core.data!.etfs[h[0]]?.c}</span></span><span className="font-mono text-slate-400">{h[2].toFixed(2)}%</span></div>
+                <div key={h[0]} className="flex justify-between text-xs"><span className="text-slate-300">{core.data!.etfs[h[0]]?.n} <span className="font-mono text-[#8b97ab]">{core.data!.etfs[h[0]]?.c}</span></span><span className="font-mono text-slate-400">{h[2].toFixed(2)}%</span></div>
               ))}
             </div>
           )}
@@ -132,7 +132,7 @@ function Detail({ code, idx }: { code: string; idx: Index }) {
         <Card title="內部人與漲停紀錄" href={`/insider?tab=history&stock=${code}`}>
           <div className="text-xs space-y-1.5">
             <div className="text-slate-400">近 2 年內部人大額買賣：{insCases.length ? insCases.slice(0, 3).map((c, i) => (
-              <span key={i} className={`ml-2 ${Number(c[2]) > 0 ? "text-[#ef4444]" : "text-[#22c55e]"}`}>{String(c[3]).slice(2)}{Number(c[2]) > 0 ? " 買" : " 賣"}</span>)) : <span className="ml-1 text-slate-600">無</span>}</div>
+              <span key={i} className={`ml-2 ${Number(c[2]) > 0 ? "text-[#f05252]" : "text-[#22c55e]"}`}>{String(c[3]).slice(2)}{Number(c[2]) > 0 ? " 買" : " 賣"}</span>)) : <span className="ml-1 text-[#7c8aa0]">無</span>}</div>
             <div className="text-slate-400">近半年漲停 <span className="text-slate-200 font-mono">{limits.length}</span> 次{limits.length ? `，最近 ${limits.at(-1)![0]}` : ""}</div>
           </div>
         </Card>
@@ -153,9 +153,9 @@ export default function StockSearch() {
   return (
     <div>
       <div className="mb-6"><SearchBox placeholder="輸入股號或名稱，例如 2330 或 台積電" items={items} onPick={pick} /></div>
-      {!idx.data ? <p className="text-sm text-slate-500 font-mono">{idx.error ? "資料載入失敗" : "載入中…"}</p>
+      {!idx.data ? <p className="text-sm text-[#8b97ab] font-mono">{idx.error ? "資料載入失敗" : "載入中…"}</p>
         : code ? <Detail key={code} code={code} idx={idx.data} />
-          : <p className="text-sm text-slate-500 py-10 text-center">輸入股票代號或名稱，整合月營收、季報、融資券、ETF 持有、事件、內部人與漲停紀錄。</p>}
+          : <p className="text-sm text-[#8b97ab] py-10 text-center">輸入股票代號或名稱，整合月營收、季報、融資券、ETF 持有、事件、內部人與漲停紀錄。</p>}
     </div>
   );
 }

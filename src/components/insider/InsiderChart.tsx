@@ -10,7 +10,7 @@ export type Mode = "market" | "all";
 
 const W = 1000, PT = 16, PH = 300, GAP = 26, BH = 110, H = PT + PH + GAP + BH + 22, PL = 8, PR = 56;
 const TODAY = new Date().toISOString().slice(0, 10);
-const RED = "#ef4444", GREEN = "#22c55e";
+const RED = "#f05252", GREEN = "#22c55e";
 
 const ROLE_ORDER = ["董事長", "副董事長", "總經理", "董事", "監察人", "大股東", "副總經理", "協理", "經理", "財務", "會計"];
 const roleRank = (r: string) => {
@@ -111,19 +111,19 @@ export default function InsiderChart({ co, latest, mode }: { co: Company; latest
       <svg viewBox={`0 0 ${W} ${H}`} className="w-full min-w-[680px] h-auto select-none" onMouseLeave={() => setHover(null)}>
         {g.unrepX != null && g.unrepX < W - PR && (
           <g>
-            <rect x={g.unrepX} y={PT} width={W - PR - g.unrepX} height={PH + GAP + BH} fill="#1e2a3a" opacity={0.35} />
+            <rect x={g.unrepX} y={PT} width={W - PR - g.unrepX} height={PH + GAP + BH} fill="#243247" opacity={0.35} />
             <text x={(g.unrepX + W - PR) / 2} y={PT + 14} textAnchor="middle" fontSize={11} fill="#64748b">尚未申報</text>
           </g>
         )}
         {g.pTicks.map((p) => (
           <g key={p}>
-            <line x1={PL} x2={W - PR} y1={g.y(p)} y2={g.y(p)} stroke="#1e2a3a" strokeDasharray="2 4" />
+            <line x1={PL} x2={W - PR} y1={g.y(p)} y2={g.y(p)} stroke="#243247" strokeDasharray="2 4" />
             <text x={W - PR + 6} y={g.y(p) + 4} fontSize={11} fill="#64748b">{priceFmt(p)}</text>
           </g>
         ))}
         {g.ticks.map((t) => (
           <g key={t.x}>
-            <line x1={t.x} x2={t.x} y1={PT} y2={PT + PH + GAP + BH} stroke="#1e2a3a" opacity={0.6} />
+            <line x1={t.x} x2={t.x} y1={PT} y2={PT + PH + GAP + BH} stroke="#243247" opacity={0.6} />
             <text x={t.x + 3} y={H - 6} fontSize={11} fill="#64748b">{t.label}</text>
           </g>
         ))}
@@ -162,17 +162,17 @@ export default function InsiderChart({ co, latest, mode }: { co: Company; latest
           <rect key={`h${m.ym}`} x={m.mid - g.monthW / 2} y={PT} width={g.monthW} height={PH + GAP + BH} fill="transparent"
             onMouseEnter={() => setHover(m.ym)} onClick={() => setHover(m.ym)} />
         ))}
-        {hm && <line x1={hm.mid} x2={hm.mid} y1={PT} y2={PT + PH + GAP + BH} stroke="#00d4aa" strokeOpacity={0.4} />}
+        {hm && <line x1={hm.mid} x2={hm.mid} y1={PT} y2={PT + PH + GAP + BH} stroke="#4f8cff" strokeOpacity={0.4} />}
       </svg>
       </div>
       <div className="mt-1 min-h-[20px] text-xs text-slate-400 font-mono">
         {hm ? (
           <>
             {hm.ym.replace("-", "/")}　均價 {hm.avg ? priceFmt(hm.avg) : "—"}
-            <span className="text-[#ef4444]">買 {Math.round(hm.b / 1000).toLocaleString()} 張{hm.buyAmt ? `（${money(hm.buyAmt)}）` : ""}</span>
+            <span className="text-[#f05252]">買 {Math.round(hm.b / 1000).toLocaleString()} 張{hm.buyAmt ? `（${money(hm.buyAmt)}）` : ""}</span>
             <span className="text-[#22c55e]">賣 {Math.round(hm.s / 1000).toLocaleString()} 張{hm.sellAmt ? `（${money(hm.sellAmt)}）` : ""}</span>
           </>
-        ) : <span className="text-slate-600">滑鼠移到圖上看各月明細</span>}
+        ) : <span className="text-[#7c8aa0]">滑鼠移到圖上看各月明細</span>}
       </div>
     </div>
   );

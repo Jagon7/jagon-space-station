@@ -12,8 +12,8 @@ type Signals = { date: string; quotes: Record<string, [string, number, number | 
 type Index = Record<string, [string, string, string, number, number] | string>;
 type Cat = "all" | string;
 
-const CAT_STYLE: Record<number, string> = { 1: "bg-[#ef4444]/12 text-[#f87171] border-[#ef4444]/30", [-1]: "bg-[#22c55e]/12 text-[#4ade80] border-[#22c55e]/30", 0: "bg-slate-500/10 text-slate-300 border-slate-500/30" };
-const tone = (v: number | null | undefined) => (v == null || v === 0 ? "text-slate-400" : v > 0 ? "text-[#ef4444]" : "text-[#22c55e]");
+const CAT_STYLE: Record<number, string> = { 1: "bg-[#f05252]/12 text-[#f87171] border-[#f05252]/30", [-1]: "bg-[#22c55e]/12 text-[#4ade80] border-[#22c55e]/30", 0: "bg-slate-500/10 text-slate-300 border-slate-500/30" };
+const tone = (v: number | null | undefined) => (v == null || v === 0 ? "text-slate-400" : v > 0 ? "text-[#f05252]" : "text-[#22c55e]");
 
 function SigChips({ items }: { items: Sig[] }) {
   return (
@@ -61,30 +61,30 @@ export default function WatchlistDashboard() {
       <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
         <SearchBox placeholder="加入自選股，輸入代號或名稱" items={items} onPick={(c) => { if (!list.includes(c)) toggle(c); }} />
         {list.length > 0 && (
-          <div className="flex gap-3 text-xs text-slate-500">
-            <button onClick={copy} className="hover:text-[#00d4aa]">{copied ? "已複製 ✓" : "複製清單（給推播用）"}</button>
-            <button onClick={() => { if (confirm("清空自選股？")) save([]); }} className="hover:text-[#ef4444]">清空</button>
+          <div className="flex gap-3 text-xs text-[#8b97ab]">
+            <button onClick={copy} className="hover:text-[#4f8cff]">{copied ? "已複製 ✓" : "複製清單（給推播用）"}</button>
+            <button onClick={() => { if (confirm("清空自選股？")) save([]); }} className="hover:text-[#f05252]">清空</button>
           </div>
         )}
       </div>
 
       {!list.length ? (
-        <div className="rounded-xl border border-dashed border-[#1e2a3a] bg-[#0d1220] p-8 text-center mb-8">
-          <Star className="w-6 h-6 text-slate-600 mx-auto mb-2" />
+        <div className="rounded-xl border border-dashed border-[#243247] bg-[#0d1220] p-8 text-center mb-8">
+          <Star className="w-6 h-6 text-[#7c8aa0] mx-auto mb-2" />
           <p className="text-sm text-slate-400">還沒有自選股。用上面的搜尋加入，或在「個股查詢」頁按 ☆。</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-10">
           {watched.map(({ c, s, q, ix }) => (
-            <div key={c} className="rounded-xl border border-[#1e2a3a] bg-[#0d1220] p-4">
+            <div key={c} className="rounded-xl border border-[#243247] bg-[#0d1220] p-4">
               <div className="flex items-baseline gap-2 mb-2">
-                <Link href={`/search?code=${c}`} className="text-slate-100 font-semibold hover:text-[#00d4aa]">{name(c)}</Link>
-                <span className="font-mono text-xs text-slate-500">{c}</span>
+                <Link href={`/search?code=${c}`} className="text-slate-100 font-semibold hover:text-[#4f8cff]">{name(c)}</Link>
+                <span className="font-mono text-xs text-[#8b97ab]">{c}</span>
                 {q ? <><span className="font-mono text-sm text-slate-200 ml-2">{q[1]}</span><span className={`font-mono text-xs ${tone(q[2])}`}>{q[2] == null ? "" : `${q[2] > 0 ? "+" : ""}${q[2].toFixed(2)}%`}</span></>
                   : ix && <span className="font-mono text-sm text-slate-200 ml-2">{ix[3]}</span>}
-                <button onClick={() => toggle(c)} title="移除" className="ml-auto text-slate-600 hover:text-[#ef4444]"><X className="w-4 h-4" /></button>
+                <button onClick={() => toggle(c)} title="移除" className="ml-auto text-[#7c8aa0] hover:text-[#f05252]"><X className="w-4 h-4" /></button>
               </div>
-              {s.length ? <SigChips items={s} /> : <p className="text-xs text-slate-600">今天沒有特別的訊號。</p>}
+              {s.length ? <SigChips items={s} /> : <p className="text-xs text-[#7c8aa0]">今天沒有特別的訊號。</p>}
             </div>
           ))}
         </div>
@@ -94,15 +94,15 @@ export default function WatchlistDashboard() {
         <h3 className="text-sm font-semibold text-white mr-2">今天訊號最多的股票</h3>
         <Pills<Cat> value={cat} onChange={setCat} options={[{ value: "all", label: "全部" }, ...cats.map((x) => ({ value: x, label: x }))]} />
       </div>
-      <div className="rounded-xl border border-[#1e2a3a] bg-[#0d1220] divide-y divide-[#1e2a3a]/60">
+      <div className="rounded-xl border border-[#243247] bg-[#0d1220] divide-y divide-[#243247]/60">
         {hot.map(({ c, s }) => (
           <div key={c} className="flex flex-col sm:flex-row sm:items-start gap-2 px-4 py-3">
             <div className="flex items-center gap-2 sm:w-48 shrink-0">
-              <button onClick={() => toggle(c)} title={list.includes(c) ? "移出自選" : "加入自選"} className={list.includes(c) ? "text-[#f59e0b]" : "text-slate-600 hover:text-[#f59e0b]"}>
+              <button onClick={() => toggle(c)} title={list.includes(c) ? "移出自選" : "加入自選"} className={list.includes(c) ? "text-[#f59e0b]" : "text-[#7c8aa0] hover:text-[#f59e0b]"}>
                 <Star className="w-4 h-4" fill={list.includes(c) ? "currentColor" : "none"} />
               </button>
-              <Link href={`/search?code=${c}`} className="text-slate-200 hover:text-[#00d4aa]">{name(c)}</Link>
-              <span className="font-mono text-xs text-slate-500">{c}</span>
+              <Link href={`/search?code=${c}`} className="text-slate-200 hover:text-[#4f8cff]">{name(c)}</Link>
+              <span className="font-mono text-xs text-[#8b97ab]">{c}</span>
             </div>
             <SigChips items={s} />
           </div>

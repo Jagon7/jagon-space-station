@@ -32,32 +32,32 @@ export default async function SectorStocksPage({ params }: { params: Promise<{ n
       back="/sectors"
     >
       <div className="grid grid-cols-3 gap-3 mb-6">
-        <div className="rounded-xl border border-[#1e2a3a] bg-[#0d1220] p-4 text-center">
-          <div className={`text-2xl font-bold font-mono ${perf && perf.changePercent >= 0 ? "text-[#ef4444]" : "text-[#22c55e]"}`}>
+        <div className="rounded-xl border border-[#243247] bg-[#0d1220] p-4 text-center">
+          <div className={`text-2xl font-bold font-mono ${perf && perf.changePercent >= 0 ? "text-[#f05252]" : "text-[#22c55e]"}`}>
             {perf ? `${perf.changePercent >= 0 ? "+" : ""}${perf.changePercent.toFixed(2)}%` : "—"}
           </div>
-          <div className="text-[11px] text-slate-500 font-mono mt-1">族群指數漲跌</div>
+          <div className="text-[11px] text-[#8b97ab] font-mono mt-1">族群指數漲跌</div>
         </div>
-        <div className="rounded-xl border border-[#ef4444]/20 bg-[#ef4444]/5 p-4 text-center">
-          <div className="text-2xl font-bold font-mono text-[#ef4444]">{upCount}</div>
-          <div className="text-[11px] text-slate-500 font-mono mt-1">上漲檔數</div>
+        <div className="rounded-xl border border-[#f05252]/20 bg-[#f05252]/5 p-4 text-center">
+          <div className="text-2xl font-bold font-mono text-[#f05252]">{upCount}</div>
+          <div className="text-[11px] text-[#8b97ab] font-mono mt-1">上漲檔數</div>
         </div>
         <div className="rounded-xl border border-[#22c55e]/20 bg-[#22c55e]/5 p-4 text-center">
           <div className="text-2xl font-bold font-mono text-[#22c55e]">{downCount}</div>
-          <div className="text-[11px] text-slate-500 font-mono mt-1">下跌檔數</div>
+          <div className="text-[11px] text-[#8b97ab] font-mono mt-1">下跌檔數</div>
         </div>
       </div>
 
       {stocks.length === 0 ? (
-        <div className="rounded-xl border border-[#1e2a3a] bg-[#0d1220] p-8 text-center text-sm text-slate-600 font-mono">
+        <div className="rounded-xl border border-[#243247] bg-[#0d1220] p-8 text-center text-sm text-[#7c8aa0] font-mono">
           查無此族群資料，請等待 Actions 執行後重新整理
         </div>
       ) : (
-        <div className="rounded-xl border border-[#1e2a3a] bg-[#0d1220] overflow-hidden">
+        <div className="rounded-xl border border-[#243247] bg-[#0d1220] overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-[10px] font-mono text-slate-600 uppercase tracking-wider border-b border-[#1e2a3a]">
+                <tr className="text-[10px] font-mono text-[#7c8aa0] uppercase tracking-wider border-b border-[#243247]">
                   <th className="text-left px-4 py-3">股號</th>
                   <th className="text-left px-4 py-3">名稱</th>
                   <th className="text-center px-3 py-3">市場</th>
@@ -69,18 +69,18 @@ export default async function SectorStocksPage({ params }: { params: Promise<{ n
               <tbody>
                 {stocks.map((s) => {
                   const isUp = s.changePercent >= 0;
-                  const color = isUp ? "text-[#ef4444]" : "text-[#22c55e]";
+                  const color = isUp ? "text-[#f05252]" : "text-[#22c55e]";
                   const Icon = isUp ? TrendingUp : TrendingDown;
                   return (
                     <tr
                       key={s.code}
-                      className="border-b border-[#1e2a3a]/50 last:border-0 hover:bg-[#1e2a3a]/20 transition-colors"
+                      className="border-b border-[#243247]/50 last:border-0 hover:bg-[#243247]/20 transition-colors"
                     >
-                      <td className="px-4 py-3 font-mono text-slate-500 whitespace-nowrap">{s.code}</td>
+                      <td className="px-4 py-3 font-mono text-[#8b97ab] whitespace-nowrap">{s.code}</td>
                       <td className="px-4 py-3 text-slate-200 whitespace-nowrap">{s.name}</td>
                       <td className="px-3 py-3 text-center">
                         <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded ${
-                          s.market === "上市" ? "text-[#3b82f6] bg-[#3b82f6]/10" : "text-[#a78bfa] bg-[#a78bfa]/10"
+                          s.market === "上市" ? "text-[#38bdf8] bg-[#38bdf8]/10" : "text-[#a78bfa] bg-[#a78bfa]/10"
                         }`}>
                           {s.market}
                         </span>
@@ -106,7 +106,7 @@ export default async function SectorStocksPage({ params }: { params: Promise<{ n
         </div>
       )}
 
-      <div className="mt-6 pt-4 border-t border-[#1e2a3a] text-[10px] font-mono text-slate-700 text-center">
+      <div className="mt-6 pt-4 border-t border-[#243247] text-[10px] font-mono text-slate-700 text-center">
         資料來源：TWSE / TPEx 開放資料平台 · 僅供研究參考，不構成投資建議
       </div>
     </PageShell>
