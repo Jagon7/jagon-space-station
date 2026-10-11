@@ -155,6 +155,7 @@ function buildRows() {
     let lv = byLag(l, 1);
     const notes = [lagNote(l, 1)];
     if (st && !st.ok && st.error) { notes.push(`最近一次抓取失敗：${st.error}`); if (lv === "ok") lv = "warn"; }
+    else if (st?.ok && l != null && l > 1) notes.push("抓取成功，但投信網站上的資料日還沒更新");
     if (w != null && w > 0 && (w < 80 || w > 110)) { notes.push(`權重加總 ${w.toFixed(1)}%`); if (lv === "ok") lv = "warn"; }
     push({ level: lv, item: `ETF ${doc.code}`, name: `${doc.name}（${doc.issuer}）`, date: snap?.date ?? null, lag: l, count: snap?.h.length ?? 0, weight: w && w > 0 ? w : null, note: notes.filter(Boolean).join("；") });
   }
