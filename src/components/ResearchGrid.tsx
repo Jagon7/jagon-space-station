@@ -1,6 +1,6 @@
 import Link from "next/link";
 import {
-  TrendingUp, BarChart2, Shield, Radio, DollarSign,
+  TrendingUp, BarChart2, Shield, DollarSign,
   FileText, Calendar, ArrowDownUp, Zap, Activity,
   PieChart, Search, Layers, Ticket, Users,
   UserCheck,
@@ -122,13 +122,6 @@ const modules = [
     desc: "公司護盤動作即時偵測，信心買進信號精準標記",
     href: "/buyback",
     accent: "#f59e0b",
-  },
-  {
-    icon: Radio,
-    title: "情報截收站",
-    desc: "5 分鐘全頻掃描重大公告，零時差情報直達你的視線",
-    href: "/announcements",
-    accent: "#22c55e",
   },
   {
     icon: Search,
