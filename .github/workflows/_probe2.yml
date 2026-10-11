@@ -1,0 +1,25 @@
+name: probe-tdcc (temporary)
+on:
+  push:
+    branches: [claude/youthful-rubin-xo17ci]
+    paths: [.github/workflows/_probe2.yml]
+jobs:
+  p:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: |
+          pip install requests >/dev/null
+          python3 - <<'PY'
+          import re, sys
+          sys.path.insert(0, "scripts")
+          import fetch_holders as F
+          tok, dates = F.qry_session()
+          print("dates", dates[:4], len(dates))
+          r = F.S.post(F.QRY, data={"SYNCHRONIZER_TOKEN": tok, "SYNCHRONIZER_URI": "/portal/zh/smWeb/qryStock", "method": "submit", "firDate": dates[0], "scaDate": dates[3], "sqlMethod": "StockNo", "stockNo": "2330", "stockName": ""}, timeout=60)
+          s = r.text
+          i = s.find("持股分級")
+          print(re.sub(r"\s+", " ", s[i - 200:i + 3000]))
+          st = {"tok": tok, "first": dates[0]}
+          print("parsed", F.qry("2330", dates[3], st), F.qry("2454", dates[5], st))
+          PY
