@@ -16,6 +16,7 @@ const navItems: NavItem[] = [
       { label: "漲停訊號", href: "/limit-up" },
       { label: "隔日追蹤", href: "/next-day" },
       { label: "成交排行", href: "/ranking" },
+      { label: "技術選股", href: "/screener" },
       { label: "統計戰報", href: "/stats" },
       { label: "族群強弱", href: "/sectors" },
       { label: "產業細分類", href: "/industry" },
