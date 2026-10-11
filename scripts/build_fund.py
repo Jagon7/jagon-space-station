@@ -31,7 +31,11 @@ def pct(a, b):
 
 
 def ratio(a, b):
-    return round(a / b * 100, 2) if a is not None and b not in (None, 0) else None
+    """比率（%）；分母 ≤ 0 或結果離譜（單季營收太小、重編等）時不算"""
+    if a is None or b is None or b <= 0:
+        return None
+    r = a / b * 100
+    return round(r, 2) if abs(r) <= 300 else None
 
 
 def last_prices(data_dir: Path) -> dict[str, float]:
@@ -138,17 +142,18 @@ def build_selfreport(src: Path, out: Path):
         keys = sorted(k for k, v in docs.items() if v)
         if not keys:
             continue
-        latest = keys[-1]
-        rows = []
-        for c, v in docs[latest].items():
-            name, mk, op, ytd_op, pre, ytd_pre, note = v
-            ly = (f"{int(latest[:4]) - 1}{latest[4:]}")
-            lyv = docs.get(ly, {}).get(c)
-            hist = [[k, docs[k][c][4], docs[k][c][2]] for k in keys if c in docs[k]]
-            rows.append([c, name, mk, op, ytd_op, pre, ytd_pre, lyv[4] if lyv else None, lyv[5] if lyv else None, note, hist])
-        res[kind] = {"period": latest, "periods": keys, "rows": rows}
+        data = {}
+        for p in keys[-6:]:
+            rows = []
+            for c, v in docs[p].items():
+                name, mk, op, ytd_op, pre, ytd_pre, note = v
+                lyv = docs.get(f"{int(p[:4]) - 1}{p[4:]}", {}).get(c)
+                hist = [[k, docs[k][c][4], docs[k][c][2]] for k in keys if c in docs[k] and k <= p]
+                rows.append([c, name, mk, op, ytd_op, pre, ytd_pre, lyv[4] if lyv else None, lyv[5] if lyv else None, note, hist])
+            data[p] = rows
+        res[kind] = {"periods": keys[-6:][::-1], "data": data}
     _w(out / "selfreport.json", res)
-    print(f"  自結損益：月 {res.get('m', {}).get('period')}、季 {res.get('q', {}).get('period')}")
+    print(f"  自結損益：月 {res.get('m', {}).get('periods', [None])[0]}、季 {res.get('q', {}).get('periods', [None])[0]}")
 
 
 def build_buyback(src: Path, out: Path, prices: dict):

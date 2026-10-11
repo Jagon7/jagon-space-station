@@ -9,7 +9,7 @@ import { pf, tone } from "./RevenueDashboard";
 
 // [代號, 名稱, 市場, 當期營業損益, 累計營業損益, 當期稅前, 累計稅前, 去年同期稅前, 去年累計稅前, 說明, 歷史[[期, 稅前, 營業損益]]]
 type R = [string, string, string, number | null, number | null, number | null, number | null, number | null, number | null, string, [string, number | null, number | null][]];
-type Block = { period: string; periods: string[]; rows: R[] };
+type Block = { periods: string[]; data: Record<string, R[]> };
 type Kind = "m" | "q";
 
 const wan = (v: number | null | undefined) => (v == null ? "—" : Math.abs(v) >= 1e5 ? `${(v / 1e5).toFixed(2)}億` : `${Math.round(v / 10).toLocaleString()}萬`);
@@ -38,8 +38,10 @@ function Detail({ r }: { r: R }) {
 export default function SelfReportDashboard() {
   const { data, error } = useStaticJson<{ m?: Block; q?: Block }>("fund/selfreport.json");
   const [kind, setKind] = useState<Kind>("m");
+  const [period, setPeriod] = useState<string | null>(null);
   const block = data?.[kind];
-  const rows = useMemo(() => block?.rows ?? [], [block]);
+  const cur = period && block?.data[period] ? period : block?.periods[0] ?? "";
+  const rows = useMemo(() => block?.data[cur] ?? [], [block, cur]);
 
   if (!data) return <div className="py-16 text-center text-sm text-slate-500 font-mono">{error ? "資料載入失敗" : "載入中…"}</div>;
   if (!data.m && !data.q) return <Empty>自結損益資料累積中。</Empty>;
@@ -62,21 +64,28 @@ export default function SelfReportDashboard() {
         金額是稅前損益與營業損益（金融業沒有營業損益）。點一列看近 2 年每期稅前損益。
       </Note>
       <div className="mb-4">
-        <Pills<Kind> value={kind} onChange={setKind} options={[
-          ...(data.m ? [{ value: "m" as Kind, label: `月申報（${label(data.m.period)}）` }] : []),
-          ...(data.q ? [{ value: "q" as Kind, label: `季申報（${label(data.q.period)}）` }] : []),
-        ]} />
+        <div className="flex flex-wrap items-center gap-3">
+          <Pills<Kind> value={kind} onChange={(v) => { setKind(v); setPeriod(null); }} options={[
+            ...(data.m ? [{ value: "m" as Kind, label: "月申報" }] : []),
+            ...(data.q ? [{ value: "q" as Kind, label: "季申報" }] : []),
+          ]} />
+          {block && (
+            <select value={cur} onChange={(e) => setPeriod(e.target.value)} className="rounded-lg border border-[#1e2a3a] bg-[#0d1220] px-3 py-2 text-sm text-slate-300 font-mono">
+              {block.periods.map((p) => <option key={p} value={p}>{label(p)}（{block.data[p].length} 家）</option>)}
+            </select>
+          )}
+        </div>
       </div>
       {block && (
         <KpiRow>
-          <Kpi label="資料期間" value={label(block.period)} sub={`${rows.length} 家公告`} />
+          <Kpi label="資料期間" value={label(cur)} sub={`${rows.length} 家公告`} />
           <Kpi label="稅前較去年同期成長" value={rows.filter((r) => (growth(r[5], r[7]) ?? 0) > 0).length} unit="家" color="text-[#ef4444]" />
           <Kpi label="稅前虧損" value={rows.filter((r) => (r[5] ?? 0) < 0).length} unit="家" color="text-[#22c55e]" />
           <Kpi label="有說明差異原因" value={rows.filter((r) => r[9]).length} unit="家" />
         </KpiRow>
       )}
       {!rows.length ? <Empty>這期沒有公司公告自結損益。</Empty> :
-        <ExpandTable<R> key={kind} rows={rows} columns={cols} rowKey={(r) => r[0]} detail={(r) => <Detail r={r} />} initialSort={{ key: "pre", desc: true }} />}
+        <ExpandTable<R> key={`${kind}${cur}`} rows={rows} columns={cols} rowKey={(r) => r[0]} detail={(r) => <Detail r={r} />} initialSort={{ key: "pre", desc: true }} />}
     </div>
   );
 }

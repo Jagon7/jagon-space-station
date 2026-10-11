@@ -87,11 +87,11 @@ export default function RevenueDashboard() {
         <Kpi label="年增 ≥ 20%" value={all.filter((r) => (r[6] ?? -1) >= 20).length} unit="家" />
       </KpiRow>
       <div className="flex flex-col lg:flex-row lg:items-center gap-3 mb-3">
-        <Pills<Filter> value={filter} onChange={(v) => { setFilter(v); setOnly(null); }} options={[
+        <div className="shrink-0"><Pills<Filter> value={filter} onChange={(v) => { setFilter(v); setOnly(null); }} options={[
           { value: "all", label: "全部" }, { value: "high", label: "創新高" }, { value: "yoy20", label: "年增 ≥ 20%" },
           { value: "streak", label: "連續年增 ≥ 6 個月" }, { value: "down", label: "年減" },
-        ]} />
-        <select value={ind} onChange={(e) => { setInd(e.target.value); setOnly(null); }} className="rounded-lg border border-[#1e2a3a] bg-[#0d1220] px-3 py-2 text-sm text-slate-300">
+        ]} /></div>
+        <select value={ind} onChange={(e) => { setInd(e.target.value); setOnly(null); }} className="lg:w-44 rounded-lg border border-[#1e2a3a] bg-[#0d1220] px-3 py-2 text-sm text-slate-300">
           <option value="">全部產業</option>
           {industries.map((x) => <option key={x} value={x}>{x}</option>)}
         </select>

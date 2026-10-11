@@ -104,6 +104,25 @@ function buildRows() {
     push({ level: !mDay || !Object.keys(mDay.s).length ? "warn" : byLag(ml, 1, 2), item: "籌碼", name: "借券賣出餘額", date: mDay?.date ?? null, lag: ml, count: mDay ? Object.keys(mDay.s).length : 0, note: mDay && !Object.keys(mDay.s).length ? "這天沒有借券資料" : "" });
   }
 
+  // ── 基礎情報（月營收、季報、自結、庫藏股、事件） ──
+  {
+    const now = tpeNow();
+    const rev = list("fund/revenue").map((f) => f.replace(".json", ""));
+    // 每月 10 日公布上個月營收；12 日以後應該要有上個月
+    const dueRev = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - (now.getUTCDate() >= 12 ? 1 : 2), 1)).toISOString().slice(0, 7);
+    const revN = rev.length ? Object.keys(read<Record<string, unknown>>(`fund/revenue/${rev.at(-1)}.json`) ?? {}).length : 0;
+    push({ level: rev.at(-1) && rev.at(-1)! >= dueRev ? "ok" : "warn", item: "基本面", name: "月營收", date: rev.at(-1) ?? null, count: revN, note: rev.at(-1) && rev.at(-1)! >= dueRev ? `共 ${rev.length} 個月` : `應已有 ${dueRev}` });
+    const inc = list("fund/income").map((f) => f.replace(".json", "")).sort();
+    push({ level: inc.length ? "ok" : "error", item: "基本面", name: "季報（綜合損益）", date: inc.at(-1) ?? null, count: inc.length ? Object.keys(read<Record<string, unknown>>(`fund/income/${inc.at(-1)}.json`) ?? {}).length : 0, note: `共 ${inc.length} 季` });
+    const sr = list("fund/selfreport").map((f) => f.replace(".json", "")).filter((f) => f.includes("-")).sort();
+    push({ level: sr.length ? "ok" : "warn", item: "基本面", name: "自結損益（月）", date: sr.at(-1) ?? null, count: sr.length ? Object.keys(read<Record<string, unknown>>(`fund/selfreport/${sr.at(-1)}.json`) ?? {}).length : 0, note: "" });
+    const ev = read<{ updatedAt: string; exdiv: unknown[]; agm: unknown[]; conf: unknown[] }>("fund/events.json");
+    const el = lag(ev?.updatedAt?.slice(0, 10) ?? null);
+    push({ level: byLag(el, 1, 3), item: "基本面", name: "除權息／股東會／法說會", date: ev?.updatedAt?.slice(0, 10) ?? null, lag: el, count: ev ? ev.exdiv.length + ev.agm.length + ev.conf.length : 0, note: ev ? `除權息 ${ev.exdiv.length}、股東會 ${ev.agm.length}、法說會 ${ev.conf.length}` : "" });
+    const bb = read<unknown[]>("fund/buyback.json");
+    push({ level: bb?.length ? "ok" : "warn", item: "基本面", name: "庫藏股", date: null, count: bb?.length ?? 0, note: "近 2 年決議" });
+  }
+
   // ── 週期性資料 ───────────────────────────────────
   const cb = read<{ updatedAt: string; cases: unknown[] }>("cb/cases.json");
   const cbLag = lag(cb?.updatedAt?.slice(0, 10) ?? null);

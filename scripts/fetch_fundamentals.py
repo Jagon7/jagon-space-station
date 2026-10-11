@@ -319,8 +319,8 @@ def events():
         log(f"✗ 上櫃除權息：{e}")
 
     # 股東會：[日期, 代號, 名稱, 市場, 常會/臨時會, 地點]
-    for url, label in (("https://openapi.twse.com.tw/v1/opendata/t187ap38_L", "上市"),
-                       ("https://www.tpex.org.tw/openapi/v1/mopsfin_t187ap38_O", "上櫃")):
+    for url, label in (("https://openapi.twse.com.tw/v1/opendata/t187ap41_L", "上市"),
+                       ("https://www.tpex.org.tw/openapi/v1/t187ap41_O", "上櫃")):
         try:
             for r in json.loads(fetch("GET", url)):
                 vals = {k: str(v) for k, v in r.items()}
