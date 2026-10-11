@@ -1,0 +1,29 @@
+name: probe-empty (temporary)
+on:
+  push:
+    branches: [claude/youthful-rubin-xo17ci]
+    paths: [.github/workflows/_probe.yml]
+jobs:
+  p:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: |
+          cat > p.py <<'PY'
+          import re, json, requests
+          UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/128.0 Safari/537.36"
+          S = requests.Session(); S.headers["User-Agent"] = UA
+          for (y, m, d, rep) in [("115","10","07","OY"), ("115","10","09","SY"), ("115","09","25","SY")]:
+              r = S.post("https://mopsov.twse.com.tw/mops/web/ajax_t56sb12", data={"step": "2", "year": y, "month": m, "day": d, "report": rep, "firstin": "true"}, headers={"Referer": "https://mopsov.twse.com.tw/mops/web/t56sb12_q1"}, timeout=60)
+              t = re.sub(r"<script.*?</script>", "", r.content.decode("utf-8", "replace"), flags=re.S)
+              print("=====", y, m, d, rep, r.status_code, len(t)); print(re.sub(r"\s+", " ", t)[:1500])
+          import sys; sys.path.insert(0, "scripts")
+          import fetch_insider as F, glob
+          todo = []
+          irb = {p[-12:-5]: json.load(open(p)) for p in glob.glob("data/insider/irb/*.json")}
+          miss = [c for c in irb["2026-07"] if not __import__("os").path.exists(f"data/insider/co/{c}.json") or "2026-06" not in json.load(open(f"data/insider/co/{c}.json"))["m"]]
+          print("missing 2026-06:", len(miss), miss[:40])
+          for c in miss[:3]:
+              print(c, json.dumps(F.post("query6_1", {"companyId": c, "dataType": "2", "subsidiaryCompanyId": "", "year": "115", "month": "6"}), ensure_ascii=False)[:400])
+          PY
+          pip install requests >/dev/null && python3 p.py
