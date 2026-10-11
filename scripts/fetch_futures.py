@@ -101,7 +101,7 @@ def _pc(rng, db):
 
 
 def _oi(rng, db):
-    for cid, key in (("MTX", "mtxOI"), ("TXF", "txfOI")):
+    for cid, key in (("MTX", "mtxOI"), ("TX", "txfOI")):  # 行情檔的台指期代碼是 TX
         tot: dict[str, float] = {}
         px: dict[str, tuple[str, float]] = {}
         for r in down("futDataDown", {**rng, "down_type": "1", "commodity_id": cid}):
@@ -119,10 +119,23 @@ def _oi(rng, db):
                 px[d] = (month, c)  # 最近月
         for d, v in tot.items():
             db.setdefault(d, {})[key] = v
-        if cid == "TXF":
+        if cid == "TX":
             for d, (_, c) in px.items():
                 db.setdefault(d, {})["px"] = c
         time.sleep(3)
+
+
+def last_trading_day() -> date:
+    """查詢迄日不能超過最後一個交易日，否則期交所回錯誤頁"""
+    holidays = set()
+    cal = DATA_DIR / "calendar.json"
+    if cal.exists():
+        holidays = set(json.loads(cal.read_text(encoding="utf-8")).get("holidays", []))
+    now = datetime.now(TPE)
+    d = now.date() if now.hour >= 15 else now.date() - timedelta(days=1)
+    while d.weekday() >= 5 or d.isoformat() in holidays:
+        d -= timedelta(days=1)
+    return d
 
 
 def main():
@@ -130,14 +143,14 @@ def main():
     ap.add_argument("--months", type=int, default=7)
     a = ap.parse_args()
     db = json.loads(OUT.read_text(encoding="utf-8")) if OUT.exists() else {}
-    today = datetime.now(TPE).date()
+    today = last_trading_day()
     have_months = {k[:7] for k in db}
     spans = []
     end = today
     for i in range(a.months):
         start = end.replace(day=1)
         if i == 0 or start.strftime("%Y-%m") not in have_months or not all(
-                db[k].get("txo") and db[k].get("mtx") and db[k].get("pc") for k in db if k.startswith(start.strftime("%Y-%m"))):
+                db[k].get("txo") and db[k].get("mtx") and db[k].get("pc") and db[k].get("px") for k in db if k.startswith(start.strftime("%Y-%m"))):
             spans.append((start, end))
         end = start - timedelta(days=1)
     if spans and spans[0][0] > today - timedelta(days=10):  # 月初時也重抓上個月底

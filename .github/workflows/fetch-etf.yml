@@ -60,6 +60,15 @@ jobs:
         env:
           JSS_DATA_DIR: ./data
 
+      - name: Fetch institutional investors, futures, TDCC holders
+        run: |
+          python3 scripts/fetch_institutional.py --days 10 --minutes 8 || true
+          python3 scripts/fetch_futures.py --months 2 || true
+          python3 scripts/fetch_holders.py --weeks 12 --top 300 --minutes 8 || true
+        continue-on-error: true
+        env:
+          JSS_DATA_DIR: ./data
+
       - name: Fetch insider shareholding changes
         run: python3 scripts/fetch_insider.py --minutes 15
         continue-on-error: true
@@ -75,7 +84,7 @@ jobs:
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email 'github-actions[bot]@users.noreply.github.com'
-          git add data/etf/ data/cb/ data/broker/ data/insider/ data/daily/
+          git add data/etf/ data/cb/ data/broker/ data/insider/ data/daily/ data/insti/ data/futures/ data/holders/
           git add data/calendar.json 2>/dev/null || true
           if git diff --staged --quiet; then
             echo "No data changes to commit"

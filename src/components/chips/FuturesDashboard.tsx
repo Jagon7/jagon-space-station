@@ -52,7 +52,7 @@ export default function FuturesDashboard() {
             <ComposedChart data={chart} margin={{ top: 5, right: 0, bottom: 0, left: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#1e2a3a" vertical={false} />
               <XAxis dataKey="d" tickFormatter={md} {...ax} minTickGap={24} />
-              <YAxis yAxisId="f" {...ax} />
+              <YAxis yAxisId="f" domain={[(lo: number) => Math.min(0, lo), (hi: number) => Math.max(0, hi)]} {...ax} />
               <YAxis yAxisId="p" orientation="right" domain={["auto", "auto"]} {...ax} />
               <Tooltip {...tip} formatter={(v, n) => [typeof v === "number" ? v.toLocaleString() : String(v), n === "f" ? "外資淨未平倉（口）" : "台指期"]} />
               <ReferenceLine yAxisId="f" y={0} stroke="#334155" />
