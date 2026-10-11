@@ -69,7 +69,7 @@ const modules = [
     desc: "融券餘額消長追蹤，軋空潛力股即時浮現",
     href: "/short",
     accent: "#f59e0b",
-    badge: "20:08",
+    badge: "21:30",
   },
   {
     icon: Shield,

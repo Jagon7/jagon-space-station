@@ -12,7 +12,7 @@ const navItems: NavItem[] = [
   {
     label: "即時戰情",
     children: [
-      { label: "氣氛評估", href: "/atmosphere",  badge: "16:45" },
+      { label: "氣氛評估", href: "/atmosphere",  badge: "18:50" },
       { label: "漲停訊號", href: "/limit-up" },
       { label: "隔日追蹤", href: "/next-day" },
       { label: "成交排行", href: "/ranking" },
@@ -35,7 +35,7 @@ const navItems: NavItem[] = [
   {
     label: "籌碼雷達",
     children: [
-      { label: "券差偵測", href: "/short",       badge: "20:08" },
+      { label: "券差偵察", href: "/short",       badge: "21:30" },
       { label: "處置預警",      href: "/disposition",  badge: "19:00" },
       { label: "分點買賣超",     href: "/broker",       badge: "21:30" },
       { label: "內部人持股異動", href: "/insider" },
