@@ -38,6 +38,9 @@ const navItems: NavItem[] = [
     children: [
       { label: "券差偵察", href: "/short",       badge: "21:30" },
       { label: "處置預警",      href: "/disposition",  badge: "19:00" },
+      { label: "三大法人",       href: "/institutional" },
+      { label: "期貨選擇權",     href: "/futures" },
+      { label: "大戶持股",       href: "/holders" },
       { label: "分點買賣超",     href: "/broker",       badge: "21:30" },
       { label: "內部人持股異動", href: "/insider" },
       { label: "ETF 持股",       href: "/etf-flow",     badge: "21:30" },
