@@ -1,0 +1,232 @@
+
+
+
+<html>
+<head>
+	<title>公開資訊觀測站</title>
+	
+	
+	<link href="css/css2.css" rel="stylesheet" type="text/css" Media="Screen"/> 
+	
+	<script type="text/javascript" src="js/mops2.js"></script>
+	
+	
+	
+</head>
+
+<body>
+
+
+<div id="div01" >
+<table class='noBorder' ><tr><td class='reportName'>上市公司買回自己公司股份彙總統計表</td></tr></table>
+<table class='noBorder' align='right'>
+<tr><td align='right'>
+<form action='/server-java/t56ques' method='post'>
+<input type='hidden' name='step' value='0'>
+<input type='hidden' name='Market' value='sii'>
+<input type='hidden' name='SysName' value='公司彙總報表'>
+<input type='hidden' name='reportName' value='買回自己公司股份彙總統計表'>
+<input type='hidden' name='colorchg' value=''>
+<input type='hidden' name='progName' value='t35sc09'>
+<input type='hidden' name='QNum' value='3'>
+<input type='hidden' name='Q1N' value='董事會決議起日'>
+<input type='hidden' name='Q1V' value='115/09/01'>
+<input type='hidden' name='Q2N' value='董事會決議迄日'>
+<input type='hidden' name='Q2V' value='115/10/10'>
+<input type='hidden' name='Q3N' value='排序別'>
+<input type='hidden' name='Q3V' value='以董事決議日期排序'>
+</table></form><br>
+<form action='/mops/web/ajax_t35sc09' method='post' onsubmit='return false;' name='fm'>
+<input type='hidden' name='firstin' value='true'>
+<input type='hidden' name='step' value='10'>
+<input type='hidden' name='filename' value='t35sc09_20261011_103248813.csv'>
+<table class='noBorder' align='center' width='100%'><tr><td align='left'><button style='background-color:transparent;border:0;cursor:pointer;text-decoration:underline;' onclick="action='/server-java/t105sb02';submit();"><img src='images/bu_03.gif' hspace='3' ></button></td></tr></table>
+</form>
+<form name='fm_t35sc09' action='/mops/web/ajax_t35sb01' method='post' onsubmit='return false;'>
+<input type='hidden' name='colorchg' value='1'>
+<input type='hidden' name='step' value='2'>
+<input type='hidden' name='TYPEK' value='sii'>
+<input type='hidden' name='co_id'>
+<input type='hidden' name='firstin' value='true' />
+<table class='noBorder' width='95%'>
+<tr ><td align='left' >日期：115/09/01~115/10/10</td><td align='right' >出表日：115/10/11</td></tr>
+</table>
+<table class='hasBorder' width='95%'><tr class='tblHead'><th nowrap rowspan='2' >序<br>號</th><th nowrap rowspan='2' >公司<br>代號</th><th nowrap rowspan='2' >公司<br>名稱</th><th nowrap rowspan='2' >董事會<br>決議日期</th><th nowrap rowspan='2' >買回<br>目的</th><th nowrap rowspan='2' >買回股份總金額上限<br><font color='red'>(依最新財報計算<br>之法定上限)</font></th><th nowrap rowspan='2' >預定買回股數</th><th nowrap colspan='2' >買回價格區間</th><th nowrap colspan='2' >預定買回期間</th><th nowrap rowspan='2' >是否<br>執行<br>完畢</th><th nowrap rowspan='2' >買回達<br>一定標<br>準資料</th><th nowrap rowspan='2' >本次已買回<br>股數<br><font color='red'>(空白為尚<br>在執行中)</font></th><th nowrap rowspan='2' >本次執行完畢<br>已註銷或<br>轉讓股數</th><th nowrap rowspan='2' >本次已買回<br>股數佔預定<br>買回股數比<br>例(%)<br><font color='red'>(空白為尚<br>在執行中)</font></th><th nowrap rowspan='2' >本次已買回<br>總金額<br><font color='red'>(空白為尚<br>在執行中)</font></th><th nowrap rowspan='2' >本次平均<br>每股買回<br>價格<br><font color='red'>(空白為尚<br>在執行中)</font></th><th nowrap rowspan='2' >本次買回股<br>數佔公司已<br>發行股份總<br>數比例(%)<br><font color='red'>(空白為尚<br>在執行中)</font></th><th nowrap rowspan='2' >本次未執行<br>完畢之原因</th></tr><tr class='tblHead'><th nowrap >最低</th><th nowrap >最高</th><th nowrap >起</th><th nowrap >迄</th></tr>
+<tr class= 'even' align='center'>
+<td align='center'>1</td>
+<td align='center'>6655</td>
+<td align='center' nowrap>科定</td><td align='center'>115/09/03</td>
+<td align='center'>3</td>
+<td align='right'>        670,456,301</td>
+<td align='right'>            400,000</td>
+<td align='right'>         79.80</td>
+<td align='right'>        175.58</td>
+<td align='center'>115/09/04</td>
+<td align='center'>115/11/02</td>
+<td align='center'>N</td>
+<td>
+<input type='button' value='查詢' onclick='document.fm_t35sc09.co_id.value = "6655";ajax1(this.form,"table01");'/>
+</td>
+<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>
+<td align='center'></td>
+</tr>
+<tr class= 'odd' align='center'>
+<td align='center'>2</td>
+<td align='center'>1437</td>
+<td align='center' nowrap>勤益控</td><td align='center'>115/09/11</td>
+<td align='center'>1</td>
+<td align='right'>      3,336,234,084</td>
+<td align='right'>            750,000</td>
+<td align='right'>         22.50</td>
+<td align='right'>         36.00</td>
+<td align='center'>115/09/11</td>
+<td align='center'>115/11/10</td>
+<td align='center'>Y</td>
+<td>
+<input type='button' value='查詢' onclick='document.fm_t35sc09.co_id.value = "1437";ajax1(this.form,"table01");'/>
+</td>
+<td align='right'>            750,000</td>
+<td>&nbsp;</td>
+<td align='right'>        100.00</td>
+<td align='right'>         24,246,401</td>
+<td align='right'>         32.33</td>
+<td align='right'>          0.37</td>
+<td align='center'></td>
+</tr>
+<tr class= 'even' align='center'>
+<td align='center'>3</td>
+<td align='center'>4588</td>
+<td align='center' nowrap>玖鼎電力</td><td align='center'>115/09/11</td>
+<td align='center'>1</td>
+<td align='right'>        299,959,410</td>
+<td align='right'>          1,000,000</td>
+<td align='right'>         50.00</td>
+<td align='right'>         75.00</td>
+<td align='center'>115/09/14</td>
+<td align='center'>115/11/10</td>
+<td align='center'>N</td>
+<td>
+<input type='button' value='查詢' onclick='document.fm_t35sc09.co_id.value = "4588";ajax1(this.form,"table01");'/>
+</td>
+<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>
+<td align='center'></td>
+</tr>
+<tr class= 'odd' align='center'>
+<td align='center'>4</td>
+<td align='center'>2023</td>
+<td align='center' nowrap>燁輝</td><td align='center'>115/09/29</td>
+<td align='center'>3</td>
+<td align='right'>      6,492,888,140</td>
+<td align='right'>         15,000,000</td>
+<td align='right'>         13.00</td>
+<td align='right'>         15.50</td>
+<td align='center'>115/09/30</td>
+<td align='center'>115/11/28</td>
+<td align='center'>N</td>
+<td>
+<input type='button' value='查詢' onclick='document.fm_t35sc09.co_id.value = "2023";ajax1(this.form,"table01");'/>
+</td>
+<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>
+<td align='center'></td>
+</tr>
+</table>
+<table class='noBorder' width='95%'>
+<tr><td align='left' nowrap>家數合計：4家</td></tr>
+<tr><td align='left' nowrap>件數合計：4件</td></tr>
+<tr><td align='left'>各產業別實施庫藏股統計件數：（依件數由大到小排序）<br>
+其他類：2件
+、
+其他電子業類：1件
+、
+鋼鐵工業類：1件
+<br>總計：4件
+<tr><td align='left' nowrap>買回目的統計件數：<br>(1)轉讓股份予員工：2件　(2)股權轉換：0件　(3)維護公司信用及股東權益：2件</td></tr>
+<tr><td align='left' nowrap>已期限屆滿或執行完畢或終止執行之件數：1件</td></tr>
+<tr><td align='left' nowrap>兩次以上買回申請之家數：0家</td></tr>
+<tr><td align='left' nowrap>申請實施庫藏股家數占總上市家數之百分比：0.37%</td></tr>
+<tr><td align='left' nowrap>申請買回股數最多前五名公司：<br>
+(1)燁輝                                 15,000,000股
+(2)玖鼎電力                                  1,000,000股
+(3)勤益控                                    750,000股
+(4)科定                                    400,000股
+</td></tr>
+</td></tr></table>
+</form>
+<div class='note' style='color:red'>以上資料均由各公司輸入後，由本系統對外公佈，資料如有虛偽不實或錯誤，概由該公司負責</div>
+<form action='/mops/web/ajax_t35sc09' method='post' onsubmit='return false;' name='fm1'>
+<input type='hidden' name='firstin' value='true'>
+<input type='hidden' name='step' value='10'>
+<input type='hidden' name='filename' value='t35sc09_20261011_103248813.csv'>
+<table class='noBorder' align='center' width='100%'><tr><td align='left'><button style='background-color:transparent;border:0;cursor:pointer;text-decoration:underline;' onclick="action='/server-java/t105sb02';submit();"><img src='images/bu_03.gif' hspace='3' ></button></td></tr></table>
+</form>
+
+</div>
+
+
+</body>
+
+
+
+<script>
+	try {
+		if(!document.querySelector('#table01')){
+			var table01 = document.createElement("div");
+			table01.id = "table01"; 
+			document.body.appendChild(table01);
+			if(document.querySelector("#div01")){
+				table01.appendChild(div01);
+			};
+		};
+
+		if (document.autoForm!=null && document.autoForm!=undefined && document.autoForm.run.value==''){
+			ajax1(document.autoForm,'div01');
+			document.querySelector('form[name=autoForm]').remove();
+		};
+
+		if (document.autoForm1!=null && document.autoForm1!=undefined && document.autoForm1.run.value==''){
+			ajax1(document.autoForm1,'div01');
+			document.querySelector('form[name=autoForm1]').remove();
+		};
+
+		if (document.autoRunScript!=null && document.autoRunScript!=undefined && document.autoRunScript.run!=null && document.autoRunScript.run.value!=''){
+			let s = document.autoRunScript.run.value;
+			let script = document.createElement("script");
+
+			script.innerText = s;
+			document.body.appendChild(script);
+			document.querySelector('form[name=autoRunScript] > input[name=run]').remove();
+		};
+
+		if (document.autoRunScript1!=null && document.autoRunScript1!=undefined){
+			if (document.autoRunScript1.count!=null && document.autoRunScript1.count!=undefined && document.autoRunScript1.count.value!=''){
+				var count = parseInt(document.autoRunScript1.count.value);
+				for (var i=0;i<count;i++){
+					var run = eval("document.autoRunScript1.run"+i);
+					if (run!=null && run!=undefined && run.value!=''){
+						var s = run.value;
+
+						var script = document.createElement("script");
+						script.textContent = s;
+						document.querySelector("body").appendChild(script);
+
+						run.remove();
+					};
+				};
+			}else if (document.autoRunScript1.run!=null && document.autoRunScript1.run!=undefined && document.autoRunScript1.run.value!=''){
+				var s = document.autoRunScript1.run.value;
+				s = htmlEncode(s);
+				var script = document.createElement("script");
+				script.textContent = s;
+				document.querySelector("body").appendChild(script);
+
+				document.querySelector('form[name=autoRunScript1] > input[name=run]').remove();
+			};
+		};
+	} catch (error) {
+		console.error("Script Error:", error);
+	};
+</script>
+
+
+
+</html>
