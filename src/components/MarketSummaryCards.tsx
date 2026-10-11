@@ -1,4 +1,4 @@
-import { TrendingUp, Users, AlertTriangle, Radio, ShieldAlert, ArrowRight } from "lucide-react";
+import { TrendingUp, Users, AlertTriangle, ShieldAlert, ArrowRight } from "lucide-react";
 
 function daysRemaining(endDate: string): number {
   const today = new Date(); today.setHours(0, 0, 0, 0);
@@ -6,14 +6,13 @@ function daysRemaining(endDate: string): number {
   return Math.round((end.getTime() - today.getTime()) / 86400000);
 }
 import Link from "next/link";
-import type { LimitUpStock, NoticeStock, DispositionStock, Announcement, SectorPerformance } from "@/lib/types";
+import type { LimitUpStock, NoticeStock, DispositionStock, SectorPerformance } from "@/lib/types";
 
 type Props = {
   stocks:            LimitUpStock[];
   sectorPerformance: SectorPerformance[];
   notice:            NoticeStock[];
   disposition:       DispositionStock[];
-  announcements:     Announcement[];
   updatedAt:         string;
 };
 
@@ -34,7 +33,7 @@ function CardHeader({ icon: Icon, title, href, badge, iconColor = "text-[#00d4aa
   );
 }
 
-export default function MarketSummaryCards({ stocks, sectorPerformance, notice, disposition, announcements, updatedAt }: Props) {
+export default function MarketSummaryCards({ stocks, sectorPerformance, notice, disposition, updatedAt }: Props) {
   const updatedTime = new Date(updatedAt).toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" });
   const displayDate = new Date(updatedAt).toLocaleDateString("zh-TW", { year: "numeric", month: "2-digit", day: "2-digit" });
   const topStocks   = stocks.slice(0, 5);
@@ -171,30 +170,6 @@ export default function MarketSummaryCards({ stocks, sectorPerformance, notice, 
             </div>
           ) : (
             <p className="text-xs text-slate-600 font-mono py-4 text-center">目前無處置股</p>
-          )}
-        </div>
-
-        {/* 情報截收 — 全寬 */}
-        <div className="md:col-span-2 rounded-xl border border-[#1e2a3a] bg-[#0d1220] p-5 card-hover">
-          <CardHeader icon={Radio} title="情報截收站" href="/announcements" badge="5 分鐘掃頻" />
-          {announcements.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8">
-              {announcements.slice(0, 6).map((a, i) => (
-                <div key={i} className="flex items-start gap-3 py-2 border-b border-[#1e2a3a]/50 last:border-0 sm:[&:nth-last-child(2)]:border-0">
-                  <span className="font-mono text-xs text-slate-600 w-10 flex-shrink-0 mt-0.5">{a.time}</span>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="font-mono text-xs text-slate-500">{a.code}</span>
-                      <span className="text-sm text-slate-200 truncate">{a.name}</span>
-                      {a.important && <span className="flex-shrink-0 w-1.5 h-1.5 rounded-full bg-[#ef4444] animate-pulse" />}
-                    </div>
-                    <span className={`text-xs mt-0.5 inline-block ${a.important ? "text-[#f59e0b]" : "text-slate-500"}`}>{a.type}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-xs text-slate-600 font-mono py-2 text-center">公告資料待接 MOPS API</p>
           )}
         </div>
 
