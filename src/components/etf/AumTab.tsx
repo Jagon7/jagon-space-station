@@ -26,9 +26,9 @@ export default function AumTab({ aum, onEtf }: { aum: AumData; onEtf: (code: str
       render: (r) => (
         <span className="inline-flex items-center gap-2">
           <span className="text-slate-200">{r[1]}</span>
-          <span className="font-mono text-xs text-slate-500">{r[0]}</span>
+          <span className="font-mono text-xs text-[#8b97ab]">{r[0]}</span>
           {r[11] && (
-            <button onClick={() => onEtf(r[0])} className="text-[10px] px-1.5 rounded border border-[#00d4aa]/40 text-[#00d4aa] hover:bg-[#00d4aa]/10">持股</button>
+            <button onClick={() => onEtf(r[0])} className="text-[10px] px-1.5 rounded border border-[#4f8cff]/40 text-[#4f8cff] hover:bg-[#4f8cff]/10">持股</button>
           )}
         </span>
       ),
@@ -39,7 +39,7 @@ export default function AumTab({ aum, onEtf }: { aum: AumData; onEtf: (code: str
       render: (r) => (
         <div>
           <div className="text-slate-200">{fmtMoney(r[3])}</div>
-          <div className="text-[10px] text-slate-600">佔{cat === "全部" ? "全體" : "此類"} {total ? ((r[3] / total) * 100).toFixed(2) : 0}%</div>
+          <div className="text-[10px] text-[#7c8aa0]">佔{cat === "全部" ? "全體" : "此類"} {total ? ((r[3] / total) * 100).toFixed(2) : 0}%</div>
         </div>
       ),
     },

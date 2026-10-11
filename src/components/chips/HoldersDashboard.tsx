@@ -11,25 +11,25 @@ type R = [string, string, number, number, number | null, number | null, number, 
 type View = "up" | "down" | "concentrate" | "all";
 
 const pp = (v: number | null | undefined) => (v == null ? "—" : `${v > 0 ? "+" : ""}${v.toFixed(2)}`);
-const tone = (v: number | null | undefined) => (v == null || v === 0 ? "text-slate-500" : v > 0 ? "text-[#ef4444]" : "text-[#22c55e]");
+const tone = (v: number | null | undefined) => (v == null || v === 0 ? "text-[#8b97ab]" : v > 0 ? "text-[#f05252]" : "text-[#22c55e]");
 const md = (d: string) => `${Number(d.slice(5, 7))}/${Number(d.slice(8, 10))}`;
 
 function Detail({ code }: { code: string }) {
   const { data, error } = useStaticJson<[string, number, number, number, number][]>(`chips/holders/${code}.json`);
-  if (!data) return <div className="py-8 text-center text-xs text-slate-500">{error ? "只有一週資料，下週起可看變化" : "載入中…"}</div>;
+  if (!data) return <div className="py-8 text-center text-xs text-[#8b97ab]">{error ? "只有一週資料，下週起可看變化" : "載入中…"}</div>;
   const rows = data.map(([d, p, a, b, c]) => ({ d, p, a, b, c }));
   return (
     <ResponsiveContainer width="100%" height={230}>
       <ComposedChart data={rows} margin={{ top: 5, right: 0, bottom: 0, left: -5 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#1e2a3a" vertical={false} />
+        <CartesianGrid strokeDasharray="3 3" stroke="#243247" vertical={false} />
         <XAxis dataKey="d" tickFormatter={md} tick={{ fill: "#475569", fontSize: 11 }} axisLine={false} tickLine={false} />
         <YAxis yAxisId="pct" unit="%" domain={["auto", "auto"]} tick={{ fill: "#475569", fontSize: 11 }} axisLine={false} tickLine={false} />
         <YAxis yAxisId="n" orientation="right" domain={["auto", "auto"]} tick={{ fill: "#475569", fontSize: 11 }} axisLine={false} tickLine={false} />
-        <Tooltip contentStyle={{ background: "#0d1220", border: "1px solid #1e2a3a", fontSize: 12 }} labelStyle={{ color: "#94a3b8" }}
+        <Tooltip contentStyle={{ background: "#0d1220", border: "1px solid #243247", fontSize: 12 }} labelStyle={{ color: "#94a3b8" }}
           formatter={(v, n) => [typeof v === "number" ? (n === "股東人數" ? v.toLocaleString() : `${v.toFixed(2)}%`) : String(v), String(n)]} />
         <Legend formatter={(v) => <span className="text-xs text-slate-400">{v}</span>} />
         <Bar yAxisId="n" dataKey="p" name="股東人數" fill="#475569" fillOpacity={0.5} />
-        <Line yAxisId="pct" dataKey="a" name="千張大戶" stroke="#ef4444" strokeWidth={2} dot />
+        <Line yAxisId="pct" dataKey="a" name="千張大戶" stroke="#f05252" strokeWidth={2} dot />
         <Line yAxisId="pct" dataKey="b" name="400 張以上" stroke="#f59e0b" strokeWidth={1.5} dot={false} />
         <Line yAxisId="pct" dataKey="c" name="50 張以下" stroke="#22c55e" strokeWidth={1.5} dot={false} />
       </ComposedChart>
@@ -51,7 +51,7 @@ export default function HoldersDashboard() {
     return rs.filter((r) => (r[5] ?? 0) > 0 && (r[9] ?? 0) < 0);
   }, [data, view, only, multi]);
 
-  if (!data) return <div className="py-16 text-center text-sm text-slate-500 font-mono">{error ? "資料載入失敗" : "載入中…"}</div>;
+  if (!data) return <div className="py-16 text-center text-sm text-[#8b97ab] font-mono">{error ? "資料載入失敗" : "載入中…"}</div>;
   if (!data.rows.length) return <Empty>集保資料累積中。</Empty>;
 
   const cols: XColumn<R>[] = [
@@ -74,7 +74,7 @@ export default function HoldersDashboard() {
       </Note>
       <KpiRow>
         <Kpi label="資料週" value={md(data.week)} sub={`共 ${data.weeks.length} 週`} />
-        <Kpi label="千張大戶週增加" value={multi ? data.rows.filter((r) => (r[4] ?? 0) > 0).length : "—"} unit="檔" color="text-[#ef4444]" />
+        <Kpi label="千張大戶週增加" value={multi ? data.rows.filter((r) => (r[4] ?? 0) > 0).length : "—"} unit="檔" color="text-[#f05252]" />
         <Kpi label="千張大戶週減少" value={multi ? data.rows.filter((r) => (r[4] ?? 0) < 0).length : "—"} unit="檔" color="text-[#22c55e]" />
         <Kpi label="籌碼集中（4 週）" value={multi ? data.rows.filter((r) => (r[5] ?? 0) > 0 && (r[9] ?? 0) < 0).length : "—"} unit="檔" color="text-[#f59e0b]" />
       </KpiRow>
@@ -82,7 +82,7 @@ export default function HoldersDashboard() {
         {multi && <Pills<View> value={view} onChange={(v) => { setView(v); setOnly(null); }} options={[{ value: "up", label: "大戶增加" }, { value: "down", label: "大戶減少" }, { value: "concentrate", label: "籌碼集中" }, { value: "all", label: "全部" }]} />}
         <div className="ml-auto"><SearchBox placeholder="查個股" items={data.rows.map((r) => ({ code: r[0], name: r[1] }))} onPick={setOnly} /></div>
       </div>
-      {only && <button onClick={() => setOnly(null)} className="mb-2 text-xs text-slate-500 hover:text-[#00d4aa]">← 回到列表</button>}
+      {only && <button onClick={() => setOnly(null)} className="mb-2 text-xs text-[#8b97ab] hover:text-[#4f8cff]">← 回到列表</button>}
       {!rows.length ? <Empty>沒有符合條件的股票。</Empty> :
         <ExpandTable<R> key={`${view}${only}`} rows={rows} columns={cols} rowKey={(r) => r[0]} detail={(r) => <Detail code={r[0]} />}
           initialSort={{ key: !multi ? "p1000" : view === "down" ? "w1" : view === "concentrate" ? "w4" : "w1", desc: view !== "down" }} />}

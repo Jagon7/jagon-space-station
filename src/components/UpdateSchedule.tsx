@@ -5,9 +5,9 @@ const schedule = [
     time: "16:45",
     label: "漲停訊號 & 氣氛評估",
     desc: "收盤後即時整理全市場漲停名單，解析族群輪動與氣氛強弱評分",
-    color: "#00d4aa",
-    dot: "bg-[#00d4aa]",
-    dotBorder: "border-[#00d4aa]",
+    color: "#4f8cff",
+    dot: "bg-[#4f8cff]",
+    dotBorder: "border-[#4f8cff]",
   },
   {
     time: "19:00",
@@ -21,9 +21,9 @@ const schedule = [
     time: "20:08",
     label: "券差資料同步",
     desc: "更新融券餘額差異，解讀籌碼鬆緊，偵察潛在軋空動能",
-    color: "#3b82f6",
-    dot: "bg-[#3b82f6]",
-    dotBorder: "border-[#3b82f6]",
+    color: "#38bdf8",
+    dot: "bg-[#38bdf8]",
+    dotBorder: "border-[#38bdf8]",
   },
   {
     time: "21:30",
@@ -47,15 +47,15 @@ export default function UpdateSchedule() {
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-14">
       <div className="mb-6 flex items-center gap-2">
-        <Clock className="w-4 h-4 text-[#00d4aa]" />
+        <Clock className="w-4 h-4 text-[#4f8cff]" />
         <div>
-          <p className="text-[10px] font-mono text-slate-600 tracking-[0.25em] uppercase mb-0.5">Mission Timeline</p>
+          <p className="text-[10px] font-mono text-[#7c8aa0] tracking-[0.25em] uppercase mb-0.5">Mission Timeline</p>
           <h2 className="text-lg font-bold text-white">每日情報入站節奏</h2>
         </div>
       </div>
 
       <div className="relative">
-        <div className="hidden md:block absolute left-[88px] top-4 bottom-4 w-px bg-gradient-to-b from-[#00d4aa]/40 via-[#3b82f6]/20 to-transparent" />
+        <div className="hidden md:block absolute left-[88px] top-4 bottom-4 w-px bg-gradient-to-b from-[#4f8cff]/40 via-[#38bdf8]/20 to-transparent" />
 
         <div className="space-y-3">
           {schedule.map((item, i) => (
@@ -73,7 +73,7 @@ export default function UpdateSchedule() {
                 />
               </div>
 
-              <div className="flex-1 rounded-xl border border-[#1e2a3a] bg-[#0d1220] p-4 card-hover">
+              <div className="flex-1 rounded-xl border border-[#243247] bg-[#0d1220] p-4 card-hover">
                 <div className="flex items-start gap-3">
                   <div className="md:hidden w-10 flex-shrink-0">
                     <span className="text-xs font-mono font-bold" style={{ color: item.color }}>
@@ -82,7 +82,7 @@ export default function UpdateSchedule() {
                   </div>
                   <div>
                     <div className="text-sm font-semibold text-white">{item.label}</div>
-                    <div className="text-xs text-slate-500 mt-0.5 leading-relaxed">{item.desc}</div>
+                    <div className="text-xs text-[#8b97ab] mt-0.5 leading-relaxed">{item.desc}</div>
                   </div>
                 </div>
               </div>

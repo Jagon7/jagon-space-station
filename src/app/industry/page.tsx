@@ -31,13 +31,13 @@ export default function IndustryPage() {
       badge="Industry Chain"
       back="/sectors"
     >
-      <div className="mb-6 text-xs text-slate-500">
-        官方類股的漲跌排行見 <Link href="/sectors" className="text-[#00d4aa] hover:underline">族群強弱</Link>。
+      <div className="mb-6 text-xs text-[#8b97ab]">
+        官方類股的漲跌排行見 <Link href="/sectors" className="text-[#4f8cff] hover:underline">族群強弱</Link>。
       </div>
       {chain ? (
         <IndustryDashboard industries={chain.industries} quotes={quotes} names={chain.names} priceDate={day?.date ?? null} updatedAt={chain.updatedAt} />
       ) : (
-        <div className="rounded-xl border border-dashed border-[#1e2a3a] py-12 text-center text-sm text-slate-500">產業分類資料尚未產生。</div>
+        <div className="rounded-xl border border-dashed border-[#243247] py-12 text-center text-sm text-[#8b97ab]">產業分類資料尚未產生。</div>
       )}
     </PageShell>
   );

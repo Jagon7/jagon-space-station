@@ -9,7 +9,7 @@ export default function BrokerPage() {
       badge="Broker Branches"
     >
       <BrokerDashboard />
-      <p className="mt-10 text-[11px] text-slate-600">
+      <p className="mt-10 text-[11px] text-[#7c8aa0]">
         資料來源：富邦證券網站分點進出明細（MoneyDJ），每個分點每日只列買超、賣超前 50 名。追蹤分點清單在 scripts/fetch_broker.py 的 BRANCHES。
         本頁資訊僅供參考，不構成任何投資建議。
       </p>

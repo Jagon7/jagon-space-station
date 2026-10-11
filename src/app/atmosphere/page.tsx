@@ -9,7 +9,7 @@ export default function Page() {
       badge="Market Atmosphere"
     >
       <AtmosphereDashboard />
-      <p className="mt-10 text-[11px] leading-relaxed text-slate-600">
+      <p className="mt-10 text-[11px] leading-relaxed text-[#7c8aa0]">
         資料來源：臺灣證券交易所、證券櫃檯買賣中心每日收盤行情與融資融券餘額。分數是相對過去約半年的百分位，僅供參考，不構成任何投資建議。
       </p>
     </PageShell>

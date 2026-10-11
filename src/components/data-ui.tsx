@@ -8,11 +8,11 @@ export function Kpi({ label, value, unit, sub, color = "text-white" }: {
 }) {
   return (
     <div className="px-5 py-4">
-      <div className="text-[11px] text-slate-500 mb-1.5">{label}</div>
+      <div className="text-[11px] text-[#8b97ab] mb-1.5">{label}</div>
       <div className={`font-mono text-2xl font-bold ${color}`}>
         {value}
-        {unit && <span className="text-xs font-normal text-slate-500 ml-1">{unit}</span>}
-        {sub && <span className="text-xs font-normal text-slate-500 ml-1.5">{sub}</span>}
+        {unit && <span className="text-xs font-normal text-[#8b97ab] ml-1">{unit}</span>}
+        {sub && <span className="text-xs font-normal text-[#8b97ab] ml-1.5">{sub}</span>}
       </div>
     </div>
   );
@@ -20,7 +20,7 @@ export function Kpi({ label, value, unit, sub, color = "text-white" }: {
 
 export function KpiRow({ children }: { children: React.ReactNode }) {
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-y lg:divide-y-0 divide-[#1e2a3a] rounded-xl border border-[#1e2a3a] bg-[#0d1220] mb-6 overflow-hidden">
+    <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-y lg:divide-y-0 divide-[#243247] rounded-xl border border-[#243247] bg-[#0d1220] mb-6 overflow-hidden">
       {children}
     </div>
   );
@@ -30,13 +30,13 @@ export function Pills<T extends string>({ value, options, onChange }: {
   value: T; options: { value: T; label: string }[]; onChange: (v: T) => void;
 }) {
   return (
-    <div className="inline-flex rounded-lg border border-[#1e2a3a] bg-[#0d1220] p-0.5">
+    <div className="inline-flex rounded-lg border border-[#243247] bg-[#0d1220] p-0.5">
       {options.map((o) => (
         <button
           key={o.value}
           onClick={() => onChange(o.value)}
           className={`px-3 py-1 text-xs rounded-md transition-colors ${
-            value === o.value ? "bg-[#00d4aa]/15 text-[#00d4aa]" : "text-slate-400 hover:text-slate-200"
+            value === o.value ? "bg-[#4f8cff]/15 text-[#4f8cff]" : "text-slate-400 hover:text-slate-200"
           }`}
         >
           {o.label}
@@ -50,7 +50,7 @@ export function KindBadge({ k }: { k: "A" | "P" }) {
   return k === "A" ? (
     <span className="text-[10px] px-1.5 py-px rounded border border-[#f59e0b]/40 text-[#f59e0b] bg-[#f59e0b]/10">主動</span>
   ) : (
-    <span className="text-[10px] px-1.5 py-px rounded border border-slate-600/50 text-slate-500">被動</span>
+    <span className="text-[10px] px-1.5 py-px rounded border border-slate-600/50 text-[#8b97ab]">被動</span>
   );
 }
 
@@ -77,7 +77,7 @@ export function SearchBox({ placeholder, items, onPick, initial = "" }: {
 
   return (
     <div className="relative w-full sm:w-80">
-      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8b97ab]" />
       <input
         value={q}
         onChange={(e) => { setQ(e.target.value); setOpen(true); }}
@@ -91,19 +91,19 @@ export function SearchBox({ placeholder, items, onPick, initial = "" }: {
           }
         }}
         placeholder={placeholder}
-        className="w-full rounded-lg border border-[#1e2a3a] bg-[#0d1220] pl-9 pr-3 py-2 text-sm text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-[#00d4aa]/60"
+        className="w-full rounded-lg border border-[#243247] bg-[#0d1220] pl-9 pr-3 py-2 text-sm text-slate-200 placeholder:text-[#7c8aa0] focus:outline-none focus:border-[#4f8cff]/60"
       />
       {open && matches.length > 0 && (
-        <div className="absolute z-30 mt-1 w-full rounded-lg border border-[#1e2a3a] bg-[#0d1220] shadow-xl overflow-hidden">
+        <div className="absolute z-30 mt-1 w-full rounded-lg border border-[#243247] bg-[#0d1220] shadow-xl overflow-hidden">
           {matches.map((m) => (
             <button
               key={m.code}
               onMouseDown={(e) => { e.preventDefault(); pick(m.code); }}
-              className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm hover:bg-[#1e2a3a]"
+              className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm hover:bg-[#243247]"
             >
               <span className="text-slate-200">{m.name}</span>
-              <span className="font-mono text-xs text-slate-500">{m.code}</span>
-              {m.hint && <span className="ml-auto text-[11px] text-slate-500">{m.hint}</span>}
+              <span className="font-mono text-xs text-[#8b97ab]">{m.code}</span>
+              {m.hint && <span className="ml-auto text-[11px] text-[#8b97ab]">{m.hint}</span>}
             </button>
           ))}
         </div>
@@ -143,11 +143,11 @@ export function SortTable<R>({ rows, columns, initialSort, rowKey, limit, onRowC
   const shown = limit && !showAll ? sorted.slice(0, limit) : sorted;
 
   return (
-    <div className="rounded-xl border border-[#1e2a3a] bg-[#0d1220] overflow-hidden">
+    <div className="rounded-xl border border-[#243247] bg-[#0d1220] overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-[#1e2a3a] text-[11px] text-slate-500">
+            <tr className="border-b border-[#243247] text-[11px] text-[#8b97ab]">
               {rank && <th className="pl-4 py-3 font-normal text-left w-8">#</th>}
               {columns.map((c) => {
                 const active = sort?.key === c.key;
@@ -158,7 +158,7 @@ export function SortTable<R>({ rows, columns, initialSort, rowKey, limit, onRowC
                     onClick={() => c.sort && setSort({ key: c.key, desc: active ? !sort!.desc : true })}
                     className={`px-4 py-3 font-normal whitespace-nowrap ${c.align === "right" ? "text-right" : "text-left"} ${
                       c.sort ? "cursor-pointer select-none hover:text-slate-300" : ""
-                    } ${active ? "text-[#00d4aa]" : ""}`}
+                    } ${active ? "text-[#4f8cff]" : ""}`}
                   >
                     <span className="inline-flex items-center gap-1">
                       {c.label}
@@ -174,9 +174,9 @@ export function SortTable<R>({ rows, columns, initialSort, rowKey, limit, onRowC
               <tr
                 key={rowKey(r)}
                 onClick={onRowClick ? () => onRowClick(r) : undefined}
-                className={`border-b border-[#1e2a3a]/60 last:border-0 hover:bg-[#111a2c] ${onRowClick ? "cursor-pointer" : ""}`}
+                className={`border-b border-[#243247]/60 last:border-0 hover:bg-[#111a2c] ${onRowClick ? "cursor-pointer" : ""}`}
               >
-                {rank && <td className="pl-4 py-2.5 font-mono text-xs text-slate-600">{i + 1}</td>}
+                {rank && <td className="pl-4 py-2.5 font-mono text-xs text-[#7c8aa0]">{i + 1}</td>}
                 {columns.map((c) => (
                   <td key={c.key} className={`px-4 py-2.5 whitespace-nowrap ${c.align === "right" ? "text-right font-mono" : ""} ${c.className ?? ""}`}>
                     {c.render(r)}
@@ -190,7 +190,7 @@ export function SortTable<R>({ rows, columns, initialSort, rowKey, limit, onRowC
       {limit && sorted.length > limit && (
         <button
           onClick={() => setShowAll(!showAll)}
-          className="w-full py-2.5 text-xs text-slate-500 hover:text-[#00d4aa] border-t border-[#1e2a3a]"
+          className="w-full py-2.5 text-xs text-[#8b97ab] hover:text-[#4f8cff] border-t border-[#243247]"
         >
           {showAll ? "收合" : `顯示全部 ${sorted.length} 筆`}
         </button>
@@ -201,10 +201,10 @@ export function SortTable<R>({ rows, columns, initialSort, rowKey, limit, onRowC
 
 export function Empty({ children }: { children: React.ReactNode }) {
   return (
-    <div className="rounded-xl border border-dashed border-[#1e2a3a] py-12 text-center text-sm text-slate-500">{children}</div>
+    <div className="rounded-xl border border-dashed border-[#243247] py-12 text-center text-sm text-[#8b97ab]">{children}</div>
   );
 }
 
 export function Note({ children }: { children: React.ReactNode }) {
-  return <p className="text-xs leading-relaxed text-slate-500 mb-5 max-w-4xl">{children}</p>;
+  return <p className="text-xs leading-relaxed text-[#8b97ab] mb-5 max-w-4xl">{children}</p>;
 }

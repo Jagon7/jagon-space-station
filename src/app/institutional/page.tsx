@@ -9,7 +9,7 @@ export default function Page() {
       badge="Institutional Investors"
     >
       <InstitutionalDashboard />
-      <p className="mt-10 text-[11px] leading-relaxed text-slate-600">
+      <p className="mt-10 text-[11px] leading-relaxed text-[#7c8aa0]">
         資料來源：臺灣證券交易所三大法人買賣超日報、證券櫃檯買賣中心三大法人買賣明細。本頁資訊僅供參考，不構成任何投資建議。
       </p>
     </PageShell>

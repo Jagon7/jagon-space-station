@@ -22,20 +22,20 @@ const yi = (v: number) => (v >= 1e12 ? `${(v / 1e12).toFixed(2)}兆` : `${Math.r
 
 function Changes({ r, onStock }: { r: Row; onStock: (code: string) => void }) {
   if (!r.add) return null;
-  if (!r.add.length && !r.del?.length) return <div className="mt-2 text-[11px] text-slate-500">定審結果：成分股無異動</div>;
+  if (!r.add.length && !r.del?.length) return <div className="mt-2 text-[11px] text-[#8b97ab]">定審結果：成分股無異動</div>;
   const list = (label: string, xs: [string, string][], cls: string) => xs.length > 0 && (
     <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1 text-xs">
       <span className={`shrink-0 ${cls}`}>{label}（{xs.length}）</span>
       {xs.map(([code, name]) => (
-        <button key={code} onClick={() => onStock(code)} className="text-slate-300 hover:text-[#00d4aa]">
-          {name}<span className="font-mono text-slate-500 ml-0.5">{code}</span>
+        <button key={code} onClick={() => onStock(code)} className="text-slate-300 hover:text-[#4f8cff]">
+          {name}<span className="font-mono text-[#8b97ab] ml-0.5">{code}</span>
         </button>
       ))}
     </div>
   );
   return (
     <div className="mt-2 space-y-1">
-      {list("納入", r.add, "text-[#ef4444]")}
+      {list("納入", r.add, "text-[#f05252]")}
       {list("刪除", r.del ?? [], "text-[#22c55e]")}
     </div>
   );
@@ -79,7 +79,7 @@ export default function ScheduleTab({ data, onEtf, onStock }: { data: ScheduleDa
         <Pills<When> value={when} onChange={setWhen} options={[{ value: "upcoming", label: "即將公告" }, { value: "past", label: "已公告" }]} />
         <Pills<Prov> value={prov} onChange={setProv} options={[{ value: "all", label: "全部" }, { value: "臺灣指數公司", label: "臺灣指數公司" }, { value: "MSCI", label: "MSCI" }]} />
         <label className="inline-flex items-center gap-1.5 text-xs text-slate-400 cursor-pointer">
-          <input type="checkbox" checked={onlyEtf} onChange={(e) => setOnlyEtf(e.target.checked)} className="accent-[#00d4aa]" />
+          <input type="checkbox" checked={onlyEtf} onChange={(e) => setOnlyEtf(e.target.checked)} className="accent-[#4f8cff]" />
           只看有 ETF 追蹤的指數
         </label>
       </div>
@@ -90,17 +90,17 @@ export default function ScheduleTab({ data, onEtf, onStock }: { data: ScheduleDa
             const eff = [...new Set(rs.map((r) => r.effective))];
             const n = days(today, d);
             return (
-              <div key={d} className="rounded-xl border border-[#1e2a3a] bg-[#0d1220] overflow-hidden">
-                <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1 px-5 py-3 border-b border-[#1e2a3a]">
+              <div key={d} className="rounded-xl border border-[#243247] bg-[#0d1220] overflow-hidden">
+                <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1 px-5 py-3 border-b border-[#243247]">
                   <span className="font-mono text-white">{fmtDate(d)} 收盤後公告</span>
-                  <span className="text-xs text-slate-500">生效日 {eff.map(fmtDate).join("、")}</span>
-                  <span className={`ml-auto text-xs font-mono ${n >= 0 ? "text-[#00d4aa]" : "text-slate-500"}`}>{n === 0 ? "今天" : n > 0 ? `${n} 天後` : `${-n} 天前`}</span>
+                  <span className="text-xs text-[#8b97ab]">生效日 {eff.map(fmtDate).join("、")}</span>
+                  <span className={`ml-auto text-xs font-mono ${n >= 0 ? "text-[#4f8cff]" : "text-[#8b97ab]"}`}>{n === 0 ? "今天" : n > 0 ? `${n} 天後` : `${-n} 天前`}</span>
                 </div>
                 {rs.map((r) => (
-                  <div key={r.index + r.announce} className="px-5 py-3 border-b border-[#1e2a3a]/50 last:border-0">
+                  <div key={r.index + r.announce} className="px-5 py-3 border-b border-[#243247]/50 last:border-0">
                     <div className="flex items-center gap-2 text-sm text-slate-200">
                       {r.index}
-                      <span className="text-[10px] px-1.5 rounded border border-slate-700 text-slate-500">{r.provider}</span>
+                      <span className="text-[10px] px-1.5 rounded border border-slate-700 text-[#8b97ab]">{r.provider}</span>
                     </div>
                     <Changes r={r} onStock={onStock} />
                     {r.etfs.length > 0 && (
@@ -111,9 +111,9 @@ export default function ScheduleTab({ data, onEtf, onStock }: { data: ScheduleDa
                             disabled={!tracked}
                             onClick={() => onEtf(code)}
                             title={tracked ? "查看持股變化" : "此 ETF 未追蹤持股"}
-                            className={`text-[11px] px-2 py-0.5 rounded border ${tracked ? "border-[#00d4aa]/40 text-slate-200 hover:bg-[#00d4aa]/10" : "border-[#1e2a3a] text-slate-500 cursor-default"}`}
+                            className={`text-[11px] px-2 py-0.5 rounded border ${tracked ? "border-[#4f8cff]/40 text-slate-200 hover:bg-[#4f8cff]/10" : "border-[#243247] text-[#8b97ab] cursor-default"}`}
                           >
-                            <span className="font-mono">{code}</span> {name}{aum > 0 && <span className="text-slate-500"> · {yi(aum)}</span>}
+                            <span className="font-mono">{code}</span> {name}{aum > 0 && <span className="text-[#8b97ab]"> · {yi(aum)}</span>}
                           </button>
                         ))}
                       </div>

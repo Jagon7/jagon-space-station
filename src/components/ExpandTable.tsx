@@ -35,18 +35,18 @@ export default function ExpandTable<R>({ rows, columns, rowKey, detail, initialS
   const shown = all ? sorted : sorted.slice(0, limit);
 
   return (
-    <div className="rounded-xl border border-[#1e2a3a] bg-[#0d1220] overflow-hidden">
+    <div className="rounded-xl border border-[#243247] bg-[#0d1220] overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full text-sm whitespace-nowrap">
           <thead>
-            <tr className="border-b border-[#1e2a3a] text-[11px] text-slate-500">
+            <tr className="border-b border-[#243247] text-[11px] text-[#8b97ab]">
               <th className="pl-4 py-2.5 font-normal text-left w-8">#</th>
               {columns.map((c) => {
                 const active = sort?.key === c.key;
                 const Icon = !c.sort ? null : !active ? ChevronsUpDown : sort!.desc ? ChevronDown : ChevronUp;
                 return (
                   <th key={c.key} onClick={() => c.sort && setSort({ key: c.key, desc: active ? !sort!.desc : true })}
-                    className={`px-3 py-2.5 font-normal ${c.align === "right" ? "text-right" : "text-left"} ${c.sort ? "cursor-pointer select-none hover:text-slate-300" : ""} ${active ? "text-[#00d4aa]" : ""}`}>
+                    className={`px-3 py-2.5 font-normal ${c.align === "right" ? "text-right" : "text-left"} ${c.sort ? "cursor-pointer select-none hover:text-slate-300" : ""} ${active ? "text-[#4f8cff]" : ""}`}>
                     <span className="inline-flex items-center gap-1">{c.label}{Icon && <Icon className="w-3 h-3 opacity-70" />}</span>
                   </th>
                 );
@@ -59,16 +59,16 @@ export default function ExpandTable<R>({ rows, columns, rowKey, detail, initialS
               const isOpen = open === k;
               return (
                 <Fragment key={k}>
-                  <tr onClick={() => setOpen(isOpen ? null : k)} className={`border-b border-[#1e2a3a]/60 cursor-pointer hover:bg-[#111a2c] ${isOpen ? "bg-[#0a0f1a]" : ""}`}>
-                    <td className="pl-4 py-2 text-xs text-slate-600">
-                      <span className="inline-flex items-center gap-1">{isOpen ? <ChevronDown className="w-3.5 h-3.5 text-[#00d4aa]" /> : <ChevronRight className="w-3.5 h-3.5" />}{i + 1}</span>
+                  <tr onClick={() => setOpen(isOpen ? null : k)} className={`border-b border-[#243247]/60 cursor-pointer hover:bg-[#111a2c] ${isOpen ? "bg-[#0a0f1a]" : ""}`}>
+                    <td className="pl-4 py-2 text-xs text-[#7c8aa0]">
+                      <span className="inline-flex items-center gap-1">{isOpen ? <ChevronDown className="w-3.5 h-3.5 text-[#4f8cff]" /> : <ChevronRight className="w-3.5 h-3.5" />}{i + 1}</span>
                     </td>
                     {columns.map((c) => (
                       <td key={c.key} className={`px-3 py-2 ${c.align === "right" ? "text-right font-mono" : ""}`}>{c.render(r)}</td>
                     ))}
                   </tr>
                   {isOpen && (
-                    <tr className="border-b border-[#1e2a3a]/60 bg-[#0a0f1a]">
+                    <tr className="border-b border-[#243247]/60 bg-[#0a0f1a]">
                       <td colSpan={columns.length + 1} className="px-4 py-3 whitespace-normal">{detail(r)}</td>
                     </tr>
                   )}
@@ -79,7 +79,7 @@ export default function ExpandTable<R>({ rows, columns, rowKey, detail, initialS
         </table>
       </div>
       {sorted.length > limit && (
-        <button onClick={() => setAll(!all)} className="w-full py-2.5 text-xs text-slate-500 hover:text-[#00d4aa] border-t border-[#1e2a3a]">
+        <button onClick={() => setAll(!all)} className="w-full py-2.5 text-xs text-[#8b97ab] hover:text-[#4f8cff] border-t border-[#243247]">
           {all ? "收合" : `顯示全部 ${sorted.length} 筆`}
         </button>
       )}
@@ -91,8 +91,8 @@ export function StockCell({ code, name, mk }: { code: string; name: string; mk?:
   return (
     <span>
       <span className="text-slate-200">{name}</span>
-      <span className="ml-1.5 font-mono text-xs text-slate-500">{code}</span>
-      {mk === "上櫃" && <span className="ml-1 text-[10px] text-slate-600">櫃</span>}
+      <span className="ml-1.5 font-mono text-xs text-[#8b97ab]">{code}</span>
+      {mk === "上櫃" && <span className="ml-1 text-[10px] text-[#7c8aa0]">櫃</span>}
     </span>
   );
 }

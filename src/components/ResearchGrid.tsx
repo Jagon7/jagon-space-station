@@ -19,14 +19,14 @@ const modules = [
     title: "技術選股",
     desc: "站上月線季線、多頭排列、爆量、突破整理、創新高，訊號可複選",
     href: "/screener",
-    accent: "#00d4aa",
+    accent: "#4f8cff",
   },
   {
     icon: Landmark,
     title: "三大法人",
     desc: "外資、投信、自營商個股買賣超，連續買超、土洋同買與對作",
     href: "/institutional",
-    accent: "#3b82f6",
+    accent: "#38bdf8",
   },
   {
     icon: LineChart,
@@ -40,28 +40,28 @@ const modules = [
     title: "大戶持股",
     desc: "集保千張大戶與散戶比例每週變化，找籌碼集中的股票",
     href: "/holders",
-    accent: "#ef4444",
+    accent: "#f05252",
   },
   {
     icon: TrendingUp,
     title: "漲停訊號鎖定",
     desc: "精確捕捉每日強勢股，族群分類與漲停時間分布一覽無遺",
     href: "/limit-up",
-    accent: "#00d4aa",
+    accent: "#4f8cff",
   },
   {
     icon: Activity,
     title: "隔日績效追蹤",
     desc: "漲停股隔日開高走低 vs 續強的歷史勝率統計，數據說話",
     href: "/next-day",
-    accent: "#3b82f6",
+    accent: "#38bdf8",
   },
   {
     icon: ArrowDownUp,
     title: "成交排行",
     desc: "上市櫃個股與 ETF 依成交金額排序，看今天的錢流向哪些股票、哪些族群",
     href: "/ranking",
-    accent: "#00d4aa",
+    accent: "#4f8cff",
   },
   {
     icon: Layers,
@@ -82,7 +82,7 @@ const modules = [
     title: "重點分點追蹤",
     desc: "每天追蹤 10 個指定券商分點的買賣超，近 N 日累積進出與個股逐日明細",
     href: "/broker",
-    accent: "#ef4444",
+    accent: "#f05252",
   },
   {
     icon: UserCheck,
@@ -111,7 +111,7 @@ const modules = [
     title: "處置威脅評估",
     desc: "量化處置機率，提前預警潛在管制名單，守住每一道防線",
     href: "/disposition",
-    accent: "#ef4444",
+    accent: "#f05252",
     badge: "19:00",
   },
   {
@@ -135,14 +135,14 @@ const modules = [
     title: "自結盈餘情報",
     desc: "上市櫃自行公布盈餘數據彙整，先市場一步掌握獲利動向",
     href: "/eps",
-    accent: "#00d4aa",
+    accent: "#4f8cff",
   },
   {
     icon: FileText,
     title: "季報偵查站",
     desc: "EPS 成長率篩選、季報公布時程掌握，業績行情不錯失",
     href: "/quarterly",
-    accent: "#3b82f6",
+    accent: "#38bdf8",
   },
   {
     icon: Calendar,
@@ -163,7 +163,7 @@ const modules = [
     title: "個股情報查詢",
     desc: "輸入股號或名稱，整合站內所有偵測資料，一鍵全覽",
     href: "/search",
-    accent: "#00d4aa",
+    accent: "#4f8cff",
   },
 ];
 
@@ -171,9 +171,9 @@ export default function ResearchGrid() {
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
       <div className="mb-6">
-        <p className="text-[10px] font-mono text-slate-600 tracking-[0.25em] uppercase mb-1">Mission Modules</p>
+        <p className="text-[10px] font-mono text-[#7c8aa0] tracking-[0.25em] uppercase mb-1">Mission Modules</p>
         <h2 className="text-lg font-bold text-white">偵測模組總覽</h2>
-        <p className="text-sm text-slate-500 mt-0.5">{modules.length} 個情報模組，全面制霸台股關鍵訊號</p>
+        <p className="text-sm text-[#8b97ab] mt-0.5">{modules.length} 個情報模組，全面制霸台股關鍵訊號</p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
@@ -181,7 +181,7 @@ export default function ResearchGrid() {
           <Link
             key={m.href}
             href={m.href}
-            className="group rounded-xl border border-[#1e2a3a] bg-[#0d1220] p-4 card-hover flex flex-col gap-3"
+            className="group rounded-xl border border-[#243247] bg-[#0d1220] p-4 card-hover flex flex-col gap-3"
           >
             <div className="flex items-start justify-between">
               <div
@@ -191,16 +191,16 @@ export default function ResearchGrid() {
                 <m.icon className="w-4 h-4" style={{ color: m.accent }} />
               </div>
               {m.badge && (
-                <span className="text-[10px] font-mono text-slate-600 bg-[#1e2a3a] px-1.5 py-0.5 rounded tracking-wide">
+                <span className="text-[10px] font-mono text-[#7c8aa0] bg-[#243247] px-1.5 py-0.5 rounded tracking-wide">
                   {m.badge}
                 </span>
               )}
             </div>
             <div>
-              <div className="text-sm font-semibold text-white group-hover:text-[#00d4aa] transition-colors">
+              <div className="text-sm font-semibold text-white group-hover:text-[#4f8cff] transition-colors">
                 {m.title}
               </div>
-              <div className="text-xs text-slate-500 mt-1 leading-relaxed line-clamp-2">
+              <div className="text-xs text-[#8b97ab] mt-1 leading-relaxed line-clamp-2">
                 {m.desc}
               </div>
             </div>

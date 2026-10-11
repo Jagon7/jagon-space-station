@@ -9,10 +9,10 @@ export default function Page() {
       subtitle="輸入股號或名稱，一頁看完站內所有資料：月營收、季報、融資券與借券、ETF 持有、近期事件、內部人買賣與漲停紀錄。"
       badge="Stock Lookup"
     >
-      <Suspense fallback={<div className="py-16 text-center text-sm text-slate-500 font-mono">載入中…</div>}>
+      <Suspense fallback={<div className="py-16 text-center text-sm text-[#8b97ab] font-mono">載入中…</div>}>
         <StockSearch />
       </Suspense>
-      <p className="mt-10 text-[11px] leading-relaxed text-slate-600">本頁資訊僅供參考，不構成任何投資建議。</p>
+      <p className="mt-10 text-[11px] leading-relaxed text-[#7c8aa0]">本頁資訊僅供參考，不構成任何投資建議。</p>
     </PageShell>
   );
 }

@@ -7,8 +7,8 @@ export default async function StatsPage() {
     await Promise.all([getMarketSummary(), getMarketHistory(), getLastUpdated()]);
   const { limitUpCount, sectorCount, dispositionCount, announcementCount, marketMood, taiexChange } = summary;
   const updatedTime = new Date(updatedAt).toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" });
-  const moodColor = marketMood === "強勢" || marketMood === "偏強" ? "text-[#00d4aa]" : marketMood === "中性" ? "text-[#3b82f6]" : "text-[#ef4444]";
-  const taiexColor = taiexChange >= 0 ? "text-[#ef4444]" : "text-[#22c55e]";
+  const moodColor = marketMood === "強勢" || marketMood === "偏強" ? "text-[#4f8cff]" : marketMood === "中性" ? "text-[#38bdf8]" : "text-[#f05252]";
+  const taiexColor = taiexChange >= 0 ? "text-[#f05252]" : "text-[#22c55e]";
   const taiexSign = taiexChange >= 0 ? "+" : "";
 
   return (
@@ -22,16 +22,16 @@ export default async function StatsPage() {
         {[
           { label: "市場氣氛", value: marketMood,                    unit: "",  color: moodColor },
           { label: "加權指數", value: `${taiexSign}${taiexChange}%`, unit: "",  color: taiexColor },
-          { label: "漲停檔數", value: String(limitUpCount),          unit: "檔", color: "text-[#00d4aa]" },
-          { label: "觸及族群", value: String(sectorCount),           unit: "個", color: "text-[#3b82f6]" },
+          { label: "漲停檔數", value: String(limitUpCount),          unit: "檔", color: "text-[#4f8cff]" },
+          { label: "觸及族群", value: String(sectorCount),           unit: "個", color: "text-[#38bdf8]" },
           { label: "今日公告", value: String(announcementCount),     unit: "則", color: "text-[#a78bfa]" },
         ].map((kpi) => (
-          <div key={kpi.label} className="rounded-xl border border-[#1e2a3a] bg-[#0d1220] p-4 text-center">
+          <div key={kpi.label} className="rounded-xl border border-[#243247] bg-[#0d1220] p-4 text-center">
             <div className={`text-2xl font-bold font-mono ${kpi.color}`}>
               {kpi.value}
               {kpi.unit && <span className="text-sm font-normal ml-0.5 opacity-70">{kpi.unit}</span>}
             </div>
-            <div className="text-[11px] text-slate-500 font-mono tracking-wide mt-1">{kpi.label}</div>
+            <div className="text-[11px] text-[#8b97ab] font-mono tracking-wide mt-1">{kpi.label}</div>
           </div>
         ))}
       </div>
@@ -47,7 +47,7 @@ export default async function StatsPage() {
         <div className="text-4xl font-bold font-mono text-[#f59e0b]">{dispositionCount}</div>
         <div>
           <div className="text-sm font-semibold text-white">檔個股列入處置威脅監控</div>
-          <div className="text-xs text-slate-500 mt-0.5">每日 19:00 自動更新（GitHub Actions → data-loader 即時讀取）</div>
+          <div className="text-xs text-[#8b97ab] mt-0.5">每日 19:00 自動更新（GitHub Actions → data-loader 即時讀取）</div>
         </div>
       </div>
     </PageShell>

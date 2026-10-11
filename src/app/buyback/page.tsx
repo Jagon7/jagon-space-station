@@ -9,7 +9,7 @@ export default function Page() {
       badge="Treasury Stock"
     >
       <BuybackDashboard />
-      <p className="mt-10 text-[11px] leading-relaxed text-slate-600">
+      <p className="mt-10 text-[11px] leading-relaxed text-[#7c8aa0]">
         資料來源：公開資訊觀測站「上市（櫃）公司買回自己公司股份彙總統計表」。本頁資訊僅供參考，不構成任何投資建議。
       </p>
     </PageShell>

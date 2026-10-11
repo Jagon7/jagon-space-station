@@ -50,8 +50,8 @@ function StageBadge({ s }: { s: Stage }) {
 
 function DateCell({ actual, est }: { actual?: string | null; est?: string | null }) {
   if (actual) return <span className="text-slate-300">{md(actual)}</span>;
-  if (est) return <span className="italic text-slate-500" title="尚未公告，依慣例推估">{md(est)}</span>;
-  return <span className="text-slate-600">—</span>;
+  if (est) return <span className="italic text-[#8b97ab]" title="尚未公告，依慣例推估">{md(est)}</span>;
+  return <span className="text-[#7c8aa0]">—</span>;
 }
 
 const noop = () => () => {};
@@ -79,16 +79,16 @@ export default function CbDashboard({ cases, pre, prices, updatedAt, buildDate }
 
   return (
     <div>
-      <div className="flex gap-1 sm:gap-6 border-b border-[#1e2a3a] mb-6 overflow-x-auto">
+      <div className="flex gap-1 sm:gap-6 border-b border-[#243247] mb-6 overflow-x-auto">
         {tabs.map(([k, label, n]) => (
           <button
             key={k}
             onClick={() => setTab(k)}
             className={`px-2 sm:px-0 pb-3 text-sm whitespace-nowrap border-b-2 -mb-px ${
-              tab === k ? "border-[#00d4aa] text-white" : "border-transparent text-slate-500 hover:text-slate-300"
+              tab === k ? "border-[#4f8cff] text-white" : "border-transparent text-[#8b97ab] hover:text-slate-300"
             }`}
           >
-            {label}{n != null && <span className="ml-1 font-mono text-xs text-slate-500">{n}</span>}
+            {label}{n != null && <span className="ml-1 font-mono text-xs text-[#8b97ab]">{n}</span>}
           </button>
         ))}
       </div>
@@ -103,7 +103,7 @@ export default function CbDashboard({ cases, pre, prices, updatedAt, buildDate }
           </KpiRow>
           <Upcoming cases={cases} today={today} />
           <h3 className="text-base font-semibold text-white mt-10 mb-1">最近發行</h3>
-          <p className="text-xs text-slate-500 mb-4">轉換價為櫃買中心發行資料；「現價／轉換價」＝ 現股收盤價 ÷ 轉換價，大於 100% 表示已有轉換價值。</p>
+          <p className="text-xs text-[#8b97ab] mb-4">轉換價為櫃買中心發行資料；「現價／轉換價」＝ 現股收盤價 ÷ 轉換價，大於 100% 表示已有轉換價值。</p>
           <CaseTable cases={[...cases].filter((c) => c.convPrice).sort((a, b) => (b.issueDate ?? "").localeCompare(a.issueDate ?? "")).slice(0, 12)} prices={prices} today={today} />
         </>
       )}
@@ -113,7 +113,7 @@ export default function CbDashboard({ cases, pre, prices, updatedAt, buildDate }
       {tab === "auction" && <CaseTable cases={cases.filter((c) => c.method === "競拍")} prices={prices} today={today} limit={60} />}
       {tab === "listed" && <CaseTable cases={listed} prices={prices} today={today} limit={60} />}
 
-      <div className="mt-8 text-[11px] leading-relaxed text-slate-600 space-y-1">
+      <div className="mt-8 text-[11px] leading-relaxed text-[#7c8aa0] space-y-1">
         <p>流程：董事會決議 → 金管會申報生效 → 詢價圈購（議定溢價率）或 競價拍賣（以價格得標）→ 訂價／開標 → 繳款 → 上櫃掛牌。</p>
         <p>斜體灰字日期是還沒公告時依慣例推估（訂價基準日 ≈ 圈購截止後 2 個營業日、競拍開標 ≈ 截止後 1 個營業日，掛牌 ≈ 訂價後 7 個營業日），以正式公告為準。</p>
         <p>來源：證券商業同業公會承銷公告（詢價圈購、競價拍賣清單）、櫃買中心轉(交)換公司債發行資料、金管會證期局申報案件。{updatedAt && `資料更新 ${updatedAt.replace("T", " ").slice(0, 16)}`}</p>
@@ -138,29 +138,29 @@ function Upcoming({ cases, today }: { cases: CbCase[]; today: string }) {
   for (const e of events.sort((a, b) => a.date.localeCompare(b.date))) byDay.set(e.date, [...(byDay.get(e.date) ?? []), e]);
 
   const color = (l: string) =>
-    l.includes("截止") ? "text-[#f59e0b]" : l === "掛牌" ? "text-[#00d4aa]" : l.includes("開始") ? "text-sky-300" : "text-[#a78bfa]";
+    l.includes("截止") ? "text-[#f59e0b]" : l === "掛牌" ? "text-[#4f8cff]" : l.includes("開始") ? "text-sky-300" : "text-[#a78bfa]";
 
   return (
     <section>
       <h3 className="text-base font-semibold text-white mb-1">接下來兩週</h3>
-      <p className="text-xs text-slate-500 mb-4">圈購／投標、訂價與掛牌時程。</p>
+      <p className="text-xs text-[#8b97ab] mb-4">圈購／投標、訂價與掛牌時程。</p>
       {byDay.size === 0 ? <Empty>未來兩週沒有排定的時程。</Empty> : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
           {[...byDay.entries()].map(([d, evs]) => {
             const dt = new Date(`${d}T00:00:00Z`);
             return (
-              <div key={d} className={`rounded-xl border bg-[#0d1220] p-4 ${d === today ? "border-[#00d4aa]/50" : "border-[#1e2a3a]"}`}>
+              <div key={d} className={`rounded-xl border bg-[#0d1220] p-4 ${d === today ? "border-[#4f8cff]/50" : "border-[#243247]"}`}>
                 <div className="flex items-baseline gap-2 mb-3">
                   <span className="font-mono text-lg text-white">{md(d)}</span>
-                  <span className="text-xs text-slate-500">週{WEEK[dt.getUTCDay()]}{d === today ? "・今天" : ""}</span>
+                  <span className="text-xs text-[#8b97ab]">週{WEEK[dt.getUTCDay()]}{d === today ? "・今天" : ""}</span>
                 </div>
                 <div className="space-y-2">
                   {evs.map((e, i) => (
                     <div key={i} className="flex items-center gap-2 text-sm">
                       <span className={`text-[11px] w-14 shrink-0 ${color(e.label)} ${e.est ? "italic opacity-70" : ""}`}>{e.label}{e.est ? "*" : ""}</span>
                       <span className="text-slate-200 truncate">{title(e.c)}</span>
-                      {e.c.code && <span className="font-mono text-[11px] text-slate-500">{e.c.code}</span>}
-                      <span className="ml-auto text-[10px] text-slate-500">{e.c.method}</span>
+                      {e.c.code && <span className="font-mono text-[11px] text-[#8b97ab]">{e.c.code}</span>}
+                      <span className="ml-auto text-[10px] text-[#8b97ab]">{e.c.method}</span>
                     </div>
                   ))}
                 </div>
@@ -169,7 +169,7 @@ function Upcoming({ cases, today }: { cases: CbCase[]; today: string }) {
           })}
         </div>
       )}
-      <p className="mt-2 text-[11px] text-slate-600">* 推估日期</p>
+      <p className="mt-2 text-[11px] text-[#7c8aa0]">* 推估日期</p>
     </section>
   );
 }
@@ -183,9 +183,9 @@ function CaseTable({ cases, prices, today, limit }: { cases: CbCase[]; prices: R
       render: (c) => (
         <span className="inline-flex items-center gap-2">
           <span className="text-slate-200">{title(c)}</span>
-          {c.code && <span className="font-mono text-xs text-slate-500">{c.code}</span>}
+          {c.code && <span className="font-mono text-xs text-[#8b97ab]">{c.code}</span>}
           {c.kind === "EB" && <span className="text-[10px] px-1 rounded border border-slate-600 text-slate-400">交換債</span>}
-          {c.type.startsWith("有擔保") && <span className="text-[10px] text-slate-500">有擔</span>}
+          {c.type.startsWith("有擔保") && <span className="text-[10px] text-[#8b97ab]">有擔</span>}
           <StageBadge s={stageOf(c, today)} />
         </span>
       ),
@@ -202,11 +202,11 @@ function CaseTable({ cases, prices, today, limit }: { cases: CbCase[]; prices: R
       key: "parity", label: "現價／轉換價", align: "right", sort: parity,
       render: (c) => {
         const p = parity(c);
-        return p == null ? <span className="text-slate-600">—</span> : <span className={p >= 1 ? "text-[#ef4444]" : "text-slate-400"}>{(p * 100).toFixed(1)}%</span>;
+        return p == null ? <span className="text-[#7c8aa0]">—</span> : <span className={p >= 1 ? "text-[#f05252]" : "text-slate-400"}>{(p * 100).toFixed(1)}%</span>;
       },
     },
     { key: "list", label: "掛牌", align: "right", sort: listOf, render: (c) => <DateCell actual={c.listDate} est={c.listDateEst} /> },
-    { key: "lead", label: "主辦承銷商", render: (c) => <span className="text-xs text-slate-500">{c.lead.replace(/(綜合)?證券.*$/, "")}</span> },
+    { key: "lead", label: "主辦承銷商", render: (c) => <span className="text-xs text-[#8b97ab]">{c.lead.replace(/(綜合)?證券.*$/, "")}</span> },
   ];
   return <SortTable rows={cases} columns={columns} rowKey={(c) => c.id} initialSort={{ key: "period", desc: true }} limit={limit} />;
 }
@@ -219,24 +219,24 @@ function PreTable({ pre }: { pre: CbPre[] }) {
       render: (p) => (
         <span className="inline-flex items-center gap-2">
           <span className="text-slate-200">{p.name}</span>
-          <span className="font-mono text-xs text-slate-500">{p.code}</span>
-          <span className="text-[10px] text-slate-500">{p.market}</span>
+          <span className="font-mono text-xs text-[#8b97ab]">{p.code}</span>
+          <span className="text-[10px] text-[#8b97ab]">{p.market}</span>
         </span>
       ),
     },
     {
       key: "status", label: "狀態", sort: (p) => p.status,
-      render: (p) => <span className={`text-[10px] px-1.5 py-px rounded border ${p.status === "生效" ? "text-[#00d4aa] border-[#00d4aa]/40" : "text-[#f59e0b] border-[#f59e0b]/40"}`}>{p.status}</span>,
+      render: (p) => <span className={`text-[10px] px-1.5 py-px rounded border ${p.status === "生效" ? "text-[#4f8cff] border-[#4f8cff]/40" : "text-[#f59e0b] border-[#f59e0b]/40"}`}>{p.status}</span>,
     },
     { key: "type", label: "種類", render: (p) => <span className="text-xs text-slate-400">{p.cbType}</span> },
     { key: "amt", label: "金額（億）", align: "right", sort: (p) => p.amount, render: (p) => <span className="text-slate-200">{p.amount ?? "—"}</span> },
     { key: "filed", label: "申報日", align: "right", sort: (p) => p.filingDate, render: (p) => <span className="text-slate-400">{p.filingDate ?? "—"}</span> },
     { key: "eff", label: "生效日", align: "right", sort: (p) => p.effectiveDate, render: (p) => <span className="text-slate-400">{p.effectiveDate ?? "—"}</span> },
-    { key: "uw", label: "承銷商", render: (p) => <span className="text-xs text-slate-500">{p.underwriter ?? "—"}</span> },
+    { key: "uw", label: "承銷商", render: (p) => <span className="text-xs text-[#8b97ab]">{p.underwriter ?? "—"}</span> },
   ];
   return (
     <>
-      <p className="text-xs text-slate-500 mb-4">金管會證期局申報案件中，審查中或已生效、但還沒開始詢價圈購或競價拍賣的國內可轉債。</p>
+      <p className="text-xs text-[#8b97ab] mb-4">金管會證期局申報案件中，審查中或已生效、但還沒開始詢價圈購或競價拍賣的國內可轉債。</p>
       <SortTable rows={pre} columns={columns} rowKey={(p) => `${p.code}-${p.filingDate}`} initialSort={{ key: "filed", desc: true }} />
     </>
   );

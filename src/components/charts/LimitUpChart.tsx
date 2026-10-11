@@ -10,7 +10,7 @@ const MOOD_SCORE: Record<MarketHistoryEntry["marketMood"], number> = {
   "強勢": 90, "偏強": 70, "中性": 50, "偏弱": 30, "弱勢": 10,
 };
 
-const SECTOR_COLORS = ["#00d4aa", "#3b82f6", "#a78bfa", "#f59e0b", "#ef4444"];
+const SECTOR_COLORS = ["#4f8cff", "#38bdf8", "#a78bfa", "#f59e0b", "#f05252"];
 
 function CustomTooltip({ active, payload, label }: {
   active?: boolean;
@@ -19,7 +19,7 @@ function CustomTooltip({ active, payload, label }: {
 }) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-[#0d1220] border border-[#1e2a3a] rounded-lg p-3 text-xs shadow-xl">
+    <div className="bg-[#0d1220] border border-[#243247] rounded-lg p-3 text-xs shadow-xl">
       <p className="text-slate-400 mb-2 font-mono">{label}</p>
       {payload.map((p) => (
         <p key={p.name} className="flex gap-2 items-center" style={{ color: p.color }}>
@@ -33,7 +33,7 @@ function CustomTooltip({ active, payload, label }: {
 
 function EmptyState({ label }: { label: string }) {
   return (
-    <div className="h-[200px] flex items-center justify-center text-xs text-slate-600 font-mono">
+    <div className="h-[200px] flex items-center justify-center text-xs text-[#7c8aa0] font-mono">
       {label}
     </div>
   );
@@ -47,9 +47,9 @@ export function LimitUpTrendChart({ history }: { history: MarketHistoryEntry[] }
   }));
 
   return (
-    <div className="rounded-xl border border-[#1e2a3a] bg-[#0d1220] p-5">
+    <div className="rounded-xl border border-[#243247] bg-[#0d1220] p-5">
       <div className="mb-4">
-        <p className="text-[10px] font-mono text-slate-600 tracking-[0.2em] uppercase mb-0.5">Signal Trend</p>
+        <p className="text-[10px] font-mono text-[#7c8aa0] tracking-[0.2em] uppercase mb-0.5">Signal Trend</p>
         <h3 className="text-sm font-semibold text-white">近 {data.length} 日漲停訊號強度</h3>
       </div>
       {data.length < 2 ? (
@@ -59,15 +59,15 @@ export function LimitUpTrendChart({ history }: { history: MarketHistoryEntry[] }
           <AreaChart data={data} margin={{ top: 5, right: 10, bottom: 0, left: -20 }}>
             <defs>
               <linearGradient id="countGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%"  stopColor="#00d4aa" stopOpacity={0.3} />
-                <stop offset="95%" stopColor="#00d4aa" stopOpacity={0} />
+                <stop offset="5%"  stopColor="#4f8cff" stopOpacity={0.3} />
+                <stop offset="95%" stopColor="#4f8cff" stopOpacity={0} />
               </linearGradient>
               <linearGradient id="moodGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%"  stopColor="#3b82f6" stopOpacity={0.25} />
-                <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                <stop offset="5%"  stopColor="#38bdf8" stopOpacity={0.25} />
+                <stop offset="95%" stopColor="#38bdf8" stopOpacity={0} />
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="#1e2a3a" />
+            <CartesianGrid strokeDasharray="3 3" stroke="#243247" />
             <XAxis dataKey="date" tick={{ fill: "#475569", fontSize: 11 }} axisLine={false} tickLine={false} />
             <YAxis tick={{ fill: "#475569", fontSize: 11 }} axisLine={false} tickLine={false} />
             <Tooltip content={<CustomTooltip />} />
@@ -75,8 +75,8 @@ export function LimitUpTrendChart({ history }: { history: MarketHistoryEntry[] }
               formatter={(v) => <span className="text-xs text-slate-400">{v}</span>}
               wrapperStyle={{ paddingTop: 8 }}
             />
-            <Area type="monotone" dataKey="count" name="漲停檔數" stroke="#00d4aa" strokeWidth={2} fill="url(#countGrad)" dot={{ fill: "#00d4aa", r: 3 }} />
-            <Area type="monotone" dataKey="mood" name="氣氛分數" stroke="#3b82f6" strokeWidth={2} fill="url(#moodGrad)" dot={{ fill: "#3b82f6", r: 3 }} />
+            <Area type="monotone" dataKey="count" name="漲停檔數" stroke="#4f8cff" strokeWidth={2} fill="url(#countGrad)" dot={{ fill: "#4f8cff", r: 3 }} />
+            <Area type="monotone" dataKey="mood" name="氣氛分數" stroke="#38bdf8" strokeWidth={2} fill="url(#moodGrad)" dot={{ fill: "#38bdf8", r: 3 }} />
           </AreaChart>
         </ResponsiveContainer>
       )}
@@ -107,9 +107,9 @@ export function SectorTrendChart({ history }: { history: MarketHistoryEntry[] })
   });
 
   return (
-    <div className="rounded-xl border border-[#1e2a3a] bg-[#0d1220] p-5">
+    <div className="rounded-xl border border-[#243247] bg-[#0d1220] p-5">
       <div className="mb-4">
-        <p className="text-[10px] font-mono text-slate-600 tracking-[0.2em] uppercase mb-0.5">Sector Radar</p>
+        <p className="text-[10px] font-mono text-[#7c8aa0] tracking-[0.2em] uppercase mb-0.5">Sector Radar</p>
         <h3 className="text-sm font-semibold text-white">族群資金輪動趨勢</h3>
       </div>
       {data.length < 2 || sectorKeys.length === 0 ? (
@@ -117,7 +117,7 @@ export function SectorTrendChart({ history }: { history: MarketHistoryEntry[] })
       ) : (
         <ResponsiveContainer width="100%" height={200}>
           <LineChart data={data} margin={{ top: 5, right: 10, bottom: 0, left: -20 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#1e2a3a" />
+            <CartesianGrid strokeDasharray="3 3" stroke="#243247" />
             <XAxis dataKey="date" tick={{ fill: "#475569", fontSize: 11 }} axisLine={false} tickLine={false} />
             <YAxis tick={{ fill: "#475569", fontSize: 11 }} axisLine={false} tickLine={false} />
             <Tooltip content={<CustomTooltip />} />

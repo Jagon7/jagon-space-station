@@ -23,7 +23,7 @@ type Tab = (typeof TABS)[number]["key"];
 
 function Loading({ error }: { error?: boolean }) {
   return (
-    <div className="py-16 text-center text-sm text-slate-500 font-mono">
+    <div className="py-16 text-center text-sm text-[#8b97ab] font-mono">
       {error ? "資料載入失敗，請稍後重新整理。" : "載入中…"}
     </div>
   );
@@ -64,13 +64,13 @@ export default function EtfDashboard() {
 
   return (
     <div>
-      <div className="flex gap-1 sm:gap-6 border-b border-[#1e2a3a] mb-6 overflow-x-auto">
+      <div className="flex gap-1 sm:gap-6 border-b border-[#243247] mb-6 overflow-x-auto">
         {TABS.map((t) => (
           <button
             key={t.key}
             onClick={() => go(t.key)}
             className={`px-2 sm:px-0 pb-3 text-sm whitespace-nowrap border-b-2 -mb-px transition-colors ${
-              tab === t.key ? "border-[#00d4aa] text-white" : "border-transparent text-slate-500 hover:text-slate-300"
+              tab === t.key ? "border-[#4f8cff] text-white" : "border-transparent text-[#8b97ab] hover:text-slate-300"
             }`}
           >
             {t.label}

@@ -2,8 +2,8 @@ import Link from "next/link";
 import type { MarketSummary, SectorPerformance } from "@/lib/types";
 
 const moodColor: Record<string, string> = {
-  強勢: "text-[#ef4444]", 偏強: "text-[#f97316]",
-  中性: "text-[#f59e0b]", 偏弱: "text-[#00d4aa]", 弱勢: "text-[#22c55e]",
+  強勢: "text-[#f05252]", 偏強: "text-[#f97316]",
+  中性: "text-[#f59e0b]", 偏弱: "text-[#4ade80]", 弱勢: "text-[#22c55e]",
 };
 
 type Props = { summary: MarketSummary; topSector?: SectorPerformance };
@@ -11,13 +11,13 @@ type Props = { summary: MarketSummary; topSector?: SectorPerformance };
 export default function HeroSection({ summary, topSector }: Props) {
   const sectorUp = (topSector?.changePercent ?? 0) >= 0;
   const stats = [
-    { label: "鎖定漲停", value: String(summary.limitUpCount), unit: "檔", color: "text-[#00d4aa]", border: "border-[#00d4aa]/20", href: "/limit-up" as string | undefined },
+    { label: "鎖定漲停", value: String(summary.limitUpCount), unit: "檔", color: "text-[#4f8cff]", border: "border-[#4f8cff]/20", href: "/limit-up" as string | undefined },
     {
       label: "強勢族群",
       value: topSector ? topSector.name : "—",
       unit: topSector ? `${sectorUp ? "+" : ""}${topSector.changePercent.toFixed(2)}%` : "",
-      color: topSector ? (sectorUp ? "text-[#ef4444]" : "text-[#22c55e]") : "text-[#3b82f6]",
-      border: "border-[#3b82f6]/20",
+      color: topSector ? (sectorUp ? "text-[#f05252]" : "text-[#22c55e]") : "text-[#38bdf8]",
+      border: "border-[#38bdf8]/20",
       href: "/sectors" as string | undefined,
     },
     { label: "處置威脅", value: String(summary.dispositionCount), unit: "檔", color: "text-[#f59e0b]", border: "border-[#f59e0b]/20", href: "/disposition" as string | undefined },
@@ -27,16 +27,16 @@ export default function HeroSection({ summary, topSector }: Props) {
   return (
     <section className="relative overflow-hidden pt-16 pb-12 px-4">
       <div className="absolute inset-0 grid-scanline opacity-40 pointer-events-none" />
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[320px] bg-[#00d4aa]/4 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute top-20 right-10 w-[300px] h-[300px] bg-[#3b82f6]/3 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[320px] bg-[#4f8cff]/4 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-20 right-10 w-[300px] h-[300px] bg-[#38bdf8]/3 rounded-full blur-3xl pointer-events-none" />
 
       <div className="relative max-w-7xl mx-auto">
 
         {/* Mission badge */}
         <div className="flex justify-center mb-8">
-          <div className="inline-flex items-center gap-3 px-4 py-1.5 rounded-full border border-[#00d4aa]/25 bg-[#00d4aa]/5">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#00d4aa] animate-pulse" />
-            <span className="text-[11px] text-[#00d4aa] font-mono tracking-[0.15em] uppercase">
+          <div className="inline-flex items-center gap-3 px-4 py-1.5 rounded-full border border-[#4f8cff]/25 bg-[#4f8cff]/5">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#4f8cff] animate-pulse" />
+            <span className="text-[11px] text-[#4f8cff] font-mono tracking-[0.15em] uppercase">
               Mission Active · {summary.date} 資料已同步
             </span>
           </div>
@@ -44,13 +44,13 @@ export default function HeroSection({ summary, topSector }: Props) {
 
         {/* Headline */}
         <div className="text-center mb-5">
-          <p className="text-[11px] font-mono text-slate-600 tracking-[0.3em] uppercase mb-3">
+          <p className="text-[11px] font-mono text-[#7c8aa0] tracking-[0.3em] uppercase mb-3">
             Taiwan Stock Intelligence Hub
           </p>
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-white leading-tight">
             整合全域訊號
             <br />
-            <span className="text-[#00d4aa]">構築你的情報制高點</span>
+            <span className="text-[#4f8cff]">構築你的情報制高點</span>
           </h1>
         </div>
 
@@ -62,11 +62,11 @@ export default function HeroSection({ summary, topSector }: Props) {
 
         {/* Market mood */}
         <div className="flex items-center justify-center gap-3 mb-10">
-          <div className="h-px w-16 bg-gradient-to-r from-transparent to-[#1e2a3a]" />
+          <div className="h-px w-16 bg-gradient-to-r from-transparent to-[#243247]" />
           <span className={`text-sm font-bold font-mono ${moodColor[summary.marketMood] ?? "text-slate-400"}`}>
             今日氣氛：{summary.marketMood}
           </span>
-          <div className="h-px w-16 bg-gradient-to-l from-transparent to-[#1e2a3a]" />
+          <div className="h-px w-16 bg-gradient-to-l from-transparent to-[#243247]" />
         </div>
 
         {/* Stats */}
@@ -78,7 +78,7 @@ export default function HeroSection({ summary, topSector }: Props) {
                   {s.value}
                   <span className="text-sm font-normal ml-1 opacity-70">{s.unit}</span>
                 </div>
-                <div className="text-[11px] text-slate-500 tracking-wide uppercase font-mono">{s.label}</div>
+                <div className="text-[11px] text-[#8b97ab] tracking-wide uppercase font-mono">{s.label}</div>
               </div>
             );
             return s.href ? (

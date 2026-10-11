@@ -24,12 +24,12 @@ export default async function DispositionPage() {
       badge="Notice & Disposition"
     >
       {/* 說明欄 */}
-      <div className="rounded-xl border border-[#1e2a3a] bg-[#0d1220] p-4 mb-6 flex gap-3">
-        <Info className="w-4 h-4 text-[#3b82f6] flex-shrink-0 mt-0.5" />
+      <div className="rounded-xl border border-[#243247] bg-[#0d1220] p-4 mb-6 flex gap-3">
+        <Info className="w-4 h-4 text-[#38bdf8] flex-shrink-0 mt-0.5" />
         <div className="text-xs text-slate-400 leading-relaxed space-y-1">
           <p><span className="text-[#f59e0b] font-semibold">注意股</span>：連續觸及漲跌幅、成交量異常等警示標準，尚未正式處置，每日收盤後公告。</p>
-          <p><span className="text-[#ef4444] font-semibold">處置股</span>：已由主管機關正式公告，進入 5 分鐘撮合機制，需注意流動性風險。</p>
-          <p className="text-slate-600">本站資料來源：台灣證券交易所公告，僅供參考，不構成任何投資建議。</p>
+          <p><span className="text-[#f05252] font-semibold">處置股</span>：已由主管機關正式公告，進入 5 分鐘撮合機制，需注意流動性風險。</p>
+          <p className="text-[#7c8aa0]">本站資料來源：台灣證券交易所公告，僅供參考，不構成任何投資建議。</p>
         </div>
       </div>
 
@@ -55,9 +55,9 @@ export default async function DispositionPage() {
                     <div className="flex items-center gap-2">
                       <span className="font-mono text-sm text-slate-300">{s.code}</span>
                       <span className="font-semibold text-white">{s.name}</span>
-                      {s.market && <span className="text-[10px] font-mono text-slate-600 bg-[#1e2a3a] px-1 py-0.5 rounded">{s.market}</span>}
+                      {s.market && <span className="text-[10px] font-mono text-[#7c8aa0] bg-[#243247] px-1 py-0.5 rounded">{s.market}</span>}
                     </div>
-                    <div className="text-[11px] text-slate-500 font-mono mt-1">至 {s.period.split(/[~～]/)[1] ?? s.endDate}</div>
+                    <div className="text-[11px] text-[#8b97ab] font-mono mt-1">至 {s.period.split(/[~～]/)[1] ?? s.endDate}</div>
                   </div>
                   <span className="text-lg font-bold font-mono text-[#22c55e] flex-shrink-0">
                     {days <= 0 ? "今日" : `${days}天`}
@@ -72,20 +72,20 @@ export default async function DispositionPage() {
       {/* ── 處置股 ── */}
       <section className="mb-8">
         <div className="flex items-center gap-2 mb-3">
-          <ShieldAlert className="w-4 h-4 text-[#ef4444]" />
+          <ShieldAlert className="w-4 h-4 text-[#f05252]" />
           <h2 className="text-sm font-semibold text-white">處置股</h2>
-          <span className="text-[10px] font-mono text-[#ef4444] bg-[#ef4444]/10 border border-[#ef4444]/20 px-1.5 py-0.5 rounded">
+          <span className="text-[10px] font-mono text-[#f05252] bg-[#f05252]/10 border border-[#f05252]/20 px-1.5 py-0.5 rounded">
             {disposition.length} 檔
           </span>
-          <span className="text-[10px] font-mono text-slate-600 ml-1">現行處置期間內</span>
+          <span className="text-[10px] font-mono text-[#7c8aa0] ml-1">現行處置期間內</span>
         </div>
 
-        <div className="rounded-xl border border-[#ef4444]/20 bg-[#0d1220] overflow-hidden">
+        <div className="rounded-xl border border-[#f05252]/20 bg-[#0d1220] overflow-hidden">
           {disposition.length > 0 ? (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-[#1e2a3a] text-[10px] font-mono text-slate-500 uppercase tracking-wider">
+                  <tr className="border-b border-[#243247] text-[10px] font-mono text-[#8b97ab] uppercase tracking-wider">
                     <th className="text-left px-4 py-3">股號</th>
                     <th className="text-left px-4 py-3">名稱</th>
                     <th className="text-right px-4 py-3">剩餘天數</th>
@@ -100,11 +100,11 @@ export default async function DispositionPage() {
                     const urgent = days <= 2;
                     const soon   = days <= 5;
                     return (
-                    <tr key={`${s.code}-${s.announceDate}`} className="border-b border-[#1e2a3a]/50 last:border-0 hover:bg-[#1e2a3a]/30 transition-colors">
-                      <td className="px-4 py-3 font-mono text-slate-500">{s.code}</td>
+                    <tr key={`${s.code}-${s.announceDate}`} className="border-b border-[#243247]/50 last:border-0 hover:bg-[#243247]/30 transition-colors">
+                      <td className="px-4 py-3 font-mono text-[#8b97ab]">{s.code}</td>
                       <td className="px-4 py-3 font-medium text-slate-100">
                         {s.name}
-                        {s.market && <span className="ml-2 text-[10px] font-mono text-slate-600 bg-[#1e2a3a] px-1 py-0.5 rounded">{s.market}</span>}
+                        {s.market && <span className="ml-2 text-[10px] font-mono text-[#7c8aa0] bg-[#243247] px-1 py-0.5 rounded">{s.market}</span>}
                       </td>
                       <td className="px-4 py-3 text-right">
                         <span className={`font-mono font-semibold text-sm ${urgent ? "text-[#22c55e]" : soon ? "text-[#f59e0b]" : "text-slate-400"}`}>
@@ -113,7 +113,7 @@ export default async function DispositionPage() {
                       </td>
                       <td className="px-4 py-3 text-xs font-mono text-slate-400">{s.period}</td>
                       <td className="px-4 py-3 text-xs text-slate-400">{s.condition}</td>
-                      <td className="px-4 py-3 text-right font-mono text-slate-500">{s.announceDate}</td>
+                      <td className="px-4 py-3 text-right font-mono text-[#8b97ab]">{s.announceDate}</td>
                     </tr>
                     );
                   })}
@@ -121,7 +121,7 @@ export default async function DispositionPage() {
               </table>
             </div>
           ) : (
-            <div className="px-5 py-8 text-center text-sm text-slate-600 font-mono">
+            <div className="px-5 py-8 text-center text-sm text-[#7c8aa0] font-mono">
               目前無處置股
             </div>
           )}
@@ -143,7 +143,7 @@ export default async function DispositionPage() {
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-[#1e2a3a] text-[10px] font-mono text-slate-500 uppercase tracking-wider">
+                  <tr className="border-b border-[#243247] text-[10px] font-mono text-[#8b97ab] uppercase tracking-wider">
                     <th className="text-left px-4 py-3">股號</th>
                     <th className="text-left px-4 py-3">名稱</th>
                     <th className="text-right px-4 py-3">累計次數</th>
@@ -154,15 +154,15 @@ export default async function DispositionPage() {
                 </thead>
                 <tbody>
                   {notice.map((s) => (
-                    <tr key={s.code} className="border-b border-[#1e2a3a]/50 last:border-0 hover:bg-[#1e2a3a]/30 transition-colors">
-                      <td className="px-4 py-3 font-mono text-slate-500">{s.code}</td>
+                    <tr key={s.code} className="border-b border-[#243247]/50 last:border-0 hover:bg-[#243247]/30 transition-colors">
+                      <td className="px-4 py-3 font-mono text-[#8b97ab]">{s.code}</td>
                       <td className="px-4 py-3 font-medium text-slate-100">
                         {s.name}
-                        {s.market && <span className="ml-2 text-[10px] font-mono text-slate-600 bg-[#1e2a3a] px-1 py-0.5 rounded">{s.market}</span>}
+                        {s.market && <span className="ml-2 text-[10px] font-mono text-[#7c8aa0] bg-[#243247] px-1 py-0.5 rounded">{s.market}</span>}
                       </td>
                       <td className="px-4 py-3 text-right font-mono text-[#f59e0b] font-semibold">{s.noticeCount}</td>
                       <td className="px-4 py-3 text-xs text-slate-400 max-w-xs truncate">{s.info}</td>
-                      <td className="px-4 py-3 text-right font-mono text-slate-500">{s.date}</td>
+                      <td className="px-4 py-3 text-right font-mono text-[#8b97ab]">{s.date}</td>
                       <td className="px-4 py-3 text-right font-mono text-slate-300">{s.closePrice > 0 ? s.closePrice.toLocaleString() : "—"}</td>
                     </tr>
                   ))}
@@ -170,7 +170,7 @@ export default async function DispositionPage() {
               </table>
             </div>
           ) : (
-            <div className="px-5 py-8 text-center text-sm text-slate-600 font-mono">
+            <div className="px-5 py-8 text-center text-sm text-[#7c8aa0] font-mono">
               今日無注意股公告
             </div>
           )}

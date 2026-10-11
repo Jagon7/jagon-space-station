@@ -17,44 +17,44 @@ export default async function SectorsPage() {
       subtitle={`${sectors.length} 個族群 · 更新 ${updatedTime}`}
       badge="Sector Ranking"
     >
-      <div className="rounded-xl border border-[#1e2a3a] bg-[#0d1220] p-4 mb-6 text-xs text-slate-400 leading-relaxed">
+      <div className="rounded-xl border border-[#243247] bg-[#0d1220] p-4 mb-6 text-xs text-slate-400 leading-relaxed">
         <span className="text-white font-semibold">排名依據</span>：TWSE 官方類股指數當日漲跌幅（市值加權），
         不是統計漲停檔數，而是該族群實際的整體漲跌表現。
-        想看更細的分類（上中下游、近千個細類），請到 <Link href="/industry" className="text-[#00d4aa] hover:underline">產業細分類</Link>。
+        想看更細的分類（上中下游、近千個細類），請到 <Link href="/industry" className="text-[#4f8cff] hover:underline">產業細分類</Link>。
       </div>
 
       <div className="grid grid-cols-2 gap-3 mb-6">
-        <div className="rounded-xl border border-[#ef4444]/20 bg-[#ef4444]/5 p-4 text-center">
-          <div className="text-2xl font-bold font-mono text-[#ef4444]">{upCount}</div>
-          <div className="text-[11px] text-slate-500 font-mono mt-1">上漲族群</div>
+        <div className="rounded-xl border border-[#f05252]/20 bg-[#f05252]/5 p-4 text-center">
+          <div className="text-2xl font-bold font-mono text-[#f05252]">{upCount}</div>
+          <div className="text-[11px] text-[#8b97ab] font-mono mt-1">上漲族群</div>
         </div>
         <div className="rounded-xl border border-[#22c55e]/20 bg-[#22c55e]/5 p-4 text-center">
           <div className="text-2xl font-bold font-mono text-[#22c55e]">{downCount}</div>
-          <div className="text-[11px] text-slate-500 font-mono mt-1">下跌族群</div>
+          <div className="text-[11px] text-[#8b97ab] font-mono mt-1">下跌族群</div>
         </div>
       </div>
 
       {sectors.length === 0 ? (
-        <div className="rounded-xl border border-[#1e2a3a] bg-[#0d1220] p-8 text-center text-sm text-slate-600 font-mono">
+        <div className="rounded-xl border border-[#243247] bg-[#0d1220] p-8 text-center text-sm text-[#7c8aa0] font-mono">
           請等待 Actions 執行後重新整理
         </div>
       ) : (
-        <div className="rounded-xl border border-[#1e2a3a] bg-[#0d1220] overflow-hidden">
+        <div className="rounded-xl border border-[#243247] bg-[#0d1220] overflow-hidden">
           {sectors.map((s, i) => {
             const isUp = s.changePercent >= 0;
-            const color = isUp ? "text-[#ef4444]" : "text-[#22c55e]";
-            const barColor = isUp ? "bg-[#ef4444]/25" : "bg-[#22c55e]/25";
+            const color = isUp ? "text-[#f05252]" : "text-[#22c55e]";
+            const barColor = isUp ? "bg-[#f05252]/25" : "bg-[#22c55e]/25";
             const barWidth = `${(Math.abs(s.changePercent) / maxAbs) * 100}%`;
             const Icon = isUp ? TrendingUp : TrendingDown;
             return (
               <Link
                 key={s.name}
                 href={`/sectors/${encodeURIComponent(s.name)}`}
-                className="flex items-center gap-4 px-5 py-3 border-b border-[#1e2a3a]/50 last:border-0 hover:bg-[#1e2a3a]/20 transition-colors"
+                className="flex items-center gap-4 px-5 py-3 border-b border-[#243247]/50 last:border-0 hover:bg-[#243247]/20 transition-colors"
               >
-                <span className="w-6 text-xs font-mono text-slate-600 text-right flex-shrink-0">{i + 1}</span>
+                <span className="w-6 text-xs font-mono text-[#7c8aa0] text-right flex-shrink-0">{i + 1}</span>
                 <span className="w-20 text-sm text-slate-200 flex-shrink-0">{s.name}</span>
-                <div className="flex-1 h-2 rounded-full bg-[#1e2a3a] overflow-hidden relative">
+                <div className="flex-1 h-2 rounded-full bg-[#243247] overflow-hidden relative">
                   <div
                     className={`h-full rounded-full ${barColor}`}
                     style={{ width: barWidth, marginLeft: isUp ? "50%" : `${50 - (Math.abs(s.changePercent) / maxAbs) * 50}%` }}
@@ -71,7 +71,7 @@ export default async function SectorsPage() {
         </div>
       )}
 
-      <div className="mt-6 pt-4 border-t border-[#1e2a3a] text-[10px] font-mono text-slate-700 text-center">
+      <div className="mt-6 pt-4 border-t border-[#243247] text-[10px] font-mono text-slate-700 text-center">
         資料來源：TWSE 開放資料平台 · 僅供研究參考，不構成投資建議
       </div>
     </PageShell>

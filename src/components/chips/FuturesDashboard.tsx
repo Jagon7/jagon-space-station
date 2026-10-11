@@ -11,8 +11,8 @@ type Range = "60" | "120" | "all";
 
 const md = (d: string) => `${Number(d.slice(5, 7))}/${Number(d.slice(8, 10))}`;
 const sg = (v: number | null | undefined, unit = "") => (v == null ? "—" : `${v > 0 ? "+" : ""}${v.toLocaleString()}${unit}`);
-const tone = (v: number | null | undefined) => (v == null || v === 0 ? "text-slate-400" : v > 0 ? "text-[#ef4444]" : "text-[#22c55e]");
-const tip = { contentStyle: { background: "#0d1220", border: "1px solid #1e2a3a", fontSize: 12 }, labelStyle: { color: "#94a3b8" } };
+const tone = (v: number | null | undefined) => (v == null || v === 0 ? "text-slate-400" : v > 0 ? "text-[#f05252]" : "text-[#22c55e]");
+const tip = { contentStyle: { background: "#0d1220", border: "1px solid #243247", fontSize: 12 }, labelStyle: { color: "#94a3b8" } };
 const ax = { tick: { fill: "#475569", fontSize: 11 }, axisLine: false, tickLine: false } as const;
 
 export default function FuturesDashboard() {
@@ -23,7 +23,7 @@ export default function FuturesDashboard() {
     return range === "all" ? rs : rs.slice(-Number(range));
   }, [data, range]);
 
-  if (!data) return <div className="py-16 text-center text-sm text-slate-500 font-mono">{error ? "資料載入失敗" : "載入中…"}</div>;
+  if (!data) return <div className="py-16 text-center text-sm text-[#8b97ab] font-mono">{error ? "資料載入失敗" : "載入中…"}</div>;
   if (!rows.length) return <Empty>期貨籌碼資料累積中。</Empty>;
   const cur = rows.at(-1)!, prev = rows.at(-2);
   const optNet = cur[8] != null && cur[9] != null ? Math.round((cur[8] - cur[9]) / 1e5) / 10 : null; // 億元
@@ -46,27 +46,27 @@ export default function FuturesDashboard() {
         <Pills<Range> value={range} onChange={setRange} options={[{ value: "60", label: "近 60 日" }, { value: "120", label: "近 120 日" }, { value: "all", label: "全部" }]} />
       </div>
       <div className="grid grid-cols-1 gap-4 mb-6">
-        <div className="rounded-xl border border-[#1e2a3a] bg-[#0d1220] p-5">
+        <div className="rounded-xl border border-[#243247] bg-[#0d1220] p-5">
           <div className="text-sm text-white font-semibold mb-3">外資台指期淨未平倉（口）與台指期價格</div>
           <ResponsiveContainer width="100%" height={260}>
             <ComposedChart data={chart} margin={{ top: 5, right: 0, bottom: 0, left: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1e2a3a" vertical={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#243247" vertical={false} />
               <XAxis dataKey="d" tickFormatter={md} {...ax} minTickGap={24} />
               <YAxis yAxisId="f" domain={[(lo: number) => Math.min(0, lo), (hi: number) => Math.max(0, hi)]} {...ax} />
               <YAxis yAxisId="p" orientation="right" domain={["auto", "auto"]} {...ax} />
               <Tooltip {...tip} formatter={(v, n) => [typeof v === "number" ? v.toLocaleString() : String(v), n === "f" ? "外資淨未平倉（口）" : "台指期"]} />
               <ReferenceLine yAxisId="f" y={0} stroke="#334155" />
-              <Bar yAxisId="f" dataKey="f">{chart.map((r) => <Cell key={r.d} fill={(r.f ?? 0) >= 0 ? "#ef4444" : "#22c55e"} fillOpacity={0.7} />)}</Bar>
+              <Bar yAxisId="f" dataKey="f">{chart.map((r) => <Cell key={r.d} fill={(r.f ?? 0) >= 0 ? "#f05252" : "#22c55e"} fillOpacity={0.7} />)}</Bar>
               <Line yAxisId="p" dataKey="px" stroke="#e2e8f0" dot={false} strokeWidth={1.5} connectNulls />
             </ComposedChart>
           </ResponsiveContainer>
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <div className="rounded-xl border border-[#1e2a3a] bg-[#0d1220] p-5">
+          <div className="rounded-xl border border-[#243247] bg-[#0d1220] p-5">
             <div className="text-sm text-white font-semibold mb-3">散戶小台多空比與 P/C 未平倉比（%）</div>
             <ResponsiveContainer width="100%" height={220}>
               <ComposedChart data={chart} margin={{ top: 5, right: 0, bottom: 0, left: -10 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1e2a3a" vertical={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#243247" vertical={false} />
                 <XAxis dataKey="d" tickFormatter={md} {...ax} minTickGap={24} />
                 <YAxis yAxisId="r" {...ax} />
                 <YAxis yAxisId="pc" orientation="right" domain={["auto", "auto"]} {...ax} />
@@ -78,27 +78,27 @@ export default function FuturesDashboard() {
               </ComposedChart>
             </ResponsiveContainer>
           </div>
-          <div className="rounded-xl border border-[#1e2a3a] bg-[#0d1220] p-5">
+          <div className="rounded-xl border border-[#243247] bg-[#0d1220] p-5">
             <div className="text-sm text-white font-semibold mb-3">外資臺指選擇權淨未平倉金額（億元）</div>
             <ResponsiveContainer width="100%" height={220}>
               <ComposedChart data={chart} margin={{ top: 5, right: 0, bottom: 0, left: -10 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1e2a3a" vertical={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#243247" vertical={false} />
                 <XAxis dataKey="d" tickFormatter={md} {...ax} minTickGap={24} />
                 <YAxis {...ax} />
                 <Tooltip {...tip} formatter={(v, n) => [`${typeof v === "number" ? v.toFixed(2) : v} 億`, n === "call" ? "買權" : "賣權"]} />
                 <Legend formatter={(v) => <span className="text-xs text-slate-400">{v === "call" ? "買權淨額（正＝看多）" : "賣權淨額（正＝看空）"}</span>} />
                 <ReferenceLine y={0} stroke="#334155" />
-                <Line dataKey="call" stroke="#ef4444" dot={false} strokeWidth={1.6} connectNulls />
+                <Line dataKey="call" stroke="#f05252" dot={false} strokeWidth={1.6} connectNulls />
                 <Line dataKey="put" stroke="#22c55e" dot={false} strokeWidth={1.6} connectNulls />
               </ComposedChart>
             </ResponsiveContainer>
           </div>
         </div>
       </div>
-      <div className="rounded-xl border border-[#1e2a3a] bg-[#0d1220] overflow-x-auto">
+      <div className="rounded-xl border border-[#243247] bg-[#0d1220] overflow-x-auto">
         <table className="w-full text-sm whitespace-nowrap">
           <thead>
-            <tr className="border-b border-[#1e2a3a] text-[11px] text-slate-500 text-right">
+            <tr className="border-b border-[#243247] text-[11px] text-[#8b97ab] text-right">
               <th className="px-3 py-2.5 font-normal text-left">日期</th><th className="px-3 py-2.5 font-normal">台指期</th>
               <th className="px-3 py-2.5 font-normal">外資台指淨 OI</th><th className="px-3 py-2.5 font-normal">投信</th><th className="px-3 py-2.5 font-normal">自營</th>
               <th className="px-3 py-2.5 font-normal">外資小台</th><th className="px-3 py-2.5 font-normal">散戶多空比</th><th className="px-3 py-2.5 font-normal">P/C 未平倉</th>
@@ -106,10 +106,10 @@ export default function FuturesDashboard() {
           </thead>
           <tbody>
             {[...rows].reverse().slice(0, 20).map((r, i, arr) => (
-              <tr key={r[0]} className="border-b border-[#1e2a3a]/60 last:border-0 text-right font-mono">
+              <tr key={r[0]} className="border-b border-[#243247]/60 last:border-0 text-right font-mono">
                 <td className="px-3 py-2 text-left text-slate-300">{r[0]}</td>
                 <td className="px-3 py-2 text-slate-300">{r[1]?.toLocaleString() ?? "—"}</td>
-                <td className={`px-3 py-2 ${tone(r[2])}`}>{sg(r[2])}{arr[i + 1]?.[2] != null && r[2] != null ? <span className="text-[10px] text-slate-500 ml-1">({sg(r[2] - arr[i + 1][2]!)})</span> : null}</td>
+                <td className={`px-3 py-2 ${tone(r[2])}`}>{sg(r[2])}{arr[i + 1]?.[2] != null && r[2] != null ? <span className="text-[10px] text-[#8b97ab] ml-1">({sg(r[2] - arr[i + 1][2]!)})</span> : null}</td>
                 <td className={`px-3 py-2 ${tone(r[3])}`}>{sg(r[3])}</td>
                 <td className={`px-3 py-2 ${tone(r[4])}`}>{sg(r[4])}</td>
                 <td className={`px-3 py-2 ${tone(r[6])}`}>{sg(r[6])}</td>

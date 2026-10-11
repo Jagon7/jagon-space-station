@@ -44,7 +44,7 @@ export default function ChangesTab({ core, query, setQuery }: {
         <SearchBox placeholder="輸入股票或 ETF 代號" items={items} onPick={setQuery} />
         {kindPills}
         {query && (
-          <button onClick={() => setQuery("")} className="text-xs text-slate-500 hover:text-[#00d4aa]">清除查詢</button>
+          <button onClick={() => setQuery("")} className="text-xs text-[#8b97ab] hover:text-[#4f8cff]">清除查詢</button>
         )}
       </div>
 
@@ -79,11 +79,11 @@ function StockView({ core, code, changes }: { core: CoreData; code: string; chan
     <>
       <div className="flex items-baseline gap-3 mb-4">
         <h2 className="text-2xl font-bold text-white">{core.names[code] ?? code}</h2>
-        <span className="font-mono text-sm text-slate-500">{code}</span>
-        {core.close[code] && <span className="font-mono text-sm text-slate-500">收盤 {core.close[code].toLocaleString()}</span>}
+        <span className="font-mono text-sm text-[#8b97ab]">{code}</span>
+        {core.close[code] && <span className="font-mono text-sm text-[#8b97ab]">收盤 {core.close[code].toLocaleString()}</span>}
       </div>
       <KpiRow>
-        <Kpi label="買進的 ETF" value={buy.length} unit="檔" sub={`（新增 ${buy.filter((r) => r.row[1] === 0).length}）`} color="text-[#ef4444]" />
+        <Kpi label="買進的 ETF" value={buy.length} unit="檔" sub={`（新增 ${buy.filter((r) => r.row[1] === 0).length}）`} color="text-[#f05252]" />
         <Kpi label="賣出的 ETF" value={sell.length} unit="檔" sub={`（剔除 ${sell.filter((r) => r.row[2] === 0).length}）`} color="text-[#22c55e]" />
         <Kpi label="合計增減" value={fmtSignedLots(diff, code).replace(/ (張|股)$/, "")} unit={isTw(code) ? "張" : "股"} color={signColor(diff)} />
         <Kpi label="估計淨金額" value={isTw(code) ? fmtYi(value, true) : "—"} unit={isTw(code) ? "億" : undefined} color={signColor(value)} />
@@ -111,8 +111,8 @@ function EtfView({ core, idx }: { core: CoreData; idx: number }) {
       render: (r) => (
         <span className="inline-flex items-center gap-2">
           <span className="text-slate-200">{core.names[r[0]] ?? r[0]}</span>
-          <span className="font-mono text-xs text-slate-500">{r[0]}</span>
-          {r[1] === 0 && <span className="text-[10px] px-1.5 rounded bg-[#ef4444]/15 text-[#ef4444]">新增</span>}
+          <span className="font-mono text-xs text-[#8b97ab]">{r[0]}</span>
+          {r[1] === 0 && <span className="text-[10px] px-1.5 rounded bg-[#f05252]/15 text-[#f05252]">新增</span>}
           {r[2] === 0 && <span className="text-[10px] px-1.5 rounded bg-[#22c55e]/15 text-[#22c55e]">剔除</span>}
         </span>
       ),
@@ -128,14 +128,14 @@ function EtfView({ core, idx }: { core: CoreData; idx: number }) {
     <>
       <div className="flex items-baseline gap-3 mb-4 flex-wrap">
         <h2 className="text-2xl font-bold text-white">{e.n}</h2>
-        <span className="font-mono text-sm text-slate-500">{e.c}</span>
+        <span className="font-mono text-sm text-[#8b97ab]">{e.c}</span>
         <KindBadge k={e.k} />
-        <span className="font-mono text-sm text-slate-500">{e.i}投信 · {mmdd(e.pd)} → {mmdd(e.d)}</span>
+        <span className="font-mono text-sm text-[#8b97ab]">{e.i}投信 · {mmdd(e.pd)} → {mmdd(e.d)}</span>
       </div>
       <KpiRow>
-        <Kpi label="買進" value={buys.length} unit="檔" sub={`（新增 ${buys.filter((r) => r[1] === 0).length}）`} color="text-[#ef4444]" />
+        <Kpi label="買進" value={buys.length} unit="檔" sub={`（新增 ${buys.filter((r) => r[1] === 0).length}）`} color="text-[#f05252]" />
         <Kpi label="賣出" value={sells.length} unit="檔" sub={`（剔除 ${sells.filter((r) => r[2] === 0).length}）`} color="text-[#22c55e]" />
-        <Kpi label="買進金額" value={fmtYi(buyVal, true)} unit="億" color="text-[#ef4444]" />
+        <Kpi label="買進金額" value={fmtYi(buyVal, true)} unit="億" color="text-[#f05252]" />
         <Kpi label="賣出金額" value={fmtYi(sellVal, true)} unit="億" color="text-[#22c55e]" />
       </KpiRow>
       {e.pd == null ? (
@@ -175,14 +175,14 @@ function Overview({ core, changes, setQuery }: {
   }
 
   const list = (title: string, rows: NetRow[], color: string) => (
-    <div className="rounded-xl border border-[#1e2a3a] bg-[#0d1220] overflow-hidden">
-      <div className={`px-4 py-3 border-b border-[#1e2a3a] text-sm font-semibold ${color}`}>{title}</div>
+    <div className="rounded-xl border border-[#243247] bg-[#0d1220] overflow-hidden">
+      <div className={`px-4 py-3 border-b border-[#243247] text-sm font-semibold ${color}`}>{title}</div>
       {rows.map((r, i) => (
-        <button key={r.code} onClick={() => setQuery(r.code)} className="w-full flex items-center gap-3 px-4 py-2 text-sm hover:bg-[#111a2c] border-b border-[#1e2a3a]/50 last:border-0">
-          <span className="w-5 font-mono text-xs text-slate-600">{i + 1}</span>
+        <button key={r.code} onClick={() => setQuery(r.code)} className="w-full flex items-center gap-3 px-4 py-2 text-sm hover:bg-[#111a2c] border-b border-[#243247]/50 last:border-0">
+          <span className="w-5 font-mono text-xs text-[#7c8aa0]">{i + 1}</span>
           <span className="text-slate-200">{core.names[r.code] ?? r.code}</span>
-          <span className="font-mono text-xs text-slate-500">{r.code}</span>
-          <span className="ml-auto font-mono text-xs text-slate-500">{r.buyers} 買 / {r.sellers} 賣</span>
+          <span className="font-mono text-xs text-[#8b97ab]">{r.code}</span>
+          <span className="ml-auto font-mono text-xs text-[#8b97ab]">{r.buyers} 買 / {r.sellers} 賣</span>
           <span className={`w-20 text-right font-mono ${color}`}>{fmtYi(r.value, true)} 億</span>
         </button>
       ))}
@@ -192,17 +192,17 @@ function Overview({ core, changes, setQuery }: {
   return (
     <>
       <div className="grid lg:grid-cols-2 gap-4 mb-8">
-        {list("ETF 合計買超（估計金額）", topBuy, "text-[#ef4444]")}
+        {list("ETF 合計買超（估計金額）", topBuy, "text-[#f05252]")}
         {list("ETF 合計賣超（估計金額）", topSell, "text-[#22c55e]")}
       </div>
       <h3 className="text-base font-semibold text-white mb-1">有持股異動的 ETF</h3>
-      <p className="text-xs text-slate-500 mb-4">括號內為異動股票檔數，點選即可查詢。</p>
+      <p className="text-xs text-[#8b97ab] mb-4">括號內為異動股票檔數，點選即可查詢。</p>
       <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-2">
         {withChanges.map(([i, rs]) => (
-          <button key={i} onClick={() => setQuery(core.etfs[i].c)} className="rounded-lg border border-[#1e2a3a] bg-[#0d1220] px-3 py-2 text-left hover:border-[#00d4aa]/40">
+          <button key={i} onClick={() => setQuery(core.etfs[i].c)} className="rounded-lg border border-[#243247] bg-[#0d1220] px-3 py-2 text-left hover:border-[#4f8cff]/40">
             <div className="text-sm text-slate-200 truncate">{core.etfs[i].n}</div>
-            <div className="flex justify-between font-mono text-[11px] text-slate-500">
-              <span>{core.etfs[i].c}</span><span className="text-[#00d4aa]">{rs.length}</span>
+            <div className="flex justify-between font-mono text-[11px] text-[#8b97ab]">
+              <span>{core.etfs[i].c}</span><span className="text-[#4f8cff]">{rs.length}</span>
             </div>
           </button>
         ))}
@@ -216,7 +216,7 @@ function EtfCell({ core, idx }: { core: CoreData; idx: number }) {
   return (
     <span className="inline-flex items-center gap-2">
       <span className="text-slate-200">{e.n}</span>
-      <span className="font-mono text-xs text-slate-500">{e.c}</span>
+      <span className="font-mono text-xs text-[#8b97ab]">{e.c}</span>
       <KindBadge k={e.k} />
     </span>
   );
