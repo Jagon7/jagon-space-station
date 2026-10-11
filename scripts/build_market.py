@@ -119,7 +119,23 @@ def build(data_dir: Path, out_dir: Path):
         "highs": [(r["nh"] - r["nl"]) if r["nh"] is not None else None for r in rows_atm],
         "turnover": [],
         "margin": [r["mChg"] for r in rows_atm],
+        "futures": [],
     }
+    fut = {}
+    try:
+        fut = json.loads((data_dir / "futures" / "daily.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        pass
+    fdates = sorted(k for k, v in fut.items() if (v.get("txf") or {}).get("f"))
+    for r in rows_atm:
+        # 外資台指期淨未平倉 5 日變化（口）
+        j = bisect_left(fdates, r["d"])
+        if j < len(fdates) and fdates[j] == r["d"] and j >= 5:
+            now_, ago = fut[fdates[j]]["txf"]["f"][0], fut[fdates[j - 5]]["txf"]["f"][0]
+            r["fut5"] = now_ - ago if now_ is not None and ago is not None else None
+        else:
+            r["fut5"] = None
+        vals["futures"].append(r["fut5"])
     for i, r in enumerate(rows_atm):
         prev = [x["value"] for x in rows_atm[max(0, i - 20): i]]
         vals["turnover"].append(r["value"] / (sum(prev) / len(prev)) if prev else None)
@@ -198,4 +214,62 @@ def build(data_dir: Path, out_dir: Path):
         "cols": ["code", "name", "mkt", "close", "chg5", "chg20", "mBal", "mChg", "sBal", "sChg", "sChg5", "sChg20",
                  "ratio", "cover", "offset", "sbl", "sblChg5", "vol5"],
         "rows": short_rows}, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
-    print(f"每日行情：{n} 天（{days[0]['date']} ~ {days[-1]['date']}）、隔日追蹤 {len(nd_rows)} 筆、券差 {len(short_rows)} 檔 → public/data/market")
+    n_scr = build_screener(days, out)
+    print(f"每日行情：{n} 天（{days[0]['date']} ~ {days[-1]['date']}）、隔日追蹤 {len(nd_rows)} 筆、券差 {len(short_rows)} 檔、選股 {n_scr} 檔 → public/data/market")
+
+
+SIGNALS = ["ma20up", "ma60up", "bull", "volx2", "high_all", "high60", "breakout", "ma60down", "low60"]
+
+
+def build_screener(days: list[dict], out: Path) -> int:
+    """技術選股：每檔普通股最新一天的均線、量能、新高新低訊號；px/<代號>.json 為近 120 天收盤與成交量"""
+    n = len(days)
+    (out / "px").mkdir(parents=True, exist_ok=True)
+    last = days[-1]
+    rows = []
+    for c, v in last["q"].items():
+        if not STOCK.fullmatch(c):
+            continue
+        ser = [(d["date"], d["q"][c][5], d["q"][c][7]) for d in days if c in d["q"] and d["q"][c][5]]
+        if len(ser) < 61 or ser[-1][0] != last["date"]:
+            continue
+        cl = [x[1] for x in ser]
+        vol = [x[2] for x in ser]
+
+        def ma(k, end=len(cl)):
+            w = cl[end - k:end]
+            return sum(w) / k
+        close, prev = cl[-1], cl[-2]
+        m5, m10, m20, m60 = ma(5), ma(10), ma(20), ma(60)
+        p20, p60 = ma(20, len(cl) - 1), ma(60, len(cl) - 1)
+        avg20v = sum(vol[-21:-1]) / 20
+        hi20 = max(cl[-21:-1])
+        lo20 = min(cl[-21:-1])
+        sig = []
+        if prev <= p20 and close > m20:
+            sig.append("ma20up")
+        if prev <= p60 and close > m60:
+            sig.append("ma60up")
+        if close > m5 > m10 > m20 > m60:
+            sig.append("bull")
+        if avg20v and vol[-1] >= 2 * avg20v and vol[-1] >= 1000:
+            sig.append("volx2")
+        if close >= max(cl[:-1]):
+            sig.append("high_all")
+        if close >= max(cl[-61:-1]):
+            sig.append("high60")
+        if lo20 and (hi20 - lo20) / lo20 < 0.15 and close > hi20:
+            sig.append("breakout")
+        if prev >= p60 and close < m60:
+            sig.append("ma60down")
+        if close <= min(cl[-61:-1]):
+            sig.append("low60")
+        rows.append([c, v[0], v[1], close, pct(prev, close), vol[-1], round(vol[-1] / avg20v, 2) if avg20v else None,
+                     pct(m20, close), pct(m60, close), pct(cl[-6], close), pct(cl[-21], close), pct(cl[-61], close),
+                     round((v[8] or 0) / 1e8, 2), [SIGNALS.index(x) for x in sig]])
+        (out / "px" / f"{c}.json").write_text(json.dumps([[x[0], x[1], x[2]] for x in ser[-120:]], separators=(",", ":")), encoding="utf-8")
+    (out / "screener.json").write_text(json.dumps({
+        "date": last["date"], "signals": SIGNALS,
+        "cols": ["code", "name", "mkt", "close", "chg", "vol", "volRatio", "ma20dist", "ma60dist", "r5", "r20", "r60", "valueYi", "sig"],
+        "rows": rows}, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    return len(rows)

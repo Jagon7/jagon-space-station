@@ -3,10 +3,45 @@ import {
   TrendingUp, BarChart2, Shield, DollarSign,
   FileText, Calendar, ArrowDownUp, Zap, Activity,
   PieChart, Search, Layers, Ticket, Users,
-  UserCheck,
+  UserCheck, Star, Filter, Landmark, LineChart,
 } from "lucide-react";
 
 const modules = [
+  {
+    icon: Star,
+    title: "自選股",
+    desc: "把常看的股票加入清單，一頁看完它們在全站觸發的技術、法人、營收、內部人、事件訊號",
+    href: "/watchlist",
+    accent: "#f59e0b",
+  },
+  {
+    icon: Filter,
+    title: "技術選股",
+    desc: "站上月線季線、多頭排列、爆量、突破整理、創新高，訊號可複選",
+    href: "/screener",
+    accent: "#00d4aa",
+  },
+  {
+    icon: Landmark,
+    title: "三大法人",
+    desc: "外資、投信、自營商個股買賣超，連續買超、土洋同買與對作",
+    href: "/institutional",
+    accent: "#3b82f6",
+  },
+  {
+    icon: LineChart,
+    title: "期貨選擇權籌碼",
+    desc: "外資台指期多空、散戶小台多空比、P/C ratio",
+    href: "/futures",
+    accent: "#a78bfa",
+  },
+  {
+    icon: PieChart,
+    title: "大戶持股",
+    desc: "集保千張大戶與散戶比例每週變化，找籌碼集中的股票",
+    href: "/holders",
+    accent: "#ef4444",
+  },
   {
     icon: TrendingUp,
     title: "漲停訊號鎖定",

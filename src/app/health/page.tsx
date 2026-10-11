@@ -123,6 +123,21 @@ function buildRows() {
     push({ level: bb?.length ? "ok" : "warn", item: "基本面", name: "庫藏股", date: null, count: bb?.length ?? 0, note: "近 2 年決議" });
   }
 
+  // ── 籌碼：三大法人、期貨、集保 ──
+  {
+    const it = list("insti").filter((f) => f.startsWith("20"));
+    const il = lag(it.at(-1)?.replace(".json", "") ?? null);
+    const icount = it.length ? Object.keys(read<Record<string, unknown>>(`insti/${it.at(-1)}`) ?? {}).length - 1 : 0;
+    push({ level: byLag(il, 0, 1), item: "籌碼", name: "三大法人買賣超", date: it.at(-1)?.replace(".json", "") ?? null, lag: il, count: icount, note: lagNote(il, 0) || `累積 ${it.length} 天` });
+    const fu = read<Record<string, unknown>>("futures/daily.json") ?? {};
+    const fd = Object.keys(fu).sort().at(-1) ?? null;
+    const fl = lag(fd);
+    push({ level: byLag(fl, 0, 1), item: "籌碼", name: "期貨選擇權籌碼", date: fd, lag: fl, count: Object.keys(fu).length, note: lagNote(fl, 0) });
+    const hw = list("holders").map((f) => f.replace(".json", "")).sort();
+    const hl = lag(hw.at(-1) ?? null);
+    push({ level: byLag(hl, 6, 10), item: "籌碼", name: "集保大戶持股（每週）", date: hw.at(-1) ?? null, lag: hl, count: hw.length ? Object.keys(read<Record<string, unknown>>(`holders/${hw.at(-1)}.json`) ?? {}).length : 0, note: lagNote(hl, 6) || `共 ${hw.length} 週` });
+  }
+
   // ── 週期性資料 ───────────────────────────────────
   const cb = read<{ updatedAt: string; cases: unknown[] }>("cb/cases.json");
   const cbLag = lag(cb?.updatedAt?.slice(0, 10) ?? null);

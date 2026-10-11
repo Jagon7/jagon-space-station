@@ -4,7 +4,9 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ComposedChart, Bar, Line, XAxis, YAxis, ResponsiveContainer, Tooltip, Cell } from "recharts";
+import { Star } from "lucide-react";
 import { useStaticJson } from "@/lib/static-json";
+import { useWatchlist } from "@/lib/watchlist";
 import { SearchBox } from "@/components/data-ui";
 import { pf, tone } from "./RevenueDashboard";
 
@@ -42,6 +44,7 @@ function Detail({ code, idx }: { code: string; idx: Index }) {
   const ev = useStaticJson<Events>("fund/events.json");
   const nd = useStaticJson<NextDay>("market/nextday.json");
   const ins = useStaticJson<Insider>("insider/index.json");
+  const wl = useWatchlist();
 
   const s = short.data?.rows.find((r) => r[0] === code);
   const holders = core.data?.holders[code] ?? [];
@@ -63,6 +66,10 @@ function Detail({ code, idx }: { code: string; idx: Index }) {
     <div>
       <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1 mb-5">
         <h2 className="text-2xl font-bold text-white">{name}</h2>
+        <button onClick={() => wl.toggle(code)} title={wl.has(code) ? "移出自選股" : "加入自選股"}
+          className={`self-center inline-flex items-center gap-1 rounded-lg border px-2 py-1 text-xs ${wl.has(code) ? "border-[#f59e0b] text-[#f59e0b]" : "border-[#1e2a3a] text-slate-400 hover:text-[#f59e0b]"}`}>
+          <Star className="w-3.5 h-3.5" fill={wl.has(code) ? "currentColor" : "none"} />{wl.has(code) ? "已加入自選" : "加入自選"}
+        </button>
         <span className="font-mono text-slate-400">{code}</span>
         <span className="text-xs text-slate-500">{mk}{ind ? `・${ind}` : ""}</span>
         <span className="font-mono text-xl text-slate-100">{close}</span>

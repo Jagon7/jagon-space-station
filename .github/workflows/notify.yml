@@ -1,0 +1,30 @@
+name: Daily Notify
+
+on:
+  schedule:
+    - cron: '7 14 * * 1-5'   # 22:07 台灣時間：當天行情、法人、融資券都已更新
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.11'
+      - run: pip install requests
+      - name: Build data views
+        run: TZ=Asia/Taipei python3 scripts/build_views.py
+      - name: Send
+        run: python3 scripts/notify.py
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
+          LINE_USER_ID: ${{ secrets.LINE_USER_ID }}
