@@ -131,7 +131,7 @@ def main():
         except RuntimeError as e:
             log(f"✗ {d}：{e}")
             continue
-        if tw is None and tp is None:
+        if not tw and not tp:
             log(f"  {d}：還沒有資料")
             continue
         doc = {**(tw or {}), **(tp or {})}
