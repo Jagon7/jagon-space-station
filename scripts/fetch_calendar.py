@@ -45,6 +45,7 @@ def main():
     if not days:
         print("✗ 沒有取得休市日")
         return 1
+    OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps({"updatedAt": datetime.now(TPE).isoformat(timespec="minutes"), "holidays": sorted(days)},
                               ensure_ascii=False, indent=1), encoding="utf-8")
     print(f"休市日：{len(days)} 天")

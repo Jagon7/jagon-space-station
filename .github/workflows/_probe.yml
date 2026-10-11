@@ -11,4 +11,4 @@ jobs:
       - run: |
           pip install requests >/dev/null
           curl -s https://openapi.twse.com.tw/v1/holidaySchedule/holidaySchedule | head -c 1500; echo
-          JSS_DATA_DIR=/tmp/d python3 scripts/fetch_calendar.py && cat /tmp/d/calendar.json
+          JSS_DATA_DIR=/tmp/d python3 scripts/fetch_calendar.py && grep -c "" /tmp/d/calendar.json && grep -E "2026-(09|10)" /tmp/d/calendar.json
