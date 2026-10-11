@@ -92,6 +92,18 @@ function buildRows() {
     push({ level: byLag(l, 0, 1), item: "每日", name, date: d?.date ?? null, lag: l, count, note: lagNote(l, 0) });
   }
 
+  // ── 每日全市場行情（氣氛評估／隔日追蹤／券差偵察） ──
+  {
+    const files = list("daily").filter((f) => f.startsWith("20"));
+    const last = files.length ? read<{ date: string; q: Record<string, unknown>; m: Record<string, unknown>; s: Record<string, unknown>; partial?: string[] | null }>(`daily/${files.at(-1)}`) : null;
+    const l = lag(last?.date ?? null);
+    push({ level: !last ? "error" : last.partial ? "warn" : byLag(l, 0, 1), item: "行情", name: "全市場開高低收（上市＋上櫃）", date: last?.date ?? null, lag: l, count: last ? Object.keys(last.q).length : 0, note: last?.partial ? `缺 ${last.partial.join("、")}` : lagNote(l, 0) || `累積 ${files.length} 天` });
+    const mDay = [...files].reverse().map((f) => read<{ date: string; m: Record<string, unknown>; s: Record<string, unknown> }>(`daily/${f}`)).find((d) => d && Object.keys(d.m).length);
+    const ml = lag(mDay?.date ?? null);
+    push({ level: byLag(ml, 1, 2), item: "籌碼", name: "融資融券餘額", date: mDay?.date ?? null, lag: ml, count: mDay ? Object.keys(mDay.m).length : 0, note: lagNote(ml, 1) });
+    push({ level: !mDay || !Object.keys(mDay.s).length ? "warn" : byLag(ml, 1, 2), item: "籌碼", name: "借券賣出餘額", date: mDay?.date ?? null, lag: ml, count: mDay ? Object.keys(mDay.s).length : 0, note: mDay && !Object.keys(mDay.s).length ? "這天沒有借券資料" : "" });
+  }
+
   // ── 週期性資料 ───────────────────────────────────
   const cb = read<{ updatedAt: string; cases: unknown[] }>("cb/cases.json");
   const cbLag = lag(cb?.updatedAt?.slice(0, 10) ?? null);
