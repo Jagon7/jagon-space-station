@@ -98,7 +98,7 @@ def fetch_irb(ym: str) -> dict | None:
             return None
         r = S.get(url, timeout=60)
         page = r.content.decode("big5hkscs", errors="replace")
-        rows = re.findall(r"<TR><TD>([0-9A-Z]{4,6})(.*?)</TD>(.*?)</TR>", page, re.S)
+        rows = re.findall(r"<TR><TD>(\d{4})(.*?)</TD>(.*?)</TR>", page, re.S)  # 代號固定 4 碼（名稱可能以英數開頭，如 TPK、91APP）
         if r.status_code != 200 or not rows:
             return None
         for code, name, rest in rows:
@@ -125,7 +125,7 @@ def fetch_company(code: str, ym: str) -> tuple[list, str] | None:
     y, m = int(ym[:4]) - 1911, int(ym[5:])
     res = post("query6_1", {"companyId": code, "dataType": "2", "subsidiaryCompanyId": "", "year": str(y), "month": str(m)})
     if res.get("code") != 200 or not res.get("result"):
-        return None
+        return [], ""  # 查無資料或代號有誤：記成空的，不要每次重查
     rows: dict[tuple, list] = {}
     for d in res["result"].get("data") or []:
         if len(d) < 19 or d[2] != "普通股":
@@ -161,7 +161,7 @@ def fetch_transfers(day: date) -> list:
                 r = S.post(OV + "ajax_t56sb12", timeout=60, headers={"Referer": OV + "t56sb12_q1"},
                            data={"step": "2", "year": str(y), "month": m, "day": d, "report": report, "firstin": "true"})
                 text = r.content.decode("utf-8", errors="replace")
-                if r.status_code == 200 and ("hasBorder" in text or "查無" in text or "無資料" in text):
+                if r.status_code == 200 and ("hasBorder" in text or "無持股轉讓" in text or "查無" in text or "無資料" in text):
                     page = text
                     break
             except requests.RequestException:
@@ -205,6 +205,18 @@ def month_list(n: int) -> list[str]:
     return out  # 新到舊，從上個月開始
 
 
+def norm_irb(doc: dict) -> dict:
+    """舊版彙總表把英數開頭的公司名稱黏進代號（3673TP），修正成 4 碼代號。"""
+    out = {}
+    for code, v in doc.items():
+        m = re.match(r"(\d{4})(.*)", code)
+        if m and m.group(2):
+            out.setdefault(m.group(1), [m.group(2) + v[0]] + v[1:])
+        else:
+            out[code] = v
+    return out
+
+
 def prev_month(ym: str) -> str:
     d = date(int(ym[:4]), int(ym[5:]), 1) - timedelta(days=1)
     return d.strftime("%Y-%m")
@@ -227,6 +239,8 @@ def main():
     for i, ym in enumerate(months):
         path = OUT / "irb" / f"{ym}.json"
         cached = read_json(path, None)
+        if cached is not None:
+            cached = norm_irb(cached)
         if cached is not None and i >= 2:
             irb[ym] = cached
             continue
