@@ -5,7 +5,7 @@ export default function Page() {
   return (
     <PageShell
       title="市場氣氛評估"
-      subtitle="每天收盤後把漲跌家數、漲跌停、站上月線比例、新高新低、量能、融資六個面向合成 0～100 的氣氛分數，看市場現在是過熱還是冰點。"
+      subtitle="每天收盤後把漲跌家數、漲跌停、站上月線比例、新高新低、量能、融資、外資期貨七個面向合成 0～100 的氣氛分數，看市場現在是過熱還是冰點。"
       badge="Market Atmosphere"
     >
       <AtmosphereDashboard />

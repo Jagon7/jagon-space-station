@@ -8,7 +8,7 @@ import { Empty, Kpi, KpiRow, Note, Pills } from "@/components/data-ui";
 type Day = {
   d: string; ix: number | null; ixPct: number | null; adv: number; dec: number; unch: number; lu: number; ld: number;
   above20: number | null; nh: number | null; nl: number | null; value: number; mBal: number | null; mChg: number | null;
-  sBal: number | null; parts: Record<string, number>; score: number | null; label: string | null;
+  sBal: number | null; fut5?: number | null; parts: Record<string, number>; score: number | null; label: string | null;
 };
 type Range = "60" | "120" | "all";
 
@@ -19,6 +19,7 @@ const PARTS: [string, string, (d: Day) => string][] = [
   ["highs", "20 日新高 − 新低", (d) => (d.nh == null ? "—" : `${d.nh} 新高 / ${d.nl} 新低`)],
   ["turnover", "量能（對比 20 日均量）", (d) => `${d.value.toLocaleString()} 億`],
   ["margin", "融資增減", (d) => (d.mChg == null ? "—" : `${d.mChg > 0 ? "+" : ""}${d.mChg.toLocaleString()} 張`)],
+  ["futures", "外資期貨（5 日）", (d) => (d.fut5 == null ? "—" : `${d.fut5 > 0 ? "+" : ""}${d.fut5.toLocaleString()} 口`)],
 ];
 const COLOR = (s: number | null) => (s == null ? "#64748b" : s >= 80 ? "#ef4444" : s >= 60 ? "#f97316" : s >= 40 ? "#3b82f6" : s >= 20 ? "#22c55e" : "#10b981");
 const md = (d: string) => `${Number(d.slice(5, 7))}/${Number(d.slice(8, 10))}`;
@@ -66,7 +67,7 @@ export default function AtmosphereDashboard() {
   return (
     <div>
       <Note>
-        把每天盤面的六個面向——上漲家數比、漲停減跌停、站上月線比例、創 20 日新高減新低、量能、融資增減——各自換算成「在過去這段期間排第幾百分位」，再平均成 0～100 的氣氛分數。
+        把每天盤面的七個面向——上漲家數比、漲停減跌停、站上月線比例、創 20 日新高減新低、量能、融資增減、外資台指期淨未平倉 5 日變化——各自換算成「在過去這段期間排第幾百分位」，再平均成 0～100 的氣氛分數。
         80 以上「過熱」、60～80「偏多」、40～60「中性」、20～40「偏空」、20 以下「冰點」。上市櫃普通股都算在內（不含 ETF）。
       </Note>
 
@@ -82,7 +83,7 @@ export default function AtmosphereDashboard() {
           {pick && <button onClick={() => setPick(null)} className="mt-3 text-xs text-slate-500 hover:text-[#00d4aa]">回到最新一天</button>}
         </div>
         <div className="rounded-xl border border-[#1e2a3a] bg-[#0d1220] p-5">
-          <div className="text-xs text-slate-500 mb-3">六個面向（百分位，越高越熱）</div>
+          <div className="text-xs text-slate-500 mb-3">七個面向（百分位，越高越熱）</div>
           <div className="space-y-3">
             {PARTS.map(([k, name, fmt]) => {
               const v = cur.parts[k];
@@ -129,7 +130,7 @@ export default function AtmosphereDashboard() {
             {hasIx && <Line yAxisId="ix" type="monotone" dataKey="ix" stroke="#e2e8f0" strokeWidth={1.2} dot={false} connectNulls />}
           </ComposedChart>
         </ResponsiveContainer>
-        <p className="text-[11px] text-slate-600 mt-1">藍色為每日氣氛分數、橘線為 5 日平均（左軸），白線為加權指數（右軸）。點圖上任一天可看當天的六個面向。</p>
+        <p className="text-[11px] text-slate-600 mt-1">藍色為每日氣氛分數、橘線為 5 日平均（左軸），白線為加權指數（右軸）。點圖上任一天可看當天的七個面向。</p>
       </div>
 
       <div className="rounded-xl border border-[#1e2a3a] bg-[#0d1220] overflow-x-auto">

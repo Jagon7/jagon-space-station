@@ -119,7 +119,23 @@ def build(data_dir: Path, out_dir: Path):
         "highs": [(r["nh"] - r["nl"]) if r["nh"] is not None else None for r in rows_atm],
         "turnover": [],
         "margin": [r["mChg"] for r in rows_atm],
+        "futures": [],
     }
+    fut = {}
+    try:
+        fut = json.loads((data_dir / "futures" / "daily.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        pass
+    fdates = sorted(k for k, v in fut.items() if (v.get("txf") or {}).get("f"))
+    for r in rows_atm:
+        # 外資台指期淨未平倉 5 日變化（口）
+        j = bisect_left(fdates, r["d"])
+        if j < len(fdates) and fdates[j] == r["d"] and j >= 5:
+            now_, ago = fut[fdates[j]]["txf"]["f"][0], fut[fdates[j - 5]]["txf"]["f"][0]
+            r["fut5"] = now_ - ago if now_ is not None and ago is not None else None
+        else:
+            r["fut5"] = None
+        vals["futures"].append(r["fut5"])
     for i, r in enumerate(rows_atm):
         prev = [x["value"] for x in rows_atm[max(0, i - 20): i]]
         vals["turnover"].append(r["value"] / (sum(prev) / len(prev)) if prev else None)
