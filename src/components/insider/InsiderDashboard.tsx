@@ -206,10 +206,11 @@ function TransferList({ data, open, setOpen }: { data: Index; open: string | nul
       <div className="flex flex-wrap items-center gap-3 mb-3">
         <Pills<Days> value={days} onChange={setDays} options={[{ value: "7", label: "近 7 天" }, { value: "30", label: "近 30 天" }, { value: "90", label: "近 90 天" }]} />
         <Pills<Method> value={method} onChange={setMethod} options={[{ value: "all", label: "全部方式" }, { value: "market", label: "市場賣出" }, { value: "specific", label: "洽特定人" }, { value: "other", label: "贈與・信託等" }]} />
-        <Pills<"date" | "value"> value={sort} onChange={setSort} options={[{ value: "date", label: "依日期" }, { value: "value", label: "依金額" }]} />
+        <Pills<"date" | "value"> value={sort} onChange={setSort} options={[{ value: "date", label: "依日期" }, { value: "value", label: "依期間總金額" }]} />
       </div>
+      <p className="-mt-1 mb-3 text-[11px] text-slate-500">金額＝所選期間內（近 {days} 天）每筆預定轉讓股數 × 最新收盤價，同一家公司加總。</p>
       {!groups.length ? <Empty>這段期間沒有符合條件的事前申報。</Empty> : (
-        <ListBox count={groups.length} grid="sm:grid-cols-[minmax(9rem,1.2fr)_6.5rem_minmax(8rem,1fr)_7rem_6rem]" labels={[["公司", false], ["最新申報", false], ["方式・人數", false], ["預定轉讓", true], ["估計金額", true]]}>
+        <ListBox count={groups.length} grid="sm:grid-cols-[minmax(9rem,1.2fr)_6.5rem_minmax(8rem,1fr)_7rem_6rem]" labels={[["公司", false], ["最新申報", false], ["方式・人數", false], ["期間預定轉讓", true], ["期間金額（估）", true]]}>
           {groups.map((g) => (
             <CompanyRow key={g.code} open={open === g.code} onToggle={() => setOpen(open === g.code ? null : g.code)} head={
               <div className="grid grid-cols-[1fr_auto] sm:grid-cols-[minmax(9rem,1.2fr)_6.5rem_minmax(8rem,1fr)_7rem_6rem] items-center gap-x-4 gap-y-1">
@@ -267,7 +268,7 @@ function MonthList({ data, open, setOpen }: { data: Index; open: string | null; 
     <div>
       <div className="flex flex-wrap items-center gap-3 mb-3">
         <Pills<Side> value={side} onChange={setSide} options={[{ value: "all", label: "全部" }, { value: "buy", label: "淨買進" }, { value: "sell", label: "淨賣出" }]} />
-        <span className="text-xs text-slate-500">{ym(data.latest)} 內部人在集中市場有買賣的公司，依金額排序</span>
+        <span className="text-xs text-slate-500">{ym(data.latest)} 內部人在集中市場有買賣的公司，依當月淨買賣金額排序</span>
       </div>
       {!rows.length ? <Empty>沒有符合條件的公司。</Empty> : (
         <ListBox count={rows.length} grid="sm:grid-cols-[minmax(9rem,1.2fr)_3rem_minmax(8rem,1fr)_10rem_6rem]" labels={[["公司", false], ["方向", false], ["主要申報人", false], ["買／賣（張）・均價", true], ["淨額（估）", true]]}>
@@ -317,10 +318,10 @@ function HistoryList({ data, open, setOpen }: { data: Index; open: string | null
       <div className="flex flex-wrap items-center gap-3 mb-3">
         <Pills<Side> value={side} onChange={setSide} options={[{ value: "all", label: "買賣都看" }, { value: "buy", label: "內部人買進" }, { value: "sell", label: "內部人賣出" }]} />
         <Pills<MinAmt> value={minAmt} onChange={setMinAmt} options={[{ value: "1e7", label: "≥ 1000 萬" }, { value: "1e8", label: "≥ 1 億" }, { value: "1e9", label: "≥ 10 億" }]} />
-        <Pills<HistSort> value={sort} onChange={setSort} options={[{ value: "amount", label: "依金額" }, { value: "recent", label: "依時間" }]} />
+        <Pills<HistSort> value={sort} onChange={setSort} options={[{ value: "amount", label: "依最大一次金額" }, { value: "recent", label: "依時間" }]} />
       </div>
       {!groups.length ? <Empty>沒有符合條件的案例。</Empty> : (
-        <ListBox count={groups.length} grid="sm:grid-cols-[minmax(9rem,1.1fr)_3rem_minmax(9rem,1.3fr)_6rem_5rem_5rem]" labels={[["公司", false], ["方向", false], ["最大一次：期間・誰・均價", false], ["淨額（估）", true], ["之後3個月", true], ["至今", true]]}>
+        <ListBox count={groups.length} grid="sm:grid-cols-[minmax(9rem,1.1fr)_3rem_minmax(9rem,1.3fr)_6rem_5rem_5rem]" labels={[["公司", false], ["方向", false], ["最大一次：期間・誰・均價", false], ["該次淨額（估）", true], ["之後3個月", true], ["至今", true]]}>
           {groups.map((g) => (
             <CompanyRow key={g.code} open={open === g.code} onToggle={() => setOpen(open === g.code ? null : g.code)} head={
               <div className="grid grid-cols-[1fr_auto] sm:grid-cols-[minmax(9rem,1.1fr)_3rem_minmax(9rem,1.3fr)_6rem_5rem_5rem] items-center gap-x-4 gap-y-1">
