@@ -1,0 +1,17 @@
+name: probe-fundamentals (temporary)
+on:
+  push:
+    branches: [claude/youthful-rubin-xo17ci]
+    paths: [.github/workflows/_probe.yml, scripts/_probe.py]
+permissions:
+  contents: write
+jobs:
+  p:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: pip install requests >/dev/null && python3 scripts/_probe.py
+      - run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898299+github-actions[bot]@users.noreply.github.com"
+          git add -f probe_out && git commit -qm "probe output" && git pull --rebase -q && git push
