@@ -12,7 +12,7 @@ const navItems: NavItem[] = [
   {
     label: "即時戰情",
     children: [
-      { label: "氣氛評估", href: "/atmosphere",  badge: "18:50" },
+      { label: "氣氛評估", href: "/atmosphere" },
       { label: "漲停訊號", href: "/limit-up" },
       { label: "隔日追蹤", href: "/next-day" },
       { label: "成交排行", href: "/ranking" },
@@ -36,14 +36,14 @@ const navItems: NavItem[] = [
   {
     label: "籌碼雷達",
     children: [
-      { label: "券差偵察", href: "/short",       badge: "21:30" },
-      { label: "處置預警",      href: "/disposition",  badge: "19:00" },
+      { label: "券差偵察", href: "/short" },
+      { label: "處置預警",      href: "/disposition" },
       { label: "三大法人",       href: "/institutional" },
       { label: "期貨選擇權",     href: "/futures" },
       { label: "大戶持股",       href: "/holders" },
-      { label: "分點買賣超",     href: "/broker",       badge: "21:30" },
+      { label: "分點買賣超",     href: "/broker" },
       { label: "內部人持股異動", href: "/insider" },
-      { label: "ETF 持股",       href: "/etf-flow",     badge: "21:30" },
+      { label: "ETF 持股",       href: "/etf-flow" },
     ],
   },
   { label: "情報截收", href: "/announcements" },
@@ -75,6 +75,14 @@ export default function Navbar() {
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const navRef = useRef<HTMLDivElement>(null);
+
+  // 手機選單打開時鎖住背後頁面，滑動只捲選單本身
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = prev; };
+  }, [mobileOpen]);
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -140,7 +148,7 @@ export default function Navbar() {
       </div>
 
       {mobileOpen && (
-        <div className="md:hidden border-t border-[#243247] bg-[#0d1220]">
+        <div className="md:hidden border-t border-[#243247] bg-[#0d1220] max-h-[calc(100dvh-3.5rem)] overflow-y-auto overscroll-contain pb-[env(safe-area-inset-bottom)]">
           {navItems.map((item) => (
             <div key={item.label}>
               {item.href ? (

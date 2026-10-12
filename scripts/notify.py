@@ -8,7 +8,8 @@
   Telegram：TELEGRAM_BOT_TOKEN、TELEGRAM_CHAT_ID
   Discord ：DISCORD_WEBHOOK_URL
   LINE    ：LINE_CHANNEL_TOKEN、LINE_USER_ID（Messaging API push message）
-用法：python scripts/notify.py [--dry-run]
+用法：python scripts/notify.py [--dry-run] [--check]
+  --check：只檢查最近一個交易日的行情、法人、融資券是否都到齊，結果寫到 GITHUB_OUTPUT（ready、date）
 """
 from __future__ import annotations
 
@@ -17,7 +18,7 @@ import json
 import os
 import re
 import sys
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 import requests
@@ -137,10 +138,39 @@ def send(text: str) -> int:
     return sent
 
 
+def last_trading_day() -> str:
+    now = datetime.now(timezone(timedelta(hours=8)))
+    d = now.date() if now.hour >= 15 else now.date() - timedelta(days=1)
+    try:
+        hol = set(json.loads((ROOT / "data" / "calendar.json").read_text(encoding="utf-8")).get("holidays", []))
+    except (OSError, ValueError):
+        hol = set()
+    while d.weekday() >= 5 or d.isoformat() in hol:
+        d -= timedelta(days=1)
+    return d.isoformat()
+
+
+def check() -> int:
+    """行情（技術選股）、三大法人、融資券都是同一個最近交易日，才算資料到齊"""
+    day = last_trading_day()
+    got = {k: (load(f, {}) or {}).get("date") for k, f in
+           (("行情", "market/screener.json"), ("法人", "chips/insti.json"), ("融資券", "market/short.json"))}
+    ready = all(v == day for v in got.values())
+    print(f"最近交易日 {day}：" + "、".join(f"{k} {v or '—'}" for k, v in got.items()) + ("（到齊）" if ready else "（還沒到齊）"))
+    out = os.environ.get("GITHUB_OUTPUT")
+    if out:
+        with open(out, "a", encoding="utf-8") as f:
+            f.write(f"ready={'true' if ready else 'false'}\ndate={day}\n")
+    return 0
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("--check", action="store_true")
     a = ap.parse_args()
+    if a.check:
+        return check()
     text = compose()
     print(text)
     if a.dry_run:

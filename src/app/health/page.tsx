@@ -209,6 +209,17 @@ function buildRows() {
   return { rows, expected, latestPrice: priceDates.at(-1) ?? null };
 }
 
+const SCHEDULE: [string, string][] = [
+  ["平日 15:47", "收盤行情、漲停、成交排行、族群、注意／處置、可轉債、月營收／季報／自結／庫藏股／重大事件"],
+  ["平日 18:17", "同上再跑一次：補三大法人、期貨選擇權、注意／處置（約 16:30～18:00 公布）"],
+  ["平日 21:20", "ETF 持股、分點買賣超、內部人、集保大戶、指數審核"],
+  ["平日 21:37", "同 15:47 再跑一次：補融資融券、借券（約 21:00 公布）"],
+  ["平日 23:43／23:52", "兩組都再跑一次補漏"],
+  ["隔天 08:05／11:35", "ETF 等：補抓較晚公布的投信持股"],
+  ["週六 10:13", "補週五漏掉的資料"],
+  ["資料到齊後", "每日推播（行情、法人、融資券都是當天的才發；隔天 09:27 保底）"],
+];
+
 export default function HealthPage() {
   const { rows, expected, latestPrice } = buildRows();
   const t = tpeNow().toISOString().replace("T", " ").slice(0, 16);
@@ -219,6 +230,22 @@ export default function HealthPage() {
         落後＝資料日之後已經過了幾個交易日（依證交所休市日表，休市日不算）。多數投信當天晚上公告持股，部分隔天早上才公告，所以 ETF 落後 1 天屬正常；落後 2 天以上就是漏抓。
         權重加總明顯偏離 100%（低於 80% 或高於 110%）代表持股檔可能抓不完整。這一頁在每次排程抓取資料後重新產生。
       </p>
+      <div className="mt-8 rounded-xl border border-[#243247] bg-[#0d1220] overflow-x-auto">
+        <div className="px-4 pt-4 text-sm font-semibold text-white">每日更新排程（台北時間）</div>
+        <p className="px-4 pt-1 text-[11px] leading-relaxed text-[#7c8aa0]">
+          GitHub 的排程常延後好幾小時、偶爾跳過，所以每天排好幾次；每次只補還沒抓到的資料，資料源一公布、下一次排程就會補上。
+        </p>
+        <table className="w-full text-sm mt-2">
+          <tbody>
+            {SCHEDULE.map(([time, what]) => (
+              <tr key={time} className="border-t border-[#243247]/60 align-top">
+                <td className="px-4 py-2 font-mono text-[#4f8cff] whitespace-nowrap">{time}</td>
+                <td className="px-4 py-2 text-slate-300">{what}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </PageShell>
   );
 }

@@ -1,9 +1,19 @@
 name: Daily Stock Data Fetch
 
 on:
+  # GitHub 排程常延後 5～7 小時、偶爾整次跳過，所以一天排好幾次；
+  # 每次都是增量抓取（已有的日期不重抓），重跑只會補上缺的資料。時間皆避開整點。
   schedule:
-    - cron: '47 10 * * *'  # 18:47 台灣時間；避開整點（GitHub 整點排程常延誤數小時）
+    - cron: '47 7 * * 1-5'    # 15:47 台灣時間：收盤行情、漲停、成交排行
+    - cron: '17 10 * * 1-5'   # 18:17：三大法人、注意／處置、期貨
+    - cron: '37 13 * * 1-5'   # 21:37：融資融券、借券
+    - cron: '43 15 * * 1-5'   # 23:43：補漏
+    - cron: '13 2 * * 6'      # 週六 10:13：補週五漏掉的、月營收／季報
   workflow_dispatch:        # 可手動觸發
+
+concurrency:
+  group: fetch-main
+  cancel-in-progress: false
 
 permissions:
   contents: write

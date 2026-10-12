@@ -1,12 +1,23 @@
 name: Daily Notify
 
+# 資料抓完就推播：每次資料抓取跑完都檢查一次，行情、法人、融資券都到齊才發，
+# 同一個交易日只發一次（用 Actions cache 記錄已發送的日期）。
+# 隔天早上 09:27 再保底一次：資料還沒到齊也照發現有的內容。
 on:
+  workflow_run:
+    workflows: ["Daily Stock Data Fetch", "ETF Holdings Fetch"]
+    types: [completed]
   schedule:
-    - cron: '7 14 * * 1-5'   # 22:07 台灣時間：當天行情、法人、融資券都已更新
-  workflow_dispatch:
+    - cron: '27 1 * * 2-6'   # 09:27 台灣時間保底
+  workflow_dispatch:          # 手動觸發：不管有沒有發過都直接發
 
 permissions:
   contents: read
+  actions: write   # 寫入「已發送」的 cache
+
+concurrency:
+  group: notify
+  cancel-in-progress: false
 
 jobs:
   notify:
@@ -14,13 +25,30 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: main   # workflow_run 觸發時也要拿到剛推上去的資料
       - uses: actions/setup-python@v7
         with:
           python-version: '3.11'
       - run: pip install requests
       - name: Build data views
         run: TZ=Asia/Taipei python3 scripts/build_views.py
+      - name: Check data completeness
+        id: check
+        run: python3 scripts/notify.py --check
+      - name: Already sent today?
+        id: sent
+        uses: actions/cache/restore@v4
+        with:
+          path: .notify-sent
+          key: notify-sent-${{ steps.check.outputs.date }}
+          lookup-only: true
       - name: Send
+        id: send
+        if: >-
+          github.event_name == 'workflow_dispatch' ||
+          (steps.sent.outputs.cache-hit != 'true' &&
+           (steps.check.outputs.ready == 'true' || github.event_name == 'schedule'))
         run: python3 scripts/notify.py
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
@@ -28,3 +56,11 @@ jobs:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
           LINE_USER_ID: ${{ secrets.LINE_USER_ID }}
+      - name: Mark as sent
+        if: steps.send.outcome == 'success' && steps.sent.outputs.cache-hit != 'true'
+        run: echo "${{ steps.check.outputs.date }}" > .notify-sent
+      - if: steps.send.outcome == 'success' && steps.sent.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: .notify-sent
+          key: notify-sent-${{ steps.check.outputs.date }}
