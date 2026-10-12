@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-11",
+  "date": "2026-10-12",
   "data": [
     {
       "code": "2344",
@@ -1721,7 +1721,7 @@
       "code": "4542",
       "name": "科嶠工業",
       "market": "上櫃",
-      "status": "審查中",
+      "status": "生效",
       "cbType": "轉換公司債(無擔保)",
       "amount": 5.0,
       "currency": "台幣",
@@ -1734,7 +1734,7 @@
       "code": "4542",
       "name": "科嶠工業",
       "market": "上櫃",
-      "status": "審查中",
+      "status": "生效",
       "cbType": "轉換公司債(無擔保)",
       "amount": 5.0,
       "currency": "台幣",
@@ -1747,7 +1747,7 @@
       "code": "6658",
       "name": "聯策",
       "market": "上市",
-      "status": "審查中",
+      "status": "生效",
       "cbType": "轉換公司債(無擔保)",
       "amount": 2.5,
       "currency": "台幣",

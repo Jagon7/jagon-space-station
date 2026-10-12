@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-08",
+  "date": "2026-10-12",
   "data": [
     {
       "code": "3016",
@@ -132,16 +132,6 @@
       "market": "上櫃"
     },
     {
-      "code": "8084",
-      "name": "巨虹",
-      "count": 5,
-      "condition": "連續3個營業日",
-      "period": "115/10/07~115/10/14",
-      "endDate": "2026-10-14",
-      "announceDate": "115/10/06",
-      "market": "上櫃"
-    },
-    {
       "code": "1709",
       "name": "和益",
       "count": 1,
@@ -262,6 +252,16 @@
       "market": "上櫃"
     },
     {
+      "code": "2492",
+      "name": "華新科",
+      "count": 1,
+      "condition": "連續三次",
+      "period": "115/10/13～115/10/19",
+      "endDate": "2026-10-19",
+      "announceDate": "*115/10/12",
+      "market": "上市"
+    },
+    {
       "code": "6213",
       "name": "聯茂",
       "count": 1,
@@ -270,6 +270,26 @@
       "endDate": "2026-10-19",
       "announceDate": "115/10/07",
       "market": "上市"
+    },
+    {
+      "code": "5228",
+      "name": "鈺鎧",
+      "count": 2,
+      "condition": "連續3個營業日",
+      "period": "115/10/13~115/10/19",
+      "endDate": "2026-10-19",
+      "announceDate": "115/10/12",
+      "market": "上櫃"
+    },
+    {
+      "code": "8084",
+      "name": "巨虹",
+      "count": 2,
+      "condition": "連續3個營業日",
+      "period": "115/10/13~115/10/19",
+      "endDate": "2026-10-19",
+      "announceDate": "115/10/12",
+      "market": "上櫃"
     },
     {
       "code": "3441",
