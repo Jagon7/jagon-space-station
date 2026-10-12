@@ -11,8 +11,9 @@ on:
     - cron: '13 2 * * 6'      # 週六 10:13：補週五漏掉的、月營收／季報
   workflow_dispatch:        # 可手動觸發
 
+# 兩個抓取 workflow 共用同一組，排隊依序執行，不會同時推送
 concurrency:
-  group: fetch-main
+  group: data-fetch
   cancel-in-progress: false
 
 permissions:
@@ -102,7 +103,7 @@ jobs:
               exit 0
             fi
             echo "Push rejected (attempt $i), rebasing onto latest main and retrying..."
-            git pull --rebase origin main
+            git pull --rebase -X theirs origin main || { git rebase --abort; git pull --no-rebase -X ours origin main; }
           done
           echo "::error::Gave up pushing data after 5 attempts"
           exit 1
