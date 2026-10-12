@@ -2,8 +2,11 @@ name: ETF Holdings Fetch
 
 on:
   schedule:
+    # GitHub 排程常延後好幾小時或跳過，所以多排幾次；每次都是增量抓取。
     - cron: '20 13 * * 1-5'   # 21:20 台灣時間：多數投信已公布當日持股
+    - cron: '52 15 * * 1-5'   # 23:52：補漏
     - cron: '5 0 * * 2-6'     # 08:05 台灣時間：補抓較晚公布的投信（國泰等）
+    - cron: '35 3 * * 2-6'    # 11:35：再補一次
   workflow_dispatch:
 
 permissions:

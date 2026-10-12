@@ -20,7 +20,30 @@ JSS_DATA_DIR = Path(
 )
 JSS_DATA_DIR.mkdir(parents=True, exist_ok=True)
 
-TODAY    = datetime.date.today()
+def _last_trading_day() -> datetime.date:
+    """台灣時間的最近一個交易日（15:00 前算前一個交易日；週末、休市日往前找）。
+    GitHub 排程常延後好幾小時、甚至在週末補跑，用執行當天日期會把週五資料標成週六／週日。"""
+    tpe = datetime.timezone(datetime.timedelta(hours=8))
+    now = datetime.datetime.now(tpe)
+    d = now.date() if now.hour >= 15 else now.date() - datetime.timedelta(days=1)
+    try:
+        holidays = set(json.loads((JSS_DATA_DIR / "calendar.json").read_text(encoding="utf-8")).get("holidays", []))
+    except (OSError, ValueError):
+        holidays = set()
+    while d.weekday() >= 5 or d.isoformat() in holidays:
+        d -= datetime.timedelta(days=1)
+    return d
+
+TODAY    = _last_trading_day()
+
+
+def _is_trading_day(d: str) -> bool:
+    """舊版用執行日當日期，週末／休市日會留下重複的紀錄，這裡用來清掉"""
+    try:
+        holidays = set(json.loads((JSS_DATA_DIR / "calendar.json").read_text(encoding="utf-8")).get("holidays", []))
+        return datetime.date.fromisoformat(d).weekday() < 5 and d not in holidays
+    except (OSError, ValueError):
+        return True
 TODAY_AD = TODAY.strftime("%Y-%m-%d")
 TODAY_RC = str(TODAY.year - 1911)                # e.g. "115"
 TODAY_YMD = f"{TODAY_RC}{TODAY.month:02d}{TODAY.day:02d}"  # e.g. "1150509"
@@ -442,7 +465,7 @@ def _strip_html(text: str) -> str:
 # ── 注意股：上市 (TWSE) ──────────────────────────────────────
 def _fetch_twse_notice() -> list[dict]:
     # 不帶日期時預設查「今天」；排程常被 GitHub 延後到台灣時間隔天凌晨才跑，會查到空的一天，
-    # 所以明確指定交易日（runner 是 UTC，TODAY 在台灣時間 08:00 前都還是前一個交易日）
+    # 所以明確指定交易日（TODAY 就是最近一個交易日）
     d = TODAY.strftime("%Y%m%d")
     data = fetch(f"https://www.twse.com.tw/announcement/notice?response=json&startDate={d}&endDate={d}")
     if not data or data.get("stat") != "OK":
@@ -1037,7 +1060,7 @@ def update_market_history(market: dict, sectors: list[dict]) -> list[dict]:
         "topSectors":   [{"name": s["name"], "count": s["count"]} for s in top_sectors],
     }
 
-    history = [h for h in history if h.get("date") != TODAY_AD]
+    history = [h for h in history if h.get("date") != TODAY_AD and _is_trading_day(h.get("date", ""))]
     history.append(entry)
     history.sort(key=lambda h: h["date"])
     history = history[-HISTORY_MAX_DAYS:]
@@ -1057,7 +1080,17 @@ def main():
     sector_stocks = build_sector_stocks(all_stocks)
     sectors       = summarize_sectors(limit_stocks)
 
-    reasons = fetch_limit_up_reasons(limit_stocks)
+    # 同一交易日重跑時沿用已產生的漲停原因，只替新增的漲停股問 Claude
+    reasons: dict[str, str] = {}
+    try:
+        prev = json.loads((JSS_DATA_DIR / "limit-up.json").read_text(encoding="utf-8"))
+        if prev.get("date") == TODAY_AD:
+            reasons = {s["code"]: s["reason"] for s in prev.get("data", []) if s.get("reason")}
+    except (OSError, ValueError):
+        pass
+    todo = [s for s in limit_stocks if s["code"] not in reasons]
+    if todo:
+        reasons.update(fetch_limit_up_reasons(todo))
     for s in limit_stocks:
         if s["code"] in reasons:
             s["reason"] = reasons[s["code"]]
