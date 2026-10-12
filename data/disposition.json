@@ -2,56 +2,6 @@
   "date": "2026-10-12",
   "data": [
     {
-      "code": "3016",
-      "name": "嘉晶",
-      "count": 1,
-      "condition": "連續三次及當日沖銷標準",
-      "period": "115/10/01～115/10/12",
-      "endDate": "2026-10-12",
-      "announceDate": "115/09/30",
-      "market": "上市"
-    },
-    {
-      "code": "3055",
-      "name": "蔚華科",
-      "count": 1,
-      "condition": "連續五次及當日沖銷標準",
-      "period": "115/10/01～115/10/12",
-      "endDate": "2026-10-12",
-      "announceDate": "115/09/30",
-      "market": "上市"
-    },
-    {
-      "code": "3167",
-      "name": "大量",
-      "count": 1,
-      "condition": "最近十個營業日已有六次",
-      "period": "115/10/05～115/10/12",
-      "endDate": "2026-10-12",
-      "announceDate": "115/10/02",
-      "market": "上市"
-    },
-    {
-      "code": "8996",
-      "name": "高力",
-      "count": 1,
-      "condition": "最近十個營業日已有六次",
-      "period": "115/10/05～115/10/12",
-      "endDate": "2026-10-12",
-      "announceDate": "115/10/02",
-      "market": "上市"
-    },
-    {
-      "code": "2221",
-      "name": "大甲",
-      "count": 4,
-      "condition": "連續3個營業日及沖銷標準",
-      "period": "115/10/01~115/10/12",
-      "endDate": "2026-10-12",
-      "announceDate": "115/09/30",
-      "market": "上櫃"
-    },
-    {
       "code": "2033",
       "name": "佳大",
       "count": 1,
@@ -258,7 +208,7 @@
       "condition": "連續三次",
       "period": "115/10/13～115/10/19",
       "endDate": "2026-10-19",
-      "announceDate": "*115/10/12",
+      "announceDate": "115/10/12",
       "market": "上市"
     },
     {
