@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-12",
+  "date": "2026-10-13",
   "data": [
     {
       "code": "2344",
@@ -1591,7 +1591,7 @@
       "code": "1569",
       "name": "濱川企業",
       "market": "上櫃",
-      "status": "審查中",
+      "status": "生效",
       "cbType": "轉換公司債(有擔保)",
       "amount": 4.0,
       "currency": "台幣",
@@ -1844,6 +1844,45 @@
       "currency": "台幣",
       "filingDate": "2026-10-06",
       "effectiveDate": "2026-10-23",
+      "withdrawDate": null,
+      "underwriter": "福邦證券"
+    },
+    {
+      "code": "2344",
+      "name": "華邦電子",
+      "market": "上市",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 140.0,
+      "currency": "台幣",
+      "filingDate": "2026-10-12",
+      "effectiveDate": "2026-10-29",
+      "withdrawDate": null,
+      "underwriter": "中國信託證券"
+    },
+    {
+      "code": "2344",
+      "name": "華邦電子",
+      "market": "上市",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 40.0,
+      "currency": "台幣",
+      "filingDate": "2026-10-12",
+      "effectiveDate": "2026-10-29",
+      "withdrawDate": null,
+      "underwriter": "中國信託證券"
+    },
+    {
+      "code": "5434",
+      "name": "崇越科技",
+      "market": "上市",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 20.0,
+      "currency": "台幣",
+      "filingDate": "2026-10-12",
+      "effectiveDate": "2026-10-29",
       "withdrawDate": null,
       "underwriter": "福邦證券"
     }
