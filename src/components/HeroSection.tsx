@@ -1,14 +1,16 @@
 import Link from "next/link";
 import type { MarketSummary, SectorPerformance } from "@/lib/types";
+import type { AtmosphereToday } from "@/lib/data-loader";
 
+// 與氣氛評估頁同一套分級
 const moodColor: Record<string, string> = {
-  強勢: "text-[#f05252]", 偏強: "text-[#f97316]",
-  中性: "text-[#f59e0b]", 偏弱: "text-[#4ade80]", 弱勢: "text-[#22c55e]",
+  過熱: "text-[#f05252]", 偏多: "text-[#f97316]",
+  中性: "text-[#f59e0b]", 偏空: "text-[#4ade80]", 冰點: "text-[#22c55e]",
 };
 
-type Props = { summary: MarketSummary; topSector?: SectorPerformance };
+type Props = { summary: MarketSummary; topSector?: SectorPerformance; atmosphere?: AtmosphereToday | null };
 
-export default function HeroSection({ summary, topSector }: Props) {
+export default function HeroSection({ summary, topSector, atmosphere }: Props) {
   const sectorUp = (topSector?.changePercent ?? 0) >= 0;
   const stats = [
     { label: "鎖定漲停", value: String(summary.limitUpCount), unit: "檔", color: "text-[#4f8cff]", border: "border-[#4f8cff]/20", href: "/limit-up" as string | undefined },
@@ -63,9 +65,13 @@ export default function HeroSection({ summary, topSector }: Props) {
         {/* Market mood */}
         <div className="flex items-center justify-center gap-3 mb-10">
           <div className="h-px w-16 bg-gradient-to-r from-transparent to-[#243247]" />
-          <span className={`text-sm font-bold font-mono ${moodColor[summary.marketMood] ?? "text-slate-400"}`}>
-            今日氣氛：{summary.marketMood}
-          </span>
+          {atmosphere?.label ? (
+            <Link href="/atmosphere" className={`text-sm font-bold font-mono hover:underline ${moodColor[atmosphere.label] ?? "text-slate-400"}`}>
+              今日氣氛：{atmosphere.label}（{atmosphere.score}）
+            </Link>
+          ) : (
+            <span className="text-sm font-bold font-mono text-slate-400">今日氣氛：—</span>
+          )}
           <div className="h-px w-16 bg-gradient-to-l from-transparent to-[#243247]" />
         </div>
 

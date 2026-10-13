@@ -20,7 +20,7 @@ export default async function StatsPage() {
       {/* KPI row */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-8">
         {[
-          { label: "市場氣氛", value: marketMood,                    unit: "",  color: moodColor },
+          { label: "漲停熱度", value: marketMood,                    unit: "",  color: moodColor },
           { label: "加權指數", value: `${taiexSign}${taiexChange}%`, unit: "",  color: taiexColor },
           { label: "漲停檔數", value: String(limitUpCount),          unit: "檔", color: "text-[#4f8cff]" },
           { label: "觸及族群", value: String(sectorCount),           unit: "個", color: "text-[#38bdf8]" },

@@ -76,7 +76,7 @@ export function LimitUpTrendChart({ history }: { history: MarketHistoryEntry[] }
               wrapperStyle={{ paddingTop: 8 }}
             />
             <Area type="monotone" dataKey="count" name="漲停檔數" stroke="#4f8cff" strokeWidth={2} fill="url(#countGrad)" dot={{ fill: "#4f8cff", r: 3 }} />
-            <Area type="monotone" dataKey="mood" name="氣氛分數" stroke="#38bdf8" strokeWidth={2} fill="url(#moodGrad)" dot={{ fill: "#38bdf8", r: 3 }} />
+            <Area type="monotone" dataKey="mood" name="漲停熱度" stroke="#38bdf8" strokeWidth={2} fill="url(#moodGrad)" dot={{ fill: "#38bdf8", r: 3 }} />
           </AreaChart>
         </ResponsiveContainer>
       )}

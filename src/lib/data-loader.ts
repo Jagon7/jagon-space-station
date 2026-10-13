@@ -37,6 +37,19 @@ export async function getMarketSummary(): Promise<MarketSummary> {
   return file ?? mock.mockMarketSummary;
 }
 
+export type AtmosphereToday = { d: string; score: number | null; label: string | null };
+
+// 氣氛評估頁的七面向分數（prebuild 由 scripts/build_market.py 產生在 public/data）
+export async function getAtmosphereToday(): Promise<AtmosphereToday | null> {
+  try {
+    const raw = fs.readFileSync(path.join(process.cwd(), "public", "data", "market", "atmosphere.json"), "utf-8");
+    const days = (JSON.parse(raw) as { days?: AtmosphereToday[] }).days ?? [];
+    return days.findLast((x) => x.score != null) ?? null;
+  } catch {
+    return null;
+  }
+}
+
 export async function getMarketHistory(): Promise<MarketHistoryEntry[]> {
   const file = await readJson<Dated<MarketHistoryEntry[]>>("market-history.json");
   return file?.data ?? [];
