@@ -513,23 +513,23 @@
       "topSectors": [
         {
           "name": "光電",
-          "count": 5
-        },
-        {
-          "name": "電腦週邊",
-          "count": 5
-        },
-        {
-          "name": "電子零組件",
           "count": 3
         },
         {
           "name": "通信網路",
-          "count": 3
+          "count": 2
         },
         {
-          "name": "資訊服務",
-          "count": 2
+          "name": "油電燃氣",
+          "count": 1
+        },
+        {
+          "name": "電子零組件",
+          "count": 1
+        },
+        {
+          "name": "塑膠",
+          "count": 1
         }
       ]
     }

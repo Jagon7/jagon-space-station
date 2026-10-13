@@ -38,7 +38,7 @@
     {
       "code": "6217",
       "name": "中探針",
-      "sector": "電子零組件",
+      "sector": "其他",
       "change": 9.75,
       "volume": 14771,
       "tradeValue": 2784865500.0,
@@ -89,7 +89,7 @@
     {
       "code": "1569",
       "name": "濱川",
-      "sector": "電腦週邊",
+      "sector": "其他",
       "change": 9.91,
       "volume": 17338,
       "tradeValue": 1330005700.0,
@@ -123,7 +123,7 @@
     {
       "code": "8050",
       "name": "廣積",
-      "sector": "電腦週邊",
+      "sector": "其他",
       "change": 9.88,
       "volume": 9843,
       "tradeValue": 655414600.0,
@@ -174,7 +174,7 @@
     {
       "code": "3483",
       "name": "力致",
-      "sector": "電腦週邊",
+      "sector": "其他",
       "change": 9.4,
       "volume": 2874,
       "tradeValue": 251282600.0,
@@ -208,7 +208,7 @@
     {
       "code": "3287",
       "name": "廣寰科",
-      "sector": "電腦週邊",
+      "sector": "其他",
       "change": 9.95,
       "volume": 4264,
       "tradeValue": 221247750.0,
@@ -225,7 +225,7 @@
     {
       "code": "3564",
       "name": "其陽",
-      "sector": "通信網路",
+      "sector": "其他",
       "change": 9.93,
       "volume": 2468,
       "tradeValue": 181951800.0,
@@ -242,7 +242,7 @@
     {
       "code": "6221",
       "name": "晉泰",
-      "sector": "資訊服務",
+      "sector": "其他",
       "change": 9.97,
       "volume": 5198,
       "tradeValue": 180214400.0,
@@ -293,7 +293,7 @@
     {
       "code": "5230",
       "name": "雷笛克光學",
-      "sector": "光電",
+      "sector": "其他",
       "change": 9.98,
       "volume": 3875,
       "tradeValue": 103384000.0,
@@ -310,7 +310,7 @@
     {
       "code": "6021",
       "name": "美好證",
-      "sector": "金融保險",
+      "sector": "其他",
       "change": 9.99,
       "volume": 1568,
       "tradeValue": 82006400.0,
@@ -327,7 +327,7 @@
     {
       "code": "6517",
       "name": "保勝光學",
-      "sector": "光電",
+      "sector": "其他",
       "change": 10.0,
       "volume": 873,
       "tradeValue": 61043300.0,
@@ -344,7 +344,7 @@
     {
       "code": "3597",
       "name": "映興",
-      "sector": "電子零組件",
+      "sector": "其他",
       "change": 9.95,
       "volume": 1114,
       "tradeValue": 54140400.0,
