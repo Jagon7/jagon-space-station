@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-13",
+  "date": "2026-10-14",
   "data": [
     {
       "code": "2344",
@@ -1474,7 +1474,7 @@
       "code": "6534",
       "name": "正瀚生技-創",
       "market": "上市",
-      "status": "審查中",
+      "status": "生效",
       "cbType": "轉換公司債(有擔保)",
       "amount": 7.0,
       "currency": "台幣",
@@ -1604,7 +1604,7 @@
       "code": "3339",
       "name": "泰谷光電科技",
       "market": "上櫃",
-      "status": "審查中",
+      "status": "生效",
       "cbType": "轉換公司債(有擔保)",
       "amount": 5.0,
       "currency": "台幣",
@@ -1874,6 +1874,32 @@
       "underwriter": "中國信託證券"
     },
     {
+      "code": "3706",
+      "name": "神達控股",
+      "market": "上市",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 100.0,
+      "currency": "台幣",
+      "filingDate": "2026-10-12",
+      "effectiveDate": "2026-10-29",
+      "withdrawDate": null,
+      "underwriter": "凱基證券"
+    },
+    {
+      "code": "3706",
+      "name": "神達控股",
+      "market": "上市",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 20.0,
+      "currency": "台幣",
+      "filingDate": "2026-10-12",
+      "effectiveDate": "2026-10-29",
+      "withdrawDate": null,
+      "underwriter": "凱基證券"
+    },
+    {
       "code": "5434",
       "name": "崇越科技",
       "market": "上市",
@@ -1885,6 +1911,58 @@
       "effectiveDate": "2026-10-29",
       "withdrawDate": null,
       "underwriter": "福邦證券"
+    },
+    {
+      "code": "6922",
+      "name": "宸曜",
+      "market": "上櫃",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 5.0,
+      "currency": "台幣",
+      "filingDate": "2026-10-12",
+      "effectiveDate": "2026-10-29",
+      "withdrawDate": null,
+      "underwriter": "凱基證券"
+    },
+    {
+      "code": "3095",
+      "name": "及成企業",
+      "market": "上櫃",
+      "status": "審查中",
+      "cbType": "轉換公司債(有擔保)",
+      "amount": 1.0,
+      "currency": "台幣",
+      "filingDate": "2026-10-13",
+      "effectiveDate": "2026-10-30",
+      "withdrawDate": null,
+      "underwriter": "台新證券"
+    },
+    {
+      "code": "4540",
+      "name": "全球傳動",
+      "market": "上市",
+      "status": "審查中",
+      "cbType": "轉換公司債(有擔保)",
+      "amount": 3.0,
+      "currency": "台幣",
+      "filingDate": "2026-10-13",
+      "effectiveDate": "2026-11-11",
+      "withdrawDate": null,
+      "underwriter": "第一金證券"
+    },
+    {
+      "code": "4916",
+      "name": "事欣科技",
+      "market": "上市",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 10.0,
+      "currency": "台幣",
+      "filingDate": "2026-10-13",
+      "effectiveDate": "2026-10-30",
+      "withdrawDate": null,
+      "underwriter": "統一證券"
     }
   ]
 }
