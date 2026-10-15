@@ -21,7 +21,7 @@
     {
       "code": "3485",
       "name": "敘豐",
-      "sector": "電子零組件",
+      "sector": "其他",
       "change": 9.98,
       "volume": 714,
       "tradeValue": 173913500.0,
@@ -55,7 +55,7 @@
     {
       "code": "3354",
       "name": "律勝",
-      "sector": "電子零組件",
+      "sector": "其他",
       "change": 9.99,
       "volume": 3913,
       "tradeValue": 148693400.0,
@@ -72,7 +72,7 @@
     {
       "code": "6925",
       "name": "意藍",
-      "sector": "數位雲端",
+      "sector": "其他",
       "change": 9.88,
       "volume": 1656,
       "tradeValue": 134445200.0,
@@ -106,7 +106,7 @@
     {
       "code": "4924",
       "name": "欣厚-KY",
-      "sector": "綠能環保",
+      "sector": "其他",
       "change": 9.81,
       "volume": 1156,
       "tradeValue": 22935150.0,
