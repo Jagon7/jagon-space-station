@@ -569,10 +569,14 @@
       "topSectors": [
         {
           "name": "電子零組件",
-          "count": 1
+          "count": 3
         },
         {
           "name": "鋼鐵",
+          "count": 1
+        },
+        {
+          "name": "數位雲端",
           "count": 1
         },
         {
@@ -580,11 +584,7 @@
           "count": 1
         },
         {
-          "name": "通信網路",
-          "count": 1
-        },
-        {
-          "name": "電腦週邊",
+          "name": "綠能環保",
           "count": 1
         }
       ]
