@@ -1,53 +1,38 @@
 {
-  "date": "2026-10-14",
+  "date": "2026-10-15",
   "data": [
     {
       "name": "電子零組件",
-      "count": 18,
-      "momentum": "strong"
+      "count": 3,
+      "momentum": "normal"
+    },
+    {
+      "name": "鋼鐵",
+      "count": 1,
+      "momentum": "weak"
+    },
+    {
+      "name": "數位雲端",
+      "count": 1,
+      "momentum": "weak"
     },
     {
       "name": "光電",
-      "count": 5,
-      "momentum": "normal"
+      "count": 1,
+      "momentum": "weak"
     },
     {
-      "name": "半導體",
-      "count": 5,
-      "momentum": "normal"
-    },
-    {
-      "name": "塑膠",
-      "count": 3,
-      "momentum": "normal"
+      "name": "綠能環保",
+      "count": 1,
+      "momentum": "weak"
     },
     {
       "name": "通信網路",
-      "count": 3,
-      "momentum": "normal"
-    },
-    {
-      "name": "電機機械",
-      "count": 2,
+      "count": 1,
       "momentum": "weak"
     },
     {
       "name": "電腦週邊",
-      "count": 2,
-      "momentum": "weak"
-    },
-    {
-      "name": "生技醫療",
-      "count": 2,
-      "momentum": "weak"
-    },
-    {
-      "name": "其他電子",
-      "count": 2,
-      "momentum": "weak"
-    },
-    {
-      "name": "金融保險",
       "count": 1,
       "momentum": "weak"
     }
