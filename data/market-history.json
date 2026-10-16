@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-15",
+  "date": "2026-10-16",
   "data": [
     {
       "date": "2026-09-11",
@@ -586,6 +586,34 @@
         {
           "name": "綠能環保",
           "count": 1
+        }
+      ]
+    },
+    {
+      "date": "2026-10-16",
+      "limitUpCount": 41,
+      "marketMood": "偏強",
+      "taiexChange": 0.3,
+      "topSectors": [
+        {
+          "name": "電子零組件",
+          "count": 9
+        },
+        {
+          "name": "通信網路",
+          "count": 4
+        },
+        {
+          "name": "光電",
+          "count": 4
+        },
+        {
+          "name": "電腦週邊",
+          "count": 3
+        },
+        {
+          "name": "資訊服務",
+          "count": 3
         }
       ]
     }

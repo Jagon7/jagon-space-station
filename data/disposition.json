@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-15",
+  "date": "2026-10-16",
   "data": [
     {
       "code": "6672",
@@ -122,16 +122,6 @@
       "market": "上櫃"
     },
     {
-      "code": "3597",
-      "name": "映興",
-      "count": 4,
-      "condition": "連續3個營業日",
-      "period": "115/10/14~115/10/20",
-      "endDate": "2026-10-20",
-      "announceDate": "115/10/13",
-      "market": "上櫃"
-    },
-    {
       "code": "5205",
       "name": "中茂",
       "count": 4,
@@ -169,6 +159,66 @@
       "period": "115/10/16~115/10/22",
       "endDate": "2026-10-22",
       "announceDate": "115/10/15",
+      "market": "上櫃"
+    },
+    {
+      "code": "3055",
+      "name": "蔚華科",
+      "count": 1,
+      "condition": "連續三次",
+      "period": "115/10/19～115/10/23",
+      "endDate": "2026-10-23",
+      "announceDate": "*115/10/16",
+      "market": "上市"
+    },
+    {
+      "code": "2221",
+      "name": "大甲",
+      "count": 8,
+      "condition": "連續3個營業日",
+      "period": "115/10/19~115/10/23",
+      "endDate": "2026-10-23",
+      "announceDate": "115/10/16",
+      "market": "上櫃"
+    },
+    {
+      "code": "3230",
+      "name": "錦明",
+      "count": 8,
+      "condition": "連續3個營業日",
+      "period": "115/10/19~115/10/23",
+      "endDate": "2026-10-23",
+      "announceDate": "115/10/16",
+      "market": "上櫃"
+    },
+    {
+      "code": "3287",
+      "name": "廣寰科",
+      "count": 8,
+      "condition": "連續3個營業日",
+      "period": "115/10/19~115/10/23",
+      "endDate": "2026-10-23",
+      "announceDate": "115/10/16",
+      "market": "上櫃"
+    },
+    {
+      "code": "3597",
+      "name": "映興",
+      "count": 8,
+      "condition": "連續3個營業日",
+      "period": "115/10/19~115/10/23",
+      "endDate": "2026-10-23",
+      "announceDate": "115/10/16",
+      "market": "上櫃"
+    },
+    {
+      "code": "4979",
+      "name": "華星光",
+      "count": 8,
+      "condition": "最近10個營業日內有6個營業日",
+      "period": "115/10/19~115/10/23",
+      "endDate": "2026-10-23",
+      "announceDate": "115/10/16",
       "market": "上櫃"
     }
   ]
