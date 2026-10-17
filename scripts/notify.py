@@ -190,7 +190,9 @@ def insider_alert(dry: bool) -> int:
 
     lines: list[str] = []
     # 1) 事前申報轉讓：同一天同一家合計（只算會賣出的方式）
-    new = [t for t in transfers if key(t) not in seen]
+    # 只看最近 14 天的申報：transfers 保留 120 天，比已推紀錄的保存期長，不限制的話舊申報會被當成新的
+    recent_from = (date.today() - timedelta(days=14)).isoformat()
+    new = [t for t in transfers if t[0] >= recent_from and key(t) not in seen]
     agg: dict[tuple, dict] = {}
     for t in new:
         if not any(m in (t[6] or "") for m in SALE_METHODS):
@@ -233,7 +235,7 @@ def insider_alert(dry: bool) -> int:
     else:
         print("沒有新的內部人大額異動")
     if not dry:
-        cutoff = (date.today() - timedelta(days=90)).isoformat()
+        cutoff = (date.today() - timedelta(days=30)).isoformat()
         state["keys"] = sorted(k for k in seen | {key(t) for t in transfers} if k >= cutoff)
         STATE.parent.mkdir(parents=True, exist_ok=True)
         STATE.write_text(json.dumps(state, ensure_ascii=False, indent=0), encoding="utf-8")
