@@ -31,6 +31,7 @@ type TopStock = {
   diffShares: number;
   diffValue: number;
   etfs: string[];
+  actions: EtfFlowChange["action"][];
 };
 
 function buildTopStocks(flow: EtfFlowData): TopStock[] {
@@ -43,18 +44,25 @@ function buildTopStocks(flow: EtfFlowData): TopStock[] {
           code: c.code, name: c.name,
           action: c.action,
           diffShares: 0, diffValue: 0,
-          etfs: [],
+          etfs: [], actions: [],
         });
       }
       const entry = map.get(key)!;
       entry.diffShares += c.diffShares;
       entry.diffValue  += c.diffValue;
+      entry.actions.push(c.action);
       if (!entry.etfs.includes(etf.etfCode)) entry.etfs.push(etf.etfCode);
     }
   }
   return [...map.values()]
     .sort((a, b) => Math.abs(b.diffValue) - Math.abs(a.diffValue))
     .slice(0, 6);
+}
+
+// 多檔 ETF 合計後的方向：淨增為加碼（若各檔都是新納入則標新增），淨減為減碼（都是剔除則標剔除）
+function badgeAction(s: TopStock): EtfFlowChange["action"] {
+  if (s.diffShares >= 0) return s.actions.every((a) => a === "new") ? "new" : "buy";
+  return s.actions.every((a) => a === "remove") ? "remove" : "sell";
 }
 
 export default function EtfFlowCard({ flow }: { flow: EtfFlowData }) {
@@ -98,19 +106,28 @@ export default function EtfFlowCard({ flow }: { flow: EtfFlowData }) {
       {/* Top stocks grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8">
         {topStocks.map((s, i) => (
-          <div key={s.code} className={`flex items-center justify-between py-2 border-b border-[#243247]/50 ${i >= topStocks.length - (topStocks.length % 2 === 0 ? 2 : 1) ? "last:border-0 sm:[&:nth-last-child(2)]:border-0" : ""}`}>
+          <Link
+            key={s.code}
+            href={`/etf-flow?tab=changes&q=${s.code}`}
+            title={`${s.etfs.length} 檔 ETF：${s.etfs.join("、")}`}
+            className={`flex items-center justify-between gap-3 py-2 border-b border-[#243247]/50 hover:bg-white/[0.02] ${i >= topStocks.length - (topStocks.length % 2 === 0 ? 2 : 1) ? "last:border-0 sm:[&:nth-last-child(2)]:border-0" : ""}`}
+          >
             <div className="flex items-center gap-2 min-w-0">
-              <span className="font-mono text-xs text-[#7c8aa0] w-10 flex-shrink-0">{s.code}</span>
+              <span className="font-mono text-xs text-[#7c8aa0] flex-shrink-0">{s.code}</span>
               <span className="text-sm text-slate-200 truncate">{s.name}</span>
-              <ActionBadge action={s.diffShares >= 0 ? (s.diffShares === s.diffShares ? s.action : "buy") : "sell"} />
+              <span className="flex-shrink-0"><ActionBadge action={badgeAction(s)} /></span>
             </div>
-            <div className="flex items-center gap-2 flex-shrink-0 ml-2">
-              <span className="text-[10px] font-mono text-[#7c8aa0]">{s.etfs.join(" ")}</span>
-              <span className={`text-xs font-mono font-semibold ${s.diffValue >= 0 ? "text-[#f05252]" : "text-[#22c55e]"}`}>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              {/* ETF 清單可能多達二三十檔，只顯示前兩檔＋總數，完整清單放在 title */}
+              <span className="text-[10px] font-mono text-[#7c8aa0] whitespace-nowrap">
+                <span className="hidden lg:inline">{s.etfs.slice(0, 2).join(" ")}{s.etfs.length > 2 ? " 等" : ""} </span>
+                {s.etfs.length} 檔
+              </span>
+              <span className={`text-xs font-mono font-semibold whitespace-nowrap ${s.diffValue >= 0 ? "text-[#f05252]" : "text-[#22c55e]"}`}>
                 {s.diffValue >= 0 ? "+" : ""}{fmt(s.diffValue)}
               </span>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
 

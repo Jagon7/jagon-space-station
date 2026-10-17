@@ -410,6 +410,17 @@ export default function InsiderDashboard() {
   const lastT = d.transfers[0]?.[0];
   const recentT = d.transfers.filter((t) => lastT && Date.parse(lastT) - Date.parse(t[0]) < 7 * 86400e3);
   const searchName = search ? suggestions.find((s) => s.code === search)?.name ?? search : "";
+  // 近 7 天同一天同一家合計 ≥ 1 億的賣出型申報（贈與、信託不算），與每日推播的內部人快訊同一標準
+  const bigMap = new Map<string, { d: string; code: string; name: string; amt: number; n: number }>();
+  for (const t of recentT) {
+    if (methodKind(t[6]) === "other" && !t[6].includes("私募")) continue;
+    const k = `${t[0]}|${t[1]}`;
+    const b = bigMap.get(k) ?? { d: t[0], code: t[1], name: t[2], amt: 0, n: 0 };
+    b.amt += t[11] * (t[14] ?? 0);
+    b.n += 1;
+    bigMap.set(k, b);
+  }
+  const big = [...bigMap.values()].filter((b) => b.amt >= 1e8).sort((a, b) => (a.d === b.d ? b.amt - a.amt : a.d < b.d ? 1 : -1));
 
   return (
     <div>
@@ -419,6 +430,24 @@ export default function InsiderDashboard() {
         <Kpi label={`${ym(d.latest)} 內部人淨買／淨賣`} value={<><span className={RED}>{d.recent.filter((r) => r[2] > r[3]).length}</span><span className="text-[#7c8aa0] mx-1">/</span><span className={GREEN}>{d.recent.filter((r) => r[3] > r[2]).length}</span></>} unit="家" />
         <Kpi label="歷史案例" value={d.cases.length} unit="次" sub={`${Object.keys(d.names).length} 家有紀錄`} />
       </KpiRow>
+
+      {big.length > 0 && (
+        <div className="mb-6 rounded-xl border border-[#22c55e]/40 bg-[#22c55e]/[0.06] p-4">
+          <div className="text-sm font-semibold text-white mb-2">🚨 近 7 天大額申報轉讓（單日單家 ≥ 1 億，{big.length} 筆）</div>
+          <div className="flex flex-wrap gap-2">
+            {big.map((b) => (
+              <button key={`${b.d}${b.code}`} onClick={() => setSearch(b.code)}
+                className="rounded-lg border border-[#243247] bg-[#0d1220] px-2.5 py-1.5 text-xs hover:border-[#22c55e]/60 text-left">
+                <span className="text-slate-200">{b.name}</span>
+                <span className="font-mono text-[#7c8aa0] ml-1">{b.code}</span>
+                <span className="font-mono font-semibold text-[#22c55e] ml-2">{money(b.amt)}</span>
+                <span className="font-mono text-[#7c8aa0] ml-2">{md(b.d)}{b.n > 1 ? `・${b.n} 人` : ""}</span>
+              </button>
+            ))}
+          </div>
+          <div className="mt-2 text-[11px] text-[#8b97ab]">金額＝預定轉讓股數 × 最新收盤價；點公司可查看明細。每日推播也會即時通知這類申報。</div>
+        </div>
+      )}
 
       <div className="flex flex-col-reverse sm:flex-row sm:items-end justify-between gap-3 border-b border-[#243247] mb-5">
         <div className="flex gap-6">

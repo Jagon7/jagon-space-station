@@ -8,7 +8,8 @@
   Telegram：TELEGRAM_BOT_TOKEN、TELEGRAM_CHAT_ID
   Discord ：DISCORD_WEBHOOK_URL
   LINE    ：LINE_CHANNEL_TOKEN、LINE_USER_ID（Messaging API push message）
-用法：python scripts/notify.py [--dry-run] [--check]
+用法：python scripts/notify.py [--dry-run] [--check] [--insider-alert]
+  --insider-alert：內部人大額異動快訊（≥1 億），每次資料更新後都跑，沒推過的才推（記錄在 data/notify/insider-alerted.json）
   --check：只檢查最近一個交易日的行情、法人、融資券是否都到齊，結果寫到 GITHUB_OUTPUT（ready、date）
 """
 from __future__ import annotations
@@ -164,13 +165,91 @@ def check() -> int:
     return 0
 
 
+ALERT_MIN = 1e8
+# 會在市場上（或直接對特定人）賣出的轉讓方式；贈與、信託不算買賣
+SALE_METHODS = ("一般交易", "鉅額", "盤後", "洽特定人", "私募")
+STATE = ROOT / "data" / "notify" / "insider-alerted.json"
+
+
+def yi_abs(v: float) -> str:
+    return f"{v / 1e8:.1f} 億" if v < 1e10 else f"{v / 1e8:.0f} 億"
+
+
+def insider_alert(dry: bool) -> int:
+    ins = load("insider/index.json", {}) or {}
+    transfers, recent, month = ins.get("transfers", []), ins.get("recent", []), ins.get("latest")
+    try:
+        state = json.loads(STATE.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        state = None
+    key = lambda t: f"{t[0]}|{t[1]}|{t[5]}|{t[11]}"  # noqa: E731  申報日|代號|申報人|股數
+    day = last_trading_day()
+    if state is None:  # 第一次執行：只推最近一個交易日的，更早的當作已推過，避免一次灌爆
+        state = {"keys": [key(t) for t in transfers if t[0] < day], "month": month}
+    seen = set(state["keys"])
+
+    lines: list[str] = []
+    # 1) 事前申報轉讓：同一天同一家合計（只算會賣出的方式）
+    new = [t for t in transfers if key(t) not in seen]
+    agg: dict[tuple, dict] = {}
+    for t in new:
+        if not any(m in (t[6] or "") for m in SALE_METHODS):
+            continue
+        a = agg.setdefault((t[0], t[1]), {"name": t[2], "amt": 0.0, "who": [], "how": set()})
+        a["amt"] += (t[11] or 0) * (t[14] or 0)
+        a["who"].append(re.sub(r"本人$", "", t[4] or ""))
+        a["how"].add(re.sub(r"\(.*?\)", "", t[6]))
+    hits = sorted(((k, v) for k, v in agg.items() if v["amt"] >= ALERT_MIN), key=lambda x: -x[1]["amt"])
+    if hits:
+        lines.append(f"🚨 內部人大額申報轉讓（≥1 億，{len(hits)} 家）")
+        for (d, code), v in hits:
+            who = v["who"][0] + (f" 等 {len(v['who'])} 人" if len(v["who"]) > 1 else "")
+            lines.append(f"🔻{v['name']} {code}：{yi_abs(v['amt'])}｜{'、'.join(sorted(v['how']))}｜{who}｜申報 {d[5:].replace('-', '/')}")
+        lines.append("（金額＝預定轉讓股數 × 最新收盤價；申報後 1 個月內可轉讓）")
+
+    # 2) 每月內部人實際買賣（每月 15 日前後公布上個月），新月份出來時推一次
+    if month and month != state.get("month"):
+        big = [r for r in recent if r[4] is not None and abs(r[4]) >= ALERT_MIN]
+        buys = sorted([r for r in big if r[4] > 0], key=lambda r: -r[4])
+        sells = sorted([r for r in big if r[4] < 0], key=lambda r: r[4])
+        if big:
+            if lines:
+                lines.append("")
+            lines.append(f"🚨 {int(month[5:])} 月內部人實際買賣 ≥1 億：買 {len(buys)} 家、賣 {len(sells)} 家")
+            for r in buys[:8]:
+                lines.append(f"🔺{r[1]} {r[0]}：淨買 {yi_abs(r[4])}｜{r[6]}")
+            for r in sells[:8]:
+                lines.append(f"🔻{r[1]} {r[0]}：淨賣 {yi_abs(-r[4])}｜{r[6]}")
+            if len(buys) > 8 or len(sells) > 8:
+                lines.append("…完整名單見網站")
+        state["month"] = month
+
+    if lines:
+        lines += ["", f"{SITE}/insider/"]
+        text = "\n".join(lines)
+        print(text)
+        if not dry and not send(text):
+            print("\n（沒有設定任何推播管道，只印出內容）")
+    else:
+        print("沒有新的內部人大額異動")
+    if not dry:
+        cutoff = (date.today() - timedelta(days=90)).isoformat()
+        state["keys"] = sorted(k for k in seen | {key(t) for t in transfers} if k >= cutoff)
+        STATE.parent.mkdir(parents=True, exist_ok=True)
+        STATE.write_text(json.dumps(state, ensure_ascii=False, indent=0), encoding="utf-8")
+    return 0
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--check", action="store_true")
+    ap.add_argument("--insider-alert", action="store_true")
     a = ap.parse_args()
     if a.check:
         return check()
+    if a.insider_alert:
+        return insider_alert(a.dry_run)
     text = compose()
     print(text)
     if a.dry_run:

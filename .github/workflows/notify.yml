@@ -3,6 +3,7 @@ name: Daily Notify
 # 資料抓完就推播：每次資料抓取跑完都檢查一次，行情、法人、融資券都到齊才發，
 # 同一個交易日只發一次（用 Actions cache 記錄已發送的日期）。
 # 隔天早上 09:27 再保底一次：資料還沒到齊也照發現有的內容。
+# 另外每次都檢查內部人大額異動（≥1 億），有新的就另外發一則快訊（已推過的記在 data/notify/）。
 on:
   workflow_run:
     workflows: ["Daily Stock Data Fetch", "ETF Holdings Fetch"]
@@ -12,7 +13,7 @@ on:
   workflow_dispatch:          # 手動觸發：不管有沒有發過都直接發
 
 permissions:
-  contents: read
+  contents: write  # 記錄已推過的內部人快訊
   actions: write   # 寫入「已發送」的 cache
 
 concurrency:
@@ -33,6 +34,28 @@ jobs:
       - run: pip install requests
       - name: Build data views
         run: TZ=Asia/Taipei python3 scripts/build_views.py
+      - name: Insider alert (≥1 億)
+        continue-on-error: true
+        run: TZ=Asia/Taipei python3 scripts/notify.py --insider-alert
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
+          LINE_USER_ID: ${{ secrets.LINE_USER_ID }}
+      - name: Save insider alert state
+        continue-on-error: true
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add data/notify/
+          git diff --staged --quiet && exit 0
+          git commit -m "notify: insider alert state"
+          for i in 1 2 3 4 5; do
+            git push && exit 0
+            git pull --rebase -X theirs origin main || { git rebase --abort; git pull --no-rebase -X ours origin main; }
+          done
+          exit 1
       - name: Check data completeness
         id: check
         run: python3 scripts/notify.py --check
