@@ -8050,15 +8050,6 @@
         "tradeValue": 1876166.0
       },
       {
-        "code": "8908",
-        "name": "欣雄",
-        "market": "上市",
-        "changePercent": 0.0,
-        "closePrice": 40.2,
-        "volume": 30,
-        "tradeValue": 1215118.0
-      },
-      {
         "code": "2926",
         "name": "誠品生活",
         "market": "上櫃",
@@ -11325,6 +11316,15 @@
         "closePrice": 59.0,
         "volume": 1175,
         "tradeValue": 69413033.0
+      },
+      {
+        "code": "8908",
+        "name": "欣雄",
+        "market": "上市",
+        "changePercent": 0.0,
+        "closePrice": 40.2,
+        "volume": 30,
+        "tradeValue": 1215118.0
       },
       {
         "code": "2616",
