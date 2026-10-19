@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-16",
+  "date": "2026-10-19",
   "data": [
     {
       "code": "2344",
@@ -1760,7 +1760,7 @@
       "code": "5381",
       "name": "光譜電工",
       "market": "上櫃",
-      "status": "審查中",
+      "status": "生效",
       "cbType": "轉換公司債(有擔保)",
       "amount": 5.0,
       "currency": "台幣",
@@ -1963,6 +1963,19 @@
       "effectiveDate": "2026-10-30",
       "withdrawDate": null,
       "underwriter": "統一證券"
+    },
+    {
+      "code": "6669",
+      "name": "緯穎",
+      "market": "上市",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 150.0,
+      "currency": "台幣",
+      "filingDate": "2026-10-16",
+      "effectiveDate": "2026-11-04",
+      "withdrawDate": null,
+      "underwriter": "富邦證券"
     }
   ]
 }
