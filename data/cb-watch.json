@@ -351,6 +351,32 @@
       "closePrice": 1630.0,
       "market": "上櫃",
       "underwriter": "統一綜合證券股份有限公司"
+    },
+    {
+      "code": "6658",
+      "name": "聯策",
+      "cbSeries": "第68次",
+      "filingDate": "2026-10-20",
+      "bookBuildDate": "2026-10-20",
+      "listingDate": "2026-10-30",
+      "amount": 2.5,
+      "conversionPrice": null,
+      "closePrice": 200.5,
+      "market": "上市",
+      "underwriter": "台新綜合證券股份有限公司"
+    },
+    {
+      "code": "3702",
+      "name": "大聯大",
+      "cbSeries": "第69次",
+      "filingDate": "2026-10-20",
+      "bookBuildDate": "2026-10-20",
+      "listingDate": "2026-10-30",
+      "amount": 150.0,
+      "conversionPrice": null,
+      "closePrice": 116.5,
+      "market": "上市",
+      "underwriter": "凱基證券股份有限公司"
     }
   ]
 }
