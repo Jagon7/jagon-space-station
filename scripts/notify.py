@@ -61,8 +61,13 @@ def compose() -> str:
 
     ins = load("chips/insti.json", {}) or {}
     if ins.get("market"):
-        _, f, t, d = ins["market"][-1]
-        lines.append(f"法人：外資 {yi(f)}、投信 {yi(t)}、自營 {yi(d)}")
+        m = ins["market"][-1]
+        f, t, d = m[1:4]
+        if len(m) >= 8 and m[7] == 1:
+            otc = f"（上櫃 外資 {yi(m[4])}、投信 {yi(m[5])}、自營 {yi(m[6])}）" if m[4] is not None else ""
+            lines.append(f"法人（上市）：外資 {yi(f)}、投信 {yi(t)}、自營 {yi(d)}{otc}")
+        else:
+            lines.append(f"法人（估算）：外資 {yi(f)}、投信 {yi(t)}、自營 {yi(d)}")
 
     fut = (load("chips/futures.json", {}) or {}).get("rows") or []
     if fut:

@@ -8,7 +8,8 @@ import ExpandTable, { StockCell, type XColumn } from "@/components/ExpandTable";
 
 // [代號, 名稱, 市場, 收盤, 外1, 投1, 自1, 合1, 外5, 投5, 自5, 合5, 外20, 投20, 自20, 合20, 外60, 投60, 自60, 合60, 外資連買, 投信連買]
 type R = (string | number | null)[];
-type Data = { date: string; days: number; market: [string, number, number, number][]; rows: R[] };
+// market：[日期, 上市外資, 投信, 自營商, 上櫃外資, 投信, 自營商, 1＝官方金額／0＝估算]（億元）
+type Data = { date: string; days: number; market: [string, number, number, number, number | null, number | null, number | null, number][]; rows: R[] };
 type Period = "1" | "5" | "20" | "60";
 type Who = "f" | "t" | "d" | "all";
 type Special = "none" | "tStreak" | "fStreak" | "both" | "opposite";
@@ -71,6 +72,8 @@ export default function InstitutionalDashboard() {
   if (!data.rows.length) return <Empty>三大法人資料累積中。</Empty>;
   const last = data.market.at(-1)!;
   const sum5 = (k: 1 | 2 | 3) => data.market.slice(-5).reduce((s, x) => s + x[k], 0);
+  const official = last[7] === 1;
+  const otc = (k: 4 | 5 | 6) => (last[k] == null ? "" : `・上櫃 ${yi(last[k])}`);
   const chart = data.market.slice(-40).map(([d, f, t, dl]) => ({ d, f, t, dl }));
   const pl = period === "1" ? "當日" : `近 ${period} 日`;
 
@@ -91,11 +94,12 @@ export default function InstitutionalDashboard() {
       <Note>
         外資、投信、自營商每天在上市櫃個股的買賣超（單位：張；估計金額＝張數 × 最新收盤價）。「連買」＝連續買超（或賣超）幾個交易日。
         「土洋同買」＝外資和投信同時買超；「土洋對作」＝一買一賣。資料約 {data.days} 個交易日，點一列看該股每日法人進出。
+        上方大盤金額是證交所／櫃買中心公布的官方買賣超金額（含 ETF、權證；自營商＝自行買賣＋避險），也就是新聞報導的數字。
       </Note>
       <KpiRow>
-        <Kpi label={`${md(last[0])} 外資`} value={yi(last[1])} color={tone(last[1])} sub={`5 日 ${yi(sum5(1))}`} />
-        <Kpi label={`${md(last[0])} 投信`} value={yi(last[2])} color={tone(last[2])} sub={`5 日 ${yi(sum5(2))}`} />
-        <Kpi label={`${md(last[0])} 自營商`} value={yi(last[3])} color={tone(last[3])} sub={`5 日 ${yi(sum5(3))}`} />
+        <Kpi label={`${md(last[0])} 外資（${official ? "上市" : "上市櫃估算"}）`} value={yi(last[1])} color={tone(last[1])} sub={`5 日 ${yi(sum5(1))}${otc(4)}`} />
+        <Kpi label={`${md(last[0])} 投信（${official ? "上市" : "上市櫃估算"}）`} value={yi(last[2])} color={tone(last[2])} sub={`5 日 ${yi(sum5(2))}${otc(5)}`} />
+        <Kpi label={`${md(last[0])} 自營商（${official ? "上市" : "上市櫃估算"}）`} value={yi(last[3])} color={tone(last[3])} sub={`5 日 ${yi(sum5(3))}${otc(6)}`} />
         <Kpi label="投信連買 ≥ 3 天" value={data.rows.filter((r) => (n(r, 21) ?? 0) >= 3).length} unit="檔" color="text-[#f59e0b]" />
       </KpiRow>
       <div className="rounded-xl border border-[#243247] bg-[#0d1220] p-5 mb-6">
