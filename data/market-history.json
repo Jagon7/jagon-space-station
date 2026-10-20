@@ -647,7 +647,7 @@
     },
     {
       "date": "2026-10-20",
-      "limitUpCount": 35,
+      "limitUpCount": 32,
       "marketMood": "中性",
       "taiexChange": -1.13,
       "topSectors": [
@@ -668,8 +668,8 @@
           "count": 3
         },
         {
-          "name": "綠能環保",
-          "count": 3
+          "name": "電腦週邊",
+          "count": 2
         }
       ]
     }

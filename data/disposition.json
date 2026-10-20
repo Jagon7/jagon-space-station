@@ -2,56 +2,6 @@
   "date": "2026-10-20",
   "data": [
     {
-      "code": "2466",
-      "name": "冠西電",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/10/14～115/10/20",
-      "endDate": "2026-10-20",
-      "announceDate": "115/10/13",
-      "market": "上市"
-    },
-    {
-      "code": "9103",
-      "name": "美德醫療-DR",
-      "count": 1,
-      "condition": "連續五次",
-      "period": "115/10/14～115/10/20",
-      "endDate": "2026-10-20",
-      "announceDate": "115/10/13",
-      "market": "上市"
-    },
-    {
-      "code": "3265",
-      "name": "台星科",
-      "count": 4,
-      "condition": "連續3個營業日",
-      "period": "115/10/14~115/10/20",
-      "endDate": "2026-10-20",
-      "announceDate": "115/10/13",
-      "market": "上櫃"
-    },
-    {
-      "code": "5205",
-      "name": "中茂",
-      "count": 4,
-      "condition": "連續3個營業日",
-      "period": "115/10/14~115/10/20",
-      "endDate": "2026-10-20",
-      "announceDate": "115/10/13",
-      "market": "上櫃"
-    },
-    {
-      "code": "7772",
-      "name": "耀穎",
-      "count": 4,
-      "condition": "連續3個營業日",
-      "period": "115/10/14~115/10/20",
-      "endDate": "2026-10-20",
-      "announceDate": "115/10/13",
-      "market": "上櫃"
-    },
-    {
       "code": "8111",
       "name": "立碁",
       "count": 2,
@@ -148,7 +98,7 @@
       "condition": "連續三次",
       "period": "115/10/21～115/10/28",
       "endDate": "2026-10-28",
-      "announceDate": "*115/10/20",
+      "announceDate": "115/10/20",
       "market": "上市"
     },
     {
