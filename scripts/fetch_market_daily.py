@@ -13,6 +13,9 @@
    "m": {代號: [融資餘額, 融資增減, 融券餘額, 融券增減, 資券相抵]}           單位：張
    "s": {代號: [借券賣出前日餘額, 當日賣出, 當日還券, 當日餘額]},           單位：張
    "ix": [加權指數, 漲跌%], "ad": {"上漲": [家數, 漲停], "下跌": [...], "持平": [...], ...}}（上市股票）
+   "off": {"twse": {...}, "tpex": {...}}  交易所公布的官方大盤統計：成交金額、漲跌家數／漲跌停、融資融券餘額（張、金額）
+     上市：MI_INDEX（type=MS 大盤統計資訊、漲跌證券數）、MI_MARGN（selectType=MS 信用交易統計）
+     上櫃：afterTrading/highlight（上櫃股票當日彙總）、margin/balance 合計列
 用法：python scripts/fetch_market_daily.py [--days 130]
 """
 from __future__ import annotations
@@ -226,6 +229,73 @@ def tpex_sbl(d: date):
     return parse_sbl(f, rows)
 
 
+def _cnt(v) -> tuple[int, int]:
+    m = re.match(r"([\d,]+)(?:\(([\d,]+)\))?", str(v).strip())
+    return (lots(m.group(1)), lots(m.group(2) or 0)) if m else (0, 0)
+
+
+def official(d: date) -> dict:
+    """官方大盤統計；金額單位：元，餘額單位：張。抓不到的那一邊就不放"""
+    out = {}
+    tw = {}
+    doc = get_json("https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX", {"date": d.strftime("%Y%m%d"), "type": "MS", "response": "json"})
+    if doc.get("stat") == "OK":
+        for t in tables(doc):
+            title, rows = str(t.get("title") or ""), t.get("data") or []
+            if "大盤統計資訊" in title:
+                for r in rows:
+                    k = str(r[0]).strip()
+                    if k.startswith("總計"):
+                        tw["value"] = num(r[1])
+                    elif k.startswith("證券合計"):
+                        tw["stockValue"] = num(r[1])
+            elif (t.get("fields") or [None])[0] == "類型":
+                for r in rows:
+                    k, (n, lim) = str(r[0]).strip()[:2], _cnt(r[2])
+                    if k == "上漲":
+                        tw["adv"], tw["lu"] = n, lim
+                    elif k == "下跌":
+                        tw["dec"], tw["ld"] = n, lim
+                    elif k == "持平":
+                        tw["unch"] = n
+    time.sleep(1.5)
+    doc = get_json("https://www.twse.com.tw/rwd/zh/marginTrading/MI_MARGN", {"date": d.strftime("%Y%m%d"), "selectType": "MS", "response": "json"})
+    for t in tables(doc) if doc.get("stat") == "OK" else []:
+        for r in t.get("data") or []:
+            k = str(r[0]).strip()
+            if k.startswith("融資(交易單位)"):
+                tw["mPrev"], tw["mBal"] = lots(r[4]), lots(r[5])
+            elif k.startswith("融券(交易單位)"):
+                tw["sPrev"], tw["sBal"] = lots(r[4]), lots(r[5])
+            elif k.startswith("融資金額"):
+                tw["mAmtPrev"], tw["mAmt"] = lots(r[4]) * 1000, lots(r[5]) * 1000
+    if tw.get("value"):
+        out["twse"] = tw
+    time.sleep(1.5)
+    tp = {}
+    doc = get_json("https://www.tpex.org.tw/www/zh-tw/afterTrading/highlight", {"date": tpex_date(d), "response": "json"})
+    t = (doc.get("tables") or [{}])[0]
+    if str(doc.get("date", "")) == d.strftime("%Y%m%d") and t.get("data"):
+        f, r = t["fields"], t["data"][0]
+        g = lambda name: num(r[f.index(name)]) if name in f else None  # noqa: E731
+        tp.update({"value": (g("本日總成交值(佰萬元)") or 0) * 1e6, "adv": int(g("上漲家數") or 0), "lu": int(g("漲停家數") or 0),
+                   "dec": int(g("下跌家數") or 0), "ld": int(g("跌停家數") or 0), "unch": int(g("平盤家數") or 0),
+                   "ix": g("收市指數"), "ixChg": g("指數漲跌")})
+    time.sleep(1.5)
+    doc = get_json("https://www.tpex.org.tw/www/zh-tw/margin/balance", {"date": tpex_date(d), "response": "json"})
+    t = (doc.get("tables") or [{}])[0]
+    if str(doc.get("date", "")) == d.strftime("%Y%m%d"):
+        for r in t.get("summary") or []:
+            k = str(r[1]).strip()
+            if k.startswith("合計"):
+                tp["mPrev"], tp["mBal"], tp["sPrev"], tp["sBal"] = lots(r[2]), lots(r[6]), lots(r[10]), lots(r[14])
+            elif k.startswith("融資金"):
+                tp["mAmtPrev"], tp["mAmt"] = lots(r[2]) * 1000, lots(r[6]) * 1000
+    if tp.get("value"):
+        out["tpex"] = tp
+    return out
+
+
 def fetch_day(d: date):
     tw = twse_quotes(d)
     time.sleep(1.5)
@@ -240,7 +310,13 @@ def fetch_day(d: date):
             dst.update(fn(d))
         except RuntimeError as e:
             log(f"  ✗ {d} {fn.__name__}：{e}")
-    return {"date": d.isoformat(), "q": q, "m": m, "s": s, **(TWSE_EXTRA if tw else {}),
+    time.sleep(1.5)
+    try:
+        off = official(d)
+    except RuntimeError as e:
+        log(f"  ✗ {d} 官方統計：{e}")
+        off = {}
+    return {"date": d.isoformat(), "q": q, "m": m, "s": s, "off": off, **(TWSE_EXTRA if tw else {}),
             "partial": [k for k, v in (("twse", tw), ("tpex", tp)) if v is None] or None}
 
 
@@ -268,6 +344,18 @@ def main():
         if path.exists():
             old = json.loads(path.read_text(encoding="utf-8"))
             if not old.get("partial") and old.get("m"):
+                # 個股資料已齊；官方大盤統計沒抓過或不完整（缺一邊或缺融資）就補
+                off = old.get("off") or {}
+                if (len(off) < 2 or any("mBal" not in v for v in off.values())) and time.time() < deadline:
+                    try:
+                        new_off = official(d)
+                    except RuntimeError as e:
+                        log(f"  ✗ {d} 官方統計：{e}")
+                        continue
+                    if new_off:
+                        old["off"] = new_off
+                        path.write_text(json.dumps(old, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+                        log(f"  {d}：補官方統計（{'、'.join(new_off)}）")
                 continue
         if time.time() > deadline:
             break

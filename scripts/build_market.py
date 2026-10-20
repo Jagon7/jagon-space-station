@@ -106,11 +106,23 @@ def build(data_dir: Path, out_dir: Path):
         mbal = sum(x[0] for x in d.get("m", {}).values())
         sbal = sum(x[2] for x in d.get("m", {}).values())
         ix = d.get("ix") or [None, None]
-        rows_atm.append({"d": d["date"], "ix": ix[0], "ixPct": ix[1], "adv": adv, "dec": dec, "unch": unch,
-                         "lu": lu, "ld": ld, "above20": round(above / tot20 * 100, 1) if tot20 else None,
-                         "nh": nh if tot20 else None, "nl": nl if tot20 else None,
-                         "value": round(value / 1e8), "mBal": mbal or None, "mChg": mchg if d.get("m") else None,
-                         "sBal": sbal or None})
+        row = {"d": d["date"], "ix": ix[0], "ixPct": ix[1], "adv": adv, "dec": dec, "unch": unch,
+               "lu": lu, "ld": ld, "above20": round(above / tot20 * 100, 1) if tot20 else None,
+               "nh": nh if tot20 else None, "nl": nl if tot20 else None,
+               "value": round(value / 1e8), "mBal": mbal or None, "mChg": mchg if d.get("m") else None,
+               "sBal": sbal or None, "off": 0}
+        # 有交易所公布的官方統計就用官方數字（上市＋上櫃），沒有才用個股加總估算
+        tw, tp = (d.get("off") or {}).get("twse"), (d.get("off") or {}).get("tpex")
+        if tw and tp:
+            both = lambda k: (tw.get(k) or 0) + (tp.get(k) or 0)  # noqa: E731
+            row.update({"adv": both("adv"), "dec": both("dec"), "unch": both("unch"), "lu": both("lu"), "ld": both("ld"),
+                        "value": round(both("value") / 1e8), "valueTw": round(tw["value"] / 1e8), "valueOtc": round(tp["value"] / 1e8),
+                        "off": 1})
+            if all("mBal" in x and "mAmt" in x for x in (tw, tp)):
+                row.update({"mBal": both("mBal"), "mChg": both("mBal") - both("mPrev"),
+                            "sBal": both("sBal"), "mAmt": round(both("mAmt") / 1e8),
+                            "mAmtChg": round((both("mAmt") - both("mAmtPrev")) / 1e8, 1)})
+        rows_atm.append(row)
     # 氣氛分數：各指標在這段期間的百分位平均
     vals = {
         "breadth": [r["adv"] / max(1, r["adv"] + r["dec"]) for r in rows_atm],

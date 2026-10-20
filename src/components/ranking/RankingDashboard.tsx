@@ -8,7 +8,9 @@ import { Empty, Kpi, KpiRow, Pills, SortTable, type Column } from "@/components/
 
 // [code, name, market, close, changePct, value, volume, sector]
 type Row = [string, string, "上市" | "上櫃", number, number | null, number, number, string];
-type Day = { date: string; rows: Row[] };
+// off：證交所／櫃買中心公布的官方大盤統計（成交金額單位：元，含 ETF、權證等全部證券）
+type Off = { value: number; adv: number; dec: number; unch: number; lu: number; ld: number };
+type Day = { date: string; rows: Row[]; off?: { twse: Off; tpex: Off } };
 type Market = "all" | "上市" | "上櫃";
 type Kind = "all" | "stock" | "etf";
 type Tab = "stocks" | "sectors";
@@ -66,7 +68,7 @@ export default function RankingDashboard() {
 
       {!day.data ? <Empty>{day.error ? "這天的資料載入失敗。" : "載入中…"}</Empty> : (
         <>
-          <Summary rows={day.data.rows} />
+          <Summary rows={day.data.rows} off={day.data.off} />
           {tab === "stocks" ? <StockRanking rows={day.data.rows} /> : <SectorFlow rows={day.data.rows} />}
         </>
       )}
@@ -74,19 +76,22 @@ export default function RankingDashboard() {
   );
 }
 
-function Summary({ rows }: { rows: Row[] }) {
-  const total = rows.reduce((s, r) => s + r[5], 0);
-  const twse = rows.filter((r) => r[2] === "上市").reduce((s, r) => s + r[5], 0);
+function Summary({ rows, off }: { rows: Row[]; off?: Day["off"] }) {
+  const listed = rows.reduce((s, r) => s + r[5], 0);
   const top10 = rows.slice(0, 10).reduce((s, r) => s + r[5], 0);
   const stocks = rows.filter((r) => !isEtf(r));
-  const up = stocks.filter((r) => (r[4] ?? 0) > 0).length;
-  const down = stocks.filter((r) => (r[4] ?? 0) < 0).length;
+  // 有官方統計用官方的；舊資料沒有才用排行裡的個股加總
+  const tw = off ? off.twse.value : rows.filter((r) => r[2] === "上市").reduce((s, r) => s + r[5], 0);
+  const otc = off ? off.tpex.value : listed - tw;
+  const up = off ? off.twse.adv + off.tpex.adv : stocks.filter((r) => (r[4] ?? 0) > 0).length;
+  const down = off ? off.twse.dec + off.tpex.dec : stocks.filter((r) => (r[4] ?? 0) < 0).length;
   return (
     <KpiRow>
-      <Kpi label="全市場成交金額" value={yi(total)} unit="億" />
-      <Kpi label="上市 / 上櫃" value={`${yi(twse)} / ${yi(total - twse)}`} unit="億" />
-      <Kpi label="前 10 名佔比" value={`${((top10 / total) * 100).toFixed(1)}%`} sub="資金集中度" />
-      <Kpi label="上漲 / 下跌家數" value={<><span className="text-[#f05252]">{up}</span><span className="text-[#7c8aa0]"> / </span><span className="text-[#22c55e]">{down}</span></>} />
+      <Kpi label="全市場成交金額" value={yi(tw + otc)} unit="億" sub={off ? "證交所＋櫃買公布（含 ETF、權證）" : "排行個股加總"} />
+      <Kpi label="上市 / 上櫃" value={`${yi(tw)} / ${yi(otc)}`} unit="億" />
+      <Kpi label="前 10 名佔比" value={`${((top10 / (tw + otc)) * 100).toFixed(1)}%`} sub="資金集中度" />
+      <Kpi label="上漲 / 下跌家數" value={<><span className="text-[#f05252]">{up}</span><span className="text-[#7c8aa0]"> / </span><span className="text-[#22c55e]">{down}</span></>}
+        sub={off ? `漲停 ${off.twse.lu + off.tpex.lu}・跌停 ${off.twse.ld + off.tpex.ld}（官方，股票）` : undefined} />
     </KpiRow>
   );
 }
