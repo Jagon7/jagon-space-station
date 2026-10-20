@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-19",
+  "date": "2026-10-20",
   "data": [
     {
       "date": "2026-09-11",
@@ -642,6 +642,34 @@
         {
           "name": "鋼鐵",
           "count": 1
+        }
+      ]
+    },
+    {
+      "date": "2026-10-20",
+      "limitUpCount": 35,
+      "marketMood": "中性",
+      "taiexChange": -1.13,
+      "topSectors": [
+        {
+          "name": "光電",
+          "count": 6
+        },
+        {
+          "name": "電子零組件",
+          "count": 5
+        },
+        {
+          "name": "化工",
+          "count": 3
+        },
+        {
+          "name": "半導體",
+          "count": 3
+        },
+        {
+          "name": "綠能環保",
+          "count": 3
         }
       ]
     }

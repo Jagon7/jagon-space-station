@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-19",
+  "date": "2026-10-20",
   "data": [
     {
       "code": "2466",
@@ -50,16 +50,6 @@
       "endDate": "2026-10-20",
       "announceDate": "115/10/13",
       "market": "上櫃"
-    },
-    {
-      "code": "2424",
-      "name": "隴華",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/10/16～115/10/22",
-      "endDate": "2026-10-22",
-      "announceDate": "115/10/15",
-      "market": "上市"
     },
     {
       "code": "8111",
@@ -149,6 +139,26 @@
       "period": "115/10/20~115/10/27",
       "endDate": "2026-10-27",
       "announceDate": "115/10/19",
+      "market": "上櫃"
+    },
+    {
+      "code": "2424",
+      "name": "隴華",
+      "count": 2,
+      "condition": "連續三次",
+      "period": "115/10/21～115/10/28",
+      "endDate": "2026-10-28",
+      "announceDate": "*115/10/20",
+      "market": "上市"
+    },
+    {
+      "code": "3354",
+      "name": "律勝",
+      "count": 1,
+      "condition": "連續3個營業日",
+      "period": "115/10/21~115/10/28",
+      "endDate": "2026-10-28",
+      "announceDate": "115/10/20",
       "market": "上櫃"
     }
   ]

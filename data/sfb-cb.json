@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-19",
+  "date": "2026-10-20",
   "data": [
     {
       "code": "2344",
@@ -1976,6 +1976,32 @@
       "effectiveDate": "2026-11-04",
       "withdrawDate": null,
       "underwriter": "富邦證券"
+    },
+    {
+      "code": "3450",
+      "name": "聯鈞",
+      "market": "上市",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 30.0,
+      "currency": "台幣",
+      "filingDate": "2026-10-19",
+      "effectiveDate": "2026-11-05",
+      "withdrawDate": null,
+      "underwriter": "元大證券"
+    },
+    {
+      "code": "6725",
+      "name": "矽科宏晟",
+      "market": "上櫃",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 6.0,
+      "currency": "台幣",
+      "filingDate": "2026-10-19",
+      "effectiveDate": "2026-11-05",
+      "withdrawDate": null,
+      "underwriter": "台新證券"
     }
   ]
 }
