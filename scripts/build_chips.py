@@ -57,7 +57,14 @@ def build_insti(data_dir: Path, out: Path, closes: dict):
             if p and STOCK.fullmatch(c):
                 for k in range(3):
                     tot[k] += v[2 + k] * p * 1000 / 1e8
-        market.append([d, *(round(t, 1) for t in tot)])
+        # 有官方金額就用官方的（上市＝證交所公布、新聞報導的數字；上櫃另列），沒有才用張數×收盤價估算
+        mk = x.get("_mkt") or {}
+        tw, tp = mk.get("twse"), mk.get("tpex")
+        if tw:
+            otc = [round(v, 1) for v in tp[:3]] if tp else [None, None, None]
+            market.append([d, round(tw[0], 1), round(tw[1], 1), round(tw[2], 1), *otc, 1])
+        else:
+            market.append([d, *(round(t, 1) for t in tot), None, None, None, 0])
 
     def win(s, n, k):
         vals = [x[k] for x in s[-n:] if x]

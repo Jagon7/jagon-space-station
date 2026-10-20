@@ -7,6 +7,8 @@
   上櫃：櫃買中心 insti/dailyTrade
 
 輸出 JSS_DATA_DIR/insti/<YYYY-MM-DD>.json：{代號: [名稱, 市場(0上市/1上櫃), 外資, 投信, 自營商, 合計]}（單位：張）
+  另有 "_mkt": {"twse": [外資, 投信, 自營商, 合計], "tpex": [...]}：交易所公布的官方買賣超金額（億元，含 ETF、權證）
+    上市：證交所 BFI82U（三大法人買賣金額統計表）；上櫃：櫃買中心 insti/summary
 交易日以 data/daily 已有的日期為準（沒有就用平日），每次補齊最近 DAYS 天中缺的。
 用法：python scripts/fetch_institutional.py [--days 130] [--minutes 20]
 """
@@ -94,6 +96,29 @@ def tpex(d: date) -> dict | None:
     return out
 
 
+def _yi(v) -> float:
+    return round(float(str(v).replace(",", "")) / 1e8, 2)
+
+
+def official(d: date) -> dict | None:
+    """官方三大法人買賣超金額（億元）；外資＝外資及陸資（不含自營商）＋外資自營商，自營商＝自行買賣＋避險"""
+    out = {}
+    doc = get_json("https://www.twse.com.tw/rwd/zh/fund/BFI82U", {"type": "day", "dayDate": d.strftime("%Y%m%d"), "response": "json"})
+    if doc.get("stat") == "OK" and doc.get("data"):
+        m = {re.sub(r"\s", "", r[0]): _yi(r[3]) for r in doc["data"]}
+        f = m.get("外資及陸資(不含外資自營商)", 0) + m.get("外資自營商", 0)
+        dl = m.get("自營商(自行買賣)", 0) + m.get("自營商(避險)", 0)
+        out["twse"] = [round(f, 2), m.get("投信", 0), round(dl, 2), m.get("合計", 0)]
+    time.sleep(1)
+    doc = get_json("https://www.tpex.org.tw/www/zh-tw/insti/summary", {"type": "Daily", "date": d.strftime("%Y/%m/%d"), "response": "json"})
+    t = (doc.get("tables") or [{}])[0]
+    roc = f"{d.year - 1911}/{d.month:02d}/{d.day:02d}"
+    if t.get("data") and str(t.get("date", "")).strip() == roc:
+        m = {re.sub(r"[\s　*]", "", r[0]): _yi(r[3]) for r in t["data"]}
+        out["tpex"] = [m.get("外資及陸資合計", 0), m.get("投信", 0), m.get("自營商合計", 0), m.get("三大法人合計", 0)]
+    return out or None
+
+
 def trading_days(n: int) -> list[date]:
     daily = sorted(p.stem for p in (DATA_DIR / "daily").glob("20*.json"))
     days = [date.fromisoformat(x) for x in daily[-n:]]
@@ -120,6 +145,18 @@ def main():
         if path.exists():
             old = json.loads(path.read_text(encoding="utf-8"))
             if old.get("_ok"):
+                # 個股已齊；官方金額沒抓過或缺上市／上櫃其中一邊就補
+                if len(old.get("_mkt") or {}) < 2 and time.time() < deadline:
+                    try:
+                        mk = official(d)
+                    except RuntimeError as e:
+                        log(f"✗ {d} 官方金額：{e}")
+                        continue
+                    if mk:
+                        old["_mkt"] = mk
+                        path.write_text(json.dumps(old, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+                        log(f"  {d}：補官方金額 {mk}")
+                    time.sleep(1)
                 continue
         if time.time() > deadline:
             break
@@ -136,6 +173,12 @@ def main():
             continue
         doc = {**(tw or {}), **(tp or {})}
         doc["_ok"] = tw is not None and tp is not None
+        try:
+            mk = official(d)
+            if mk:
+                doc["_mkt"] = mk
+        except RuntimeError as e:
+            log(f"✗ {d} 官方金額：{e}")
         path.write_text(json.dumps(doc, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
         n += 1
         log(f"  {d}：{len(doc) - 1} 檔{'' if doc['_ok'] else '（缺 ' + ('上市' if tw is None else '上櫃') + '）'}")
