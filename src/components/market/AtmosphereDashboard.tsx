@@ -8,6 +8,7 @@ import { Empty, Kpi, KpiRow, Note, Pills } from "@/components/data-ui";
 type Day = {
   d: string; ix: number | null; ixPct: number | null; adv: number; dec: number; unch: number; lu: number; ld: number;
   above20: number | null; nh: number | null; nl: number | null; value: number; mBal: number | null; mChg: number | null;
+  valueTw?: number; valueOtc?: number; mAmt?: number; mAmtChg?: number; off?: number;
   sBal: number | null; fut5?: number | null; parts: Record<string, number>; score: number | null; label: string | null;
 };
 type Range = "60" | "120" | "all";
@@ -68,7 +69,7 @@ export default function AtmosphereDashboard() {
     <div>
       <Note>
         把每天盤面的七個面向——上漲家數比、漲停減跌停、站上月線比例、創 20 日新高減新低、量能、融資增減、外資台指期淨未平倉 5 日變化——各自換算成「在過去這段期間排第幾百分位」，再平均成 0～100 的氣氛分數。
-        80 以上「過熱」、60～80「偏多」、40～60「中性」、20～40「偏空」、20 以下「冰點」。上市櫃普通股都算在內（不含 ETF）。
+        80 以上「過熱」、60～80「偏多」、40～60「中性」、20～40「偏空」、20 以下「冰點」。漲跌家數、漲跌停、成交值、融資都是證交所＋櫃買中心公布的官方數字（成交值含 ETF、權證等全部證券）；站上月線、新高新低由上市櫃普通股收盤價計算。
       </Note>
 
       <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-4 mb-6">
@@ -105,8 +106,10 @@ export default function AtmosphereDashboard() {
       <KpiRow>
         <Kpi label="漲停／跌停" value={<><span className="text-[#f05252]">{cur.lu}</span><span className="text-[#7c8aa0] mx-1">/</span><span className="text-[#22c55e]">{cur.ld}</span></>} unit="檔" />
         <Kpi label="上漲／下跌家數" value={<><span className="text-[#f05252]">{cur.adv}</span><span className="text-[#7c8aa0] mx-1">/</span><span className="text-[#22c55e]">{cur.dec}</span></>} />
-        <Kpi label="成交值（上市櫃普通股）" value={cur.value.toLocaleString()} unit="億" />
-        <Kpi label="融資增減" value={cur.mChg == null ? "—" : `${cur.mChg > 0 ? "+" : ""}${cur.mChg.toLocaleString()}`} unit="張" color={(cur.mChg ?? 0) >= 0 ? "text-[#f05252]" : "text-[#22c55e]"} />
+        <Kpi label={cur.off ? "成交值（上市＋上櫃）" : "成交值（上市櫃普通股）"} value={cur.value.toLocaleString()} unit="億"
+          sub={cur.valueTw != null ? `上市 ${cur.valueTw.toLocaleString()}・上櫃 ${cur.valueOtc?.toLocaleString()}` : undefined} />
+        <Kpi label="融資增減" value={cur.mChg == null ? "—" : `${cur.mChg > 0 ? "+" : ""}${cur.mChg.toLocaleString()}`} unit="張" color={(cur.mChg ?? 0) >= 0 ? "text-[#f05252]" : "text-[#22c55e]"}
+          sub={cur.mAmt != null ? `融資餘額 ${cur.mAmt.toLocaleString()} 億（${(cur.mAmtChg ?? 0) > 0 ? "+" : ""}${cur.mAmtChg} 億）` : undefined} />
       </KpiRow>
 
       <div className="rounded-xl border border-[#243247] bg-[#0d1220] p-5 mb-6">

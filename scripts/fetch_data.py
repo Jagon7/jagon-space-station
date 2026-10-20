@@ -280,6 +280,7 @@ def fetch_all_stocks(sector_map: dict, insti_map: dict = None) -> list[dict]:
             "volume":     vol,
             "tradeValue": tv,
             "closePrice": close,
+            "priceChange": chg,
             "openPrice":  parse_price(row.get("開盤價", 0)),
             "limitTime":  "--:--",
             "market":     "上市",
@@ -311,6 +312,7 @@ def fetch_all_stocks(sector_map: dict, insti_map: dict = None) -> list[dict]:
                 "volume":     vol,
                 "tradeValue": tv,
                 "closePrice": close,
+            "priceChange": chg,
                 "openPrice":  parse_price(row.get("Open", close)),
                 "limitTime":  "--:--",
                 "market":     "上櫃",
@@ -326,8 +328,25 @@ def fetch_all_stocks(sector_map: dict, insti_map: dict = None) -> list[dict]:
     log(f"  全市場報價：{len(stocks)} 檔（上市+上櫃）")
     return stocks
 
+def _limit_up_price(prev: float) -> float:
+    """依升降單位算出漲停價（前日收盤 × 1.1 再向下取到最近的檔位），與交易所的漲停判定一致"""
+    raw = prev * 1.1
+    t = 0.01 if raw < 10 else 0.05 if raw < 50 else 0.1 if raw < 100 else 0.5 if raw < 500 else 1 if raw < 1000 else 5
+    return round(int(raw / t + 1e-6) * t, 2)
+
+
 def filter_limit_up(all_stocks: list[dict]) -> list[dict]:
-    stocks = [s for s in all_stocks if LIMIT_UP_MIN <= s["change"] <= LIMIT_UP_MAX]
+    # 收盤價等於漲停價才算漲停（原本用漲幅 9%～11% 判斷，會把漲 9.x% 但沒鎖漲停的也算進來）
+    stocks = []
+    for s in all_stocks:
+        chg, close = s.get("priceChange"), s["closePrice"]
+        if chg is None:
+            if LIMIT_UP_MIN <= s["change"] <= LIMIT_UP_MAX:
+                stocks.append(s)
+            continue
+        prev = close - chg
+        if chg > 0 and prev > 0 and close >= _limit_up_price(prev) - 1e-6 and s["change"] <= LIMIT_UP_MAX:
+            stocks.append(s)
     log(f"  漲停股：{len(stocks)} 檔（上市+上櫃）")
     return stocks
 

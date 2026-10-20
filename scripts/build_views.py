@@ -23,7 +23,15 @@ def build_ranking():
     out.mkdir(parents=True, exist_ok=True)
     dates = []
     for p in sorted(src.glob("*.json")):
-        shutil.copy(p, out / p.name)
+        doc = json.loads(p.read_text(encoding="utf-8"))
+        # 附上交易所公布的官方成交金額、漲跌家數（data/daily 的 off），頁面優先顯示官方數字
+        try:
+            off = json.loads((DATA_DIR / "daily" / p.name).read_text(encoding="utf-8")).get("off") or {}
+        except (OSError, ValueError):
+            off = {}
+        if off.get("twse") and off.get("tpex"):
+            doc["off"] = {k: {x: off[k].get(x) for x in ("value", "adv", "dec", "unch", "lu", "ld")} for k in ("twse", "tpex")}
+        (out / p.name).write_text(json.dumps(doc, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
         dates.append(p.stem)
     (out / "index.json").write_text(json.dumps({"dates": dates}), encoding="utf-8")
     print(f"成交排行：{len(dates)} 天 → public/data/ranking")
