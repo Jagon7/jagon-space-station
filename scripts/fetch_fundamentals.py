@@ -350,11 +350,13 @@ def events():
                 if len(c) >= 6 and re.fullmatch(r"\d{4}[A-Z]?", c[0]):
                     dt = roc_date(c[2])
                     if dt:
-                        # 簡報檔：列裡的 .pdf 連結（href 或 window.open），第一個中文、第二個英文
-                        pdfs = re.findall(r"""(?:href=|open\()\s*['"]([^'"]+?\.pdf)""", tr, re.I)
-                        pdfs = [u if u.startswith("http") else OV.rstrip("/") + "/" + u.lstrip("/") for u in pdfs]
+                        # 簡報檔：fm_fileDownload 表單的檔名（M＝中文、E＝英文），實際檔案在 /nas/STR/；另存公司 IR／影音網址
+                        files = re.findall(r'fileName\.value="([^"]+)"', tr)
+                        zh = next((f for f in files if re.search(r"\d{8}M\d+\.", f)), None)
+                        en = next((f for f in files if re.search(r"\d{8}E\d+\.", f)), None)
+                        ir = next((u for u in re.findall(r"href=['\"](https?://[^'\"]+)", tr) if "twse.com.tw" not in u), None)
                         out["conf"][(dt, c[0])] = [dt, c[0], c[1], label, c[3], c[4][:60], c[5][:300],
-                                                   pdfs[0] if pdfs else None, pdfs[1] if len(pdfs) > 1 else None]
+                                                   OV + "nas/STR/" + zh if zh else None, OV + "nas/STR/" + en if en else None, ir]
     doc = {"updatedAt": datetime.now(TPE).isoformat(timespec="minutes")}
     for k, v in out.items():
         doc[k] = sorted(v.values())

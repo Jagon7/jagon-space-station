@@ -9,7 +9,7 @@ import { Empty, Kpi, KpiRow, Note, Pills, SearchBox } from "@/components/data-ui
 type News = { date: string; title: string; kind: "ai" | "news"; points: string[]; url: string };
 type Conf = {
   date: string; code: string; name: string; mk: string; time: string; place: string; summary: string;
-  pdf: string | null; pdfEn: string | null; react: number | null; news: News[]; body: string;
+  pdf: string | null; pdfEn: string | null; ir: string | null; react: number | null; news: News[]; body: string;
 };
 type Data = { updatedAt: string; today: string; rows: Conf[] };
 type Tab = "upcoming" | "past";
@@ -72,6 +72,7 @@ function Card({ c, today, starred, onStar }: { c: Conf; today: string; starred: 
       <Points c={c} />
       <div className="mt-3 flex flex-wrap items-center gap-3 text-[11px]">
         {c.pdf && <a href={c.pdf} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-[#4f8cff] hover:underline"><FileText className="w-3 h-3" />簡報（中）</a>}
+        {c.ir && <a href={c.ir} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-[#4f8cff] hover:underline"><ExternalLink className="w-3 h-3" />公司 IR／直播</a>}
         {c.pdfEn && <a href={c.pdfEn} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-[#4f8cff] hover:underline"><FileText className="w-3 h-3" />簡報（英）</a>}
         {c.news.map((n) => (
           <a key={n.url} href={n.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-[#8b97ab] hover:text-[#4f8cff] max-w-full">
