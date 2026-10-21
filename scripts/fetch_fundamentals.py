@@ -334,9 +334,11 @@ def events():
         except (RuntimeError, ValueError) as e:
             log(f"✗ 股東會 {label}：{e}")
 
-    # 法說會：本月與下個月 [日期, 代號, 名稱, 市場, 時間, 地點, 摘要]
+    # 法說會：上個月、本月與下個月 [日期, 代號, 名稱, 市場, 時間, 地點, 摘要, 中文簡報, 英文簡報]
     now = datetime.now(TPE).date()
-    for y, m in ((now.year, now.month), ((now.replace(day=28) + timedelta(days=5)).year, (now.replace(day=28) + timedelta(days=5)).month)):
+    prev_m = now.replace(day=1) - timedelta(days=1)
+    next_m = now.replace(day=28) + timedelta(days=5)
+    for y, m in ((prev_m.year, prev_m.month), (now.year, now.month), (next_m.year, next_m.month)):
         for mk, label in MARKETS:
             try:
                 page = ajax("ajax_t100sb02_1", {"TYPEK": mk, "year": str(y - 1911), "month": f"{m:02d}"})
@@ -348,7 +350,11 @@ def events():
                 if len(c) >= 6 and re.fullmatch(r"\d{4}[A-Z]?", c[0]):
                     dt = roc_date(c[2])
                     if dt:
-                        out["conf"][(dt, c[0])] = [dt, c[0], c[1], label, c[3], c[4][:60], c[5][:200]]
+                        # 簡報檔：列裡的 .pdf 連結（href 或 window.open），第一個中文、第二個英文
+                        pdfs = re.findall(r"""(?:href=|open\()\s*['"]([^'"]+?\.pdf)""", tr, re.I)
+                        pdfs = [u if u.startswith("http") else OV.rstrip("/") + "/" + u.lstrip("/") for u in pdfs]
+                        out["conf"][(dt, c[0])] = [dt, c[0], c[1], label, c[3], c[4][:60], c[5][:300],
+                                                   pdfs[0] if pdfs else None, pdfs[1] if len(pdfs) > 1 else None]
     doc = {"updatedAt": datetime.now(TPE).isoformat(timespec="minutes")}
     for k, v in out.items():
         doc[k] = sorted(v.values())

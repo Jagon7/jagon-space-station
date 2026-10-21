@@ -1,0 +1,66 @@
+name: Intel Fetch
+
+# 券商報告、法說會新聞、美股行情；抓完立刻檢查要不要推播（新券商報告、美股類股大波動）。
+# 美股收盤（台北 04:00／05:00）後跑幾次，確保台股開盤前就送出提醒；白天每 3 小時補抓新報告。
+# GitHub 排程常延後，所以多排幾次；推過的記在 data/notify/intel-alerted.json，不會重複推。
+on:
+  schedule:
+    - cron: '17 20 * * 1-5'   # 04:17 台灣時間（美股夏令收盤後）
+    - cron: '47 21 * * 1-5'   # 05:47（美股冬令收盤後）
+    - cron: '13 23 * * 1-5'   # 07:13
+    - cron: '37 0 * * 2-6'    # 08:37 開盤前最後一次
+    - cron: '23 3 * * *'      # 11:23
+    - cron: '23 6 * * *'      # 14:23
+    - cron: '23 9 * * *'      # 17:23
+    - cron: '23 12 * * *'     # 20:23
+    - cron: '23 15 * * *'     # 23:23
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: intel
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.11'
+      - run: pip install requests
+      - name: Fetch broker reports, conference news, US quotes
+        run: python3 scripts/fetch_intel.py --pages 8
+        env:
+          JSS_DATA_DIR: ./data
+      - name: Build data views
+        run: TZ=Asia/Taipei python3 scripts/build_views.py
+      - name: Alert (new reports, US moves)
+        continue-on-error: true
+        run: TZ=Asia/Taipei python3 scripts/notify.py --intel-alert
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
+          LINE_USER_ID: ${{ secrets.LINE_USER_ID }}
+      - name: Commit and push data
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add data/intel/ data/notify/
+          if git diff --staged --quiet; then
+            echo "No data changes to commit"
+            exit 0
+          fi
+          git commit -m "data: intel $(TZ=Asia/Taipei date +%Y-%m-%dT%H:%M)"
+          for i in 1 2 3 4 5; do
+            git push && exit 0
+            git pull --rebase -X theirs origin main || { git rebase --abort; git pull --no-rebase -X ours origin main; }
+          done
+          echo "::error::Gave up pushing data after 5 attempts"
+          exit 1

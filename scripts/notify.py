@@ -9,6 +9,7 @@
   Discord ：DISCORD_WEBHOOK_URL
   LINE    ：LINE_CHANNEL_TOKEN、LINE_USER_ID（Messaging API push message）
 用法：python scripts/notify.py [--dry-run] [--check] [--insider-alert]
+  --intel-alert：新券商報告、美股類股大波動（開盤前提醒台股可能反應的股票），已推過的記在 data/notify/intel-alerted.json
   --insider-alert：內部人大額異動快訊（≥1 億），每次資料更新後都跑，沒推過的才推（記錄在 data/notify/insider-alerted.json）
   --check：只檢查最近一個交易日的行情、法人、融資券是否都到齊，結果寫到 GITHUB_OUTPUT（ready、date）
 """
@@ -247,16 +248,84 @@ def insider_alert(dry: bool) -> int:
     return 0
 
 
+INTEL_STATE = ROOT / "data" / "notify" / "intel-alerted.json"
+
+
+def intel_alert(dry: bool) -> int:
+    try:
+        state = json.loads(INTEL_STATE.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        state = None
+    rep = load("intel/reports.json", {}) or {}
+    rows = rep.get("rows") or []
+    intl = load("intel/intl.json", {}) or {}
+    first = state is None
+    if first:  # 第一次執行：現有的都當作推過，避免一次灌爆
+        state = {"reports": [r[13] for r in rows], "us": [intl.get("usDate")] if intl.get("usDate") else []}
+    seen = set(state["reports"])
+    wl = set(watchlist())
+    msgs = []
+
+    # 1) 新券商報告（FactSet 共識只推自選股的）
+    new = [r for r in rows if r[13] not in seen and (r[9] == "broker" or r[1] in wl)]
+    if new:
+        lines = [f"📑 新券商報告（{len(new)} 份）"]
+        for r in new[:12]:
+            d, code, name, broker, rating, tgt, prev, up = r[:8]
+            chg = "" if prev is None else ("維持" if prev == tgt else f"{'調升' if tgt > prev else '調降'}（前次 {prev:g}）")
+            lines.append(f"{'⭐' if code in wl else '🔹'}{name} {code}｜{broker} 目標價 {tgt:g}{f'（潛在 {up:+.1f}%）' if up is not None else ''} {chg}{'｜' + rating if rating else ''}")
+            if r[11]:
+                p = r[11][0]
+                lines.append(f"   {p[:70]}{'…' if len(p) > 70 else ''}")
+        if len(new) > 12:
+            lines.append(f"…還有 {len(new) - 12} 份")
+        lines.append(f"{SITE}/reports/")
+        msgs.append("\n".join(lines))
+
+    # 2) 美股類股大波動：只在台股開盤前後有意義（美股收盤日的隔天 13:30 前）
+    ud = intl.get("usDate")
+    if ud and ud not in state["us"]:
+        deadline = datetime.fromisoformat(ud).replace(tzinfo=timezone(timedelta(hours=8))) + timedelta(days=1, hours=13, minutes=30)
+        hits = [g for g in intl.get("groups", []) if g.get("alert")]
+        if hits and datetime.now(timezone(timedelta(hours=8))) < deadline:
+            lines = [f"🌏 美股 {ud[5:].replace('-', '/')} 收盤：" + "、".join(f"{g['name']} {g['quotes'][0]['chg']:+.2f}%" for g in hits)]
+            for g in hits:
+                q = g["quotes"][0]
+                react = [m for m in g.get("react", []) if abs(m.get("exp") or 0) >= 0.3][:8]
+                lines.append(f"【{g['name']} {q['chg']:+.2f}%】{g.get('theme', '')}")
+                if react:
+                    lines.append("  開盤留意：" + "、".join(f"{m['name']} {m['exp']:+.1f}%" for m in react))
+            lines.append("（預估＝β × 美股漲跌，依過去約半年的隔日連動推算，僅供參考）")
+            lines.append(f"{SITE}/global/")
+            msgs.append("\n".join(lines))
+        state["us"] = sorted(set(state["us"]) | {ud})[-30:]
+
+    for text in msgs:
+        print(text + "\n")
+        if not dry and not first and not send(text):
+            print("（沒有設定任何推播管道，只印出內容）")
+    if not msgs:
+        print("沒有新的券商報告或國際類股大波動")
+    if not dry:
+        state["reports"] = sorted(seen | {r[13] for r in rows})[-3000:]
+        INTEL_STATE.parent.mkdir(parents=True, exist_ok=True)
+        INTEL_STATE.write_text(json.dumps(state, ensure_ascii=False, indent=0), encoding="utf-8")
+    return 0
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--check", action="store_true")
     ap.add_argument("--insider-alert", action="store_true")
+    ap.add_argument("--intel-alert", action="store_true")
     a = ap.parse_args()
     if a.check:
         return check()
     if a.insider_alert:
         return insider_alert(a.dry_run)
+    if a.intel_alert:
+        return intel_alert(a.dry_run)
     text = compose()
     print(text)
     if a.dry_run:
