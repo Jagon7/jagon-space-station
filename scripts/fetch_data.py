@@ -992,10 +992,19 @@ def fetch_sfb_cb() -> list[dict]:
     roc_year = str(TODAY.year - 1911)
     # 檔名格式一直在變（115 年 10 月起變成 1151008v3.xlsx，連「申報案件彙總表」都不在檔名裡），
     # 改用連結的 title「115年度申報案件」定位；舊的檔名規則留作備援
-    matches = _re.findall(
-        r'<a href="(https://www\.fsc\.gov\.tw/userfiles/file/[^"]+?\.xlsx)"[^>]*title="' + roc_year + r'年度申報案件',
-        html,
-    )
+    # 115 年 10 月 21 日起又改了：檔案變成舊版 .xls（1151021申報v1.xls），連結文字只寫「EXCEL」，
+    # 年度標題放在同一列的另一格。所以先找「115年度申報案件」那一列裡的第一個試算表連結。
+    matches = []
+    i = html.find(roc_year + "年度申報案件")
+    while i >= 0 and not matches:
+        row = html[i: html.find("</tr>", i) if html.find("</tr>", i) > 0 else i + 3000]
+        matches = _re.findall(r'href="(https://www\.fsc\.gov\.tw/userfiles/file/[^"]+?\.xlsx?)"', row)[:1]
+        i = html.find(roc_year + "年度申報案件", i + 1)
+    if not matches:
+        matches = _re.findall(
+            r'<a href="(https://www\.fsc\.gov\.tw/userfiles/file/[^"]+?\.xlsx)"[^>]*title="' + roc_year + r'年度申報案件',
+            html,
+        )
     if not matches:
         matches = _re.findall(
             r'https://www\.fsc\.gov\.tw/userfiles/file/' + roc_year + r'\d+'
@@ -1012,14 +1021,18 @@ def fetch_sfb_cb() -> list[dict]:
     try:
         r = SESSION.get(excel_url, timeout=30)
         r.raise_for_status()
-        wb = openpyxl.load_workbook(_io.BytesIO(r.content))
+        if excel_url.lower().endswith(".xls"):  # 舊版 Excel 格式，openpyxl 讀不了
+            import xlrd
+            sh = xlrd.open_workbook(file_contents=r.content).sheet_by_index(0)
+            rows = [sh.row_values(i) for i in range(3, sh.nrows)]
+        else:
+            rows = list(openpyxl.load_workbook(_io.BytesIO(r.content)).active.iter_rows(min_row=4, values_only=True))
     except Exception as e:
         log(f"✗ Excel 下載/解析失敗 → {e}")
         return []
 
-    ws = wb.active
     results = []
-    for row in ws.iter_rows(min_row=4, values_only=True):
+    for row in rows:
         if not row[5] or "轉換公司債" not in str(row[5]):
             continue
         code        = str(row[0]).strip() if row[0] else ""
