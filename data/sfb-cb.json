@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-20",
+  "date": "2026-10-21",
   "data": [
     {
       "code": "2344",
@@ -1661,7 +1661,7 @@
       "amount": 40.0,
       "currency": "台幣",
       "filingDate": "2026-09-15",
-      "effectiveDate": null,
+      "effectiveDate": "2026-11-05",
       "withdrawDate": null,
       "underwriter": "華南永昌證券"
     },
@@ -1773,7 +1773,7 @@
       "code": "6846",
       "name": "綠茵生技",
       "market": "上櫃",
-      "status": "審查中",
+      "status": "生效",
       "cbType": "轉換公司債(無擔保)",
       "amount": 2.5,
       "currency": "台幣",
@@ -1786,7 +1786,7 @@
       "code": "8147",
       "name": "正淩精密工業",
       "market": "上櫃",
-      "status": "審查中",
+      "status": "生效",
       "cbType": "轉換公司債(無擔保)",
       "amount": 3.0,
       "currency": "台幣",
