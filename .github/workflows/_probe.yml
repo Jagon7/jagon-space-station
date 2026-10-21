@@ -10,12 +10,7 @@ jobs:
           curl -s -A "Mozilla/5.0" -e "https://mopsov.twse.com.tw/mops/web/index" \
             -d "encodeURIComponent=1&step=1&firstin=1&off=1&isQuery=Y&TYPEK=sii&year=115&month=10" \
             "https://mopsov.twse.com.tw/mops/web/ajax_t100sb02_1" -o c.html
-          wc -c c.html
-          python3 - <<'P'
-          import re
-          h=open('c.html',encoding='utf-8',errors='ignore').read()
-          print([re.sub(r'<[^>]+>|\s','',t) for t in re.findall(r'<th[^>]*>(.*?)</th>',h,re.S)][:30])
-          trs=[t for t in re.findall(r'<tr[^>]*>(.*?)</tr>',h,re.S) if '2330' in t or '2303' in t]
-          for t in trs[:2]: print(t[:4000]); print('-----')
-          print(sorted(set(re.findall(r'(?:href|onclick|open)[^>]{0,200}',h)))[:20])
-          P
+          grep -o '<form[^>]*fm_fileDownload[^>]*>' c.html | head -2
+          grep -o 'name=.fm_fileDownload.[^>]*' c.html | head -2
+          for u in "https://mopsov.twse.com.tw/nas/STR/233020261015M001.pdf" "https://mops.twse.com.tw/nas/STR/233020261015M001.pdf"; do
+            curl -s -A "Mozilla/5.0" -o /dev/null -w "%{http_code} %{content_type} %{size_download} $u\n" "$u"; done
