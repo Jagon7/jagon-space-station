@@ -261,7 +261,7 @@ def intel_alert(dry: bool) -> int:
     intl = load("intel/intl.json", {}) or {}
     first = state is None
     if first:  # 第一次執行：現有的都當作推過，避免一次灌爆
-        state = {"reports": [r[13] for r in rows], "us": [intl.get("usDate")] if intl.get("usDate") else []}
+        state = {"reports": [r[13] for r in rows], "us": [f"{q['sym']}:{q['date']}" for g in intl.get("groups", []) for q in g.get("quotes", [])]}
     seen = set(state["reports"])
     wl = set(watchlist())
     msgs = []
@@ -282,23 +282,46 @@ def intel_alert(dry: bool) -> int:
         lines.append(f"{SITE}/reports/")
         msgs.append("\n".join(lines))
 
-    # 2) 美股類股大波動：只在台股開盤前後有意義（美股收盤日的隔天 13:30 前）
-    ud = intl.get("usDate")
-    if ud and ud not in state["us"]:
-        deadline = datetime.fromisoformat(ud).replace(tzinfo=timezone(timedelta(hours=8))) + timedelta(days=1, hours=13, minutes=30)
-        hits = [g for g in intl.get("groups", []) if g.get("alert")]
-        if hits and datetime.now(timezone(timedelta(hours=8))) < deadline:
-            lines = [f"🌏 美股 {ud[5:].replace('-', '/')} 收盤：" + "、".join(f"{g['name']} {g['quotes'][0]['chg']:+.2f}%" for g in hits)]
-            for g in hits:
-                q = g["quotes"][0]
-                react = [m for m in g.get("react", []) if abs(m.get("exp") or 0) >= 0.3][:8]
-                lines.append(f"【{g['name']} {q['chg']:+.2f}%】{g.get('theme', '')}")
-                if react:
-                    lines.append("  開盤留意：" + "、".join(f"{m['name']} {m['exp']:+.1f}%" for m in react))
-            lines.append("（預估＝β × 美股漲跌，依過去約半年的隔日連動推算，僅供參考）")
-            lines.append(f"{SITE}/global/")
-            msgs.append("\n".join(lines))
-        state["us"] = sorted(set(state["us"]) | {ud})[-30:]
+    # 2) 國際類股／指數大波動（美股、貴金屬、BDI、SCFI…）：每個指數每個日期只推一次，
+    #    只在台股還能反應時推（指數日期之後的第一個台股交易日 13:30 前）
+    tpe = timezone(timedelta(hours=8))
+    now = datetime.now(tpe)
+    done = set(state["us"])
+    hit_groups = []
+    for g in intl.get("groups", []):
+        trig = []
+        for q in g.get("quotes", []):
+            key = f"{q['sym']}:{q['date']}"
+            if not q.get("alert") or key in done:
+                continue
+            d = date.fromisoformat(q["date"]) + timedelta(days=1)
+            while d.weekday() >= 5:
+                d += timedelta(days=1)
+            if now < datetime(d.year, d.month, d.day, 13, 30, tzinfo=tpe):
+                trig.append(q)
+            done.add(key)
+        if trig:
+            hit_groups.append((g, trig))
+    if hit_groups:
+        NAME = {"^SOX": "費半", "^IXIC": "那指", "^GSPC": "S&P", "^DJI": "道瓊", "CL=F": "原油", "HG=F": "銅", "GC=F": "黃金",
+                "SI=F": "白銀", "PL=F": "白金", "^XAU": "費城金銀指數", "^HUI": "金蟲指數", "BDI": "BDI 散裝指數",
+                "SCFI": "SCFI 貨櫃運價", "TWD=X": "美元兌台幣"}
+        nm = lambda q: NAME.get(q["sym"], q["sym"])  # noqa: E731
+        lines = ["🌏 國際類股大波動：" + "、".join(f"{nm(q)} {q['chg']:+.2f}%{'（週）' if q.get('weekly') else ''}" for _, t in hit_groups for q in t)]
+        for g, trig in hit_groups:
+            lines.append(f"【{g['name']}】" + "、".join(f"{nm(q)} {q['chg']:+.2f}%（{q['date'][5:].replace('-', '/')}）" for q in trig))
+            # 用觸發的那個指數自己的 β；變動最大的觸發指數優先
+            q_top = max(trig, key=lambda q: abs(q["chg"]))
+            react = [m for m in (q_top.get("react") or []) if abs(m.get("exp") or 0) >= 0.3][:8]
+            members = [m["name"] for m in g.get("members", [])[:8]]
+            if react:
+                lines.append("  開盤留意：" + "、".join(f"{m['name']} {m['exp']:+.1f}%" for m in react))
+            elif members:
+                lines.append("  相關台股：" + "、".join(members))
+        lines.append("（預估＝β × 指數漲跌，依過去約半年的隔日連動推算，僅供參考）")
+        lines.append(f"{SITE}/global/")
+        msgs.append("\n".join(lines))
+    state["us"] = sorted(done)[-300:]
 
     for text in msgs:
         print(text + "\n")

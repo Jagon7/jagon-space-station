@@ -13,7 +13,8 @@ from datetime import date, timedelta
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-STOCK = re.compile(r"[1-9]\d{3}|0050")
+STOCK = re.compile(r"[1-9]\d{3}|00\d{2,4}[A-Z]?")
+WEEKLY = {"SCFI"}  # 每週公布的指數：漲跌是對上一週
 # 泛稱（不是特定一家券商），不能拿前一筆當「上次目標價」
 GENERIC = {"法人", "外資", "美系外資", "日系外資", "歐系外資", "港系外資", "陸系外資", "本土投顧", "國內投顧", "官股投顧", "大咖投顧"}
 
@@ -203,16 +204,22 @@ def build_intl(data_dir: Path, out: Path, days):
         tick = [t for t in g["tickers"] if t in us]
         if not tick:
             continue
-        lead = tick[0]
+        # 算關聯用資料最長的那檔（BDI、SCFI 是逐日累積的，剛開始資料少）
+        lead = tick[0] if len(us[tick[0]]) >= 120 else max(tick, key=lambda t: len(us[t]))
+        ths = g.get("thresholds", {})
+        newest = max(us[t][-1][0] for t in tick)
         quotes = []
         for t in tick:
             s = us[t]
             last, prev = s[-1], s[-2] if len(s) > 1 else None
             p5 = s[-6] if len(s) > 5 else None
-            quotes.append({"sym": t, "date": last[0], "close": last[1],
-                           "chg": round((last[1] / prev[1] - 1) * 100, 2) if prev else None,
+            chg = round((last[1] / prev[1] - 1) * 100, 2) if prev else None
+            th = ths.get(t, g.get("threshold", 3))
+            stale = (date.fromisoformat(newest) - date.fromisoformat(last[0])).days > (8 if t in WEEKLY else 4)
+            quotes.append({"sym": t, "date": last[0], "close": last[1], "chg": chg,
                            "chg5": round((last[1] / p5[1] - 1) * 100, 2) if p5 else None,
-                           "spark": [x[1] for x in s[-30:]]})
+                           "spark": [x[1] for x in s[-30:]], "th": th, "weekly": t in WEEKLY,
+                           "alert": chg is not None and not stale and abs(chg) >= th})
         mem = []
         for c in g["members"]:
             co, be = pair(lead, c)
@@ -227,14 +234,26 @@ def build_intl(data_dir: Path, out: Path, days):
                 emp.append({"code": c, "name": names.get(c, c), "corr": co, "beta": be, "member": False})
         emp.sort(key=lambda x: -x["corr"])
         mem.sort(key=lambda x: -(x["corr"] or -1))
-        q0 = quotes[0]
+        q0 = next(q for q in quotes if q["sym"] == lead)
         react = sorted(([{**m, "exp": round(m["beta"] * q0["chg"], 2)} for m in mem + emp[:8]
                          if m["beta"] is not None and q0["chg"] is not None and (m["corr"] or 0) >= 0.2]),
                        key=lambda x: -abs(x["exp"]))
+        # 每個指數各自的「開盤可能反應」（用該指數自己的 β）；只看成員與實證關聯 ≥ 0.4 的
+        cands = [m["code"] for m in mem] + [m["code"] for m in emp[:10] if m["corr"] >= 0.4]
+        for q in quotes:
+            if q["chg"] is None or len(us[q["sym"]]) < 60:
+                q["react"] = []
+                continue
+            rs = []
+            for c in cands:
+                co, be = pair(q["sym"], c)
+                if co is not None and be is not None and co >= 0.2:
+                    rs.append({"code": c, "name": names.get(c, c), "corr": co, "exp": round(be * q["chg"], 2)})
+            q["react"] = sorted(rs, key=lambda x: -abs(x["exp"]))[:8]
         groups.append({"id": g["id"], "name": g["name"], "theme": g.get("theme", ""), "threshold": g.get("threshold", 3),
                        "lead": lead, "quotes": quotes, "members": mem, "empirical": emp[:10], "react": react[:12],
-                       "alert": q0["chg"] is not None and abs(q0["chg"]) >= g.get("threshold", 3)})
-    us_date = max(s[-1][0] for s in us.values())
+                       "alert": any(q["alert"] for q in quotes)})
+    us_date = max(s[-1][0] for k, s in us.items() if k not in ("BDI", "SCFI"))
     _w(out / "intl.json", {"usDate": us_date, "twDate": dates[-1], "sessions": len(dates) - 1, "groups": groups})
     print(f"國際類股：{len(groups)} 組，美股 {us_date}，觸發 {sum(1 for g in groups if g['alert'])} 組 → public/data/intel/intl.json")
 

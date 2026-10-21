@@ -45,6 +45,10 @@ US_TICKERS = {
     "MSFT": "Microsoft", "GOOGL": "Alphabet", "META": "Meta", "AMZN": "Amazon", "INTC": "Intel",
     "QCOM": "Qualcomm", "ARM": "Arm", "MRVL": "Marvell", "XBI": "生技 ETF", "ZIM": "ZIM 航運",
     "CL=F": "原油", "HG=F": "銅", "GC=F": "黃金", "TWD=X": "美元兌台幣",
+    # 貴金屬：白銀、白金期貨，費城金銀類股指數、金蟲指數
+    "SI=F": "白銀", "PL=F": "白金", "^XAU": "費城金銀指數", "^HUI": "金蟲指數",
+    # 航運：乾散貨運價期貨 ETF、全球航運 ETF、散裝與貨櫃船公司
+    "BDRY": "乾散貨運價 ETF", "BOAT": "全球航運 ETF", "SBLK": "Star Bulk", "MATX": "Matson",
 }
 
 
@@ -448,6 +452,38 @@ def fetch_us(series: dict):
         time.sleep(0.4)
 
 
+def fetch_indices(series: dict):
+    """Yahoo 沒有的航運指數：波羅的海乾散貨指數 BDI（每日，Trading Economics）、上海出口貨櫃運價指數 SCFI（每週五，上海航運交易所）；逐日累積"""
+    def put(sym: str, d: str, v: float):
+        rows = [x for x in series.get(sym, []) if x[0] != d] + [[d, round(v, 4)]]
+        series[sym] = sorted(rows)[-400:]
+
+    try:
+        r = S.get("https://tradingeconomics.com/commodity/baltic", timeout=30)
+        m = re.search(r"Baltic Dry (?:rose|fell|increased|decreased|was unchanged|remained)[^\d]{0,40}?([\d,]+(?:\.\d+)?) Index Points on (\w+ \d{1,2}, \d{4})", r.text)
+        if m:
+            dd = datetime.strptime(m.group(2), "%B %d, %Y").date()
+            v = float(m.group(1).replace(",", ""))
+            put("BDI", dd.isoformat(), v)
+            # 頁面寫「up 3.36% from the previous day」：還沒累積到前一天的話，用漲跌幅反推前一個平日
+            mp = re.search(r"(up|down) ([\d.]+)% from the previous day", r.text)
+            prev_d = dd - timedelta(days=3 if dd.weekday() == 0 else 1)
+            if mp and not any(x[0] == prev_d.isoformat() for x in series.get("BDI", [])):
+                pct = float(mp.group(2)) * (1 if mp.group(1) == "up" else -1)
+                put("BDI", prev_d.isoformat(), v / (1 + pct / 100))
+        else:
+            log("  ✗ BDI 頁面格式不符")
+    except (requests.RequestException, ValueError) as e:
+        log(f"  ✗ BDI：{e}")
+    d = get_json("https://en.sse.net.cn/currentIndex", {"indexName": "scfi"})
+    try:
+        row = next(x for x in d["data"]["lineDataList"] if x.get("dataItemTypeName") == "SCFI_T")
+        put("SCFI", d["data"]["lastDate"], float(row["lastContent"]))
+        put("SCFI", d["data"]["currentDate"], float(row["currentContent"]))
+    except (TypeError, KeyError, StopIteration, ValueError):
+        log("  ✗ SCFI 抓不到")
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--pages", type=int, default=12)
@@ -477,6 +513,7 @@ def main():
         up = OUT / "us.json"
         doc = load(up, {"series": {}})
         fetch_us(doc["series"])
+        fetch_indices(doc["series"])
         doc["updatedAt"] = now
         save(up, doc)
         log(f"國際行情：{len(doc['series'])} 檔，最新 {max((v[-1][0] for v in doc['series'].values()), default='—')}")
