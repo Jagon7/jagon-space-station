@@ -1,0 +1,21 @@
+name: _probe
+on:
+  push:
+    branches: [claude/youthful-rubin-xo17ci]
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          curl -s -A "Mozilla/5.0" -e "https://mopsov.twse.com.tw/mops/web/index" \
+            -d "encodeURIComponent=1&step=1&firstin=1&off=1&isQuery=Y&TYPEK=sii&year=115&month=10" \
+            "https://mopsov.twse.com.tw/mops/web/ajax_t100sb02_1" -o c.html
+          wc -c c.html
+          python3 - <<'P'
+          import re
+          h=open('c.html',encoding='utf-8',errors='ignore').read()
+          print([re.sub(r'<[^>]+>|\s','',t) for t in re.findall(r'<th[^>]*>(.*?)</th>',h,re.S)][:30])
+          trs=[t for t in re.findall(r'<tr[^>]*>(.*?)</tr>',h,re.S) if '2330' in t or '2303' in t]
+          for t in trs[:2]: print(t[:4000]); print('-----')
+          print(sorted(set(re.findall(r'(?:href|onclick|open)[^>]{0,200}',h)))[:20])
+          P
