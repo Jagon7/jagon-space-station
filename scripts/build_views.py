@@ -15,6 +15,7 @@ import build_market  # noqa: E402
 import build_fund  # noqa: E402
 import build_chips  # noqa: E402
 import build_signals  # noqa: E402
+import build_intel  # noqa: E402
 
 
 def build_ranking():
@@ -230,4 +231,5 @@ if __name__ == "__main__":
     build_market.build(DATA_DIR, ROOT / "public" / "data")
     build_fund.build(DATA_DIR, ROOT / "public" / "data")
     build_chips.build(DATA_DIR, ROOT / "public" / "data")
+    build_intel.build(DATA_DIR, ROOT / "public" / "data")
     build_signals.build(ROOT / "public" / "data")

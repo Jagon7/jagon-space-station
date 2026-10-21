@@ -123,6 +123,20 @@ function buildRows() {
     push({ level: bb?.length ? "ok" : "warn", item: "基本面", name: "庫藏股", date: null, count: bb?.length ?? 0, note: "近 2 年決議" });
   }
 
+  // ── 券商報告、法說會新聞、國際行情 ──
+  {
+    const rp = read<{ updatedAt: string; items: { date: string; kind: string }[] }>("intel/reports.json");
+    const rd = rp?.items[0]?.date ?? null;
+    const rl = lag(rd);
+    push({ level: !rp ? "error" : byLag(rl, 2, 4), item: "情報", name: "券商報告", date: rd, lag: rl, count: rp?.items.filter((x) => x.kind === "broker").length ?? 0, note: rp ? `抓取 ${rp.updatedAt.slice(5, 16).replace("T", " ")}` : "" });
+    const cn = read<{ items: { date: string }[] }>("intel/confnews.json");
+    push({ level: cn?.items.length ? "ok" : "warn", item: "情報", name: "法說會要點（新聞／AI 摘要）", date: cn?.items[0]?.date ?? null, count: cn?.items.length ?? 0, note: "" });
+    const us = read<{ updatedAt: string; series: Record<string, [string, number][]> }>("intel/us.json");
+    const ud = us ? Object.values(us.series).map((v) => v.at(-1)?.[0] ?? "").sort().at(-1) ?? null : null;
+    const ul = lag(ud);
+    push({ level: !us ? "error" : byLag(ul, 1, 3), item: "情報", name: "美股／國際行情", date: ud, lag: ul, count: us ? Object.keys(us.series).length : 0, note: "美股日期比台股晚一天屬正常" });
+  }
+
   // ── 籌碼：三大法人、期貨、集保 ──
   {
     const it = list("insti").filter((f) => f.startsWith("20"));
@@ -217,6 +231,8 @@ const SCHEDULE: [string, string][] = [
   ["平日 23:43／23:52", "兩組都再跑一次補漏"],
   ["隔天 08:05／11:35", "ETF 等：補抓較晚公布的投信持股"],
   ["週六 10:13", "補週五漏掉的資料"],
+  ["清晨 04:17～08:37", "美股收盤後抓國際行情，類股大波動就推播台股開盤可能反應的股票"],
+  ["白天每 3 小時", "券商報告、法說會新聞；有新的券商報告就推播"],
   ["資料到齊後", "每日推播（行情、法人、融資券都是當天的才發；隔天 09:27 保底）"],
 ];
 

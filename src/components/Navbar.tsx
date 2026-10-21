@@ -13,6 +13,7 @@ const navItems: NavItem[] = [
     label: "即時戰情",
     children: [
       { label: "氣氛評估", href: "/atmosphere" },
+      { label: "國際類股連動", href: "/global" },
       { label: "漲停訊號", href: "/limit-up" },
       { label: "隔日追蹤", href: "/next-day" },
       { label: "成交排行", href: "/ranking" },
@@ -25,6 +26,8 @@ const navItems: NavItem[] = [
   {
     label: "基礎情報",
     children: [
+      { label: "券商報告", href: "/reports" },
+      { label: "法說會", href: "/conferences" },
       { label: "CB 詢圈偵察", href: "/cb-watch" },
       { label: "自結盈餘", href: "/eps" },
       { label: "季報偵查", href: "/quarterly" },

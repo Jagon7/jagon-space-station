@@ -5,7 +5,7 @@ on:
     branches: [main]
   # 資料抓取 workflow 用 GITHUB_TOKEN 推送，不會觸發 push 事件，所以改在它們跑完後重建
   workflow_run:
-    workflows: ["Daily Stock Data Fetch", "ETF Holdings Fetch"]
+    workflows: ["Daily Stock Data Fetch", "ETF Holdings Fetch", "Intel Fetch"]
     types: [completed]
   workflow_dispatch:
 

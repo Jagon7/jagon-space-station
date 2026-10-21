@@ -1,0 +1,487 @@
+#!/usr/bin/env python3
+"""
+券報、法說會要點、國際類股行情 → data/intel/
+
+資料來源：
+  鉅亨網台股新聞（api.cnyes.com newslist/category/tw_stock，含內文）：
+    - 券商／投顧報告：內文提到「目標價」的段落，解析券商、評等、目標價、前次目標價、亮點
+    - FactSet 共識：「Factset 最新調查」快訊（目標價調升／調降、EPS 預估上修／下修）
+    - 法說會：〈XX法說〉報導與【XX法說會AI摘要】（摘要全文從新聞頁的 articleBody 取）
+  Yahoo Finance chart API：美股指數、個股、原物料日線（給國際類股頁與隔日開盤提醒）
+
+輸出：
+  data/intel/reports.json   {"items": [{id, date, code, name, broker, rating, target, prev, kind, title, points, url}]}
+  data/intel/confnews.json  {"items": [{id, date, code, name, title, kind, points, body, url}]}
+  data/intel/us.json        {"updatedAt", "series": {代號: [[日期, 收盤], ...]}}
+用法：python scripts/fetch_intel.py [--pages 30] [--backfill-days 0]
+"""
+from __future__ import annotations
+
+import argparse
+import html
+import json
+import os
+import re
+import sys
+import time
+from datetime import datetime, timedelta, timezone
+from pathlib import Path
+
+import requests
+
+DATA_DIR = Path(os.environ.get("JSS_DATA_DIR", Path(__file__).resolve().parent.parent / "data"))
+OUT = DATA_DIR / "intel"
+TPE = timezone(timedelta(hours=8))
+UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0 Safari/537.36"
+S = requests.Session()
+S.headers.update({"User-Agent": UA})
+KEEP_DAYS = 180
+
+# ---------------------------------------------------------------- 美股與國際標的
+US_TICKERS = {
+    "^SOX": "費城半導體", "^IXIC": "那斯達克", "^GSPC": "S&P 500", "^DJI": "道瓊",
+    "TSM": "台積電 ADR", "NVDA": "NVIDIA", "AMD": "AMD", "AVGO": "Broadcom", "MU": "美光",
+    "AAPL": "Apple", "TSLA": "Tesla", "SMCI": "Super Micro", "DELL": "Dell", "ASML": "ASML",
+    "MSFT": "Microsoft", "GOOGL": "Alphabet", "META": "Meta", "AMZN": "Amazon", "INTC": "Intel",
+    "QCOM": "Qualcomm", "ARM": "Arm", "MRVL": "Marvell", "XBI": "生技 ETF", "ZIM": "ZIM 航運",
+    "CL=F": "原油", "HG=F": "銅", "GC=F": "黃金", "TWD=X": "美元兌台幣",
+}
+
+
+def log(msg):
+    print(f"[{datetime.now(TPE):%H:%M:%S}] {msg}", flush=True)
+
+
+def get_json(url, params=None, tries=3):
+    for i in range(tries):
+        try:
+            r = S.get(url, params=params, timeout=30)
+            if r.status_code == 200:
+                return r.json()
+        except (requests.RequestException, ValueError):
+            pass
+        time.sleep(3 * (i + 1))
+    return None
+
+
+def load(path: Path, default):
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return default
+
+
+def save(path: Path, obj):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(obj, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+
+
+def text_of(content: str) -> str:
+    t = html.unescape(content or "")
+    t = re.sub(r"<br\s*/?>|</p>", "\n", t)
+    t = re.sub(r"<[^>]+>", "", t)
+    return re.sub(r"[ \t　]+", " ", t).strip()
+
+
+def sentences(t: str) -> list[str]:
+    return [s.strip() for s in re.split(r"(?<=[。！？])|\n+", t) if s and len(s.strip()) > 4]
+
+
+def closes() -> dict[str, float]:
+    files = sorted((DATA_DIR / "daily").glob("20*.json"))
+    q = load(files[-1], {}).get("q", {}) if files else {}
+    return {c: v[5] for c, v in q.items() if v[5]}
+
+
+def plausible(code: str, tgt: float | None, px: dict[str, float]) -> bool:
+    """目標價和現價差太多（< 0.5 倍或 > 2.5 倍）多半是抓錯股票或把 EPS 當目標價，丟掉"""
+    p = px.get(code)
+    return bool(tgt) and (not p or 0.5 <= tgt / p <= 2.5)
+
+
+def stock_names() -> dict[str, str]:
+    """名稱→代號（最新一天行情的上市櫃股票）"""
+    files = sorted((DATA_DIR / "daily").glob("20*.json"))
+    q = load(files[-1], {}).get("q", {}) if files else {}
+    return {v[0]: c for c, v in q.items() if re.fullmatch(r"[1-9]\d{3}", c)}
+
+
+# ---------------------------------------------------------------- 券商報告解析
+FOREIGN = ("摩根士丹利", "大摩", "摩根大通", "小摩", "高盛", "美銀證券", "美銀", "美林", "花旗", "瑞銀", "麥格理", "野村",
+           "滙豐", "匯豐", "里昂", "瑞穗", "杰富瑞", "德意志", "巴克萊", "大和", "伯恩斯坦", "摩根", "Morgan Stanley",
+           "Goldman", "JPMorgan", "Citi", "UBS", "Nomura", "HSBC", "CLSA", "Jefferies", "Bernstein",
+           "美系外資", "日系外資", "歐系外資", "港系外資", "陸系外資", "外資")
+DOMESTIC = re.compile(r"((?:元大|凱基|富邦|國泰|群益|統一|永豐|兆豐|華南|第一金|台新|玉山|康和|宏遠|元富|日盛|中信|國票|福邦|亞東|合庫|"
+                      r"土銀|彰銀|新光|德信|犇亞|大華|華信|宏爺|摩爾|台中銀|致和)(?:投顧|證券|證期|研究部|期貨)?|本土投顧|官股投顧|國內投顧|大咖投顧)")
+RATING = re.compile(r"強力買進|逢低買進|買進|加碼|增持|優於大盤|跑贏大盤|中立|持有|區間操作|減碼|劣於大盤|賣出|"
+                    r"Outperform|Overweight|Buy|Neutral|Hold|Underweight|Underperform|Sell")
+NUM = r"([\d,]+(?:\.\d+)?)"
+T_MOVE = re.compile(r"目標價(?:由|從|自)?\s*" + NUM + r"\s*元?\s*(?:大幅|一舉|一口氣)?(?:調升|上調|調高|上修|提高|拉高|調降|下調|下修|降低|調低)?\s*(?:至|到)\s*" + NUM)
+T_ONE = re.compile(r"目標價(?:維持|為|訂為|訂在|設為|上看|喊|喊到|調升至|上調至|調高至|上修至|提高至|調降至|下調至|下修至|調低至|至|在)?\s*" + NUM + r"\s*元")
+T_ONE2 = re.compile(r"(?:上看|喊|看到|看至)\s*" + NUM + r"\s*元.{0,6}目標價")
+
+
+def _num(s: str) -> float | None:
+    try:
+        v = float(s.replace(",", ""))
+        return v if 1 <= v <= 100000 else None
+    except ValueError:
+        return None
+
+
+GENERIC = {"法人", "外資", "美系外資", "日系外資", "歐系外資", "港系外資", "陸系外資", "本土投顧", "國內投顧", "官股投顧", "大咖投顧"}
+ALIAS = {"大摩": "摩根士丹利", "Morgan Stanley": "摩根士丹利", "小摩": "摩根大通", "JPMorgan": "摩根大通", "Goldman": "高盛",
+         "美銀證券": "美銀", "美林": "美銀", "Citi": "花旗", "UBS": "瑞銀", "Nomura": "野村", "匯豐": "滙豐", "HSBC": "滙豐",
+         "CLSA": "里昂", "Jefferies": "杰富瑞", "Bernstein": "伯恩斯坦"}
+
+
+def norm_broker(b: str) -> str:
+    b = re.sub(r"^(?:外資|美系外資|日系外資|歐系外資|港系外資)(?=.{2,})", "", b)
+    b = re.sub(r"(證券|證期)$", "", b) if any(f in b for f in FOREIGN[:22]) else b
+    return ALIAS.get(b, b)
+
+
+def broker_of(sent: str, prev_sents: list[str]) -> str | None:
+    b = _broker_of(sent, prev_sents)
+    return norm_broker(b) if b else None
+
+
+def _broker_of(sent: str, prev_sents: list[str]) -> str | None:
+    m = re.search(r"([A-Z][A-Za-z&.]+(?: [A-Z][A-Za-z&.]+)* (?:Capital|Securities|Research|Partners))", sent)
+    if m:
+        return m.group(1)
+    for s in [sent] + prev_sents[::-1]:
+        m = DOMESTIC.search(s)
+        f = next((b for b in FOREIGN if b in s), None)
+        if m and (not f or s.find(m.group(1)) < s.find(f)):
+            name = m.group(1)
+            if name.endswith(("投信",)):
+                continue
+            return name
+        if f:
+            return f
+    return None
+
+
+def parse_reports(item: dict, names: dict[str, str], px: dict[str, float] | None = None) -> list[dict]:
+    title = item.get("title") or ""
+    nid = item["newsId"]
+    date = datetime.fromtimestamp(item["publishAt"], TPE).date().isoformat()
+    url = f"https://news.cnyes.com/news/id/{nid}"
+    out = []
+
+    # FactSet 共識快訊
+    m = re.search(r"Factset 最新調查：(.+?)\((\d{4})-TW\)(.*)", title, re.I)
+    if m:
+        name, code, rest = m.group(1), m.group(2), m.group(3)
+        mt = re.search(r"目標價(調升|調降)至" + NUM + r"元，幅度約" + NUM + "%", rest)
+        me = re.search(r"EPS預估(上修|下修)至" + r"(-?[\d.]+)" + r"元，預估目標價為" + NUM + "元", rest)
+        if mt:
+            tgt, pct = _num(mt.group(2)), float(mt.group(3))
+            prev = round(tgt / (1 + pct / 100 * (1 if mt.group(1) == "調升" else -1)), 1) if tgt else None
+            out.append({"broker": "FactSet 共識", "target": tgt, "prev": prev, "rating": None,
+                        "points": [f"市場共識目標價{mt.group(1)} {pct}%"], "code": code, "name": name})
+        elif me:
+            out.append({"broker": "FactSet 共識", "target": _num(me.group(3)), "prev": None, "rating": None,
+                        "points": [f"市場共識 EPS 預估{me.group(1)}至 {me.group(2)} 元"], "code": code, "name": name})
+        for o in out:
+            o.update({"id": f"{nid}-{o['code']}-fs", "date": date, "kind": "consensus", "title": title, "url": url})
+        return out
+
+    body = text_of(item.get("content") or "")
+    if "目標價" not in body and "目標價" not in title:
+        return []
+    mk = [(x.get("code"), x.get("name")) for x in (item.get("market") or []) if re.fullmatch(r"[1-9]\d{3}", str(x.get("code") or ""))]
+    sents = sentences(body)
+    seen = set()
+    for i, s in enumerate(sents):
+        if "目標價" not in s:
+            continue
+        mv, m1, m2 = T_MOVE.search(s), T_ONE.search(s), T_ONE2.search(s)
+        prev = tgt = None
+        if mv:
+            prev, tgt = _num(mv.group(1)), _num(mv.group(2))
+        elif m1:
+            tgt = _num(m1.group(1))
+            if re.search(r"目標價(?:維持|仍為|續維持)", s) or "維持目標價" in s:
+                prev = tgt
+        elif m2:
+            tgt = _num(m2.group(1))
+        if not tgt:
+            continue
+        # 哪一檔：句子裡提到的公司名稱優先，其次是新聞標的的第一檔
+        code = name = None
+        for c, n in mk:
+            if n and n in s:
+                code, name = c, n
+                break
+        if not code:
+            for n, c in names.items():
+                if len(n) >= 2 and n in s:
+                    code, name = c, n
+                    break
+        if not code and mk:
+            code, name = mk[0]
+        if not code:
+            continue
+        if px is not None and not plausible(code, tgt, px):
+            continue
+        broker = broker_of(s, sents[max(0, i - 2): i]) or "法人"
+        key = (code, broker, tgt)
+        if key in seen:
+            continue
+        seen.add(key)
+        r = RATING.search(s) or next((RATING.search(x) for x in sents[max(0, i - 1): i + 2] if RATING.search(x)), None)
+        # 亮點：同一家券商在文中的其他句子（不含目標價那句），沒有就用目標價前後文
+        # 泛稱（外資、法人）在文中太常出現，只取目標價前後文；具名券商才找全文提到它的句子
+        pts = [] if broker in GENERIC else [x for x in sents if broker in x and x != s and "目標價" not in x][:3]
+        if not pts and broker not in GENERIC:
+            pts = [x for x in sents[max(0, i - 2): i + 3] if x != s][:2]
+        pts = [x[:110] + ("…" if len(x) > 110 else "") for x in pts]
+        out.append({"id": f"{nid}-{code}-{broker}-{tgt}", "date": date, "code": code, "name": name, "broker": broker,
+                    "rating": r.group(0) if r else None, "target": tgt, "prev": prev, "kind": "broker",
+                    "title": title, "points": [s[:140] + ("…" if len(s) > 140 else "")] + pts, "url": url})
+    return out
+
+
+# ---------------------------------------------------------------- 法說會新聞
+def conf_code(title: str, item: dict, names: dict[str, str]) -> tuple[str | None, str | None]:
+    """只認「〈XX法說〉」「【XX法說會AI摘要】」或標題裡「XX法說」緊接著公司名的；綜合報導（一次講好幾家）不算"""
+    m = re.search(r"[〈【]([^〈〉【】]{2,12}?)法說(?:會AI摘要|會)?[〉】]", title)
+    nm = m.group(1).strip() if m else None
+    if not nm:
+        if re.search(r"要聞|大事|焦點|盤前|盤後|速報|整理|一週|本周|本週|行事曆|懶人包", title):
+            return None, None
+        for x in item.get("market") or []:
+            n = x.get("name") or ""
+            if n and re.fullmatch(r"[1-9]\d{3}", str(x.get("code") or "")) and re.search(re.escape(n) + r"(?:第\d季)?(?:線上)?法說", title):
+                return x["code"], n
+        for n, c in names.items():
+            if len(n) >= 2 and re.search(r"(?:^|[〉】》」\s：:])" + re.escape(n) + r"(?:第\d季)?(?:線上)?法說", title):
+                return c, n
+        return None, None
+    if nm in names:
+        return names[nm], nm
+    for x in item.get("market") or []:
+        if re.fullmatch(r"[1-9]\d{3}", str(x.get("code") or "")) and nm in (x.get("name") or ""):
+            return x["code"], x.get("name")
+    for n, c in names.items():
+        if nm.startswith(n) or n.startswith(nm):
+            return c, n
+    return None, nm
+
+
+def article_body(nid: int) -> str:
+    """新聞頁 JSON-LD 的 articleBody（列表 API 的內文有時被截斷，法說會 AI 摘要要全文）"""
+    try:
+        r = S.get(f"https://news.cnyes.com/news/id/{nid}", timeout=30)
+        m = re.search(r'"articleBody":"((?:[^"\\]|\\.)*)"', r.text)
+        return json.loads(f'"{m.group(1)}"') if m else ""
+    except (requests.RequestException, ValueError):
+        return ""
+
+
+JUNK = re.compile(r"免責聲明|授權轉載|原文連結|原文出處|獨立判斷|審慎評估|不構成.*建議|僅供參考")
+
+
+def conf_points(body: str) -> list[str]:
+    """AI 摘要是「小標：內容」的條列；一般報導取提到財務／展望的句子"""
+    body = re.sub(r"[•●▪]", "", body)
+    heads = re.findall(r"(?:^|[。\n\d.、])\s*([^。：:\n]{2,26})[：:]([^。]{6,90}。)", body)
+    pts = []
+    for h, t in heads:
+        h = re.sub(r"^[一二三四五六七八九十]+、.*?(?:詳情|概況|展望|策略|計畫|重點)", "", h.strip()).strip()
+        if h and not h.startswith(("Q", "回答", "問")) and not JUNK.search(h + t):
+            pts.append(f"{h}：{t.strip()}")
+        if len(pts) >= 6:
+            break
+    if len(pts) >= 3:
+        return pts
+    keys = ("營收", "毛利率", "獲利", "EPS", "展望", "第四季", "明年", "成長", "指引", "資本支出", "訂單", "產能", "需求")
+    extra = [s for s in sentences(body) if any(k in s for k in keys) and not JUNK.search(s)]
+    for s in extra:
+        if s not in pts:
+            pts.append(s[:120] + ("…" if len(s) > 120 else ""))
+        if len(pts) >= 5:
+            break
+    return pts
+
+
+# ---------------------------------------------------------------- 主流程
+def scan_news(pages: int, names, reports: dict, confs: dict, stop_before: float, px: dict | None = None):
+    n_new = 0
+    for p in range(1, pages + 1):
+        d = get_json("https://api.cnyes.com/media/api/v1/newslist/category/tw_stock", {"limit": 30, "page": p})
+        items = ((d or {}).get("items") or {}).get("data") or []
+        if not items:
+            break
+        for it in items:
+            title = it.get("title") or ""
+            for r in parse_reports(it, names, px):
+                if r["id"] not in reports:
+                    reports[r["id"]] = r
+                    n_new += 1
+            if "法說" in title and str(it["newsId"]) not in confs:
+                code, name = conf_code(title, it, names)
+                if not code:
+                    continue
+                ai = "AI摘要" in title
+                body = article_body(it["newsId"]) if ai else text_of(it.get("content") or "")
+                if ai:
+                    time.sleep(0.5)
+                confs[str(it["newsId"])] = {
+                    "id": str(it["newsId"]), "date": datetime.fromtimestamp(it["publishAt"], TPE).date().isoformat(),
+                    "code": code, "name": name, "title": title, "kind": "ai" if ai else "news",
+                    "points": conf_points(body), "body": body[:6000] if ai else "",
+                    "url": f"https://news.cnyes.com/news/id/{it['newsId']}"}
+        if items[-1]["publishAt"] < stop_before:
+            break
+        time.sleep(0.6)
+    return n_new
+
+
+GN_QUERIES = ("目標價 外資", "目標價 投顧", "目標價 調升", "目標價 調降", "目標價 喊")
+T_TITLE = re.compile(r"目標價[^\d，,。！]{0,8}?" + NUM + r"\s*元|" + NUM + r"\s*元[^\d，。]{0,4}目標價|(?:看|喊到?|上看|升至|調升至|調高至|降至)\s*" + NUM + r"\s*元")
+
+
+def google_news(names: dict[str, str], reports: dict, px: dict[str, float], days: int = 14) -> int:
+    """Google 新聞標題（經濟日報、工商、MoneyDJ、自由…）補足鉅亨沒有的券商報告；只收標題裡有股名與目標價的"""
+    n = 0
+    recent = {(r["code"], r["target"]) for r in reports.values()}
+    by_len = sorted(names.items(), key=lambda kv: -len(kv[0]))
+    for q in GN_QUERIES:
+        try:
+            r = S.get("https://news.google.com/rss/search", params={"q": q + f" when:{days}d", "hl": "zh-TW", "gl": "TW", "ceid": "TW:zh-Hant"}, timeout=30)
+        except requests.RequestException:
+            continue
+        for it in re.findall(r"<item>(.*?)</item>", r.text, re.S):
+            title = html.unescape((re.search(r"<title>(.*?)</title>", it, re.S) or [None, ""])[1])
+            link = html.unescape((re.search(r"<link>(.*?)</link>", it, re.S) or [None, ""])[1])
+            pub = (re.search(r"<pubDate>(.*?)</pubDate>", it) or [None, ""])[1]
+            head, _, src = title.rpartition(" - ")
+            head = head or title
+            m = T_TITLE.search(head)
+            # FactSet 快訊鉅亨那邊已經有；「A、B 目標價至 X、Y 元」這種一次多檔的標題對不準，跳過
+            if not m or "factset" in head.lower() or re.match(r"\s*元?、\s*[\d,]", head[m.end(): m.end() + 4]):
+                continue
+            tgt = _num(next(g for g in m.groups() if g))
+            # 目標價前面最近的股名（隔太遠或中間出現「這檔」就不算，標題常把目標價講給另一檔）
+            code = name = None
+            best = None
+            for nm, c in by_len:
+                if len(nm) < 2:
+                    continue
+                for mm in re.finditer(re.escape(nm), head):
+                    gap = m.start() - mm.end()
+                    if 0 <= gap <= 16 and "這" not in head[mm.end(): m.start()] and (best is None or gap < best):
+                        best, code, name = gap, c, nm
+            if not tgt or not code or (code, tgt) in recent or not plausible(code, tgt, px):
+                continue
+            try:
+                d = datetime.strptime(pub[5:16], "%d %b %Y").date().isoformat()
+            except ValueError:
+                continue
+            broker = broker_of(head, []) or "法人"
+            mv = T_MOVE.search(head)
+            rid = f"gn-{code}-{broker}-{tgt}"
+            if rid in reports:
+                continue
+            reports[rid] = {"id": rid, "date": d, "code": code, "name": name, "broker": broker,
+                            "rating": (RATING.search(head) or [None])[0], "target": tgt, "prev": _num(mv.group(1)) if mv else None,
+                            "kind": "broker", "title": head, "points": [f"{head}（{src}）" if src else head], "url": link}
+            recent.add((code, tgt))
+            n += 1
+        time.sleep(1)
+    return n
+
+
+def backfill_conf(days: int, names, confs: dict):
+    """用搜尋 API 回補較早的法說會 AI 摘要與〈XX法說〉報導（列表 API 只保留約兩週）"""
+    since = time.time() - days * 86400
+    for q in ("法說會AI摘要", "法說"):
+        for p in range(1, 60):
+            d = get_json("https://api.cnyes.com/media/api/v1/search", {"q": q, "limit": 20, "page": p})
+            items = ((d or {}).get("items") or {}).get("data") or []
+            if not items:
+                break
+            for it in items:
+                title = re.sub(r"</?mark>", "", it.get("title") or "")
+                nid = str(it["newsId"])
+                if nid in confs or "法說" not in title or "-US" in title or it["publishAt"] < since:
+                    continue
+                if it.get("categoryName") and it["categoryName"] not in ("台股新聞", "台股"):
+                    continue
+                code, name = conf_code(title, {}, names)
+                if not code:
+                    continue
+                body = article_body(int(nid))
+                time.sleep(0.5)
+                if not body:
+                    continue
+                confs[nid] = {"id": nid, "date": datetime.fromtimestamp(it["publishAt"], TPE).date().isoformat(),
+                              "code": code, "name": name, "title": title, "kind": "ai" if "AI摘要" in title else "news",
+                              "points": conf_points(body), "body": body[:6000] if "AI摘要" in title else "",
+                              "url": f"https://news.cnyes.com/news/id/{nid}"}
+            if items[-1]["publishAt"] < since:
+                break
+            time.sleep(0.6)
+
+
+def fetch_us(series: dict):
+    for sym in US_TICKERS:
+        d = get_json(f"https://query1.finance.yahoo.com/v8/finance/chart/{requests.utils.quote(sym)}",
+                     {"range": "1y", "interval": "1d"})
+        try:
+            res = d["chart"]["result"][0]
+            ts, cl = res["timestamp"], res["indicators"]["quote"][0]["close"]
+            tz = res["meta"].get("gmtoffset", -14400)
+            rows = [[datetime.fromtimestamp(t + tz, timezone.utc).date().isoformat(), round(c, 4)] for t, c in zip(ts, cl) if c]
+            # 盤中抓到的最後一筆不是收盤：交易時段還沒結束就不收
+            meta = res["meta"]
+            per = (meta.get("currentTradingPeriod") or {}).get("regular") or {}
+            if rows and per and per.get("start", 0) <= time.time() < per.get("end", 0):
+                rows = rows[:-1]
+            if rows:
+                series[sym] = rows
+        except (TypeError, KeyError, IndexError):
+            log(f"  ✗ {sym} 抓不到")
+        time.sleep(0.4)
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--pages", type=int, default=12)
+    ap.add_argument("--backfill-days", type=int, default=0)
+    ap.add_argument("--skip-us", action="store_true")
+    a = ap.parse_args()
+    names = stock_names()
+    px = closes()
+    cutoff = (datetime.now(TPE) - timedelta(days=KEEP_DAYS)).date().isoformat()
+
+    rp, cp = OUT / "reports.json", OUT / "confnews.json"
+    reports = {r["id"]: r for r in load(rp, {}).get("items", [])}
+    confs = {c["id"]: c for c in load(cp, {}).get("items", [])}
+    last = max((r["date"] for r in reports.values()), default="2000-01-01")
+    stop = datetime.fromisoformat(last).replace(tzinfo=TPE).timestamp() - 86400
+    n = scan_news(a.pages, names, reports, confs, stop, px)
+    g = google_news(names, reports, px, max(14, a.backfill_days))
+    log(f"券報：鉅亨新增 {n} 筆、Google 新聞新增 {g} 筆，共 {len(reports)} 筆")
+    if a.backfill_days:
+        backfill_conf(a.backfill_days, names, confs)
+    log(f"法說會新聞：共 {len(confs)} 則")
+    now = datetime.now(TPE).isoformat(timespec="minutes")
+    save(rp, {"updatedAt": now, "items": sorted((r for r in reports.values() if r["date"] >= cutoff), key=lambda r: r["date"], reverse=True)})
+    save(cp, {"updatedAt": now, "items": sorted((c for c in confs.values() if c["date"] >= cutoff), key=lambda c: c["date"], reverse=True)})
+
+    if not a.skip_us:
+        up = OUT / "us.json"
+        doc = load(up, {"series": {}})
+        fetch_us(doc["series"])
+        doc["updatedAt"] = now
+        save(up, doc)
+        log(f"國際行情：{len(doc['series'])} 檔，最新 {max((v[-1][0] for v in doc['series'].values()), default='—')}")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

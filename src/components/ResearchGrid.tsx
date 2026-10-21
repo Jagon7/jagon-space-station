@@ -3,10 +3,31 @@ import {
   TrendingUp, BarChart2, Shield, DollarSign,
   FileText, Calendar, ArrowDownUp, Zap, Activity,
   PieChart, Search, Layers, Ticket, Users,
-  UserCheck, Star, Filter, Landmark, LineChart,
+  UserCheck, Star, Filter, Landmark, LineChart, Globe, Newspaper, Mic,
 } from "lucide-react";
 
 const modules = [
+  {
+    icon: Globe,
+    title: "國際類股連動",
+    desc: "美股類股與龍頭股隔夜漲跌，對應台股哪些股票開盤可能跟著反應；大波動時推播提醒",
+    href: "/global",
+    accent: "#38bdf8",
+  },
+  {
+    icon: Newspaper,
+    title: "券商研究報告",
+    desc: "外資與投顧最新目標價、評等、潛在漲幅與報告重點，新報告推播提醒",
+    href: "/reports",
+    accent: "#4f8cff",
+  },
+  {
+    icon: Mic,
+    title: "法說會",
+    desc: "即將舉行的法說行事曆，以及近期法說的營運重點、展望與問答摘要",
+    href: "/conferences",
+    accent: "#a78bfa",
+  },
   {
     icon: Star,
     title: "自選股",
