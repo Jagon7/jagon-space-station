@@ -111,8 +111,13 @@ def build_conf(data_dir: Path, out: Path, days):
               [n for n in by_code.get(code, []) if n["date"] >= (date.fromisoformat(today) - timedelta(days=7)).isoformat()]
         rel.sort(key=lambda n: (n["kind"] != "ai", n["date"]))
         used.update(n["id"] for n in rel)
+        # MOPS 上的簡報檔名含上傳日期（代號＋YYYYMMDD）；比法說日早好幾天的是上一場的簡報
+        pdf, pdf_en = (r[7] if len(r) > 7 else None), (r[8] if len(r) > 8 else None)
+        m = re.search(r"/\d{4}(\d{8})[ME]", pdf or pdf_en or "")
+        old = bool(m) and f"{m.group(1)[:4]}-{m.group(1)[4:6]}-{m.group(1)[6:]}" < (date.fromisoformat(d) - timedelta(days=3)).isoformat()
         rows.append({"date": d, "code": code, "name": r[2], "mk": r[3], "time": r[4], "place": r[5], "summary": r[6],
-                     "pdf": r[7] if len(r) > 7 else None, "pdfEn": r[8] if len(r) > 8 else None, "ir": r[9] if len(r) > 9 else None,
+                     "pdf": None if old else pdf, "pdfEn": None if old else pdf_en, "pdfOld": pdf if old else None,
+                     "ir": r[9] if len(r) > 9 else None,
                      "react": reaction(code, d) if d < today else None,
                      "news": [{k: n[k] for k in ("date", "title", "kind", "points", "url")} for n in rel[:4]],
                      "body": next((n["body"] for n in rel if n.get("body")), "")[:5000]})
@@ -122,7 +127,7 @@ def build_conf(data_dir: Path, out: Path, days):
         if n["id"] in used or n["date"] < lo:
             continue
         e = extra.setdefault(n["code"] + n["date"][:7], {"date": n["date"], "code": n["code"], "name": n["name"], "mk": "", "time": "",
-                                                         "place": "", "summary": "", "pdf": None, "pdfEn": None, "ir": None,
+                                                         "place": "", "summary": "", "pdf": None, "pdfEn": None, "pdfOld": None, "ir": None,
                                                          "react": reaction(n["code"], n["date"]), "news": [], "body": ""})
         e["news"].append({k: n[k] for k in ("date", "title", "kind", "points", "url")})
         if n.get("body") and not e["body"]:
