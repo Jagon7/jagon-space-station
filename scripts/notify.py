@@ -284,7 +284,7 @@ def strategy_alert(dry: bool) -> int:
         ex = [h for _, h in exits if h.get("ret") is not None]
         lines.append(f"⏰ {md(nxt)} 開盤出場（持滿 10 日，{len(ex)} 檔）：" + "、".join(f"{h['name']}({h['ret']:+.1f}%)" for h in ex[:15])
                      + ("…" if len(ex) > 15 else ""))
-    lines.append("進場：明日收盤前半小時；收盤鎖漲停不進場。持有 10 個交易日後開盤出場。")
+    lines.append(f"進場：{md(nxt)} 收盤前半小時；收盤鎖漲停不進場。持有 10 個交易日後開盤出場。")
     lines.append(f"{SITE}/strategy/")
     text = "\n".join(lines)
     print(text)
