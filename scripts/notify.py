@@ -10,6 +10,7 @@
   LINE    ：LINE_CHANNEL_TOKEN、LINE_USER_ID（Messaging API push message）
 用法：python scripts/notify.py [--dry-run] [--check] [--insider-alert]
   --strategy-alert：兩個十日波段策略明日進場名單與到期出場提醒（資料到齊才發，每個交易日一次）
+  --turnover-alert：週轉率前 20 名且收漲停的隔日開高走低觀察名單（每個交易日一次；沒有符合的股票就不發）
   --intel-alert：新券商報告、美股類股大波動（開盤前提醒台股可能反應的股票），已推過的記在 data/notify/intel-alerted.json
   --insider-alert：內部人大額異動快訊（≥1 億），每次資料更新後都跑，沒推過的才推（記錄在 data/notify/insider-alerted.json）
   --check：只檢查最近一個交易日的行情、法人、融資券是否都到齊，結果寫到 GITHUB_OUTPUT（ready、date）
@@ -297,6 +298,56 @@ def strategy_alert(dry: bool) -> int:
     return 0
 
 
+TURNOVER_STATE = ROOT / "data" / "notify" / "turnover-alerted.json"
+
+
+def turnover_alert(dry: bool) -> int:
+    tv = load("turnover.json", {}) or {}
+    asof, nxt = tv.get("asof"), tv.get("next")
+    day = last_trading_day()
+    if asof != day:
+        print(f"週轉率資料還沒更新（{asof}，應為 {day}）")
+        return 0
+    now = datetime.now(timezone(timedelta(hours=8)))
+    if not tv.get("dtReady") and now.date().isoformat() == asof and now.hour < 21:
+        print("當沖資料還沒到（要用來排除暫停先賣後買的股票），晚點再發")
+        return 0
+    try:
+        state = json.loads(TURNOVER_STATE.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        state = {"sent": []}
+    if asof in state["sent"]:
+        print(f"{asof} 的高週轉漲停名單已推過")
+        return 0
+    md = lambda d: f"{int(d[5:7])}/{int(d[8:10])}"  # noqa: E731
+    al = tv.get("alert") or []
+    ref = next((s for s in tv.get("stats", []) if s["group"].strip().endswith("當天漲停")), None)
+    lines = [f"🔻 高週轉＋漲停：{md(nxt)} 開高走低觀察名單（{md(asof)} 收盤）"]
+    if al:
+        for r in al:
+            dt = f"・當沖 {r['dt']:.0f}%" if r.get("dt") is not None else ""
+            lines.append(f"  {r['name']} {r['code']} 收{r['close']:g}｜週轉 {r['turnover']:.1f}%{dt}｜{r['valueYi']:g} 億")
+    else:
+        lines.append("  今天週轉率前 20 名沒有收漲停的股票")
+    if ref:
+        lines.append(f"回測（{ref['n']} 筆）：隔天平均開盤 {ref['gap']:+.2f}%、開→收 {ref['o2c']:+.2f}%，黑K率 {ref['black']:.0f}%；"
+                     f"開盤空收盤補扣成本 {ref['shortNet']:+.2f}%（手續費 2.8 折 {ref['shortNetDisc']:+.2f}%）")
+    lines.append("已排除隔天處置、暫停先賣後買的股票。開盤放空、收盤回補；開盤若沒開高或直接開低，優勢較小。")
+    lines.append(f"{SITE}/turnover/")
+    text = "\n".join(lines)
+    print(text)
+    late = now.date().isoformat() > nxt or (now.date().isoformat() == nxt and now.hour >= 9)
+    if late:
+        print(f"已經過了 {md(nxt)} 開盤，不再推播")
+    if not dry:
+        if al and not late and not send(text):
+            print("（沒有設定任何推播管道，只印出內容）")
+        state["sent"] = sorted(set(state["sent"]) | {asof})[-60:]
+        TURNOVER_STATE.parent.mkdir(parents=True, exist_ok=True)
+        TURNOVER_STATE.write_text(json.dumps(state, ensure_ascii=False, indent=0), encoding="utf-8")
+    return 0
+
+
 INTEL_STATE = ROOT / "data" / "notify" / "intel-alerted.json"
 
 
@@ -392,6 +443,7 @@ def main():
     ap.add_argument("--insider-alert", action="store_true")
     ap.add_argument("--intel-alert", action="store_true")
     ap.add_argument("--strategy-alert", action="store_true")
+    ap.add_argument("--turnover-alert", action="store_true")
     a = ap.parse_args()
     if a.check:
         return check()
@@ -401,6 +453,8 @@ def main():
         return intel_alert(a.dry_run)
     if a.strategy_alert:
         return strategy_alert(a.dry_run)
+    if a.turnover_alert:
+        return turnover_alert(a.dry_run)
     text = compose()
     print(text)
     if a.dry_run:

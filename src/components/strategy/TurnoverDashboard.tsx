@@ -5,12 +5,14 @@ import { useStaticJson } from "@/lib/static-json";
 import { useWatchlist } from "@/lib/watchlist";
 import { Empty, Kpi, KpiRow, Note, Pills, SortTable, type Column } from "@/components/data-ui";
 
-type Row = { code: string; name: string; mk: string; open: number; close: number; ret: number | null; lots: number; valueYi: number; turnover: number; disposed?: boolean };
+type Row = { code: string; name: string; mk: string; open: number; close: number; ret: number | null; lots: number; valueYi: number; turnover: number; disposed?: boolean; limit?: boolean; dt?: number | null; noShort?: boolean };
 type Stat = { group: string; n: number; days: number; black: number; o2c: number; c2c: number; gap: number; shortNet: number; shortNetDisc: number; dayWin: number };
-type Pick = { code: string; name: string; turnover: number; ret: number | null; o2c: number; black: boolean; gap: number };
+type Pick = { code: string; name: string; turnover: number; ret: number | null; o2c: number; black: boolean; gap: number; limit?: boolean; dt?: number | null };
+type Alert = { code: string; name: string; mk: string; close: number; ret: number | null; turnover: number; dt: number | null; valueYi: number };
 type Data = {
   asof: string; next: string; updatedAt: string; from: string; costFull: number; costDisc: number;
   today: Row[]; count: number; stats: Stat[]; deciles: Stat[]; history: { date: string; next: string; picks: Pick[] }[];
+  dtDeciles?: Stat[]; dtSplit?: Stat[]; corr?: number | null; corrDays?: number; alert?: Alert[]; dtReady?: boolean;
 };
 type View = "today" | "backtest" | "history";
 
@@ -36,10 +38,11 @@ export default function TurnoverDashboard() {
   );
 
   const cToday: Column<Row>[] = [
-    { key: "name", label: "股票", render: (r) => <>{stock(r.code, r.name, r.mk)}{r.disposed && <span className="ml-1.5 text-[10px] text-[#f59e0b]">處置</span>}</> },
+    { key: "name", label: "股票", render: (r) => <>{stock(r.code, r.name, r.mk)}{r.disposed && <span className="ml-1.5 text-[10px] text-[#f59e0b]">處置</span>}{r.noShort && <span className="ml-1.5 text-[10px] text-[#f59e0b]">停先賣</span>}</> },
     { key: "turnover", label: "週轉率", align: "right", sort: (r) => r.turnover, render: (r) => num(`${r.turnover.toFixed(2)}%`, "text-[#f59e0b]") },
     { key: "close", label: "收盤", align: "right", sort: (r) => r.close, render: (r) => num(r.close) },
-    { key: "ret", label: "漲跌幅", align: "right", sort: (r) => r.ret, render: (r) => num(pct(r.ret), tone(r.ret)) },
+    { key: "dt", label: "當沖比", align: "right", sort: (r) => r.dt ?? null, render: (r) => num(r.dt == null ? "—" : `${r.dt.toFixed(0)}%`) },
+    { key: "ret", label: "漲跌幅", align: "right", sort: (r) => r.ret, render: (r) => num(`${pct(r.ret)}${r.limit ? " 停" : ""}`, tone(r.ret)) },
     { key: "k", label: "當日 K 棒", align: "right", sort: (r) => (r.close - r.open) / r.open, render: (r) => num(r.close > r.open ? "紅" : r.close < r.open ? "黑" : "平", tone(r.close - r.open)) },
     { key: "lots", label: "成交張數", align: "right", sort: (r) => r.lots, render: (r) => num(r.lots.toLocaleString()) },
     { key: "valueYi", label: "成交金額（億）", align: "right", sort: (r) => r.valueYi, render: (r) => num(r.valueYi) },
@@ -58,7 +61,8 @@ export default function TurnoverDashboard() {
   const cHist: Column<Pick>[] = [
     { key: "name", label: "股票", render: (p) => stock(p.code, p.name) },
     { key: "turnover", label: "週轉率", align: "right", sort: (p) => p.turnover, render: (p) => num(`${p.turnover.toFixed(2)}%`, "text-[#f59e0b]") },
-    { key: "ret", label: "當天漲跌", align: "right", sort: (p) => p.ret, render: (p) => num(pct(p.ret), tone(p.ret)) },
+    { key: "ret", label: "當天漲跌", align: "right", sort: (p) => p.ret, render: (p) => num(`${pct(p.ret)}${p.limit ? " 停" : ""}`, tone(p.ret)) },
+    { key: "dt", label: "當沖比", align: "right", sort: (p) => p.dt ?? null, render: (p) => num(p.dt == null ? "—" : `${p.dt.toFixed(0)}%`) },
     { key: "gap", label: "隔天開盤", align: "right", sort: (p) => p.gap, render: (p) => num(pct(p.gap), tone(p.gap)) },
     { key: "o2c", label: "隔天開→收", align: "right", sort: (p) => p.o2c, render: (p) => num(pct(p.o2c), tone(p.o2c)) },
     { key: "black", label: "隔天", align: "right", sort: (p) => (p.black ? 1 : 0), render: (p) => num(p.black ? "黑K" : "紅／平", p.black ? "text-[#22c55e]" : "text-[#f05252]") },
@@ -79,6 +83,17 @@ export default function TurnoverDashboard() {
         <span className="text-[11px] text-[#7c8aa0]">週轉率＝成交股數 ÷ 已發行股數；每天收盤後更新</span>
       </div>
 
+      {view === "today" && (
+        <section className="mb-4 rounded-xl border border-[#243247] bg-[#0d1220] p-4">
+          <div className="text-sm text-white font-semibold mb-1">高週轉＋漲停：{md(data.next)} 開高走低觀察名單</div>
+          <p className="text-xs text-[#8b97ab] mb-2">週轉率前 20 名（成交 ≥ 1 億）且今天收漲停，已排除隔天處置與暫停先賣後買的股票；每天收盤後推播 LINE。</p>
+          {data.alert?.length
+            ? <div className="flex flex-wrap gap-2">{data.alert.map((a) => (
+                <span key={a.code} className="rounded-md bg-[#141c2e] px-2.5 py-1 text-xs"><span className="text-slate-200">{a.name}</span><span className="ml-1 font-mono text-[#8b97ab]">{a.code}</span>
+                  <span className="ml-2 font-mono text-[#f59e0b]">週轉 {a.turnover.toFixed(1)}%</span>{a.dt != null && <span className="ml-1.5 font-mono text-[#8b97ab]">當沖 {a.dt.toFixed(0)}%</span>}</span>))}</div>
+            : <span className="text-xs text-[#7c8aa0]">今天沒有符合的股票。</span>}
+        </section>
+      )}
       {view === "today" && (data.today.length
         ? <SortTable<Row> rows={data.today} columns={cToday} rowKey={(r) => r.code} initialSort={{ key: "turnover", desc: true }} rank limit={100} />
         : <Empty>沒有資料。</Empty>)}
@@ -105,6 +120,17 @@ export default function TurnoverDashboard() {
           </section>
           <SortTable<Stat> rows={data.stats} columns={cStat} rowKey={(s) => s.group} />
           <SortTable<Stat> rows={data.deciles} columns={cStat} rowKey={(s) => s.group} />
+          {!!data.dtDeciles?.length && (
+            <section className="space-y-3">
+              <div className="rounded-xl border border-[#243247] bg-[#0d1220] p-5 text-[13px] leading-relaxed text-slate-300">
+                <h3 className="text-sm text-white font-semibold mb-1">週轉率高＝當沖多嗎？</h3>
+                <p>當沖比＝現股當沖成交股數 ÷ 成交股數。每天把全部股票的週轉率排名和當沖比排名做相關（Spearman），{data.corrDays} 天平均相關係數
+                  <span className="mx-1 font-mono text-[#f59e0b]">{data.corr ?? "—"}</span>（1 代表排名完全一致、0 代表沒關係）。下面兩張表分別是依「當沖比」分十組，以及週轉率前 20 名再依當沖比高低拆開的隔天表現。</p>
+              </div>
+              <SortTable<Stat> rows={data.dtDeciles.map((d) => ({ ...d, group: d.group.replace("當沖第", "當沖比第") }))} columns={cStat} rowKey={(s) => s.group} />
+              {!!data.dtSplit?.length && <SortTable<Stat> rows={data.dtSplit} columns={cStat} rowKey={(s) => s.group} />}
+            </section>
+          )}
           <section className="rounded-xl border border-[#243247] bg-[#0d1220] p-5 text-[13px] leading-relaxed text-slate-300 space-y-2">
             <h3 className="text-sm text-white font-semibold">怎麼看</h3>
             <p>黑K率：隔天收盤低於開盤的比例（平盤不算黑K）。開→收：隔天從開盤到收盤的平均漲跌，負值越大越適合「開盤放空、收盤回補」。收→收：前一天收盤買進抱到隔天收盤的報酬。</p>
