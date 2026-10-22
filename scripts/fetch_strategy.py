@@ -4,6 +4,9 @@
   disposition.json  上市櫃處置股歷史（代號、處置起日、迄日），給「出量做多」排除近 10 日有處置的股票
     上市：證交所 announcement/punish（查詢期間）；上櫃：櫃買中心 bulletin/disposal（查詢期間）
     每次查最近 DAYS 天，和舊資料合併
+  block.json        個股鉅額交易成交金額 {日期: {代號: 金額}}，給「出量做多」把成交金額換成「不含鉅額」
+    證交所每日行情的成交金額含鉅額交易，原策略用不含鉅額的金額；上市逐日查 block/BFIAUU（每次最多補 BLOCK_MAX 天），
+    上櫃用櫃買 openapi 的鉅額交易歷史（一次給整年，以名稱對應代號）
 用法：python scripts/fetch_strategy.py [--days 90]
 """
 from __future__ import annotations
@@ -86,6 +89,52 @@ def tpex(start: date, end: date) -> list:
     return out
 
 
+BLOCK_MAX = 40
+
+
+def blocks(known: dict) -> dict:
+    """近 130 個交易日的鉅額交易金額 {日期: {"tw": {代號: 金額}, "tp": {...}}}；上市已有的日期不重抓"""
+    days = sorted(p.stem for p in (DATA_DIR / "daily").glob("20*.json"))[-130:]
+    out = {d: dict(known.get(d) or {}) for d in days}
+    for d in [d for d in days if "tw" not in out[d]][-BLOCK_MAX:]:
+        doc = get_json("https://www.twse.com.tw/rwd/zh/block/BFIAUU",
+                       {"date": d.replace("-", ""), "selectType": "S", "response": "json"})
+        if not doc or (doc.get("stat") != "OK" and doc.get("data") is None):
+            continue
+        tw: dict[str, float] = {}
+        for r in doc.get("data") or []:
+            try:
+                tw[r[0].strip()] = tw.get(r[0].strip(), 0) + float(str(r[5]).replace(",", ""))
+            except (IndexError, ValueError):
+                pass
+        out[d]["tw"] = tw
+        time.sleep(2)
+    # 上櫃：openapi 一次給整年歷史，只有名稱，用最近行情的上櫃名稱對應代號
+    names = {}
+    for p in sorted((DATA_DIR / "daily").glob("20*.json"))[-20:]:
+        for c, v in (json.loads(p.read_text(encoding="utf-8")).get("q") or {}).items():
+            if v and v[1]:
+                names[str(v[0]).strip()] = c
+    try:
+        rows = S.get("https://www.tpex.org.tw/openapi/v1/tpex_daily_trade_block_day", timeout=60).json()
+    except (requests.RequestException, ValueError):
+        rows = []
+    tp: dict[str, dict] = {}
+    for r in rows if isinstance(rows, list) else []:
+        t, c = str(r.get("TradingDate", "")), names.get(str(r.get("Name", "")).strip())
+        if len(t) != 7 or not c:
+            continue
+        d = f"{int(t[:3]) + 1911}-{t[3:5]}-{t[5:]}"
+        try:
+            tp.setdefault(d, {})[c] = tp.get(d, {}).get(c, 0) + float(r.get("TradingValue") or 0)
+        except ValueError:
+            pass
+    if tp:
+        for d in out:
+            out[d]["tp"] = tp.get(d, {})
+    return out
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--days", type=int, default=90)
@@ -114,6 +163,15 @@ def main():
     path.write_text(json.dumps({"updatedAt": datetime.now(TPE).isoformat(timespec="minutes"), "items": items},
                                ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     log(f"處置歷史：上市 {len(tw)}、上櫃 {len(tp)}，合計 {len(items)} 筆")
+    bpath = OUT / "block.json"
+    try:
+        known = json.loads(bpath.read_text(encoding="utf-8")).get("days", {})
+    except (OSError, ValueError):
+        known = {}
+    bl = blocks(known)
+    bpath.write_text(json.dumps({"updatedAt": datetime.now(TPE).isoformat(timespec="minutes"), "days": bl},
+                                ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    log(f"鉅額交易：{sum(1 for v in bl.values() if 'tw' in v)}/{len(bl)} 天有上市資料")
     return 0
 
 
