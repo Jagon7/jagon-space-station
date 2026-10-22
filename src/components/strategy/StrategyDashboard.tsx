@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useStaticJson } from "@/lib/static-json";
 import { useWatchlist } from "@/lib/watchlist";
+import { SPECS } from "./specs";
 import { Empty, Kpi, KpiRow, Note, Pills, SortTable, type Column } from "@/components/data-ui";
 
 type Pick1 = { code: string; name: string; mk: string; close: number; valueYi: number; zvol: number; days: number; tz: number; mz: number; ret5: number };
@@ -24,31 +25,75 @@ const Stock = ({ code, name, mk, star, onStar }: { code: string; name: string; m
   </span>
 );
 
-const RULES: Record<Tab, { title: string; idea: string; rules: string[]; report: string; proxy?: string }> = {
-  s1: {
-    title: "出量做多（十日波段）",
-    idea: "一段時間成交量穩定的股票，突然放量（而且不是只放一天），之後常有一段趨勢；進場後外資持續買、散戶持續賣。",
-    rules: [
-      "量穩（跟自己比）：過去 20 日成交金額的變異係數（CV＝標準差 ÷ 平均），比自己過去 60 個 CV 的平均低 1 個標準差以上（時間量穩 Z ≥ 1）",
-      "量穩（跟市場比）：上面的分數在全市場（昨日成交金額 > 5000 萬）中標準化後也 ≥ 1",
-      "放量：近 5 日平均成交金額 ≥ 前段 20 日（T-25～T-6）平均＋1 個標準差（放量 Z ≥ 1）",
-      "放量持續：近 5 日至少 3 天單日成交金額超過同一門檻",
-      "近 5 日報酬 > 0（排除放量下跌）、昨日成交金額 > 5000 萬、近 10 日沒有處置、進場日收盤沒有漲停",
-    ],
-    report: "原始回測 2020/04～2026/07：Sharpe 1.70，投組每日報酬 29bp、超額 17bp；平均每天新進 4.4 檔、持有約 44 檔。",
-  },
-  s2: {
-    title: "輿情籌碼（十日波段，優化版）",
-    idea: "乾柴需要烈火：過去一段時間籌碼已經轉好（散戶持續賣、籌碼往大戶集中），這時候正面輿情突然出現，就是點火的燃料。",
-    rules: [
-      "籌碼好：近 20 日（T-21～T-2）散戶賣超強度＝散戶淨賣超 ÷ 換手量，高於全市場均值＋1 個標準差",
-      "輿情好：昨天個股正面輿情「首次出現」（前一天沒有）",
-      "母體：前一日成交金額 > 5000 萬；進場日收盤沒有漲停",
-    ],
-    report: "原始回測 2022/04～2026/07：優化版 Sharpe 1.71，投組每日報酬 24bp、超額 12bp；平均每天新進 2.4 檔、持有約 24 檔。",
-    proxy: "原策略的「散戶分點淨賣超」與「網路輿情旗標」是 UC Brain 的分點分類與 NLP 資料，公開來源拿不到。本站用替代資料：散戶淨賣超 ≈ 三大法人淨買超（台股每筆成交有買有賣，法人買超即散戶與其他人賣超），換手量用成交張數；正面輿情用鉅亨網台股新聞標題的正負面字詞判斷。訊號會比原策略少、也可能有差異，請當作參考。",
-  },
-};
+const TITLE: Record<Tab, string> = { s1: "出量做多（十日波段）", s2: "輿情籌碼（十日波段，優化版）" };
+
+const Card = ({ title, children }: { title: string; children: React.ReactNode }) => (
+  <section className="rounded-xl border border-[#243247] bg-[#0d1220] p-5">
+    <h3 className="text-sm text-white font-semibold mb-3">{title}</h3>
+    {children}
+  </section>
+);
+const Pairs = ({ rows }: { rows: readonly (readonly string[])[] }) => (
+  <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 text-[13px]">
+    {rows.map(([k, v]) => <div key={k} className="contents"><dt className="text-[#8b97ab] whitespace-nowrap">{k}</dt><dd className="text-slate-200 font-mono">{v}</dd></div>)}
+  </dl>
+);
+const Table = ({ head, rows, text = 1 }: { head: string[]; rows: readonly (readonly string[])[]; text?: number }) => (
+  <div className="overflow-x-auto">
+    <table className="w-full text-[13px]">
+      <thead><tr className="text-[#8b97ab] text-xs">{head.map((h, i) => <th key={h} className={`py-1.5 px-2 font-normal ${i >= text ? "text-right" : "text-left"}`}>{h}</th>)}</tr></thead>
+      <tbody>{rows.map((r) => <tr key={r[0]} className="border-t border-[#1a2436]">{r.map((c, i) => <td key={i} className={`py-1.5 px-2 ${i >= text ? "text-right font-mono text-slate-300 whitespace-nowrap" : i ? "text-slate-300" : "text-slate-200 whitespace-nowrap"}`}>{c}</td>)}</tr>)}</tbody>
+    </table>
+  </div>
+);
+const Bullets = ({ items }: { items: readonly string[] }) => (
+  <ul className="space-y-1.5">
+    {items.map((x) => <li key={x} className="text-[13px] leading-relaxed text-slate-300 pl-3 relative before:content-['•'] before:absolute before:left-0 before:text-[#4f8cff]">{x}</li>)}
+  </ul>
+);
+
+function Spec({ tab }: { tab: Tab }) {
+  const s = SPECS[tab];
+  const s2 = tab === "s2" ? SPECS.s2 : null;
+  return (
+    <div id="spec" className="mt-10 space-y-4 scroll-mt-24">
+      <h2 className="text-base text-white font-semibold">策略精神與細節</h2>
+      <div className="grid gap-4 md:grid-cols-2">
+        <Card title="賺誰的錢"><Bullets items={s.whose} /></Card>
+        <Card title="回測結論"><Pairs rows={s.result} /></Card>
+        <Card title="回測假設"><Pairs rows={s.backtest} /></Card>
+        <Card title="歷史持倉"><Pairs rows={s.holdings} /></Card>
+      </div>
+      <Card title="條件拆解">
+        <ol className="space-y-3">
+          {s.steps.map(([t, x], i) => (
+            <li key={t} className="flex gap-3 text-[13px] leading-relaxed">
+              <span className="shrink-0 w-5 h-5 rounded-full bg-[#4f8cff]/15 text-[#4f8cff] text-[11px] font-mono flex items-center justify-center mt-0.5">{i + 1}</span>
+              <div><div className="text-slate-100 font-medium">{t}</div><div className="text-slate-300">{x}</div></div>
+            </li>
+          ))}
+        </ol>
+      </Card>
+      {s2 && (
+        <>
+          <Card title="版本演進"><Table head={["版本", "改動", "結果"]} rows={s2.versions} text={2} /></Card>
+          <div className="grid gap-4 md:grid-cols-2">
+            <Card title="綜效測試（優化版）"><Table head={["條件", "Sharpe", "每日報酬", "超額"]} rows={s2.ablation.map(([a, b, c, d]) => [a, b.replace("Sharpe ", ""), c, d])} /></Card>
+            <Card title="綜效測試（原版）"><Table head={["條件", "Sharpe", "每日報酬", "超額"]} rows={s2.ablationOld.map(([a, b, c, d]) => [a, b.replace("Sharpe ", ""), c, d])} /></Card>
+          </div>
+          <Card title="分點說明"><p className="text-[13px] text-slate-300 leading-relaxed">{s2.branches}</p></Card>
+        </>
+      )}
+      <details className="group rounded-xl border border-[#243247] bg-[#0d1220] p-5">
+        <summary className="cursor-pointer text-sm text-white font-semibold list-none flex items-center justify-between">
+          原始條件公式<span className="text-xs text-[#8b97ab] group-open:hidden">展開 {s.formula.length} 行</span><span className="text-xs text-[#8b97ab] hidden group-open:inline">收合</span>
+        </summary>
+        <pre className="mt-3 overflow-x-auto text-[11px] leading-relaxed font-mono text-slate-300 whitespace-pre">{s.formula.join("\n")}</pre>
+      </details>
+      <Card title="本站資料說明"><p className="text-[13px] leading-relaxed text-[#f59e0b]/90">{s.notes}</p></Card>
+    </div>
+  );
+}
 
 export default function StrategyDashboard() {
   const { data, error } = useStaticJson<Data>("strategy.json");
@@ -57,7 +102,6 @@ export default function StrategyDashboard() {
   const [view, setView] = useState<View>("picks");
   if (!data) return <div className="py-16 text-center text-sm text-[#8b97ab] font-mono">{error ? "資料載入失敗" : "載入中…"}</div>;
   const side = data[tab] as Side<Pick1 | Pick2>;
-  const r = RULES[tab];
   const st = side.stats;
   const hold = side.holding;
   const exitTomorrow = hold.filter((h) => h.exitDate === data.next);
@@ -94,22 +138,18 @@ export default function StrategyDashboard() {
 
   return (
     <div>
-      <div className="flex gap-6 border-b border-[#243247] mb-5">
+      <div className="flex gap-4 sm:gap-6 border-b border-[#243247] mb-5 overflow-x-auto">
         {(["s1", "s2"] as const).map((k) => (
           <button key={k} onClick={() => setTab(k)}
             className={`pb-3 text-sm whitespace-nowrap border-b-2 -mb-px transition-colors ${tab === k ? "border-[#4f8cff] text-white" : "border-transparent text-[#8b97ab] hover:text-slate-300"}`}>
-            {RULES[k].title}<span className="ml-1.5 text-[11px] font-mono text-[#7c8aa0]">{data[k].picks.length}</span>
+            {TITLE[k]}<span className="ml-1.5 text-[11px] font-mono text-[#7c8aa0]">{data[k].picks.length}</span>
           </button>
         ))}
       </div>
       <div className="mb-6 rounded-xl border border-[#243247] bg-[#0d1220] p-5">
-        <div className="text-sm text-white font-semibold mb-1">策略邏輯</div>
-        <p className="text-[13px] text-slate-300 leading-relaxed">{r.idea}</p>
-        <ul className="mt-3 space-y-1.5">
-          {r.rules.map((x) => <li key={x} className="text-[13px] leading-relaxed text-slate-300 pl-3 relative before:content-['•'] before:absolute before:left-0 before:text-[#4f8cff]">{x}</li>)}
-        </ul>
-        <p className="mt-3 text-xs text-[#8b97ab]">進出場：T 日收盤前半小時進場，持有 10 個交易日，第 10 個交易日後開盤半小時出場。{r.report}</p>
-        {r.proxy && <p className="mt-2 text-xs leading-relaxed text-[#f59e0b]/90">⚠ {r.proxy}</p>}
+        <div className="text-sm text-white font-semibold mb-1">策略精神</div>
+        <p className="text-[13px] text-slate-300 leading-relaxed">{SPECS[tab].spirit}</p>
+        <p className="mt-3 text-xs text-[#8b97ab]">進出場：T 日收盤前進場，持有 10 個交易日後開盤出場。<a href="#spec" className="text-[#4f8cff] hover:underline">完整條件、回測與原始公式 ↓</a></p>
       </div>
       <KpiRow>
         <Kpi label={`${md(data.next)} 進場名單`} value={side.picks.length} unit="檔" sub={`依 ${md(data.asof)} 收盤資料`} color="text-[#4f8cff]" />
@@ -134,6 +174,7 @@ export default function StrategyDashboard() {
         「持有中／已出場」是依策略規則用本站歷史資料回算的模擬部位（進場價用當日收盤、出場價用第 10 個交易日後的開盤，報酬已扣手續費＋證交稅 0.357%；超額＝減去同期全市場等權平均），
         不是實際交易紀錄。本站行情資料從 2026/04 開始，回算期間短，數字僅供參考。
       </Note>
+      <Spec tab={tab} />
     </div>
   );
 }
