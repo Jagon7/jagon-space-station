@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-21",
+  "date": "2026-10-22",
   "data": [
     {
       "code": "2344",
@@ -1799,7 +1799,7 @@
       "code": "6937",
       "name": "天虹科技",
       "market": "上市",
-      "status": "審查中",
+      "status": "生效",
       "cbType": "轉換公司債(無擔保)",
       "amount": 8.0,
       "currency": "台幣",
@@ -1812,7 +1812,7 @@
       "code": "7711",
       "name": "永擎電子",
       "market": "上市",
-      "status": "審查中",
+      "status": "生效",
       "cbType": "轉換公司債(無擔保)",
       "amount": 42.0,
       "currency": "台幣",
@@ -1973,7 +1973,7 @@
       "amount": 150.0,
       "currency": "台幣",
       "filingDate": "2026-10-16",
-      "effectiveDate": "2026-11-04",
+      "effectiveDate": "2026-11-06",
       "withdrawDate": null,
       "underwriter": "富邦證券"
     },
@@ -2002,6 +2002,19 @@
       "effectiveDate": "2026-11-05",
       "withdrawDate": null,
       "underwriter": "台新證券"
+    },
+    {
+      "code": "3147",
+      "name": "大綜電腦系統",
+      "market": "上櫃",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 12.0,
+      "currency": "台幣",
+      "filingDate": "2026-10-21",
+      "effectiveDate": "2026-11-09",
+      "withdrawDate": null,
+      "underwriter": "富邦證券"
     }
   ]
 }
