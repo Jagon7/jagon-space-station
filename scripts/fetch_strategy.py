@@ -9,6 +9,8 @@
     上櫃用櫃買 openapi 的鉅額交易歷史（一次給整年，以名稱對應代號）
   shares.json       上市櫃已發行普通股數 {代號: 股數}，給週轉率（成交股數 ÷ 發行股數）用
     上市：openapi t187ap03_L；上櫃：openapi mopsfin_t187ap03_O
+  daytrade.json     個股現股當沖成交股數 {日期: {"tw": {代號: 股數}, "tp": {...}, "x": [暫停先賣後買的代號]}}
+    上市：exchangeReport/TWTB4U；上櫃：www/zh-tw/intraday/stat（每次最多補 BLOCK_MAX 天）
 用法：python scripts/fetch_strategy.py [--days 90]
 """
 from __future__ import annotations
@@ -91,7 +93,7 @@ def tpex(start: date, end: date) -> list:
     return out
 
 
-BLOCK_MAX = 40
+BLOCK_MAX = int(os.environ.get("JSS_BACKFILL_MAX", "40"))
 
 
 def blocks(known: dict) -> dict:
@@ -134,6 +136,38 @@ def blocks(known: dict) -> dict:
     if tp:
         for d in out:
             out[d]["tp"] = tp.get(d, {})
+    return out
+
+
+def _int(x) -> int:
+    try:
+        return int(str(x).replace(",", "").strip() or 0)
+    except ValueError:
+        return 0
+
+
+def daytrade(known: dict) -> dict:
+    days = sorted(p.stem for p in (DATA_DIR / "daily").glob("20*.json"))[-130:]
+    out = {d: dict(known.get(d) or {}) for d in days}
+    for key, url, params in (("tw", "https://www.twse.com.tw/exchangeReport/TWTB4U", lambda d: {"date": d.replace("-", ""), "selectType": "All", "response": "json"}),
+                             ("tp", "https://www.tpex.org.tw/www/zh-tw/intraday/stat", lambda d: {"type": "Daily", "date": d.replace("-", "/"), "response": "json"})):
+        for d in [d for d in days if key not in out[d]][-BLOCK_MAX:]:
+            doc = get_json(url, params(d))
+            tables = (doc or {}).get("tables") or []
+            if len(tables) < 2:
+                continue
+            m, x = {}, set(out[d].get("x", []))
+            for r in tables[1].get("data") or []:
+                c = str(r[0]).strip()
+                if not re.fullmatch(r"[1-9]\d{3}", c):
+                    continue
+                m[c] = _int(r[3])
+                if str(r[2]).strip():
+                    x.add(c)
+            if m:
+                out[d][key] = m
+                out[d]["x"] = sorted(x)
+            time.sleep(2)
     return out
 
 
@@ -196,6 +230,15 @@ def main():
         (OUT / "shares.json").write_text(json.dumps({"updatedAt": datetime.now(TPE).isoformat(timespec="minutes"), "shares": sh},
                                                     ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     log(f"發行股數：{len(sh)} 檔")
+    dpath = OUT / "daytrade.json"
+    try:
+        dknown = json.loads(dpath.read_text(encoding="utf-8")).get("days", {})
+    except (OSError, ValueError):
+        dknown = {}
+    dt = daytrade(dknown)
+    dpath.write_text(json.dumps({"updatedAt": datetime.now(TPE).isoformat(timespec="minutes"), "days": dt},
+                                ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    log(f"當沖：上市 {sum(1 for v in dt.values() if 'tw' in v)}、上櫃 {sum(1 for v in dt.values() if 'tp' in v)}／{len(dt)} 天")
     log(f"鉅額交易：{sum(1 for v in bl.values() if 'tw' in v)}/{len(bl)} 天有上市資料")
     return 0
 

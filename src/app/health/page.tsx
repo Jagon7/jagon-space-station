@@ -139,6 +139,9 @@ function buildRows() {
     const shr = read<{ updatedAt: string; shares: Record<string, number> }>("strategy/shares.json");
     const shn = shr ? Object.keys(shr.shares).length : 0;
     push({ level: shn > 1500 ? "ok" : "warn", item: "策略", name: "已發行股數（週轉率）", date: shr?.updatedAt?.slice(0, 10) ?? null, count: shn, note: "" });
+    const dtr = read<{ updatedAt: string; days: Record<string, { tw?: unknown; tp?: unknown }> }>("strategy/daytrade.json");
+    const dtn = dtr ? Object.values(dtr.days).filter((x) => x.tw && x.tp).length : 0;
+    push({ level: dtn > 100 ? "ok" : "warn", item: "策略", name: "個股當沖成交（週轉率頁）", date: dtr?.updatedAt?.slice(0, 10) ?? null, count: dtn, note: "" });
     const blk = read<{ updatedAt: string; days: Record<string, unknown> }>("strategy/block.json");
     push({ level: blk ? "ok" : "warn", item: "策略", name: "鉅額交易（出量做多扣除用）", date: blk?.updatedAt?.slice(0, 10) ?? null, count: blk ? Object.keys(blk.days).length : 0, note: "" });
     const us = read<{ updatedAt: string; series: Record<string, [string, number][]> }>("intel/us.json");
