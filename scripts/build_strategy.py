@@ -9,6 +9,7 @@
    時間量穩Z＝－(前段 CV 在 T-65～T-6 這 60 個滾動 CV 中的 z 分數)，CV＝20 日成交金額標準差／平均
    市場量穩Z＝時間量穩Z 在全市場（昨日成交金額 > 5000 萬）的標準化；兩者都 ≥ 1
    五日報酬 > 0、昨日成交金額 > 5000 萬、近 10 日沒有處置、T 日收盤不是漲停
+   成交金額一律扣掉當天的鉅額交易（data/strategy/block.json）
 ② 輿情籌碼（公開資料代理版）
    籌碼好：近 20 日（T-21～T-2）「散戶賣超」強度高於全市場均值＋1 個標準差
            原策略用券商分點分類的散戶淨賣超；公開資料沒有分點分類，這裡用「三大法人淨買超 ＝ 散戶與其他人淨賣超」代理，
@@ -87,7 +88,17 @@ def build(data_dir: Path, public_dir: Path):
     codes = sorted({c for _, q in days for c in q if STOCK.fullmatch(c)})
     names = {c: v[0] for _, q in days for c, v in q.items()}
     mkt = {c: ("上櫃" if v[1] else "上市") for c, v in days[-1][1].items()}
-    val = {c: [((q.get(c) or [None] * 9)[8]) for _, q in days] for c in codes}
+    # 成交金額扣掉鉅額交易（原策略用「成交金額_不含鉅額」；交易所每日行情的金額含鉅額）
+    blk = (_load(data_dir / "strategy" / "block.json", {}) or {}).get("days", {})
+
+    def net(d, c, q):
+        x = (q.get(c) or [None] * 9)[8]
+        if x is None:
+            return None
+        b = blk.get(d) or {}
+        return max(0.0, x - (b.get("tw") or {}).get(c, 0) - (b.get("tp") or {}).get(c, 0))
+
+    val = {c: [net(d, c, q) for d, q in days] for c in codes}
     close = {c: [((q.get(c) or [None] * 9)[5]) for _, q in days] for c in codes}
     opn = {c: [((q.get(c) or [None] * 9)[2]) for _, q in days] for c in codes}
     chg = {c: [((q.get(c) or [None] * 9)[6]) for _, q in days] for c in codes}
