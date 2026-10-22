@@ -80,6 +80,13 @@ jobs:
         env:
           JSS_DATA_DIR: ./data
 
+      - name: Fetch disposition history (for swing strategies)
+        if: always() && steps.fetch.conclusion != 'cancelled'
+        run: python3 scripts/fetch_strategy.py --days 60 || true
+        continue-on-error: true
+        env:
+          JSS_DATA_DIR: ./data
+
       - name: Fetch daily market data (quotes, margin, SBL)
         if: always() && steps.fetch.conclusion != 'cancelled'
         run: python3 scripts/fetch_market_daily.py --days 10 --minutes 10

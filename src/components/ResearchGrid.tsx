@@ -3,10 +3,17 @@ import {
   TrendingUp, BarChart2, Shield, DollarSign,
   FileText, Calendar, ArrowDownUp, Zap, Activity,
   PieChart, Search, Layers, Ticket, Users,
-  UserCheck, Star, Filter, Landmark, LineChart, Globe, Newspaper, Mic,
+  UserCheck, Star, Filter, Landmark, LineChart, Globe, Newspaper, Mic, Crosshair,
 } from "lucide-react";
 
 const modules = [
+  {
+    icon: Crosshair,
+    title: "十日波段策略",
+    desc: "出量做多、輿情籌碼兩個策略的明日進場名單、持有中部位與到期出場，每天推播 LINE",
+    href: "/strategy",
+    accent: "#f05252",
+  },
   {
     icon: Globe,
     title: "國際類股連動",

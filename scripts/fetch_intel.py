@@ -484,6 +484,80 @@ def fetch_indices(series: dict):
         log("  ✗ SCFI 抓不到")
 
 
+# ---------------------------------------------------------------- 個股新聞輿情（給「輿情籌碼」策略）
+NEWS_CATS = ("tw_stock", "tw_stock_news", "headline")
+POS = ("漲停", "大漲", "飆", "噴", "攻頂", "創新高", "新高", "創高", "看好", "看旺", "調升", "上調", "上修", "調高", "受惠", "強勁",
+       "成長", "獲利", "大單", "買超", "利多", "轉盈", "優於預期", "超預期", "樂觀", "喊買", "加碼", "暢旺", "爆發", "翻倍",
+       "擴產", "接單", "吃補", "報喜", "亮眼", "旺", "點火", "領漲", "衝", "勁揚", "大賺", "雙增", "雙升", "回溫",
+       "讚", "力挺", "喊進", "站回", "助攻", "搶單", "熱銷", "供不應求", "漲價", "拿下", "打入", "獨家")
+NEG = ("跌停", "大跌", "重挫", "暴跌", "下修", "調降", "下調", "衰退", "虧損", "賣超", "利空", "疲弱", "不如預期", "低於預期",
+       "保守", "砍", "減碼", "示警", "處置", "崩", "失守", "跌破", "雙減", "下滑", "轉虧", "淡季", "裁員", "停工", "違約")
+
+
+def sentiment(title: str) -> int:
+    return sum(1 for w in POS if w in title) - sum(1 for w in NEG if w in title)
+
+
+CJK = re.compile(r"[\u4e00-\u9fff]")
+
+
+def names_in(title: str, by_len: list) -> set[str]:
+    """標題裡出現的公司名：長名稱優先、不重疊；兩個字的簡稱要前後不是中文字（避免「長鑫科技」被當成鑫科）"""
+    taken = [False] * len(title)
+    out = set()
+    for nm, c in by_len:
+        for m in re.finditer(re.escape(nm), title):
+            a, b = m.start(), m.end()
+            if any(taken[a:b]):
+                continue
+            if len(nm) == 2 and ((a > 0 and CJK.match(title[a - 1])) or (b < len(title) and CJK.match(title[b]))):
+                continue
+            taken[a:b] = [True] * (b - a)
+            out.add(c)
+    return out
+
+
+def collect_news(names: dict[str, str], pages: int) -> int:
+    """台股新聞逐則存下（時間、提到的上市櫃股票、標題、正負面分數），保留 90 天"""
+    path = OUT / "news.json"
+    doc = load(path, {"items": []})
+    have = {x[0] for x in doc["items"]}
+    by_len = sorted(((n, c) for n, c in names.items() if len(n) >= 2), key=lambda kv: -len(kv[0]))
+    n = 0
+    for cat in NEWS_CATS:
+        for p in range(1, pages + 1):
+            d = get_json(f"https://api.cnyes.com/media/api/v1/newslist/category/{cat}", {"limit": 30, "page": p})
+            items = ((d or {}).get("items") or {}).get("data") or []
+            if not items:
+                break
+            fresh = 0
+            for it in items:
+                nid = str(it["newsId"])
+                if nid in have:
+                    continue
+                title = it.get("title") or ""
+                # 盤前盤後要聞、一週大事這類綜合報導，以及 FactSet 機器快訊，不算個股輿情
+                if re.search(r"要聞|大事|盤前|盤後|速報|一週|本周|本週|懶人包|行事曆|摘要20|新聞摘要", title):
+                    have.add(nid)
+                    continue
+                codes = {str(x.get("code")) for x in it.get("market") or [] if re.fullmatch(r"[1-9]\d{3}", str(x.get("code") or ""))}
+                codes |= names_in(title, by_len)  # 標題提到的公司（鉅亨的標籤常漏）
+                if not codes:
+                    continue
+                doc["items"].append([nid, it["publishAt"], sorted(codes), title, sentiment(title)])
+                have.add(nid)
+                fresh += 1
+                n += 1
+            if not fresh and p > 2:
+                break
+            time.sleep(0.5)
+    cutoff = time.time() - 90 * 86400
+    doc["items"] = sorted((x for x in doc["items"] if x[1] >= cutoff), key=lambda x: x[1])
+    doc["updatedAt"] = datetime.now(TPE).isoformat(timespec="minutes")
+    save(path, doc)
+    return n
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--pages", type=int, default=12)
@@ -501,6 +575,8 @@ def main():
     stop = datetime.fromisoformat(last).replace(tzinfo=TPE).timestamp() - 86400
     n = scan_news(a.pages, names, reports, confs, stop, px)
     g = google_news(names, reports, px, max(14, a.backfill_days))
+    nn = collect_news(names, max(a.pages, 6))
+    log(f"個股新聞：新增 {nn} 則")
     log(f"券報：鉅亨新增 {n} 筆、Google 新聞新增 {g} 筆，共 {len(reports)} 筆")
     if a.backfill_days:
         backfill_conf(a.backfill_days, names, confs)

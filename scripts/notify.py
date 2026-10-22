@@ -9,6 +9,7 @@
   Discord ：DISCORD_WEBHOOK_URL
   LINE    ：LINE_CHANNEL_TOKEN、LINE_USER_ID（Messaging API push message）
 用法：python scripts/notify.py [--dry-run] [--check] [--insider-alert]
+  --strategy-alert：兩個十日波段策略明日進場名單與到期出場提醒（資料到齊才發，每個交易日一次）
   --intel-alert：新券商報告、美股類股大波動（開盤前提醒台股可能反應的股票），已推過的記在 data/notify/intel-alerted.json
   --insider-alert：內部人大額異動快訊（≥1 億），每次資料更新後都跑，沒推過的才推（記錄在 data/notify/insider-alerted.json）
   --check：只檢查最近一個交易日的行情、法人、融資券是否都到齊，結果寫到 GITHUB_OUTPUT（ready、date）
@@ -248,6 +249,54 @@ def insider_alert(dry: bool) -> int:
     return 0
 
 
+STRATEGY_STATE = ROOT / "data" / "notify" / "strategy-alerted.json"
+
+
+def strategy_alert(dry: bool) -> int:
+    st = load("strategy.json", {}) or {}
+    asof, nxt = st.get("asof"), st.get("next")
+    day = last_trading_day()
+    got = {k: (load(f, {}) or {}).get("date") for k, f in (("行情", "market/screener.json"), ("法人", "chips/insti.json"))}
+    if asof != day or any(v != day for v in got.values()):
+        print(f"策略資料還沒到齊（策略 {asof}、行情 {got['行情']}、法人 {got['法人']}，應為 {day}）")
+        return 0
+    try:
+        state = json.loads(STRATEGY_STATE.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        state = {"sent": []}
+    if asof in state["sent"]:
+        print(f"{asof} 的策略名單已推過")
+        return 0
+    md = lambda d: f"{int(d[5:7])}/{int(d[8:10])}"  # noqa: E731
+    lines = [f"📈 波段策略：{md(nxt)} 進場名單（{md(asof)} 收盤資料）"]
+    s1, s2 = st["s1"], st["s2"]
+    lines.append(f"【出量做多】{len(s1['picks'])} 檔")
+    for p in s1["picks"][:12]:
+        lines.append(f"  {p['name']} {p['code']} 收{p['close']:g}｜放量Z {p['zvol']:.1f}・{p['days']}/5 日放量｜5 日 {p['ret5']:+.1f}%")
+    if len(s1["picks"]) > 12:
+        lines.append(f"  …還有 {len(s1['picks']) - 12} 檔")
+    lines.append(f"【輿情籌碼】{len(s2['picks'])} 檔")
+    for p in s2["picks"][:10]:
+        news = p["news"][0][:28] + "…" if p.get("news") else ""
+        lines.append(f"  {p['name']} {p['code']} 收{p['close']:g}｜籌碼Z {p['chipZ']:.2f}｜{news}")
+    exits = [(k, h) for k, s in (("出量", s1), ("輿情", s2)) for h in s["holding"] if h.get("exitDate") == nxt]
+    if exits:
+        ex = [h for _, h in exits if h.get("ret") is not None]
+        lines.append(f"⏰ {md(nxt)} 開盤出場（持滿 10 日，{len(ex)} 檔）：" + "、".join(f"{h['name']}({h['ret']:+.1f}%)" for h in ex[:15])
+                     + ("…" if len(ex) > 15 else ""))
+    lines.append("進場：明日收盤前半小時；收盤鎖漲停不進場。持有 10 個交易日後開盤出場。")
+    lines.append(f"{SITE}/strategy/")
+    text = "\n".join(lines)
+    print(text)
+    if not dry:
+        if not send(text):
+            print("（沒有設定任何推播管道，只印出內容）")
+        state["sent"] = sorted(set(state["sent"]) | {asof})[-60:]
+        STRATEGY_STATE.parent.mkdir(parents=True, exist_ok=True)
+        STRATEGY_STATE.write_text(json.dumps(state, ensure_ascii=False, indent=0), encoding="utf-8")
+    return 0
+
+
 INTEL_STATE = ROOT / "data" / "notify" / "intel-alerted.json"
 
 
@@ -342,6 +391,7 @@ def main():
     ap.add_argument("--check", action="store_true")
     ap.add_argument("--insider-alert", action="store_true")
     ap.add_argument("--intel-alert", action="store_true")
+    ap.add_argument("--strategy-alert", action="store_true")
     a = ap.parse_args()
     if a.check:
         return check()
@@ -349,6 +399,8 @@ def main():
         return insider_alert(a.dry_run)
     if a.intel_alert:
         return intel_alert(a.dry_run)
+    if a.strategy_alert:
+        return strategy_alert(a.dry_run)
     text = compose()
     print(text)
     if a.dry_run:
