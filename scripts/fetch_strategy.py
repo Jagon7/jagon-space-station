@@ -7,6 +7,8 @@
   block.json        個股鉅額交易成交金額 {日期: {代號: 金額}}，給「出量做多」把成交金額換成「不含鉅額」
     證交所每日行情的成交金額含鉅額交易，原策略用不含鉅額的金額；上市逐日查 block/BFIAUU（每次最多補 BLOCK_MAX 天），
     上櫃用櫃買 openapi 的鉅額交易歷史（一次給整年，以名稱對應代號）
+  shares.json       上市櫃已發行普通股數 {代號: 股數}，給週轉率（成交股數 ÷ 發行股數）用
+    上市：openapi t187ap03_L；上櫃：openapi mopsfin_t187ap03_O
 用法：python scripts/fetch_strategy.py [--days 90]
 """
 from __future__ import annotations
@@ -135,6 +137,24 @@ def blocks(known: dict) -> dict:
     return out
 
 
+def shares() -> dict:
+    out = {}
+    for url, code_k, sh_k in (("https://openapi.twse.com.tw/v1/opendata/t187ap03_L", "公司代號", "已發行普通股數或TDR原股發行股數"),
+                              ("https://www.tpex.org.tw/openapi/v1/mopsfin_t187ap03_O", "SecuritiesCompanyCode", "IssueShares")):
+        try:
+            rows = S.get(url, timeout=60).json()
+        except (requests.RequestException, ValueError):
+            rows = []
+        for r in rows if isinstance(rows, list) else []:
+            try:
+                n = int(str(r.get(sh_k, "")).replace(",", ""))
+            except ValueError:
+                continue
+            if n > 0:
+                out[str(r.get(code_k, "")).strip()] = n
+    return out
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--days", type=int, default=90)
@@ -171,6 +191,11 @@ def main():
     bl = blocks(known)
     bpath.write_text(json.dumps({"updatedAt": datetime.now(TPE).isoformat(timespec="minutes"), "days": bl},
                                 ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    sh = shares()
+    if len(sh) > 1000:  # API 失敗時保留舊檔
+        (OUT / "shares.json").write_text(json.dumps({"updatedAt": datetime.now(TPE).isoformat(timespec="minutes"), "shares": sh},
+                                                    ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    log(f"發行股數：{len(sh)} 檔")
     log(f"鉅額交易：{sum(1 for v in bl.values() if 'tw' in v)}/{len(bl)} 天有上市資料")
     return 0
 
