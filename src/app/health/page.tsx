@@ -131,6 +131,11 @@ function buildRows() {
     push({ level: !rp ? "error" : byLag(rl, 2, 4), item: "情報", name: "券商報告", date: rd, lag: rl, count: rp?.items.filter((x) => x.kind === "broker").length ?? 0, note: rp ? `抓取 ${rp.updatedAt.slice(5, 16).replace("T", " ")}` : "" });
     const cn = read<{ items: { date: string }[] }>("intel/confnews.json");
     push({ level: cn?.items.length ? "ok" : "warn", item: "情報", name: "法說會要點（新聞／AI 摘要）", date: cn?.items[0]?.date ?? null, count: cn?.items.length ?? 0, note: "" });
+    const nw = read<{ items: [string, number, string[], string, number][] }>("intel/news.json");
+    const nd = nw?.items.length ? new Date(nw.items.at(-1)![1] * 1000 + 8 * 3600e3).toISOString().slice(0, 10) : null;
+    push({ level: nw?.items.length ? byLag(lag(nd), 1, 3) : "error", item: "策略", name: "個股新聞輿情（輿情籌碼策略）", date: nd, lag: lag(nd), count: nw?.items.length ?? 0, note: "" });
+    const dp = read<{ updatedAt: string; items: unknown[] }>("strategy/disposition.json");
+    push({ level: dp?.items.length ? "ok" : "warn", item: "策略", name: "處置股歷史（出量做多策略）", date: dp?.updatedAt?.slice(0, 10) ?? null, count: dp?.items.length ?? 0, note: "" });
     const us = read<{ updatedAt: string; series: Record<string, [string, number][]> }>("intel/us.json");
     const ud = us ? Object.values(us.series).map((v) => v.at(-1)?.[0] ?? "").sort().at(-1) ?? null : null;
     const ul = lag(ud);
