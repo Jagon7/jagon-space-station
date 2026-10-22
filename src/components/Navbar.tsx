@@ -19,6 +19,7 @@ const navItems: NavItem[] = [
       { label: "成交排行", href: "/ranking" },
       { label: "技術選股", href: "/screener" },
       { label: "十日波段策略", href: "/strategy" },
+      { label: "高週轉率黑K", href: "/turnover" },
       { label: "統計戰報", href: "/stats" },
       { label: "族群強弱", href: "/sectors" },
       { label: "產業細分類", href: "/industry" },

@@ -3,7 +3,7 @@ import {
   TrendingUp, BarChart2, Shield, DollarSign,
   FileText, Calendar, ArrowDownUp, Zap, Activity,
   PieChart, Search, Layers, Ticket, Users,
-  UserCheck, Star, Filter, Landmark, LineChart, Globe, Newspaper, Mic, Crosshair,
+  UserCheck, Star, Filter, Landmark, LineChart, Globe, Newspaper, Mic, Crosshair, RotateCw,
 } from "lucide-react";
 
 const modules = [
@@ -13,6 +13,13 @@ const modules = [
     desc: "出量做多、輿情籌碼兩個策略的明日進場名單、持有中部位與到期出場，每天推播 LINE",
     href: "/strategy",
     accent: "#f05252",
+  },
+  {
+    icon: RotateCw,
+    title: "高週轉率黑K",
+    desc: "每日週轉率排行，回測週轉率越高隔天是否越容易開高走低，附開盤空、收盤補的扣成本績效",
+    href: "/turnover",
+    accent: "#22c55e",
   },
   {
     icon: Globe,

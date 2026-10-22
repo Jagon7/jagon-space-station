@@ -136,6 +136,11 @@ function buildRows() {
     push({ level: nw?.items.length ? byLag(lag(nd), 1, 3) : "error", item: "策略", name: "個股新聞輿情（輿情籌碼策略）", date: nd, lag: lag(nd), count: nw?.items.length ?? 0, note: "" });
     const dp = read<{ updatedAt: string; items: unknown[] }>("strategy/disposition.json");
     push({ level: dp?.items.length ? "ok" : "warn", item: "策略", name: "處置股歷史（出量做多策略）", date: dp?.updatedAt?.slice(0, 10) ?? null, count: dp?.items.length ?? 0, note: "" });
+    const shr = read<{ updatedAt: string; shares: Record<string, number> }>("strategy/shares.json");
+    const shn = shr ? Object.keys(shr.shares).length : 0;
+    push({ level: shn > 1500 ? "ok" : "warn", item: "策略", name: "已發行股數（週轉率）", date: shr?.updatedAt?.slice(0, 10) ?? null, count: shn, note: "" });
+    const blk = read<{ updatedAt: string; days: Record<string, unknown> }>("strategy/block.json");
+    push({ level: blk ? "ok" : "warn", item: "策略", name: "鉅額交易（出量做多扣除用）", date: blk?.updatedAt?.slice(0, 10) ?? null, count: blk ? Object.keys(blk.days).length : 0, note: "" });
     const us = read<{ updatedAt: string; series: Record<string, [string, number][]> }>("intel/us.json");
     const ud = us ? Object.values(us.series).map((v) => v.at(-1)?.[0] ?? "").sort().at(-1) ?? null : null;
     const ul = lag(ud);
