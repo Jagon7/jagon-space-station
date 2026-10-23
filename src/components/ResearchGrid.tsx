@@ -3,7 +3,7 @@ import {
   TrendingUp, BarChart2, Shield, DollarSign,
   FileText, Calendar, ArrowDownUp, Zap, Activity,
   PieChart, Search, Layers, Ticket, Users,
-  UserCheck, Star, Filter, Landmark, LineChart, Globe, Newspaper, Mic, Crosshair, RotateCw,
+  UserCheck, Star, Filter, Landmark, LineChart, Globe, Newspaper, Mic, Crosshair, RotateCw, Gauge,
 } from "lucide-react";
 
 const modules = [
@@ -20,6 +20,13 @@ const modules = [
     desc: "每日週轉率排行，回測週轉率越高隔天是否越容易開高走低，附開盤空、收盤補的扣成本績效",
     href: "/turnover",
     accent: "#22c55e",
+  },
+  {
+    icon: Gauge,
+    title: "市場風險監控",
+    desc: "VIX、VVIX、期限結構、MOVE、高收益債利差（CDS 替代）、金融壓力指數整合成風險溫度，每天盤前快報附上",
+    href: "/risk",
+    accent: "#f59e0b",
   },
   {
     icon: Globe,

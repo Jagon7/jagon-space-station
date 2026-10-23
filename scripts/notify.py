@@ -10,7 +10,7 @@
   LINE    ：LINE_CHANNEL_TOKEN、LINE_USER_ID（Messaging API push message）
 用法：python scripts/notify.py [--dry-run] [--check] [--insider-alert] [--preview]
   LINE 用 Flex 卡片（排版在 scripts/line_flex.py），Telegram／Discord 用同內容的純文字
-  --morning：盤前快報（台指期夜盤＋富台指、美股主要指數、類股龍頭與台股預估），週一到五 08:00；加 --preview 立刻發一張預覽
+  --morning：盤前快報（台指期夜盤＋富台指、美股主要指數、市場風險、類股龍頭與台股預估），週一到五 08:00；加 --preview 立刻發一張預覽
              夜盤抓不到時用富台指（optratw.com 背後的第三方 API）換算，再不行用美股 EWT
   --preview：不管有沒有推過，把每日戰報、策略、高週轉三張卡片各發一次（測試排版用）
   --strategy-alert：兩個十日波段策略明日進場名單與到期出場提醒（資料到齊才發，每個交易日一次）
@@ -514,7 +514,23 @@ def morning_brief(dry: bool, force: bool = False) -> int:
             fmt = f"{q['close']:,.2f}" if q["close"] < 100 else f"{q['close']:,.0f}"
             m.kv(name, f"{fmt}（{q['chg']:+.2f}%）", color=sign_tone(q["chg"]) if sym != "TWD=X" else "#0F172A")
 
-    # 3) 類股龍頭與台股預估反應：龍頭漲跌幅大的優先
+    # 3) 市場風險
+    rk = load("risk.json", {}) or {}
+    if rk.get("temp") is not None:
+        m.section("市場風險", f"溫度 {rk['temp']:.0f}・{rk['tempLabel']}")
+        lv = {"正常": "#0F172A", "警戒": "#D97706", "危險": "#E5484D"}
+        for i in rk.get("indicators", []):
+            if i["id"] not in ("vix", "vvix", "vixts", "move", "hy"):
+                continue
+            unit = " bp" if i["unit"] == "bp" else ""
+            chg = i["chg20"] if i["id"] == "hy" else i["chg1"]
+            tag = "（20日 " if i["id"] == "hy" else "（"
+            val = f"{i['value']:,.{i['dec']}f}{unit}" + ("" if chg is None else f"{tag}{chg:+,.{i['dec']}f}）")
+            m.kv(i["name"] + ("" if i["level"] == "正常" else f"・{i['level']}"), val, color=lv[i["level"]])
+        for x in rk.get("alerts", [])[:4]:
+            m.line(f"⚠ {x}", color="#D97706")
+
+    # 4) 類股龍頭與台股預估反應：龍頭漲跌幅大的優先
     NAME = {"^SOX": "費半", "CL=F": "原油", "HG=F": "銅", "GC=F": "黃金", "SI=F": "白銀", "BDI": "BDI", "SCFI": "SCFI"}
     rows = []
     for g in intl.get("groups", []):
