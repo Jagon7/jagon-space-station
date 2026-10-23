@@ -1,28 +1,28 @@
 import Navbar from "@/components/Navbar";
-import HeroSection from "@/components/HeroSection";
+import CommandCenter, { type Home as HomeData } from "@/components/home/CommandCenter";
 import MarketSummaryCards from "@/components/MarketSummaryCards";
 import EtfFlowCard from "@/components/EtfFlowCard";
 import ResearchGrid from "@/components/ResearchGrid";
 import Footer from "@/components/Footer";
 import {
-  getLimitUpStocks, getMarketSummary, getNoticeStocks,
+  getLimitUpStocks, getNoticeStocks,
   getDispositionStocks, getLastUpdated,
-  getEtfFlow, getSectorPerformance, getAtmosphereToday,
+  getEtfFlow, getSectorPerformance, getHome,
 } from "@/lib/data-loader";
 
 export default async function Home() {
-  const [stocks, summary, notice, disposition, updatedAt, etfFlow, sectorPerf, atmosphere] =
+  const [stocks, notice, disposition, updatedAt, etfFlow, sectorPerf, home] =
     await Promise.all([
-      getLimitUpStocks(), getMarketSummary(), getNoticeStocks(),
+      getLimitUpStocks(), getNoticeStocks(),
       getDispositionStocks(), getLastUpdated(),
-      getEtfFlow(), getSectorPerformance(), getAtmosphereToday(),
+      getEtfFlow(), getSectorPerformance(), getHome<HomeData>(),
     ]);
 
   return (
     <>
       <Navbar />
       <main className="flex-1">
-        <HeroSection summary={summary} topSector={sectorPerf[0]} atmosphere={atmosphere} />
+        {home && <CommandCenter h={home} />}
         <MarketSummaryCards
           stocks={stocks}
           sectorPerformance={sectorPerf}

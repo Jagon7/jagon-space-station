@@ -128,3 +128,12 @@ export async function getEtfFlow(): Promise<EtfFlowData | null> {
   const date = core.etfs.map((e) => e.d).sort().at(-1) ?? "";
   return { date, data };
 }
+
+/** 首頁摘要（scripts/build_home.py 產生在 public/data/home.json） */
+export async function getHome<T>(): Promise<T | null> {
+  try {
+    return JSON.parse(fs.readFileSync(path.join(process.cwd(), "public", "data", "home.json"), "utf-8")) as T;
+  } catch {
+    return null;
+  }
+}
