@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-22",
+  "date": "2026-10-23",
   "data": [
     {
       "code": "3055",
@@ -99,46 +99,6 @@
       "period": "115/10/22~115/10/29",
       "endDate": "2026-10-29",
       "announceDate": "115/10/21",
-      "market": "上櫃"
-    },
-    {
-      "code": "5205",
-      "name": "中茂",
-      "count": 4,
-      "condition": "連續3個營業日",
-      "period": "115/10/23~115/10/30",
-      "endDate": "2026-10-30",
-      "announceDate": "115/10/22",
-      "market": "上櫃"
-    },
-    {
-      "code": "8358",
-      "name": "金居",
-      "count": 4,
-      "condition": "連續5個營業日",
-      "period": "115/10/23~115/10/30",
-      "endDate": "2026-10-30",
-      "announceDate": "115/10/22",
-      "market": "上櫃"
-    },
-    {
-      "code": "8437",
-      "name": "大地-KY",
-      "count": 4,
-      "condition": "連續5個營業日",
-      "period": "115/10/23~115/10/30",
-      "endDate": "2026-10-30",
-      "announceDate": "115/10/22",
-      "market": "上櫃"
-    },
-    {
-      "code": "4542",
-      "name": "科嶠",
-      "count": 4,
-      "condition": "連續5個營業日及沖銷標準",
-      "period": "115/10/23~115/11/03",
-      "endDate": "2026-11-03",
-      "announceDate": "115/10/22",
       "market": "上櫃"
     }
   ]
