@@ -439,6 +439,31 @@ RISK_TICKERS = {"^VIX": "VIX", "^VVIX": "VVIX", "^VIX9D": "VIX9D", "^VIX3M": "VI
 FRED_SERIES = {"BAMLH0A0HYM2": "高收益債利差", "BAMLC0A0CM": "投資級債利差", "T10Y2Y": "10Y−2Y 利差", "STLFSI4": "金融壓力指數"}
 
 
+# 科技廠信用風險：單一公司 CDS 沒有免費資料，用股價、波動度與負債算 CreditGrades「股價隱含 CDS」（build_risk.py）
+CDS_TICKERS = {"ORCL": "Oracle", "CRWV": "CoreWeave", "NBIS": "Nebius", "INTC": "Intel", "SMCI": "Super Micro", "DELL": "Dell",
+               "MU": "美光", "AMD": "AMD", "AVGO": "Broadcom", "META": "Meta", "MSFT": "Microsoft", "GOOGL": "Alphabet",
+               "AMZN": "Amazon", "NVDA": "NVIDIA"}
+
+
+def fetch_credit(fund: dict):
+    """Yahoo 財報時間序列：每季總負債、流通股數（給股價隱含 CDS 用）"""
+    now = int(time.time())
+    for sym in CDS_TICKERS:
+        d = get_json(f"https://query2.finance.yahoo.com/ws/fundamentals-timeseries/v1/finance/timeseries/{sym}",
+                     {"type": "quarterlyTotalDebt,quarterlyOrdinarySharesNumber", "period1": now - 3 * 365 * 86400, "period2": now + 86400})
+        try:
+            out = {}
+            for r in d["timeseries"]["result"]:
+                k = r["meta"]["type"][0]
+                out[{"quarterlyTotalDebt": "debt", "quarterlyOrdinarySharesNumber": "shares"}[k]] = \
+                    [[x["asOfDate"], x["reportedValue"]["raw"]] for x in (r.get(k) or []) if x]
+            if out.get("debt") and out.get("shares"):
+                fund[sym] = out
+        except (TypeError, KeyError):
+            log(f"  ✗ {sym} 財報抓不到")
+        time.sleep(0.4)
+
+
 def fetch_fred(series: dict):
     for sid in FRED_SERIES:
         # FRED 對 Python requests 和瀏覽器 User-Agent 會擋（卡到逾時或斷線），用 curl 預設的 User-Agent 抓
@@ -626,8 +651,9 @@ def main():
         log(f"國際行情：{len(doc['series'])} 檔，最新 {max((v[-1][0] for v in doc['series'].values()), default='—')}")
         rk = OUT / "risk.json"
         rdoc = load(rk, {"series": {}})
-        fetch_us(rdoc["series"], RISK_TICKERS, "2y")
+        fetch_us(rdoc["series"], {**RISK_TICKERS, **CDS_TICKERS}, "2y")
         fetch_fred(rdoc["series"])
+        fetch_credit(rdoc.setdefault("fund", {}))
         rdoc["updatedAt"] = now
         save(rk, rdoc)
         log(f"風險指標：{len(rdoc['series'])} 項")
