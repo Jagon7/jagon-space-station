@@ -5,11 +5,14 @@ import { useStaticJson } from "@/lib/static-json";
 import { useWatchlist } from "@/lib/watchlist";
 import { Empty, Kpi, KpiRow, Note, Pills, SortTable, type Column } from "@/components/data-ui";
 
-type Up = { date: string; code: string; name: string; mk: string; kind: string; cash: number; close: number; y: number | null; valYi: number; sf: boolean; dealer: number; noShort: boolean; ok: boolean; tomorrow: boolean };
+type Up = { date: string; code: string; name: string; mk: string; kind: string; cash: number; close: number; y: number | null; valYi: number; sf: boolean; dealer: number; noShort: boolean; ok: boolean; tomorrow: boolean;
+  hq: number | null; fx: number | null; hqTop: [string, number][]; hqLots: number | null };
 type Pos = { date: string; code: string; name: string; y: number; sf: boolean; entry: number; last: number; ret: number; day: number; blacks: number; exit?: string };
 type G = { group: string; n: number; avg: number; med: number; win: number; ctl: number | null; netFut: number; netStk: number; black3: number; path: number[] };
-type Bt = { updatedAt: string; hold: number; costFut: number; costStk: number; from: string; to: string; n: number; groups: G[]; years: G[]; recent: [string, string, string, number, boolean, number, number][] };
-type Data = { updatedAt: string; asof: string; next: string; minYield: number; hold: number; upcoming: Up[]; active: Pos[]; done: Pos[]; backtest: Bt };
+type Rec = [string, string, string, number, boolean, number, number, (number | null)?];
+type Bt = { updatedAt: string; hold: number; costFut: number; costStk: number; from: string; to: string; n: number; groups: G[]; years: G[]; recent: Rec[];
+  hqMin?: number; hqN?: number; hqGroups?: G[]; hqYears?: G[] };
+type Data = { updatedAt: string; asof: string; next: string; minYield: number; hold: number; hqMin?: number; upcoming: Up[]; active: Pos[]; done: Pos[]; backtest: Bt };
 type View = "up" | "active" | "done" | "bt";
 
 const md = (d: string) => `${Number(d.slice(5, 7))}/${Number(d.slice(8, 10))}`;
@@ -25,7 +28,8 @@ export default function ExdivDashboard() {
   const [onlyOk, setOnlyOk] = useState(false);
   if (!data) return <div className="py-16 text-center text-sm text-[#8b97ab] font-mono">{error ? "資料載入失敗" : "載入中…"}</div>;
   const bt = data.backtest;
-  const main = bt.groups?.find((g) => g.group.includes("有個股期") && g.group.includes("4%"));
+  const main = bt.hqGroups?.find((g) => g.group.includes("總公司淨買 ≥") && g.group.includes("有個股期")) ?? bt.groups?.find((g) => g.group.includes("有個股期") && g.group.includes("4%"));
+  const hqMin = data.hqMin ?? bt.hqMin ?? 2;
   const ok = data.upcoming.filter((u) => u.ok);
   const tmr = ok.filter((u) => u.tomorrow);
   const stock = (code: string, name: string, mk?: string) => (
@@ -44,7 +48,11 @@ export default function ExdivDashboard() {
     { key: "valYi", label: "日均成交（億）", align: "right", sort: (u) => u.valYi, render: (u) => num(u.valYi, u.valYi >= 0.5 ? "text-slate-300" : "text-[#475569]") },
     { key: "sf", label: "個股期", align: "right", sort: (u) => (u.sf ? 1 : 0), render: (u) => yes(u.sf) },
     { key: "noShort", label: "可現沖先賣", align: "right", sort: (u) => (u.noShort ? 0 : 1), render: (u) => yes(!u.noShort) },
-    { key: "dealer", label: "自營商 10 日（張）", align: "right", sort: (u) => u.dealer, render: (u) => num(u.dealer > 0 ? `+${u.dealer.toLocaleString()}` : u.dealer.toLocaleString(), gain(u.dealer)) },
+    { key: "hq", label: "總公司 30 日淨買", align: "right", sort: (u) => u.hq, render: (u) => (
+      <span className="font-mono" title={u.hqTop?.map(([n, v]) => `${n} ${v > 0 ? "+" : ""}${v.toLocaleString()} 張`).join("\n")}>
+        <span className={u.hq == null ? "text-[#475569]" : u.hq >= hqMin ? "text-[#f05252] font-semibold" : gain(u.hq)}>{u.hq == null ? "—" : pct(u.hq, 1)}</span>
+        {u.hqLots != null && <span className="ml-1 text-[10px] text-[#7c8aa0]">{u.hqLots > 0 ? "+" : ""}{u.hqLots.toLocaleString()} 張</span>}
+      </span>) },
     { key: "close", label: "收盤", align: "right", sort: (u) => u.close, render: (u) => num(u.close) },
   ];
   const cPos = (active: boolean): Column<Pos>[] => [
@@ -74,15 +82,16 @@ export default function ExdivDashboard() {
         <h3 className="text-sm text-white font-semibold">策略精神</h3>
         <p>大股東為了節稅，除息前透過 swap 把現股「借放」給自營商：大股東 swap 買、賣現貨，自營商 swap 賣、買現貨避險，大股東實質上還是持有。
           除息後 swap 結束，自營商在兩三天內把現貨賣掉，大股東再慢慢買回。所以高殖利率股除息後幾天容易連續收黑；我們像投信一樣在那裡接自營商的賣壓、同時做反向，等大股東買盤歸位。</p>
-        <p>做法：近兩週要除息、殖利率高的股票，<b className="text-white">除息日開盤放空，持有 {data.hold} 個交易日（含除息日）收盤回補</b>。
-          除息前後融券常暫停，有個股期的最方便（個股期會自動調整股利，成本也低）。</p>
+        <p>做法：近兩週要除息、殖利率高、<b className="text-white">除息前一個月券商總公司分點明顯買超</b>（swap 避險的現貨多半掛在總公司）的股票，
+          <b className="text-white">除息日開盤放空，持有 {data.hold} 個交易日（含除息日）收盤回補</b>。除息前後融券常暫停，有個股期的最方便（個股期會自動調整股利，成本也低）。</p>
+        <p className="text-xs text-[#8b97ab]">篩選條件：殖利率 ≥ {data.minYield}%、日均成交 ≥ 5000 萬、總公司分點近 30 天淨買超 ≥ 成交量的 {hqMin}%（券商名稱沒有「-」的本土券商分點＝總公司，外資券商不算）。</p>
       </section>
 
       <KpiRow>
         <Kpi label={`${md(data.next)} 除息・符合條件`} value={tmr.length} unit="檔" sub={tmr.map((u) => u.name).join("、") || "—"} color="text-[#f05252]" />
-        <Kpi label="未來 14 天符合條件" value={ok.length} unit="檔" sub={`殖利率 ≥ ${data.minYield}%、日均成交 ≥ 0.5 億`} />
+        <Kpi label="未來 14 天符合條件" value={ok.length} unit="檔" sub={`殖利率 ≥ ${data.minYield}%、總公司淨買 ≥ ${hqMin}%`} />
         <Kpi label="持有中（模擬）" value={data.active.length} unit="檔" sub={data.active.length ? `平均 ${pct(data.active.reduce((s, p) => s + p.ret, 0) / data.active.length)}` : undefined} />
-        <Kpi label="回測：殖利率≥4%＋個股期" value={main ? pct(main.avg) : "—"} color={gain(main?.avg)} sub={main ? `${main.n} 筆・勝率 ${main.win}%・扣成本 ${pct(main.netFut)}` : undefined} />
+        <Kpi label="回測：殖利率≥4%＋總公司買超＋個股期" value={main ? pct(main.avg) : "—"} color={gain(main?.avg)} sub={main ? `${main.n} 筆・勝率 ${main.win}%・扣成本 ${pct(main.netFut)}` : undefined} />
       </KpiRow>
 
       <div className="flex items-center justify-between gap-3 mb-3 flex-wrap">
@@ -123,6 +132,13 @@ export default function ExdivDashboard() {
             </section>
           )}
           <SortTable<G> rows={bt.groups} columns={cG} rowKey={(g) => g.group} />
+          {!!bt.hqGroups?.length && (
+            <>
+              <h3 className="text-sm text-white font-semibold">加上「除息前一個月總公司分點淨買超」（{bt.hqN?.toLocaleString()} 次有分點資料）</h3>
+              <SortTable<G> rows={bt.hqGroups} columns={cG} rowKey={(g) => g.group} />
+              {!!bt.hqYears?.length && <SortTable<G> rows={bt.hqYears} columns={cG} rowKey={(g) => g.group} />}
+            </>
+          )}
           <SortTable<G> rows={bt.years} columns={cG} rowKey={(g) => g.group} />
           <section className="rounded-xl border border-[#243247] bg-[#0d1220] p-5 text-[13px] leading-relaxed text-slate-300 space-y-2">
             <h3 className="text-sm text-white font-semibold">回測重點</h3>
@@ -130,13 +146,15 @@ export default function ExdivDashboard() {
             <p>2. 殖利率越高越明顯：殖利率 ≥ 6% 平均 +1.5%、勝率 65%；殖利率 2～4% 只有 +0.6%。</p>
             <p>3. 跌幅主要在除息當天和之後兩天，第 3 天收盤附近最深，之後開始反彈，所以不建議抱太久。</p>
             <p>4. 有沒有個股期對報酬影響不大，主要是讓你放得了空（除息前後融券常暫停）、成本比較低。</p>
-            <p>5. 自營商條件（2026 年、本站有法人資料的 508 次除息）：除息前 10 日自營商<b>淨買</b>的反而只有 +0.9%、淨賣的 +2.2%，和「自營商先買現貨、除息後倒貨」的假設相反。
-              可能原因：本站只有自營商「自行＋避險」合計，看不到 swap 避險部位本身；也只有一個除息季的樣本。這個條件先只列出參考、不拿來篩選。</p>
+            <p>5. 總公司分點條件有效：殖利率 ≥ 4% 的股票，除息前一個月總公司淨買超 ≥ {hqMin}% 的平均 +1.7%、勝率 64%，總公司淨賣的只有 +0.9%；
+              再加上有個股期，總公司買超 +1.8% 對上淨賣 +0.4%。2022～2026 每一年「總公司買超」這組都賺（+1.3%～+2.2%），符合「swap 避險現貨掛在總公司、除息後倒貨」的推論。</p>
+            <p>6. 用「自營商（自行＋避險）合計」當條件則不準（2026 年自營商淨買的反而跌得少），所以改用總公司分點。分點資料是區間買超、賣超前 15 名，會漏掉排名外的小額買賣。</p>
           </section>
-          <SortTable<[string, string, string, number, boolean, number, number]> rows={bt.recent.slice(0, 80)} rowKey={(r) => r[0] + r[1]} initialSort={{ key: "d", desc: true }} columns={[
+          <SortTable<Rec> rows={bt.recent.slice(0, 80)} rowKey={(r) => r[0] + r[1]} initialSort={{ key: "d", desc: true }} columns={[
             { key: "d", label: "除息日", sort: (r) => r[0], render: (r) => num(r[0]) },
             { key: "s", label: "股票（殖利率 ≥ 4%）", render: (r) => <>{stock(r[1], r[2])}{r[4] && <span className="ml-1 text-[10px] text-[#7c8aa0]">期</span>}</> },
             { key: "y", label: "殖利率", align: "right", sort: (r) => r[3], render: (r) => num(`${r[3].toFixed(2)}%`) },
+            { key: "h", label: "總公司 30 日", align: "right", sort: (r) => r[7] ?? null, render: (r) => num(r[7] == null ? "—" : pct(r[7], 1), r[7] != null && r[7] >= hqMin ? "text-[#f05252]" : "text-[#8b97ab]") },
             { key: "r", label: `放空 ${bt.hold} 日`, align: "right", sort: (r) => r[5], render: (r) => num(pct(r[5]), gain(r[5])) },
             { key: "b", label: "收黑天數", align: "right", sort: (r) => r[6], render: (r) => num(`${r[6]}/${bt.hold}`) },
           ]} />
@@ -146,7 +164,7 @@ export default function ExdivDashboard() {
       <Note>
         「持有中／近期出場」是依策略規則用每日行情回算的模擬部位（除息日開盤放空、第 {data.hold} 個交易日收盤回補），不是實際交易紀錄。
         殖利率＝現金股利 ÷ 除息前收盤；成本：個股期來回約 0.1%、融券（手續費＋證交稅＋借券費）約 0.6%。
-        自營商 10 日＝最近 10 個交易日自營商（自行買賣＋避險）淨買賣張數；可現沖先賣依證交所／櫃買中心今天的暫停先賣後買註記。
+        總公司 30 日＝富邦（MoneyDJ）個股主力進出近 30 天，買超／賣超前 15 名中券商總公司分點的淨買超占成交比重（滑鼠移上去看是哪幾家）；可現沖先賣依證交所／櫃買中心今天的暫停先賣後買註記。
       </Note>
     </div>
   );

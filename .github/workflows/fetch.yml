@@ -101,7 +101,7 @@ jobs:
         if: always() && steps.fetch.conclusion != 'cancelled' && github.event.schedule == '13 2 * * 6'
         continue-on-error: true
         timeout-minutes: 20
-        run: python3 scripts/backtest_exdiv.py --cache /tmp/yahoo
+        run: python3 scripts/backtest_exdiv.py --cache /tmp/yahoo --hq
         env:
           JSS_DATA_DIR: ./data
 

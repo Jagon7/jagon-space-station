@@ -9,7 +9,10 @@
   殖利率＝現金股利 ÷ 除息前一日收盤；只看除息前 20 日平均成交金額 ≥ 5000 萬的事件
   報酬＝除息日開盤放空、第 4 個交易日（除息日算第 1 天）收盤回補；對照組＝同一檔股票除息前後 30／60 個交易日任意 4 日
 個股期：期交所股票期貨標的清單（現在的清單，回測會有一點倖存者偏差）
-用法：python scripts/backtest_exdiv.py [--cache 暫存目錄]（全部重抓約 5～10 分鐘）
+總公司分點（--hq）：每次除息前 30 天的個股主力進出（富邦 MoneyDJ zco，買超／賣超前 15 名分點），
+  名稱沒有「-」的本土券商分點＝總公司，算「總公司淨買超占成交比重」；大股東 swap 的避險現貨多半走券商總公司（自營商）
+  沒加 --hq 時沿用暫存檔裡已抓過的，沒有的就略過（全部重抓約 30 分鐘）
+用法：python scripts/backtest_exdiv.py [--cache 暫存目錄] [--hq]（股價全部重抓約 5～10 分鐘）
 """
 from __future__ import annotations
 
@@ -29,6 +32,7 @@ TZ = timezone(timedelta(hours=8))
 HOLD = 4
 COST_FUT, COST_STK = 0.10, 0.60  # 來回成本（%）：個股期（手續費＋期交稅＋滑價）、融券（手續費＋證交稅＋借券費）
 MIN_VAL = 5e7
+HQ_MIN = 2.0  # 總公司淨買超占成交比重門檻（%）
 
 
 def yahoo(sym: str, cache: Path) -> dict | None:
@@ -60,6 +64,7 @@ def parse(r: dict):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--cache", default=str(Path.home() / ".cache" / "jss-yahoo"))
+    ap.add_argument("--hq", action="store_true", help="抓沒有暫存的總公司分點資料")
     a = ap.parse_args()
     cache = Path(a.cache)
     cache.mkdir(parents=True, exist_ok=True)
@@ -91,6 +96,36 @@ def main():
             events.append({"code": code, "name": q[code][0], "date": d, "y": round(y, 2), "sf": code in sf, "short": round(-path[HOLD - 1], 2),
                            "path": path, "black": sum(blacks), "ctl": round(st.mean(ctl), 3) if ctl else None})
 
+    # 總公司分點：除息前 30 天；每次事件的結果存在 data/strategy/exdiv_hq_hist.json（repo 內），之後只抓新的事件
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from fetch_strategy import hq_flow, parse_zco, zco  # noqa: E402
+    hist_path = DATA / "strategy" / "exdiv_hq_hist.json"
+    try:
+        hist = json.loads(hist_path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        hist = {}
+
+    def hq_of(e):
+        k = f"{e['code']}_{e['date']}"
+        if k in hist:
+            return hist[k]
+        html = cache.parent / "zco" / f"{k}.html"  # 本機暫存的原始網頁
+        rows = parse_zco(html.read_bytes().decode("big5", "ignore")) if html.exists() else None
+        if rows is None and a.hq:
+            d = datetime.fromisoformat(e["date"]).date()
+            rows = zco(e["code"], d - timedelta(days=30), d - timedelta(days=1))
+        if rows is None:
+            return None
+        h = hq_flow(rows)
+        return [h["hq"], h["fx"]]
+
+    with ThreadPoolExecutor(4) as ex:
+        for e, h in zip(events, ex.map(hq_of, events)):
+            if h is not None:
+                hist[f"{e['code']}_{e['date']}"] = h
+            e["hq"] = h[0] if h else None
+    hist_path.write_text(json.dumps(hist, ensure_ascii=False, separators=(",", ":"), sort_keys=True), encoding="utf-8")
+
     def stat(name, ev):
         if len(ev) < 15:
             return None
@@ -108,15 +143,24 @@ def main():
                stat("殖利率 ≥ 4%＋有個股期", [e for e in events if e["y"] >= 4 and e["sf"]]),
                stat("殖利率 ≥ 5%＋有個股期", [e for e in events if e["y"] >= 5 and e["sf"]])]
     years = [stat(f"{y} 年（殖利率 ≥ 4%）", [e for e in events if e["y"] >= 4 and e["date"].startswith(y)]) for y in sorted({e["date"][:4] for e in events})]
+    he = [e for e in events if e.get("hq") is not None]
+    hq_groups = [stat("有總公司分點資料（全部）", he)]
+    for lo, hi, lab in ((-999, 0, "總公司淨賣"), (0, HQ_MIN, f"總公司淨買 0～{HQ_MIN:g}%"), (HQ_MIN, 999, f"總公司淨買 ≥ {HQ_MIN:g}%")):
+        hq_groups.append(stat(f"殖利率 ≥ 4%＋{lab}", [e for e in he if e["y"] >= 4 and lo <= e["hq"] < hi]))
+    hq_groups += [stat(f"殖利率 ≥ 4%＋總公司淨買 ≥ {HQ_MIN:g}%＋有個股期", [e for e in he if e["y"] >= 4 and e["hq"] >= HQ_MIN and e["sf"]]),
+                  stat(f"殖利率 ≥ 6%＋總公司淨買 ≥ {HQ_MIN:g}%", [e for e in he if e["y"] >= 6 and e["hq"] >= HQ_MIN])]
+    hq_years = [stat(f"{y} 年（殖利率 ≥ 4%＋總公司淨買 ≥ {HQ_MIN:g}%）", [e for e in he if e["y"] >= 4 and e["hq"] >= HQ_MIN and e["date"].startswith(y)])
+                for y in sorted({e["date"][:4] for e in he})]
     out = {"updatedAt": datetime.now(TZ).isoformat(timespec="minutes"), "hold": HOLD, "costFut": COST_FUT, "costStk": COST_STK,
            "from": min(e["date"] for e in events), "to": max(e["date"] for e in events), "n": len(events),
-           "groups": [g for g in groups if g], "years": [g for g in years if g],
-           "recent": sorted(([e["date"], e["code"], e["name"], e["y"], e["sf"], e["short"], e["black"]] for e in events if e["y"] >= 4),
+           "groups": [g for g in groups if g], "years": [g for g in years if g], "hqMin": HQ_MIN, "hqN": len(he),
+           "hqGroups": [g for g in hq_groups if g], "hqYears": [g for g in hq_years if g],
+           "recent": sorted(([e["date"], e["code"], e["name"], e["y"], e["sf"], e["short"], e["black"], e.get("hq")] for e in events if e["y"] >= 4),
                             reverse=True)[:150]}
     p = DATA / "strategy" / "exdiv_bt.json"
     p.write_text(json.dumps(out, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     print(f"除權息黑K回測：{out['n']} 筆事件（{out['from']} ~ {out['to']}）→ {p}")
-    for g in out["groups"] + out["years"]:
+    for g in out["groups"] + out["years"] + out["hqGroups"] + out["hqYears"]:
         print(f"  {g['group']:24s} n={g['n']:5d} 做空 {g['avg']:+.2f}% 勝率 {g['win']}% 對照 {g['ctl']:+.2f}% 扣期貨成本 {g['netFut']:+.2f}%")
     return 0
 

@@ -12,6 +12,9 @@
   daytrade.json     個股現股當沖成交股數 {日期: {"tw": {代號: 股數}, "tp": {...}, "x": [暫停先賣後買的代號]}}
     上市：exchangeReport/TWTB4U；上櫃：www/zh-tw/intraday/stat（每次最多補 BLOCK_MAX 天）
   stockfutures.json 期交所股票期貨標的清單 {"codes": [...]}（除權息黑K用：有個股期才方便放空）
+  exdiv_hq.json     未來 14 天要除息股票的「總公司分點」近 30 天淨買賣（除權息黑K用）
+    來源：富邦證券（MoneyDJ）個股主力進出 zco，區間內買超、賣超前 15 名分點（名稱沒有「-」的是券商總公司；外資券商另外算）
+    {代號: {"from","to","hq": 總公司淨買超占成交%, "fx": 外資券商淨買超占成交%, "hqLots": 張, "top": [[分點, 淨買張], ...]}}
 用法：python scripts/fetch_strategy.py [--days 90]
 """
 from __future__ import annotations
@@ -172,6 +175,73 @@ def daytrade(known: dict) -> dict:
     return out
 
 
+FOREIGN_BROKER = re.compile(r"^(美商|港商|新加坡商|英商|法商|德商|瑞士商|荷商|日商|澳商)|摩根|花旗|美林|匯豐|大和|瑞銀|高盛|麥格理|野村|德意志|法銀|巴克萊|星展|匯立|瑞信|里昂|富瑞")
+
+
+def broker_kind(name: str) -> str:
+    return "fx" if FOREIGN_BROKER.search(name) else ("hq" if "-" not in name else "br")
+
+
+def zco(code: str, d0: date, d1: date) -> list | None:
+    """個股區間主力進出：[[買超分點, 買, 賣, 淨, 占比%, 賣超分點, 買, 賣, 淨, 占比%], ...]"""
+    url = "https://fubon-ebrokerdj.fbs.com.tw/z/zc/zco/zco.djhtm"
+    for i in range(3):
+        try:
+            r = S.get(url, params={"a": code, "e": f"{d0.year}-{d0.month}-{d0.day}", "f": f"{d1.year}-{d1.month}-{d1.day}"}, timeout=30)
+            text = r.content.decode("big5", "ignore")
+            if "買超券商" in text:
+                break
+        except requests.RequestException:
+            pass
+        time.sleep(3 * (i + 1))
+    else:
+        return None
+    return parse_zco(text)
+
+
+def parse_zco(text: str) -> list:
+    text = re.sub(r"<script.*?</script>|<style.*?</style>", "", text, flags=re.S | re.I)
+    out = []
+    for row in re.findall(r"<tr[^>]*>(.*?)</tr>", text, re.S | re.I):
+        c = [re.sub(r"\s+", " ", re.sub(r"<[^>]+>", "", x)).strip() for x in re.findall(r"<td[^>]*>(.*?)</td>", row, re.S | re.I)]
+        if len(c) == 10 and re.fullmatch(r"[\d,]+", c[1]):
+            out.append(c)
+    return out
+
+
+def hq_flow(rows: list) -> dict:
+    n = lambda x: float(str(x).replace(",", "").replace("%", "") or 0)  # noqa: E731
+    pct = {"hq": 0.0, "fx": 0.0, "br": 0.0}
+    lots, top = 0.0, []
+    for c in rows:
+        for name, net, share, sign in ((c[0], c[3], c[4], 1), (c[5], c[8], c[9], -1)):
+            if not name:
+                continue
+            k = broker_kind(name)
+            pct[k] += sign * n(share)
+            if k == "hq":
+                lots += sign * n(net)
+                top.append([name, int(sign * n(net))])
+    top.sort(key=lambda x: -abs(x[1]))
+    return {"hq": round(pct["hq"], 2), "fx": round(pct["fx"], 2), "hqLots": int(lots), "top": top[:6]}
+
+
+def exdiv_hq() -> dict:
+    ev = json.loads((DATA_DIR / "fund" / "events.json").read_text(encoding="utf-8")).get("exdiv", []) if (DATA_DIR / "fund" / "events.json").exists() else []
+    today = datetime.now(TPE).date()
+    d0 = today - timedelta(days=30)
+    out = {}
+    for r in ev:
+        d, code, cash = r[0], r[1], r[5]
+        if not cash or not re.fullmatch(r"[1-9]\d{3}", code) or not (today.isoformat() < d <= (today + timedelta(days=14)).isoformat()) or code in out:
+            continue
+        rows = zco(code, d0, today)
+        if rows is not None:
+            out[code] = {"exDate": d, "from": d0.isoformat(), "to": today.isoformat(), **hq_flow(rows)}
+        time.sleep(0.8)
+    return out
+
+
 def stock_futures() -> list:
     try:
         text = S.get("https://www.taifex.com.tw/cht/2/stockLists", timeout=60).text
@@ -239,6 +309,10 @@ def main():
     bl = blocks(known)
     bpath.write_text(json.dumps({"updatedAt": datetime.now(TPE).isoformat(timespec="minutes"), "days": bl},
                                 ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    hq = exdiv_hq()
+    (OUT / "exdiv_hq.json").write_text(json.dumps({"updatedAt": datetime.now(TPE).isoformat(timespec="minutes"), "stocks": hq},
+                                                  ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    log(f"除權息總公司分點：{len(hq)} 檔")
     sf = stock_futures()
     if len(sf) > 100:
         (OUT / "stockfutures.json").write_text(json.dumps({"updatedAt": datetime.now(TPE).isoformat(timespec="minutes"), "codes": sf},
