@@ -10,6 +10,7 @@
   LINE    ：LINE_CHANNEL_TOKEN、LINE_USER_ID（Messaging API push message）
 用法：python scripts/notify.py [--dry-run] [--check] [--insider-alert] [--preview]
   LINE 用 Flex 卡片（排版在 scripts/line_flex.py），Telegram／Discord 用同內容的純文字
+  --morning：盤前快報（台指期夜盤、美股主要指數、類股龍頭與台股預估），週一到五 08:00；加 --preview 立刻發一張預覽
   --preview：不管有沒有推過，把每日戰報、策略、高週轉三張卡片各發一次（測試排版用）
   --strategy-alert：兩個十日波段策略明日進場名單與到期出場提醒（資料到齊才發，每個交易日一次）
   --turnover-alert：週轉率前 20 名且收漲停的隔日開高走低觀察名單（每個交易日一次；沒有符合的股票就不發）
@@ -379,6 +380,157 @@ def turnover_alert(dry: bool, force: bool = False) -> int:
     return 0
 
 
+MORNING_STATE = ROOT / "data" / "notify" / "morning-sent.json"
+TPE_TZ = timezone(timedelta(hours=8))
+WEEK = "一二三四五六日"
+
+
+def _holidays() -> set:
+    try:
+        return set(json.loads((ROOT / "data" / "calendar.json").read_text(encoding="utf-8")).get("holidays", []))
+    except (OSError, ValueError):
+        return set()
+
+
+def prev_trading_day(d: date) -> date:
+    hol = _holidays()
+    d -= timedelta(days=1)
+    while d.weekday() >= 5 or d.isoformat() in hol:
+        d -= timedelta(days=1)
+    return d
+
+
+def night_futures() -> dict | None:
+    """期交所 MIS：台指期盤後（夜盤）近月行情；MarketType 1＝盤後時段"""
+    try:
+        r = requests.post("https://mis.taifex.com.tw/futures/api/getQuoteList", timeout=20, json={
+            "MarketType": "1", "SymbolType": "F", "KindID": "1", "CID": "TXF", "ExpireMonth": "", "RowSize": "全部",
+            "PageNo": "", "SortColumn": "", "AscDesc": "A"})
+        rows = r.json()["RtData"]["QuoteList"]
+    except (requests.RequestException, ValueError, KeyError, TypeError) as e:
+        print("期交所夜盤抓不到：", e)
+        return None
+    f = lambda x: float(x) if x not in (None, "") else None  # noqa: E731
+    spot = next((x for x in rows if x["SymbolID"] == "TXF-P"), {})
+    fut = [x for x in rows if x["SymbolID"].startswith("TXF") and x["SymbolID"].endswith("-M") and f(x.get("CLastPrice"))]
+    if not fut:
+        return None
+    x = fut[0]
+    return {"name": x["DispCName"].replace("臺", "台"), "date": x["CDate"], "time": x.get("CTime") or "", "last": f(x["CLastPrice"]),
+            "ref": f(x["CRefPrice"]), "diff": f(x["CDiff"]), "rate": f(x["CDiffRate"]), "high": f(x["CHighPrice"]),
+            "low": f(x["CLowPrice"]), "vol": int(f(x["CTotalVolume"]) or 0), "spot": f(spot.get("CRefPrice"))}
+
+
+def ewt_proxy() -> dict | None:
+    """沒有夜盤資料時的替代：美股 iShares MSCI 台灣 ETF（EWT）前一晚漲跌"""
+    try:
+        res = requests.get("https://query1.finance.yahoo.com/v8/finance/chart/EWT", params={"range": "5d", "interval": "1d"},
+                           headers={"User-Agent": "Mozilla/5.0"}, timeout=20).json()["chart"]["result"][0]
+        cl = [c for c in res["indicators"]["quote"][0]["close"] if c]
+        d = datetime.fromtimestamp(res["timestamp"][-1], timezone.utc).date().isoformat()
+        return {"close": cl[-1], "chg": (cl[-1] / cl[-2] - 1) * 100, "date": d}
+    except (requests.RequestException, ValueError, KeyError, TypeError, IndexError):
+        return None
+
+
+def morning_brief(dry: bool, force: bool = False) -> int:
+    now = datetime.now(TPE_TZ)
+    today = now.date()
+    if today.weekday() >= 5 and not force:
+        print("週末不發盤前快報")
+        return 0
+    try:
+        state = json.loads(MORNING_STATE.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        state = {"sent": []}
+    if today.isoformat() in state["sent"] and not force:
+        print("今天的盤前快報已發過")
+        return 0
+    if now.hour * 60 + now.minute > 9 * 60 + 30 and not force:
+        print("已經超過 09:30，不發盤前快報")
+        return 0
+    md = lambda d: f"{int(d[5:7])}/{int(d[8:10])}"  # noqa: E731
+    intl = load("intel/intl.json", {}) or {}
+    quotes = {q["sym"]: q for g in intl.get("groups", []) for q in g.get("quotes", [])}
+    us = intl.get("usDate") or ""
+    closed = today.isoformat() in _holidays()
+    m = Msg(("【預覽】" if force else "") + "🌅 盤前快報", f"{md(today.isoformat())}（週{WEEK[today.weekday()]}）・美股 {md(us) if us else '—'} 收盤"
+            + ("・今天台股休市" if closed else ""), accent="#f59e0b", url=f"{SITE}/global/", button="開啟國際類股連動")
+
+    # 1) 台指期夜盤（沒有就用 EWT 換算）
+    nf = night_futures()
+    want = prev_trading_day(today).strftime("%Y%m%d")
+    if nf and nf["date"] == want:
+        m.section("台指期夜盤", f"{nf['name'].replace('台指期', '台指期 ')}・{md(nf['date'][:4] + '-' + nf['date'][4:6] + '-' + nf['date'][6:])} 夜盤")
+        m.kv("夜盤收盤", f"{nf['last']:,.0f}（{nf['diff']:+,.0f}，{nf['rate']:+.2f}%）", color=sign_tone(nf["diff"]))
+        if nf["spot"]:
+            gap = nf["last"] - nf["spot"]
+            m.kv("對加權指數收盤", f"{gap:+,.0f} 點（{gap / nf['spot'] * 100:+.2f}%）", color=sign_tone(gap))
+        if nf["high"] and nf["low"]:
+            m.kv("夜盤高／低", f"{nf['high']:,.0f}／{nf['low']:,.0f}")
+        m.kv("成交量", f"{nf['vol']:,} 口")
+    else:
+        ewt = ewt_proxy()
+        atm = (load("market/atmosphere.json", {}) or {}).get("days") or []
+        ix = (nf or {}).get("spot") or (atm[-1].get("ix") if atm else None)
+        m.section("台股夜間參考（EWT 換算）")
+        if ewt:
+            m.kv(f"EWT 台灣 ETF（{md(ewt['date'])}）", f"{ewt['chg']:+.2f}%", color=sign_tone(ewt["chg"]))
+            if ix:
+                est = ix * (1 + ewt["chg"] / 100)
+                m.kv("換算加權指數", f"{est:,.0f}（{est - ix:+,.0f} 點）", color=sign_tone(ewt["chg"]))
+        m.note("期交所夜盤資料暫時抓不到，改用美股 EWT 的漲跌換算，僅供參考")
+
+    # 2) 美股主要指數
+    m.section("美股主要指數")
+    for sym, name in (("^DJI", "道瓊"), ("^GSPC", "S&P 500"), ("^IXIC", "那斯達克"), ("^SOX", "費城半導體"), ("TSM", "台積電 ADR"), ("TWD=X", "美元兌台幣")):
+        q = quotes.get(sym)
+        if q:
+            fmt = f"{q['close']:,.2f}" if q["close"] < 100 else f"{q['close']:,.0f}"
+            m.kv(name, f"{fmt}（{q['chg']:+.2f}%）", color=sign_tone(q["chg"]) if sym != "TWD=X" else "#0F172A")
+
+    # 3) 類股龍頭與台股預估反應：龍頭漲跌幅大的優先
+    NAME = {"^SOX": "費半", "CL=F": "原油", "HG=F": "銅", "GC=F": "黃金", "SI=F": "白銀", "BDI": "BDI", "SCFI": "SCFI"}
+    rows = []
+    for g in intl.get("groups", []):
+        if g["name"] in ("美股大盤", "美元兌台幣", "費城半導體"):
+            continue
+        q = next((x for x in g.get("quotes", []) if x["sym"] == g.get("lead")), None) or (g.get("quotes") or [None])[0]
+        if q and q.get("chg") is not None:
+            rows.append((g, q))
+    rows.sort(key=lambda x: -abs(x[1]["chg"]))
+    if rows:
+        m.section("類股龍頭 → 台股預估", f"美股 {md(us)}" if us else "")
+        m.cols("收盤", "漲跌")
+        for g, q in rows[:9]:
+            react = [x for x in (q.get("react") or []) if abs(x.get("exp") or 0) >= 0.3][:4]
+            sub = ("台股：" + "、".join(f"{x['name']} {x['exp']:+.1f}%" for x in react)) if react else \
+                ("相關：" + "、".join(x["name"] for x in g.get("members", [])[:4]) if g.get("members") else "")
+            if q.get("date") and us and q["date"] != us:
+                sub = f"（{md(q['date'])}）" + sub
+            close = f"{q['close']:,.2f}" if q["close"] < 1000 else f"{q['close']:,.0f}"
+            m.stock(g["name"], NAME.get(q["sym"], q["sym"]), close, f"{q['chg']:+.2f}%", color=sign_tone(q["chg"]), sub=sub)
+        m.note("台股預估＝β × 龍頭漲跌（過去約半年的隔日連動），只列預估 ±0.3% 以上的股票，僅供參考")
+
+    print(m.text())
+    if dry:
+        return 0
+    if not force:
+        target = now.replace(hour=8, minute=0, second=0, microsecond=0)
+        if now < target:
+            wait = (target - now).total_seconds()
+            print(f"等到 08:00 再發（{wait / 60:.0f} 分鐘）")
+            import time
+            time.sleep(wait)
+    if not send(m):
+        print("（沒有設定任何推播管道，只印出內容）")
+    if not force:
+        state["sent"] = sorted(set(state["sent"]) | {today.isoformat()})[-60:]
+        MORNING_STATE.parent.mkdir(parents=True, exist_ok=True)
+        MORNING_STATE.write_text(json.dumps(state, ensure_ascii=False, indent=0), encoding="utf-8")
+    return 0
+
+
 INTEL_STATE = ROOT / "data" / "notify" / "intel-alerted.json"
 
 
@@ -478,6 +630,7 @@ def main():
     ap.add_argument("--intel-alert", action="store_true")
     ap.add_argument("--strategy-alert", action="store_true")
     ap.add_argument("--turnover-alert", action="store_true")
+    ap.add_argument("--morning", action="store_true", help="盤前快報：台指期夜盤、美股主要指數、類股龍頭與台股預估（08:00 發）")
     ap.add_argument("--preview", action="store_true", help="不管有沒有推過，把每日戰報、策略、高週轉三張卡片各發一次（測試排版用）")
     a = ap.parse_args()
     if a.check:
@@ -490,6 +643,8 @@ def main():
         return strategy_alert(a.dry_run)
     if a.turnover_alert:
         return turnover_alert(a.dry_run)
+    if a.morning:
+        return morning_brief(a.dry_run, force=a.preview)
     if a.preview:
         msg = compose()
         msg.title = "【預覽】" + msg.title

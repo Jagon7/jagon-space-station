@@ -1,0 +1,52 @@
+name: Morning Brief
+
+# 盤前快報：週一到週五 08:00（台灣時間）推台指期夜盤、美股主要指數、類股龍頭與台股預估反應。
+# GitHub 排程常延後，所以 07:3x 先啟動、算好內容後等到 08:00 才發；另排一次 07:5x 當備援，
+# 發過的日期記在 data/notify/morning-sent.json，不會重複發；超過 09:30 就不發。
+on:
+  schedule:
+    - cron: '33 23 * * 0-4'   # 07:33 台灣時間（週一到週五）
+    - cron: '52 23 * * 0-4'   # 07:52 備援
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: morning
+  cancel-in-progress: false
+
+jobs:
+  brief:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: main
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.11'
+      - run: pip install requests
+      - name: Build data views
+        run: TZ=Asia/Taipei python3 scripts/build_views.py > /dev/null
+      - name: Send morning brief at 08:00
+        run: TZ=Asia/Taipei python3 scripts/notify.py --morning
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
+          LINE_USER_ID: ${{ secrets.LINE_USER_ID }}
+      - name: Save sent state
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add data/notify/
+          git diff --staged --quiet && exit 0
+          git commit -m "notify: morning brief sent"
+          for i in 1 2 3 4 5; do
+            git push && exit 0
+            git pull --rebase -X theirs origin main || { git rebase --abort; git pull --no-rebase -X ours origin main; }
+          done
+          exit 1
