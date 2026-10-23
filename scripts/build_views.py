@@ -18,6 +18,7 @@ import build_signals  # noqa: E402
 import build_intel  # noqa: E402
 import build_strategy  # noqa: E402
 import build_turnover  # noqa: E402
+import build_risk  # noqa: E402
 
 
 def build_ranking():
@@ -236,4 +237,5 @@ if __name__ == "__main__":
     build_intel.build(DATA_DIR, ROOT / "public" / "data")
     build_strategy.build(DATA_DIR, ROOT / "public" / "data")
     build_turnover.build(DATA_DIR, ROOT / "public" / "data")
+    build_risk.build(DATA_DIR, ROOT / "public" / "data")
     build_signals.build(ROOT / "public" / "data")

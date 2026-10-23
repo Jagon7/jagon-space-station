@@ -431,10 +431,35 @@ def backfill_conf(days: int, names, confs: dict):
             time.sleep(0.6)
 
 
-def fetch_us(series: dict):
-    for sym in US_TICKERS:
+# 市場風險監控（Yahoo）：波動率、尾端風險、債市波動、美元、信用 ETF
+RISK_TICKERS = {"^VIX": "VIX", "^VVIX": "VVIX", "^VIX9D": "VIX9D", "^VIX3M": "VIX3M", "^SKEW": "SKEW", "^MOVE": "MOVE",
+                "DX-Y.NYB": "美元指數", "HYG": "高收益債 ETF", "LQD": "投資級債 ETF", "^TNX": "美 10 年債殖利率"}
+# FRED：ICE BofA 高收益／投資級公司債利差（OAS，常用來代替 CDX 信用違約交換利差）、10Y−2Y、聖路易聯準金融壓力指數（週）
+FRED_SERIES = {"BAMLH0A0HYM2": "高收益債利差", "BAMLC0A0CM": "投資級債利差", "T10Y2Y": "10Y−2Y 利差", "STLFSI4": "金融壓力指數"}
+
+
+def fetch_fred(series: dict):
+    for sid in FRED_SERIES:
+        try:
+            r = S.get("https://fred.stlouisfed.org/graph/fredgraph.csv", params={"id": sid}, timeout=60)
+            rows = []
+            for line in r.text.splitlines()[1:]:
+                d, _, v = line.partition(",")
+                try:
+                    rows.append([d, round(float(v), 4)])
+                except ValueError:
+                    pass
+            if rows:
+                series[sid] = rows[-800:]
+        except requests.RequestException:
+            log(f"  ✗ FRED {sid} 抓不到")
+        time.sleep(0.5)
+
+
+def fetch_us(series: dict, tickers=None, rng: str = "1y"):
+    for sym in tickers or US_TICKERS:
         d = get_json(f"https://query1.finance.yahoo.com/v8/finance/chart/{requests.utils.quote(sym)}",
-                     {"range": "1y", "interval": "1d"})
+                     {"range": rng, "interval": "1d"})
         try:
             res = d["chart"]["result"][0]
             ts, cl = res["timestamp"], res["indicators"]["quote"][0]["close"]
@@ -593,6 +618,13 @@ def main():
         doc["updatedAt"] = now
         save(up, doc)
         log(f"國際行情：{len(doc['series'])} 檔，最新 {max((v[-1][0] for v in doc['series'].values()), default='—')}")
+        rk = OUT / "risk.json"
+        rdoc = load(rk, {"series": {}})
+        fetch_us(rdoc["series"], RISK_TICKERS, "2y")
+        fetch_fred(rdoc["series"])
+        rdoc["updatedAt"] = now
+        save(rk, rdoc)
+        log(f"風險指標：{len(rdoc['series'])} 項")
     return 0
 
 

@@ -136,6 +136,9 @@ function buildRows() {
     push({ level: nw?.items.length ? byLag(lag(nd), 1, 3) : "error", item: "策略", name: "個股新聞輿情（輿情籌碼策略）", date: nd, lag: lag(nd), count: nw?.items.length ?? 0, note: "" });
     const dp = read<{ updatedAt: string; items: unknown[] }>("strategy/disposition.json");
     push({ level: dp?.items.length ? "ok" : "warn", item: "策略", name: "處置股歷史（出量做多策略）", date: dp?.updatedAt?.slice(0, 10) ?? null, count: dp?.items.length ?? 0, note: "" });
+    const rsk = read<{ updatedAt: string; series: Record<string, [string, number][]> }>("intel/risk.json");
+    const rlast = rsk?.series["^VIX"]?.slice(-1)[0]?.[0] ?? null;
+    push({ level: rsk && Object.keys(rsk.series).length >= 12 ? byLag(lag(rlast), 3, 6) : "warn", item: "國際", name: "市場風險指標（VIX／MOVE／信用利差）", date: rlast, lag: lag(rlast), count: rsk ? Object.keys(rsk.series).length : 0, note: "" });
     const shr = read<{ updatedAt: string; shares: Record<string, number> }>("strategy/shares.json");
     const shn = shr ? Object.keys(shr.shares).length : 0;
     push({ level: shn > 1500 ? "ok" : "warn", item: "策略", name: "已發行股數（週轉率）", date: shr?.updatedAt?.slice(0, 10) ?? null, count: shn, note: "" });
