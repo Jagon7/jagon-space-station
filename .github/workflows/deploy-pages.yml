@@ -23,7 +23,7 @@ concurrency:
 
 env:
   CF: ${{ secrets.CLOUDFLARE_API_TOKEN != '' && secrets.CLOUDFLARE_ACCOUNT_ID != '' }}
-  CF_PROJECT: ${{ vars.CF_PAGES_PROJECT || 'jagon-space-station' }}
+  CF_PROJECT: ${{ secrets.CF_PAGES_PROJECT || vars.CF_PAGES_PROJECT || 'jagon-space-station' }}   # 放在 secrets：repo 公開時 Actions 紀錄會自動遮住，網址不外流
 
 jobs:
   build:

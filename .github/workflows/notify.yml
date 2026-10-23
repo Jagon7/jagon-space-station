@@ -21,7 +21,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  SITE_URL: ${{ vars.SITE_URL }}   # 推播裡的網站連結（搬到 Cloudflare 後在 repo variables 設定）
+  SITE_URL: ${{ secrets.SITE_URL || vars.SITE_URL }}   # 推播裡的網站連結；放 secrets 的話 Actions 紀錄會自動遮住
 
 jobs:
   notify:
