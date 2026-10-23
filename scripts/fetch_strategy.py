@@ -11,6 +11,7 @@
     上市：openapi t187ap03_L；上櫃：openapi mopsfin_t187ap03_O
   daytrade.json     個股現股當沖成交股數 {日期: {"tw": {代號: 股數}, "tp": {...}, "x": [暫停先賣後買的代號]}}
     上市：exchangeReport/TWTB4U；上櫃：www/zh-tw/intraday/stat（每次最多補 BLOCK_MAX 天）
+  stockfutures.json 期交所股票期貨標的清單 {"codes": [...]}（除權息黑K用：有個股期才方便放空）
 用法：python scripts/fetch_strategy.py [--days 90]
 """
 from __future__ import annotations
@@ -171,6 +172,19 @@ def daytrade(known: dict) -> dict:
     return out
 
 
+def stock_futures() -> list:
+    try:
+        text = S.get("https://www.taifex.com.tw/cht/2/stockLists", timeout=60).text
+    except requests.RequestException:
+        return []
+    codes = set()
+    for row in re.findall(r"<tr[^>]*>(.*?)</tr>", text, re.S):
+        cells = [re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", c)).strip() for c in re.findall(r"<td[^>]*>(.*?)</td>", row, re.S)]
+        if len(cells) > 4 and re.fullmatch(r"\d{4}[A-Z]?|00\d{2,4}[A-Z]?", cells[2]) and "是股票期貨標的" in cells[4]:
+            codes.add(cells[2])
+    return sorted(codes)
+
+
 def shares() -> dict:
     out = {}
     for url, code_k, sh_k in (("https://openapi.twse.com.tw/v1/opendata/t187ap03_L", "公司代號", "已發行普通股數或TDR原股發行股數"),
@@ -225,6 +239,11 @@ def main():
     bl = blocks(known)
     bpath.write_text(json.dumps({"updatedAt": datetime.now(TPE).isoformat(timespec="minutes"), "days": bl},
                                 ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    sf = stock_futures()
+    if len(sf) > 100:
+        (OUT / "stockfutures.json").write_text(json.dumps({"updatedAt": datetime.now(TPE).isoformat(timespec="minutes"), "codes": sf},
+                                                          ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    log(f"個股期標的：{len(sf)} 檔")
     sh = shares()
     if len(sh) > 1000:  # API 失敗時保留舊檔
         (OUT / "shares.json").write_text(json.dumps({"updatedAt": datetime.now(TPE).isoformat(timespec="minutes"), "shares": sh},
