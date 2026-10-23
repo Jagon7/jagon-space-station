@@ -59,7 +59,7 @@ jobs:
         if: steps.check.outputs.skip != 'true'
         run: npm run build   # prebuild 會先跑 scripts/build_views.py
         env:
-          PAGES_BASE_PATH: ${{ env.CF == 'true' && '' || format('/{0}', github.event.repository.name) }}
+          PAGES_BASE_PATH: ${{ env.CF != 'true' && format('/{0}', github.event.repository.name) || '' }}   # 注意：'' 在 &&／|| 運算裡算 false，要反過來寫
           TZ: Asia/Taipei
 
       - name: Deploy to Cloudflare Pages
