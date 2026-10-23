@@ -10,11 +10,12 @@
   LINE    ：LINE_CHANNEL_TOKEN、LINE_USER_ID（Messaging API push message）
 用法：python scripts/notify.py [--dry-run] [--check] [--insider-alert] [--preview]
   LINE 用 Flex 卡片（排版在 scripts/line_flex.py），Telegram／Discord 用同內容的純文字
-  --morning：盤前快報（台指期夜盤、美股主要指數、類股龍頭與台股預估），週一到五 08:00；加 --preview 立刻發一張預覽
+  --morning：盤前快報（台指期夜盤＋富台指、美股主要指數、類股龍頭與台股預估），週一到五 08:00；加 --preview 立刻發一張預覽
+             夜盤抓不到時用富台指（optratw.com 背後的第三方 API）換算，再不行用美股 EWT
   --preview：不管有沒有推過，把每日戰報、策略、高週轉三張卡片各發一次（測試排版用）
   --strategy-alert：兩個十日波段策略明日進場名單與到期出場提醒（資料到齊才發，每個交易日一次）
   --turnover-alert：週轉率前 20 名且收漲停的隔日開高走低觀察名單（每個交易日一次；沒有符合的股票就不發）
-  --intel-alert：新券商報告、美股類股大波動（開盤前提醒台股可能反應的股票），已推過的記在 data/notify/intel-alerted.json
+  --intel-alert：新券商報告，已推過的記在 data/notify/intel-alerted.json（國際類股改由 --morning 盤前快報統一發）
   --insider-alert：內部人大額異動快訊（≥1 億），每次資料更新後都跑，沒推過的才推（記錄在 data/notify/insider-alerted.json）
   --check：只檢查最近一個交易日的行情、法人、融資券是否都到齊，結果寫到 GITHUB_OUTPUT（ready、date）
 """
@@ -421,6 +422,19 @@ def night_futures() -> dict | None:
             "low": f(x["CLowPrice"]), "vol": int(f(x["CTotalVolume"]) or 0), "spot": f(spot.get("CRefPrice"))}
 
 
+FTW_API = "https://script.google.com/macros/s/AKfycbzU4dONVYjC2b3aRVCGp0djYmEVFo4j3MLt_V_S9BZKaYUATLw_X3Z3uIkJhle9F09vaQ/exec"
+
+
+def ftw_quote() -> dict | None:
+    """富台指（新加坡交易所 FTSE 台灣指數期貨）：借用 optratw.com 網頁背後的公開行情 API（第三方、非官方，可能隨時失效）"""
+    try:
+        data = requests.get(FTW_API, timeout=30).json().get("data") or []
+        x = next(x for x in data if "富台" in (x.get("name") or "") or "TWN" in (x.get("name") or ""))
+        return {"price": float(x["price"]), "pct": float(str(x["percent"]).rstrip("%"))}
+    except (requests.RequestException, ValueError, KeyError, TypeError, StopIteration):
+        return None
+
+
 def ewt_proxy() -> dict | None:
     """沒有夜盤資料時的替代：美股 iShares MSCI 台灣 ETF（EWT）前一晚漲跌"""
     try:
@@ -457,8 +471,9 @@ def morning_brief(dry: bool, force: bool = False) -> int:
     m = Msg(("【預覽】" if force else "") + "🌅 盤前快報", f"{md(today.isoformat())}（週{WEEK[today.weekday()]}）・美股 {md(us) if us else '—'} 收盤"
             + ("・今天台股休市" if closed else ""), accent="#f59e0b", url=f"{SITE}/global/", button="開啟國際類股連動")
 
-    # 1) 台指期夜盤（沒有就用 EWT 換算）
+    # 1) 台指期夜盤；抓不到就用富台指換算，再不行用 EWT
     nf = night_futures()
+    ftw = ftw_quote()
     want = prev_trading_day(today).strftime("%Y%m%d")
     if nf and nf["date"] == want:
         m.section("台指期夜盤", f"{nf['name'].replace('台指期', '台指期 ')}・{md(nf['date'][:4] + '-' + nf['date'][4:6] + '-' + nf['date'][6:])} 夜盤")
@@ -469,17 +484,27 @@ def morning_brief(dry: bool, force: bool = False) -> int:
         if nf["high"] and nf["low"]:
             m.kv("夜盤高／低", f"{nf['high']:,.0f}／{nf['low']:,.0f}")
         m.kv("成交量", f"{nf['vol']:,} 口")
+        if ftw:
+            m.kv("富台指", f"{ftw['price']:,.2f}（{ftw['pct']:+.2f}%）", color=sign_tone(ftw["pct"]))
     else:
-        ewt = ewt_proxy()
         atm = (load("market/atmosphere.json", {}) or {}).get("days") or []
         ix = (nf or {}).get("spot") or (atm[-1].get("ix") if atm else None)
-        m.section("台股夜間參考（EWT 換算）")
-        if ewt:
-            m.kv(f"EWT 台灣 ETF（{md(ewt['date'])}）", f"{ewt['chg']:+.2f}%", color=sign_tone(ewt["chg"]))
+        ewt = None if ftw else ewt_proxy()
+        if ftw:
+            m.section("台指期預估（富台指換算）")
+            m.kv("富台指", f"{ftw['price']:,.2f}（{ftw['pct']:+.2f}%）", color=sign_tone(ftw["pct"]))
             if ix:
-                est = ix * (1 + ewt["chg"] / 100)
-                m.kv("換算加權指數", f"{est:,.0f}（{est - ix:+,.0f} 點）", color=sign_tone(ewt["chg"]))
-        m.note("期交所夜盤資料暫時抓不到，改用美股 EWT 的漲跌換算，僅供參考")
+                est = ix * (1 + ftw["pct"] / 100)
+                m.kv("換算加權指數", f"{est:,.0f}（{est - ix:+,.0f} 點）", color=sign_tone(ftw["pct"]))
+            m.note("期交所夜盤資料暫時抓不到，改用富台指漲跌幅換算，僅供參考")
+        else:
+            m.section("台股夜間參考（EWT 換算）")
+            if ewt:
+                m.kv(f"EWT 台灣 ETF（{md(ewt['date'])}）", f"{ewt['chg']:+.2f}%", color=sign_tone(ewt["chg"]))
+                if ix:
+                    est = ix * (1 + ewt["chg"] / 100)
+                    m.kv("換算加權指數", f"{est:,.0f}（{est - ix:+,.0f} 點）", color=sign_tone(ewt["chg"]))
+            m.note("期交所夜盤與富台指都抓不到，改用美股 EWT 的漲跌換算，僅供參考")
 
     # 2) 美股主要指數
     m.section("美股主要指數")
@@ -541,10 +566,9 @@ def intel_alert(dry: bool) -> int:
         state = None
     rep = load("intel/reports.json", {}) or {}
     rows = rep.get("rows") or []
-    intl = load("intel/intl.json", {}) or {}
     first = state is None
     if first:  # 第一次執行：現有的都當作推過，避免一次灌爆
-        state = {"reports": [r[13] for r in rows], "us": [f"{q['sym']}:{q['date']}" for g in intl.get("groups", []) for q in g.get("quotes", [])]}
+        state = {"reports": [r[13] for r in rows]}
     seen = set(state["reports"])
     wl = set(watchlist())
     msgs = []
@@ -565,56 +589,14 @@ def intel_alert(dry: bool) -> int:
             m.note(f"還有 {len(new) - 12} 份，見網站")
         msgs.append(m)
 
-    # 2) 國際類股／指數大波動（美股、貴金屬、BDI、SCFI…）：每個指數每個日期只推一次，
-    #    只在台股還能反應時推（指數日期之後的第一個台股交易日 13:30 前）
-    tpe = timezone(timedelta(hours=8))
-    now = datetime.now(tpe)
-    done = set(state["us"])
-    hit_groups = []
-    for g in intl.get("groups", []):
-        trig = []
-        for q in g.get("quotes", []):
-            key = f"{q['sym']}:{q['date']}"
-            if not q.get("alert") or key in done:
-                continue
-            d = date.fromisoformat(q["date"]) + timedelta(days=1)
-            while d.weekday() >= 5:
-                d += timedelta(days=1)
-            if now < datetime(d.year, d.month, d.day, 13, 30, tzinfo=tpe):
-                trig.append(q)
-            done.add(key)
-        if trig:
-            hit_groups.append((g, trig))
-    if hit_groups:
-        NAME = {"^SOX": "費半", "^IXIC": "那指", "^GSPC": "S&P", "^DJI": "道瓊", "CL=F": "原油", "HG=F": "銅", "GC=F": "黃金",
-                "SI=F": "白銀", "PL=F": "白金", "^XAU": "費城金銀指數", "^HUI": "金蟲指數", "BDI": "BDI 散裝指數",
-                "SCFI": "SCFI 貨櫃運價", "TWD=X": "美元兌台幣"}
-        nm = lambda q: NAME.get(q["sym"], q["sym"])  # noqa: E731
-        m = Msg("🌏 國際類股大波動", "、".join(f"{nm(q)} {q['chg']:+.2f}%{'（週）' if q.get('weekly') else ''}" for _, t in hit_groups for q in t),
-                accent="#06b6d4", url=f"{SITE}/global/", button="開啟國際類股")
-        for g, trig in hit_groups:
-            m.section(g["name"])
-            for q in trig:
-                m.kv(f"{nm(q)}（{q['date'][5:].replace('-', '/')}{'・週' if q.get('weekly') else ''}）", f"{q['chg']:+.2f}%", color=sign_tone(q["chg"]))
-            # 用觸發的那個指數自己的 β；變動最大的觸發指數優先
-            q_top = max(trig, key=lambda q: abs(q["chg"]))
-            react = [x for x in (q_top.get("react") or []) if abs(x.get("exp") or 0) >= 0.3][:8]
-            if react:
-                m.cols("", "預估開盤")
-                for x in react:
-                    m.stock(x["name"], x.get("code", ""), "", f"{x['exp']:+.1f}%", color=sign_tone(x["exp"]))
-            elif g.get("members"):
-                m.line("相關台股：" + "、".join(x["name"] for x in g["members"][:8]), color="#64748B")
-        m.note("預估＝β × 指數漲跌，依過去約半年的隔日連動推算，僅供參考")
-        msgs.append(m)
-    state["us"] = sorted(done)[-300:]
+    # 國際類股大波動不另外推：統一由 08:00 盤前快報（--morning）涵蓋
 
     for m in msgs:
         print(m.text() + "\n")
         if not dry and not first and not send(m):
             print("（沒有設定任何推播管道，只印出內容）")
     if not msgs:
-        print("沒有新的券商報告或國際類股大波動")
+        print("沒有新的券商報告")
     if not dry:
         state["reports"] = sorted(seen | {r[13] for r in rows})[-3000:]
         INTEL_STATE.parent.mkdir(parents=True, exist_ok=True)
