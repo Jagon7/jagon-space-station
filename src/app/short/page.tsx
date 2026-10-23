@@ -5,7 +5,7 @@ export default function Page() {
   return (
     <PageShell
       title="券差偵察"
-      subtitle="融資融券與借券賣出餘額每日消長：券資比、回補天數、融券增減，找出空單被套、可能軋空的股票。"
+      subtitle="融資融券與借券賣出餘額每日消長：融資維持率、融資使用率、券資比、回補天數，找出可能斷頭殺盤或被軋空的股票。"
       badge="Short Interest"
     >
       <ShortDashboard />

@@ -10,7 +10,8 @@
 輸出 JSS_DATA_DIR/daily/<YYYY-MM-DD>.json：
   {"date",
    "q": {代號: [名稱, 市場(0 上市/1 上櫃), 開, 高, 低, 收, 漲跌, 成交張數, 成交金額(元)]},
-   "m": {代號: [融資餘額, 融資增減, 融券餘額, 融券增減, 資券相抵]}           單位：張
+   "m": {代號: [融資餘額, 融資增減, 融券餘額, 融券增減, 資券相抵, 融資買進, 融資賣出, 現金償還, 融資限額]}  單位：張
+         （後四個欄位 2026/10/23 起才有，之前的檔案只有前五個）
    "s": {代號: [借券賣出前日餘額, 當日賣出, 當日還券, 當日餘額]},           單位：張
    "ix": [加權指數, 漲跌%], "ad": {"上漲": [家數, 漲停], "下跌": [...], "持平": [...], ...}}（上市股票）
    "off": {"twse": {...}, "tpex": {...}}  交易所公布的官方大盤統計：成交金額、漲跌家數／漲跌停、融資融券餘額（張、金額）
@@ -146,13 +147,17 @@ def twse_margin(d: date):
     prev = [i for i, x in enumerate(f) if x.startswith("前日餘額")]
     today = [i for i, x in enumerate(f) if x.startswith("今日餘額")]
     ioff = col(f, "資券互抵")
+    # 融資的買進／賣出／現金償還／限額是各自第一次出現的欄位（後面融券區塊有同名欄位）
+    ib, isell, irep = (col(f, x) for x in ("買進", "賣出", "現金償還"))
+    ilim = col(f, "限額", "次一營業日限額")
     out = {}
     for r in rows:
         code = str(r[ic]).strip()
         if not STOCK_RE.fullmatch(code) or len(prev) < 2 or len(today) < 2:
             continue
         mb, mp, sb, sp = lots(r[today[0]]), lots(r[prev[0]]), lots(r[today[1]]), lots(r[prev[1]])
-        out[code] = [mb, mb - mp, sb, sb - sp, lots(r[ioff]) if ioff is not None else 0]
+        out[code] = [mb, mb - mp, sb, sb - sp, lots(r[ioff]) if ioff is not None else 0,
+                     *(lots(r[i]) if i is not None else None for i in (ib, isell, irep, ilim))]
     return out
 
 
@@ -213,13 +218,15 @@ def tpex_margin(d: date):
     if not rows:
         return {}
     ic, imp, imb, isp, isb, ioff = (col(f, x) for x in ("代號", "前資餘額", "資餘額", "前券餘額", "券餘額", "資券相抵"))
+    ib, isell, irep, ilim = (col(f, x) for x in ("資買", "資賣", "現償", "資限額"))
     out = {}
     for r in rows:
         code = str(r[ic]).strip()
         if not STOCK_RE.fullmatch(code):
             continue
         mb, sb = lots(r[imb]), lots(r[isb])
-        out[code] = [mb, mb - lots(r[imp]), sb, sb - lots(r[isp]), lots(r[ioff]) if ioff is not None else 0]
+        out[code] = [mb, mb - lots(r[imp]), sb, sb - lots(r[isp]), lots(r[ioff]) if ioff is not None else 0,
+                     *(lots(r[i]) if i is not None else None for i in (ib, isell, irep, ilim))]
     return out
 
 

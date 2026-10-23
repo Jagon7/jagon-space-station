@@ -193,12 +193,49 @@ def build(data_dir: Path, out_dir: Path):
         x = dd.get("s", {}).get(code)
         return x[3] if x else 0
 
+    # 融資平均成本（估算）：交易所沒有公布個股融資金額，用每天融資新增部位的當日均價（成交金額 ÷ 成交股數）加權平均，
+    # 減少的部位視為依平均成本出場；有融資買進／賣出／現償明細的日子用明細，沒有的用淨增減
+    # 融資維持率＝收盤價 ÷（平均成本 × 融資成數）；上市融資成數 6 成、上櫃 5 成，低於 130% 券商會發追繳
+    # 除權息、減資、分割：當天參考價（收盤−漲跌）和前一天收盤不同時，成本跟著同比例調整
+    cost: dict[str, list] = {}  # 代號 → [平均成本, 餘額]
+    prev_close: dict[str, float] = {}
+    for d in days:
+        mm = d.get("m") or {}
+        for c, q in d["q"].items():
+            if not q or not q[5]:
+                continue
+            pc = prev_close.get(c)
+            prev_close[c] = q[5]
+            st = cost.get(c)
+            if st and pc and q[6] is not None:
+                ref = q[5] - q[6]
+                if ref > 0 and abs(ref / pc - 1) > 0.003:
+                    st[0] *= ref / pc
+            x = mm.get(c)
+            if x is None:
+                continue
+            px = q[8] / (q[7] * 1000) if q[7] and q[8] else q[5]
+            if st is None or st[1] <= 0:
+                cost[c] = [px, x[0]]
+                continue
+            avg, bal = st
+            if len(x) >= 8 and x[5] is not None and x[6] is not None and x[7] is not None:
+                keep = max(bal - x[6] - x[7], 0)
+                buy = x[5]
+            else:
+                keep, buy = (bal, x[1]) if x[1] > 0 else (bal + x[1], 0)
+            tot = keep + buy
+            cost[c] = [(avg * keep + px * buy) / tot if tot > 0 else px, x[0]]
+
     short_rows = []
     for c, mv in lastm.get("m", {}).items():
         q = lastm["q"].get(c)
         if not q:
             continue
-        mb, mchg, sb, schg, offset = mv
+        mb, mchg, sb, schg, offset = mv[:5]
+        lim = mv[8] if len(mv) > 8 else None
+        avg = cost.get(c, [None])[0]
+        maint = round(q[5] / (avg * (0.5 if q[1] else 0.6)) * 100, 1) if avg and mb else None
         cl = closes[c]
         vol5 = [days[j]["q"].get(c, [0] * 8)[7] for j in range(max(0, li - 4), li + 1)]
         avgvol = sum(vol5) / len(vol5) if vol5 else 0
@@ -211,6 +248,7 @@ def build(data_dir: Path, out_dir: Path):
             mb, mchg, sb, schg, (sb - s5) if s5 is not None else None, (sb - s20) if s20 is not None else None,
             round(sb / mb * 100, 1) if mb else None, round(sb / avgvol, 1) if avgvol else None, offset,
             b_now, (b_now - b5) if b5 is not None else None, round(avgvol),
+            maint, round(mb / lim * 100, 2) if lim else None, round(mchg * 1000 * q[5] / 1e4),
         ])
         # 個股近 60 天
         hist = []
@@ -224,7 +262,7 @@ def build(data_dir: Path, out_dir: Path):
     (out / "short.json").write_text(json.dumps({
         "date": lastm["date"],
         "cols": ["code", "name", "mkt", "close", "chg5", "chg20", "mBal", "mChg", "sBal", "sChg", "sChg5", "sChg20",
-                 "ratio", "cover", "offset", "sbl", "sblChg5", "vol5"],
+                 "ratio", "cover", "offset", "sbl", "sblChg5", "vol5", "maint", "use", "mAmt"],
         "rows": short_rows}, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     n_scr = build_screener(days, out)
     print(f"每日行情：{n} 天（{days[0]['date']} ~ {days[-1]['date']}）、隔日追蹤 {len(nd_rows)} 筆、券差 {len(short_rows)} 檔、選股 {n_scr} 檔 → public/data/market")
