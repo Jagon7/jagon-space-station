@@ -44,7 +44,7 @@ export default function MarketSummaryCards({ stocks, sectorPerformance, notice, 
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
       <div className="mb-6">
         <p className="text-[10px] font-mono text-[#7c8aa0] tracking-[0.25em] uppercase mb-1">Daily Debrief</p>
-        <h2 className="text-lg font-bold text-white">今日盤面戰情</h2>
+        <h2 className="text-lg font-bold text-white">盤面細節</h2>
         <p className="text-sm text-[#8b97ab] mt-0.5">{displayDate} · 資料同步於 {updatedTime}</p>
       </div>
 
