@@ -15,6 +15,8 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Jagon Space Station — 台股偵測中樞",
   description: "整合漲停、籌碼、處置預警與公告偵測的台股盤面觀測站",
+  // 不公開的網站：只給知道網址的人看，不讓搜尋引擎收錄
+  robots: { index: false, follow: false, nocache: true, googleBot: { index: false, follow: false } },
 };
 
 export default function RootLayout({
