@@ -1,12 +1,12 @@
 name: Morning Brief
 
 # 盤前快報：週一到週五 08:00（台灣時間）推台指期夜盤、美股主要指數、類股龍頭與台股預估反應。
-# GitHub 排程常延後，所以 07:3x 先啟動、算好內容後等到 08:00 才發；另排一次 07:5x 當備援，
+# 07:57 啟動、算好內容後等到 08:00 才發（只等幾分鐘，省 Actions 分鐘數；GitHub 排程常延後幾分鐘），另排 08:07 當備援，
 # 發過的日期記在 data/notify/morning-sent.json，不會重複發；超過 09:30 就不發。
 on:
   schedule:
-    - cron: '33 23 * * 0-4'   # 07:33 台灣時間（週一到週五）
-    - cron: '52 23 * * 0-4'   # 07:52 備援
+    - cron: '57 23 * * 0-4'   # 07:57 台灣時間（週一到週五）
+    - cron: '7 0 * * 1-5'     # 08:07 備援
   workflow_dispatch:
 
 permissions:
@@ -15,6 +15,9 @@ permissions:
 concurrency:
   group: morning
   cancel-in-progress: false
+
+env:
+  SITE_URL: ${{ vars.SITE_URL }}   # 推播裡的網站連結（搬到 Cloudflare 後在 repo variables 設定）
 
 jobs:
   brief:

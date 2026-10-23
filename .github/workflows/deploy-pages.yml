@@ -1,9 +1,12 @@
-name: Deploy to GitHub Pages
+name: Deploy Site
 
+# 有設定 Cloudflare（secrets：CLOUDFLARE_API_TOKEN、CLOUDFLARE_ACCOUNT_ID）就部署到 Cloudflare Pages（網址根目錄，可加 Cloudflare Access 設成只有自己能看），
+# 沒設定就照舊部署到 GitHub Pages（/jagon-space-station/ 子路徑）。
+# 資料抓取 workflow 用 GITHUB_TOKEN 推送不會觸發 push 事件，所以在它們跑完後重建；
+# 那次抓取如果沒有推新資料（main 還停在觸發時的 commit）就不重建，省 Actions 分鐘數。
 on:
   push:
     branches: [main]
-  # 資料抓取 workflow 用 GITHUB_TOKEN 推送，不會觸發 push 事件，所以改在它們跑完後重建
   workflow_run:
     workflows: ["Daily Stock Data Fetch", "ETF Holdings Fetch", "Intel Fetch"]
     types: [completed]
@@ -18,34 +21,64 @@ concurrency:
   group: pages
   cancel-in-progress: true
 
+env:
+  CF: ${{ secrets.CLOUDFLARE_API_TOKEN != '' && secrets.CLOUDFLARE_ACCOUNT_ID != '' }}
+  CF_PROJECT: ${{ vars.CF_PAGES_PROJECT || 'jagon-space-station' }}
+
 jobs:
   build:
     runs-on: ubuntu-latest
+    outputs:
+      skip: ${{ steps.check.outputs.skip }}
+      cf: ${{ env.CF }}
     steps:
       - uses: actions/checkout@v7
         with:
           ref: main
 
+      - id: check
+        name: Skip if the data fetch pushed nothing new
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_run" ] && [ "$(git rev-parse HEAD)" = "${{ github.event.workflow_run.head_sha }}" ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"; echo "沒有新資料，不重建"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - uses: actions/setup-node@v7
+        if: steps.check.outputs.skip != 'true'
         with:
           node-version: '22'
           cache: npm
 
       - name: Install dependencies
+        if: steps.check.outputs.skip != 'true'
         run: npm ci
 
       - name: Build static site
+        if: steps.check.outputs.skip != 'true'
         run: npm run build   # prebuild 會先跑 scripts/build_views.py
         env:
-          PAGES_BASE_PATH: /${{ github.event.repository.name }}
+          PAGES_BASE_PATH: ${{ env.CF == 'true' && '' || format('/{0}', github.event.repository.name) }}
           TZ: Asia/Taipei
 
+      - name: Deploy to Cloudflare Pages
+        if: steps.check.outputs.skip != 'true' && env.CF == 'true'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          npx --yes wrangler@3.114.0 pages project create "$CF_PROJECT" --production-branch=main 2>/dev/null || true
+          npx --yes wrangler@3.114.0 pages deploy out --project-name="$CF_PROJECT" --branch=main --commit-dirty=true
+
       - uses: actions/upload-pages-artifact@v5
+        if: steps.check.outputs.skip != 'true' && env.CF != 'true'
         with:
           path: out
 
   deploy:
     needs: build
+    if: needs.build.outputs.skip != 'true' && needs.build.outputs.cf != 'true'
     runs-on: ubuntu-latest
     environment:
       name: github-pages

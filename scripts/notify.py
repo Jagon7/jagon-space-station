@@ -36,7 +36,7 @@ from line_flex import FLAT, Msg, sign_tone
 
 ROOT = Path(__file__).resolve().parent.parent
 PUB = ROOT / "public" / "data"
-SITE = "https://jagon7.github.io/jagon-space-station"
+SITE = (os.environ.get("SITE_URL") or "https://jagon7.github.io/jagon-space-station").rstrip("/")  # 搬到 Cloudflare 後在 repo variables 設 SITE_URL
 
 
 def load(rel: str, default=None):
