@@ -630,7 +630,7 @@ EXDIV_STATE = ROOT / "data" / "notify" / "exdiv-alerted.json"
 
 
 def exdiv_alert(dry: bool, force: bool = False) -> int:
-    """除權息黑K：明天除息、符合條件（殖利率 ≥ 4%、日均成交 ≥ 5000 萬）的放空候選，以及明天該回補的部位；沒有就不發"""
+    """除權息黑K：明天除息、符合條件（殖利率 ≥ 4%、日均成交 ≥ 5000 萬、總公司分點近 30 天淨買超 ≥ 2%）的放空候選，以及明天該回補的部位；沒有就不發"""
     ex = load("exdiv.json", {}) or {}
     asof, nxt = ex.get("asof"), ex.get("next")
     if asof != last_trading_day() and not force:
@@ -654,15 +654,18 @@ def exdiv_alert(dry: bool, force: bool = False) -> int:
             EXDIV_STATE.parent.mkdir(parents=True, exist_ok=True)
             EXDIV_STATE.write_text(json.dumps(state, ensure_ascii=False, indent=0), encoding="utf-8")
         return 0
-    bt = next((g for g in (ex.get("backtest") or {}).get("groups", []) if "有個股期" in g["group"] and "4%" in g["group"]), None)
+    btd = ex.get("backtest") or {}
+    bt = next((g for g in btd.get("hqGroups", []) if "總公司淨買 ≥" in g["group"] and "有個股期" in g["group"]), None) \
+        or next((g for g in btd.get("groups", []) if "有個股期" in g["group"] and "4%" in g["group"]), None)
     m = Msg(("【預覽】" if force else "") + "📉 除權息黑K", f"{md(nxt)} 除息日開盤放空・持有 {ex.get('hold', 4)} 天", accent="#E5484D",
             url=f"{SITE}/exdiv/", button="開啟除權息黑K")
     m.section(f"{md(nxt)} 除息放空候選", f"{len(cand)} 檔")
     if cand:
         m.cols("現金股利", "殖利率")
         for u in sorted(cand, key=lambda u: -(u["y"] or 0)):
-            tags = "・".join(x for x in ("有個股期" if u["sf"] else "無個股期", "可現沖先賣" if not u["noShort"] else "暫停先賣後買",
-                                         f"日均 {u['valYi']:g} 億", f"自營商 10 日 {u['dealer']:+,} 張") if x)
+            hq = f"總公司 30 日 {u['hq']:+.1f}%（{u['hqLots']:+,} 張）" if u.get("hq") is not None else ""
+            tags = "・".join(x for x in (hq, "有個股期" if u["sf"] else "無個股期", "可現沖先賣" if not u["noShort"] else "暫停先賣後買",
+                                         f"日均 {u['valYi']:g} 億") if x)
             m.stock(u["name"], u["code"], f"{u['cash']:g} 元", f"{u['y']:.2f}%", color="#D97706", sub=tags)
     else:
         m.line("明天沒有符合條件的除息股", color="#64748B")
@@ -676,7 +679,7 @@ def exdiv_alert(dry: bool, force: bool = False) -> int:
         for u in soon:
             m.stock(u["name"], u["code"], md(u["date"]), f"{u['y']:.2f}%", color="#D97706")
     if bt:
-        m.note(f"回測（{bt['n']} 次，殖利率 ≥ 4%＋有個股期）：放空 4 天平均 {bt['avg']:+.2f}%、勝率 {bt['win']:.0f}%，扣個股期成本 {bt['netFut']:+.2f}%")
+        m.note(f"回測（{bt['n']} 次，{bt['group']}）：放空 4 天平均 {bt['avg']:+.2f}%、勝率 {bt['win']:.0f}%，扣個股期成本 {bt['netFut']:+.2f}%")
     print(m.text())
     if not dry:
         if not send(m):

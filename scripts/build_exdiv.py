@@ -1,7 +1,8 @@
 """
 除權息黑K監控 → public/data/exdiv.json
-  upcoming 未來 14 天要除息的股票：現金股利、殖利率、近 20 日均成交金額、有沒有個股期、自營商近 10 日淨買賣、能不能現沖先賣
-           符合＝殖利率 ≥ 4% 且日均成交 ≥ 5000 萬；有個股期的最好放空（除息前後融券常暫停）
+  upcoming 未來 14 天要除息的股票：現金股利、殖利率、近 20 日均成交金額、有沒有個股期、總公司分點近 30 天淨買超、能不能現沖先賣
+           符合＝殖利率 ≥ 4%、日均成交 ≥ 5000 萬、總公司淨買超 ≥ 2%（data/strategy/exdiv_hq.json，fetch_strategy.py 每天抓）
+           有個股期的最好放空（除息前後融券常暫停）
   active   除息日已過、還在持有期（除息日起 4 個交易日）的部位：除息日開盤放空到最新收盤的報酬
   done     近期已出場（持滿 4 天）的結果
   backtest data/strategy/exdiv_bt.json（scripts/backtest_exdiv.py 產生的 5 年回測）
@@ -16,6 +17,7 @@ from pathlib import Path
 from build_strategy import TPE, _load, next_trading_day
 
 MIN_YIELD, MIN_VAL, HOLD, AHEAD = 4.0, 5e7, 4, 14
+HQ_MIN = 2.0  # 總公司分點近 30 天淨買超占成交比重（%）
 
 
 def build(data_dir: Path, public_dir: Path):
@@ -43,6 +45,8 @@ def build(data_dir: Path, public_dir: Path):
         v = [(qq.get(code) or [0] * 9)[8] or 0 for _, qq in days[-20:]]
         return st.mean(v) if v else 0
 
+    hqs = (_load(data_dir / "strategy" / "exdiv_hq.json", {}) or {}).get("stocks", {})
+
     def dealer10(code):
         return sum((d.get(code) or [0] * 6)[4] for d in insti.values())
 
@@ -59,8 +63,10 @@ def build(data_dir: Path, public_dir: Path):
             px = qq[5]
             y = cash / px * 100 if px else None
             val = avgval(code)
-            ok = y is not None and y >= MIN_YIELD and val >= MIN_VAL
-            upcoming.append({"date": d, "code": code, "name": name, "mk": mk, "kind": kind, "cash": round(cash, 3), "close": px,
+            h = hqs.get(code) or {}
+            hq = h.get("hq")
+            ok = y is not None and y >= MIN_YIELD and val >= MIN_VAL and hq is not None and hq >= HQ_MIN
+            upcoming.append({"hq": hq, "fx": h.get("fx"), "hqTop": h.get("top", [])[:4], "hqLots": h.get("hqLots"), "date": d, "code": code, "name": name, "mk": mk, "kind": kind, "cash": round(cash, 3), "close": px,
                              "y": round(y, 2) if y else None, "valYi": round(val / 1e8, 2), "sf": code in sf, "dealer": dealer10(code),
                              "noShort": code in nox, "ok": ok, "tomorrow": d == nxt})
         elif d <= last and d in pos:
@@ -90,6 +96,6 @@ def build(data_dir: Path, public_dir: Path):
     done.sort(key=lambda x: x["date"], reverse=True)
     bt = _load(data_dir / "strategy" / "exdiv_bt.json", {}) or {}
     out = {"updatedAt": datetime.now(TPE).isoformat(timespec="minutes"), "asof": last, "next": nxt, "minYield": MIN_YIELD, "hold": HOLD,
-           "upcoming": upcoming, "active": active, "done": done[:60], "backtest": bt}
+           "hqMin": HQ_MIN, "upcoming": upcoming, "active": active, "done": done[:60], "backtest": bt}
     (public_dir / "exdiv.json").write_text(json.dumps(out, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     print(f"除權息黑K：未來 {AHEAD} 天 {len(upcoming)} 檔（符合 {sum(u['ok'] for u in upcoming)}）、持有中 {len(active)}、近期出場 {len(done)}")
