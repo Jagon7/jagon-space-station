@@ -441,9 +441,9 @@ FRED_SERIES = {"BAMLH0A0HYM2": "高收益債利差", "BAMLC0A0CM": "投資級債
 
 def fetch_fred(series: dict):
     for sid in FRED_SERIES:
-        # FRED 對 Python requests 會一直卡住到逾時（curl 正常），所以用 curl 抓
+        # FRED 對 Python requests 和瀏覽器 User-Agent 會擋（卡到逾時或斷線），用 curl 預設的 User-Agent 抓
         try:
-            text = subprocess.run(["curl", "-sS", "-m", "60", "-A", UA, f"https://fred.stlouisfed.org/graph/fredgraph.csv?id={sid}"],
+            text = subprocess.run(["curl", "-sS", "-m", "60", f"https://fred.stlouisfed.org/graph/fredgraph.csv?id={sid}"],
                                   capture_output=True, text=True, timeout=90).stdout
             rows = []
             for line in text.splitlines()[1:]:
