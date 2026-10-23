@@ -2,16 +2,6 @@
   "date": "2026-10-23",
   "data": [
     {
-      "code": "3055",
-      "name": "蔚華科",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/10/19～115/10/23",
-      "endDate": "2026-10-23",
-      "announceDate": "115/10/16",
-      "market": "上市"
-    },
-    {
       "code": "2221",
       "name": "大甲",
       "count": 8,
