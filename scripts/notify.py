@@ -8,7 +8,9 @@
   Telegram：TELEGRAM_BOT_TOKEN、TELEGRAM_CHAT_ID
   Discord ：DISCORD_WEBHOOK_URL
   LINE    ：LINE_CHANNEL_TOKEN、LINE_USER_ID（Messaging API push message）
-用法：python scripts/notify.py [--dry-run] [--check] [--insider-alert]
+用法：python scripts/notify.py [--dry-run] [--check] [--insider-alert] [--preview]
+  LINE 用 Flex 卡片（排版在 scripts/line_flex.py），Telegram／Discord 用同內容的純文字
+  --preview：不管有沒有推過，把每日戰報、策略、高週轉三張卡片各發一次（測試排版用）
   --strategy-alert：兩個十日波段策略明日進場名單與到期出場提醒（資料到齊才發，每個交易日一次）
   --turnover-alert：週轉率前 20 名且收漲停的隔日開高走低觀察名單（每個交易日一次；沒有符合的股票就不發）
   --intel-alert：新券商報告、美股類股大波動（開盤前提醒台股可能反應的股票），已推過的記在 data/notify/intel-alerted.json
@@ -26,6 +28,8 @@ from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 import requests
+
+from line_flex import FLAT, Msg, sign_tone
 
 ROOT = Path(__file__).resolve().parent.parent
 PUB = ROOT / "public" / "data"
@@ -51,79 +55,83 @@ def yi(v):
     return f"{'+' if v > 0 else ''}{v:.0f}億" if abs(v) >= 10 else f"{'+' if v > 0 else ''}{v:.1f}億"
 
 
-def compose() -> str:
+def compose() -> Msg:
     sig = load("signals.json", {}) or {}
     day = sig.get("date") or "—"
-    lines = [f"📡 Jagon 每日戰報 {day}"]
+    m = Msg("📡 Jagon 每日戰報", day, accent="#4f8cff", url=f"{SITE}/watchlist/", button="開啟自選股")
 
     atm = (load("market/atmosphere.json", {}) or {}).get("days") or []
     if atm:
         a = atm[-1]
-        ix = f"加權 {a['ix']:,.0f}（{a['ixPct']:+.2f}%）・" if a.get("ix") and a.get("ixPct") is not None else ""
-        lines.append(f"{ix}氣氛 {a.get('score')} {a.get('label')}・漲停 {a['lu']} 跌停 {a['ld']}")
+        m.section("大盤")
+        if a.get("ix") and a.get("ixPct") is not None:
+            m.kv("加權指數", f"{a['ix']:,.0f}（{a['ixPct']:+.2f}%）", color=sign_tone(a["ixPct"]))
+        m.kv("市場氣氛", f"{a.get('score')} {a.get('label')}")
+        m.kv("漲停／跌停", f"{a['lu']}／{a['ld']}")
 
     ins = load("chips/insti.json", {}) or {}
     if ins.get("market"):
-        m = ins["market"][-1]
-        f, t, d = m[1:4]
-        if len(m) >= 8 and m[7] == 1:
-            otc = f"（上櫃 外資 {yi(m[4])}、投信 {yi(m[5])}、自營 {yi(m[6])}）" if m[4] is not None else ""
-            lines.append(f"法人（上市）：外資 {yi(f)}、投信 {yi(t)}、自營 {yi(d)}{otc}")
-        else:
-            lines.append(f"法人（估算）：外資 {yi(f)}、投信 {yi(t)}、自營 {yi(d)}")
+        r = ins["market"][-1]
+        f, t, d = r[1:4]
+        official = len(r) >= 8 and r[7] == 1
+        m.section("三大法人（上市）" if official else "三大法人（估算）")
+        for k, v in (("外資", f), ("投信", t), ("自營商", d)):
+            m.kv(k, yi(v), color=sign_tone(v))
+        if official and r[4] is not None:
+            m.line(f"上櫃：外資 {yi(r[4])}、投信 {yi(r[5])}、自營 {yi(r[6])}", color=FLAT)
 
     fut = (load("chips/futures.json", {}) or {}).get("rows") or []
-    if fut:
+    if fut and fut[-1][2] is not None:
         r = fut[-1]
         prev = fut[-2] if len(fut) > 1 else None
-        chg = f"（{r[2] - prev[2]:+,.0f}）" if prev and r[2] is not None and prev[2] is not None else ""
-        retail = f"、散戶小台 {r[7]:+.1f}%" if r[7] is not None else ""
-        lines.append(f"期貨：外資台指淨 {r[2]:+,.0f} 口{chg}{retail}" if r[2] is not None else "")
+        chg = f"（{r[2] - prev[2]:+,.0f}）" if prev and prev[2] is not None else ""
+        m.section("期貨")
+        m.kv("外資台指淨部位", f"{r[2]:+,.0f} 口{chg}", color=sign_tone(r[2]))
+        if r[7] is not None:
+            m.kv("散戶小台多空比", f"{r[7]:+.1f}%", color=sign_tone(r[7]))
 
-    # 自選股
     wl = watchlist()
     if wl:
-        lines.append("")
-        lines.append("⭐ 自選股")
+        m.section("⭐ 自選股", f"{len(wl)} 檔")
+        m.cols("收盤", "漲跌")
         quotes = sig.get("quotes", {})
+        mark = lambda d: "▲" if d > 0 else "▼" if d < 0 else "・"  # noqa: E731
         for c in wl:
             q = quotes.get(c)
-            head = f"{q[0]} {c} {q[1]}（{q[2]:+.2f}%）" if q and q[2] is not None else f"{c}"
             items = sig.get("sig", {}).get(c, [])
-            mark = lambda d: "🔺" if d > 0 else "🔻" if d < 0 else "・"  # noqa: E731
-            lines.append(f"{head}" + ("" if items else "：沒有特別訊號"))
-            for cat, text, d in items[:6]:
-                lines.append(f"  {mark(d)}{cat}｜{text}")
+            sub = "\n".join(f"{mark(d)} {cat}｜{text}" for cat, text, d in items[:6]) or "沒有特別訊號"
+            if q and q[2] is not None:
+                m.stock(q[0], c, f"{q[1]}", f"{q[2]:+.2f}%", color=sign_tone(q[2]), sub=sub)
+            else:
+                m.stock(c, "", sub=sub)
 
-    # 市場重點
-    lines.append("")
-    lines.append("🔎 今日重點")
+    m.section("🔎 今日重點")
     short = load("market/short.json", {}) or {}
     sq = [r for r in short.get("rows", []) if re.fullmatch(r"[1-9]\d{3}", r[0]) and (r[12] or 0) >= 10 and r[8] >= 300 and (r[4] or 0) > 0]
     sq.sort(key=lambda r: -(r[12] or 0))
     if sq:
-        lines.append("軋空候選：" + "、".join(f"{r[1]}({r[12]}%)" for r in sq[:5]))
+        m.kv("軋空候選", "、".join(f"{r[1]}({r[12]}%)" for r in sq[:5]))
     rows = ins.get("rows") or []
     ts = sorted([r for r in rows if (r[21] or 0) >= 3 and re.fullmatch(r"[1-9]\d{3}", r[0])], key=lambda r: -(r[21] or 0))
     if ts:
-        lines.append("投信連買：" + "、".join(f"{r[1]}({r[21]}天)" for r in ts[:6]))
+        m.kv("投信連買", "、".join(f"{r[1]}({r[21]}天)" for r in ts[:6]))
     nd = load("market/nextday.json", {}) or {}
     lu = [r for r in nd.get("rows", []) if r[0] == day]
     if lu:
-        multi = [r for r in lu if r[6] >= 2]
-        lines.append(f"漲停 {len(lu)} 檔" + (f"，連板：{'、'.join(f'{r[2]}({r[6]})' for r in sorted(multi, key=lambda r: -r[6])[:5])}" if multi else ""))
+        multi = sorted([r for r in lu if r[6] >= 2], key=lambda r: -r[6])
+        m.kv(f"漲停 {len(lu)} 檔", ("連板：" + "、".join(f"{r[2]}({r[6]})" for r in multi[:5])) if multi else "沒有連板")
     ev = load("fund/events.json", {}) or {}
     tmr = [(date.today() + timedelta(days=i)).isoformat() for i in (1, 2, 3)]
     nxt = next((d for d in tmr if any(r[0] == d for r in ev.get("exdiv", []))), None)
     if nxt:
         ex = [r for r in ev["exdiv"] if r[0] == nxt]
-        lines.append(f"{nxt[5:].replace('-', '/')} 除權息：" + "、".join(f"{r[2]}{f'({r[5]}元)' if r[5] else ''}" for r in ex[:8]) + (f" 等 {len(ex)} 家" if len(ex) > 8 else ""))
-    lines.append("")
-    lines.append(f"{SITE}/watchlist/")
-    return "\n".join(x for x in lines if x is not None)
+        m.kv(f"{nxt[5:].replace('-', '/')} 除權息", "、".join(f"{r[2]}{f'({r[5]}元)' if r[5] else ''}" for r in ex[:8]) + (f" 等 {len(ex)} 家" if len(ex) > 8 else ""))
+    return m
 
 
-def send(text: str) -> int:
+def send(msg) -> int:
+    """msg 可以是純文字或 Msg；LINE 用 Flex 卡片（失敗就退回純文字），其他管道用文字"""
+    text = msg if isinstance(msg, str) else msg.text()
     sent = 0
     tok, chat = os.environ.get("TELEGRAM_BOT_TOKEN"), os.environ.get("TELEGRAM_CHAT_ID")
     if tok and chat:
@@ -139,10 +147,16 @@ def send(text: str) -> int:
         sent += 1
     ltok, luser = os.environ.get("LINE_CHANNEL_TOKEN"), os.environ.get("LINE_USER_ID")
     if ltok and luser:
-        r = requests.post("https://api.line.me/v2/bot/message/push", timeout=30,
-                          headers={"Authorization": f"Bearer {ltok}"},
-                          json={"to": luser, "messages": [{"type": "text", "text": text[:4900]}]})
-        print("LINE", r.status_code, r.text[:200])
+        def push(message):
+            return requests.post("https://api.line.me/v2/bot/message/push", timeout=30,
+                                 headers={"Authorization": f"Bearer {ltok}"}, json={"to": luser, "messages": [message]})
+        r = None
+        if not isinstance(msg, str):
+            r = push(msg.flex())
+            print("LINE flex", r.status_code, r.text[:300])
+        if r is None or r.status_code != 200:
+            r = push({"type": "text", "text": text[:4900]})
+            print("LINE text", r.status_code, r.text[:200])
         sent += 1
     return sent
 
@@ -196,14 +210,14 @@ def insider_alert(dry: bool) -> int:
         state = {"keys": [key(t) for t in transfers if t[0] < day], "month": month}
     seen = set(state["keys"])
 
-    lines: list[str] = []
+    m = Msg("🚨 內部人大額異動", "金額 ≥ 1 億", accent="#f59e0b", url=f"{SITE}/insider/", button="開啟內部人頁")
     # 1) 事前申報轉讓：同一天同一家合計（只算會賣出的方式）
     # 只看最近 14 天的申報：transfers 保留 120 天，比已推紀錄的保存期長，不限制的話舊申報會被當成新的
     recent_from = (date.today() - timedelta(days=14)).isoformat()
     new = [t for t in transfers if t[0] >= recent_from and key(t) not in seen]
     agg: dict[tuple, dict] = {}
     for t in new:
-        if not any(m in (t[6] or "") for m in SALE_METHODS):
+        if not any(x in (t[6] or "") for x in SALE_METHODS):
             continue
         a = agg.setdefault((t[0], t[1]), {"name": t[2], "amt": 0.0, "who": [], "how": set()})
         a["amt"] += (t[11] or 0) * (t[14] or 0)
@@ -211,11 +225,12 @@ def insider_alert(dry: bool) -> int:
         a["how"].add(re.sub(r"\(.*?\)", "", t[6]))
     hits = sorted(((k, v) for k, v in agg.items() if v["amt"] >= ALERT_MIN), key=lambda x: -x[1]["amt"])
     if hits:
-        lines.append(f"🚨 內部人大額申報轉讓（≥1 億，{len(hits)} 家）")
+        m.section("事前申報轉讓", f"{len(hits)} 家")
+        m.cols("申報日", "預估金額")
         for (d, code), v in hits:
             who = v["who"][0] + (f" 等 {len(v['who'])} 人" if len(v["who"]) > 1 else "")
-            lines.append(f"🔻{v['name']} {code}：{yi_abs(v['amt'])}｜{'、'.join(sorted(v['how']))}｜{who}｜申報 {d[5:].replace('-', '/')}")
-        lines.append("（金額＝預定轉讓股數 × 最新收盤價；申報後 1 個月內可轉讓）")
+            m.stock(v["name"], code, d[5:].replace("-", "/"), yi_abs(v["amt"]), up=False, sub=f"{'、'.join(sorted(v['how']))}｜{who}")
+        m.note("金額＝預定轉讓股數 × 最新收盤價；申報後 1 個月內可轉讓")
 
     # 2) 每月內部人實際買賣（每月 15 日前後公布上個月），新月份出來時推一次
     if month and month != state.get("month"):
@@ -223,22 +238,18 @@ def insider_alert(dry: bool) -> int:
         buys = sorted([r for r in big if r[4] > 0], key=lambda r: -r[4])
         sells = sorted([r for r in big if r[4] < 0], key=lambda r: r[4])
         if big:
-            if lines:
-                lines.append("")
-            lines.append(f"🚨 {int(month[5:])} 月內部人實際買賣 ≥1 億：買 {len(buys)} 家、賣 {len(sells)} 家")
+            m.section(f"{int(month[5:])} 月實際買賣", f"買 {len(buys)}・賣 {len(sells)}")
             for r in buys[:8]:
-                lines.append(f"🔺{r[1]} {r[0]}：淨買 {yi_abs(r[4])}｜{r[6]}")
+                m.stock(r[1], r[0], "淨買", yi_abs(r[4]), up=True, sub=r[6])
             for r in sells[:8]:
-                lines.append(f"🔻{r[1]} {r[0]}：淨賣 {yi_abs(-r[4])}｜{r[6]}")
+                m.stock(r[1], r[0], "淨賣", yi_abs(-r[4]), up=False, sub=r[6])
             if len(buys) > 8 or len(sells) > 8:
-                lines.append("…完整名單見網站")
+                m.note("完整名單見網站")
         state["month"] = month
 
-    if lines:
-        lines += ["", f"{SITE}/insider/"]
-        text = "\n".join(lines)
-        print(text)
-        if not dry and not send(text):
+    if not m.empty():
+        print(m.text())
+        if not dry and not send(m):
             print("\n（沒有設定任何推播管道，只印出內容）")
     else:
         print("沒有新的內部人大額異動")
@@ -253,44 +264,57 @@ def insider_alert(dry: bool) -> int:
 STRATEGY_STATE = ROOT / "data" / "notify" / "strategy-alerted.json"
 
 
-def strategy_alert(dry: bool) -> int:
+def strategy_alert(dry: bool, force: bool = False) -> int:
     st = load("strategy.json", {}) or {}
     asof, nxt = st.get("asof"), st.get("next")
     day = last_trading_day()
     got = {k: (load(f, {}) or {}).get("date") for k, f in (("行情", "market/screener.json"), ("法人", "chips/insti.json"))}
-    if asof != day or any(v != day for v in got.values()):
+    if not force and (asof != day or any(v != day for v in got.values())):
         print(f"策略資料還沒到齊（策略 {asof}、行情 {got['行情']}、法人 {got['法人']}，應為 {day}）")
         return 0
     try:
         state = json.loads(STRATEGY_STATE.read_text(encoding="utf-8"))
     except (OSError, ValueError):
         state = {"sent": []}
-    if asof in state["sent"]:
+    if asof in state["sent"] and not force:
         print(f"{asof} 的策略名單已推過")
         return 0
     md = lambda d: f"{int(d[5:7])}/{int(d[8:10])}"  # noqa: E731
-    lines = [f"📈 波段策略：{md(nxt)} 進場名單（{md(asof)} 收盤資料）"]
     s1, s2 = st["s1"], st["s2"]
-    lines.append(f"【出量做多】{len(s1['picks'])} 檔")
+    m = Msg(("【預覽】" if force else "") + "📈 十日波段策略", f"{md(nxt)} 進場名單・{md(asof)} 收盤資料", accent="#4f8cff", url=f"{SITE}/strategy/", button="開啟策略頁")
+    m.section("出量做多", f"{len(s1['picks'])} 檔")
+    if s1["picks"]:
+        m.cols("收盤", "近 5 日")
     for p in s1["picks"][:12]:
-        lines.append(f"  {p['name']} {p['code']} 收{p['close']:g}｜放量Z {p['zvol']:.1f}・{p['days']}/5 日放量｜5 日 {p['ret5']:+.1f}%")
+        m.stock(p["name"], p["code"], f"{p['close']:g}", f"{p['ret5']:+.1f}%", color=sign_tone(p["ret5"]),
+                sub=f"放量Z {p['zvol']:.1f}・{p['days']}/5 日放量・量穩Z {p['tz']:.2f}")
     if len(s1["picks"]) > 12:
-        lines.append(f"  …還有 {len(s1['picks']) - 12} 檔")
-    lines.append(f"【輿情籌碼】{len(s2['picks'])} 檔")
+        m.note(f"還有 {len(s1['picks']) - 12} 檔，見網站")
+    if not s1["picks"]:
+        m.line("沒有符合條件的股票", color=FLAT)
+    m.section("輿情籌碼", f"{len(s2['picks'])} 檔")
+    if s2["picks"]:
+        m.cols("收盤", "籌碼Z")
     for p in s2["picks"][:10]:
-        news = p["news"][0][:28] + "…" if p.get("news") else ""
-        lines.append(f"  {p['name']} {p['code']} 收{p['close']:g}｜籌碼Z {p['chipZ']:.2f}｜{news}")
-    exits = [(k, h) for k, s in (("出量", s1), ("輿情", s2)) for h in s["holding"] if h.get("exitDate") == nxt]
-    if exits:
-        ex = [h for _, h in exits if h.get("ret") is not None]
-        lines.append(f"⏰ {md(nxt)} 開盤出場（持滿 10 日，{len(ex)} 檔）：" + "、".join(f"{h['name']}({h['ret']:+.1f}%)" for h in ex[:15])
-                     + ("…" if len(ex) > 15 else ""))
-    lines.append(f"進場：{md(nxt)} 收盤前半小時；收盤鎖漲停不進場。持有 10 個交易日後開盤出場。")
-    lines.append(f"{SITE}/strategy/")
-    text = "\n".join(lines)
+        news = (p["news"][0][:40] + ("…" if len(p["news"][0]) > 40 else "")) if p.get("news") else ""
+        m.stock(p["name"], p["code"], f"{p['close']:g}", f"{p['chipZ']:.2f}", color="#D97706", sub=news)
+    if not s2["picks"]:
+        m.line("沒有符合條件的股票", color=FLAT)
+    ex = [h for s in (s1, s2) for h in s["holding"] if h.get("exitDate") == nxt and h.get("ret") is not None]
+    if ex:
+        m.section(f"⏰ {md(nxt)} 開盤出場", f"{len(ex)} 檔")
+        m.cols("進場日", "目前報酬")
+        for h in sorted(ex, key=lambda h: -h["ret"])[:15]:
+            m.stock(h["name"], h["code"], md(h["date"]), f"{h['ret']:+.1f}%", color=sign_tone(h["ret"]))
+        if len(ex) > 15:
+            m.note(f"還有 {len(ex) - 15} 檔，見網站")
+    m.note(f"進場：{md(nxt)} 收盤前半小時，收盤鎖漲停不進場；持有 10 個交易日後開盤出場。")
+    text = m.text()
     print(text)
+    if force:
+        return 0 if dry else (send(m) and 0)
     if not dry:
-        if not send(text):
+        if not send(m):
             print("（沒有設定任何推播管道，只印出內容）")
         state["sent"] = sorted(set(state["sent"]) | {asof})[-60:]
         STRATEGY_STATE.parent.mkdir(parents=True, exist_ok=True)
@@ -301,46 +325,53 @@ def strategy_alert(dry: bool) -> int:
 TURNOVER_STATE = ROOT / "data" / "notify" / "turnover-alerted.json"
 
 
-def turnover_alert(dry: bool) -> int:
+def turnover_alert(dry: bool, force: bool = False) -> int:
     tv = load("turnover.json", {}) or {}
     asof, nxt = tv.get("asof"), tv.get("next")
     day = last_trading_day()
-    if asof != day:
+    if asof != day and not force:
         print(f"週轉率資料還沒更新（{asof}，應為 {day}）")
         return 0
     now = datetime.now(timezone(timedelta(hours=8)))
-    if not tv.get("dtReady") and now.date().isoformat() == asof and now.hour < 21:
+    if not force and not tv.get("dtReady") and now.date().isoformat() == asof and now.hour < 21:
         print("當沖資料還沒到（要用來排除暫停先賣後買的股票），晚點再發")
         return 0
     try:
         state = json.loads(TURNOVER_STATE.read_text(encoding="utf-8"))
     except (OSError, ValueError):
         state = {"sent": []}
-    if asof in state["sent"]:
+    if asof in state["sent"] and not force:
         print(f"{asof} 的高週轉漲停名單已推過")
         return 0
     md = lambda d: f"{int(d[5:7])}/{int(d[8:10])}"  # noqa: E731
     al = tv.get("alert") or []
     ref = next((s for s in tv.get("stats", []) if s["group"].strip().endswith("當天漲停")), None)
-    lines = [f"🔻 高週轉＋漲停：{md(nxt)} 開高走低觀察名單（{md(asof)} 收盤）"]
+    m = Msg(("【預覽】" if force else "") + "🔻 高週轉＋漲停", f"{md(nxt)} 開高走低觀察名單・{md(asof)} 收盤", accent="#16A34A", url=f"{SITE}/turnover/", button="開啟週轉率頁")
+    m.section("觀察名單", f"{len(al)} 檔")
     if al:
-        for r in al:
-            dt = f"・當沖 {r['dt']:.0f}%" if r.get("dt") is not None else ""
-            lines.append(f"  {r['name']} {r['code']} 收{r['close']:g}｜週轉 {r['turnover']:.1f}%{dt}｜{r['valueYi']:g} 億")
-    else:
-        lines.append("  今天週轉率前 20 名沒有收漲停的股票")
+        m.cols("收盤", "週轉率")
+    for r in al:
+        dt = f"當沖 {r['dt']:.0f}%・" if r.get("dt") is not None else ""
+        m.stock(r["name"], r["code"], f"{r['close']:g}", f"{r['turnover']:.1f}%", color="#D97706", sub=f"{dt}成交 {r['valueYi']:g} 億・今天漲停")
+    if not al:
+        m.line("今天週轉率前 20 名沒有收漲停的股票", color=FLAT)
     if ref:
-        lines.append(f"回測（{ref['n']} 筆）：隔天平均開盤 {ref['gap']:+.2f}%、開→收 {ref['o2c']:+.2f}%，黑K率 {ref['black']:.0f}%；"
-                     f"開盤空收盤補扣成本 {ref['shortNet']:+.2f}%（手續費 2.8 折 {ref['shortNetDisc']:+.2f}%）")
-    lines.append("已排除隔天處置、暫停先賣後買的股票。開盤放空、收盤回補；開盤若沒開高或直接開低，優勢較小。")
-    lines.append(f"{SITE}/turnover/")
-    text = "\n".join(lines)
+        m.section("歷史回測", f"{ref['n']} 筆")
+        m.kv("隔天平均開盤", f"{ref['gap']:+.2f}%", color=sign_tone(ref["gap"]))
+        m.kv("隔天開盤→收盤", f"{ref['o2c']:+.2f}%", color=sign_tone(ref["o2c"]))
+        m.kv("隔天收黑K機率", f"{ref['black']:.0f}%")
+        m.kv("開盤空收盤補（全額成本）", f"{ref['shortNet']:+.2f}%", color=sign_tone(ref["shortNet"]))
+        m.kv("手續費 2.8 折", f"{ref['shortNetDisc']:+.2f}%", color=sign_tone(ref["shortNetDisc"]))
+    m.note("已排除隔天處置、暫停先賣後買的股票。做法：開盤放空、收盤回補；開盤若沒開高或直接開低，優勢較小。")
+    text = m.text()
     print(text)
+    if force:
+        return 0 if dry else (send(m) and 0)
     late = now.date().isoformat() > nxt or (now.date().isoformat() == nxt and now.hour >= 9)
     if late:
         print(f"已經過了 {md(nxt)} 開盤，不再推播")
     if not dry:
-        if al and not late and not send(text):
+        if al and not late and not send(m):
             print("（沒有設定任何推播管道，只印出內容）")
         state["sent"] = sorted(set(state["sent"]) | {asof})[-60:]
         TURNOVER_STATE.parent.mkdir(parents=True, exist_ok=True)
@@ -369,18 +400,18 @@ def intel_alert(dry: bool) -> int:
     # 1) 新券商報告（FactSet 共識只推自選股的）
     new = [r for r in rows if r[13] not in seen and (r[9] == "broker" or r[1] in wl)]
     if new:
-        lines = [f"📑 新券商報告（{len(new)} 份）"]
+        m = Msg("📑 新券商報告", f"{len(new)} 份", accent="#8b5cf6", url=f"{SITE}/reports/", button="開啟券商報告")
+        m.cols("券商", "目標價")
         for r in new[:12]:
             d, code, name, broker, rating, tgt, prev, up = r[:8]
             chg = "" if prev is None else ("維持" if prev == tgt else f"{'調升' if tgt > prev else '調降'}（前次 {prev:g}）")
-            lines.append(f"{'⭐' if code in wl else '🔹'}{name} {code}｜{broker} 目標價 {tgt:g}{f'（潛在 {up:+.1f}%）' if up is not None else ''} {chg}{'｜' + rating if rating else ''}")
-            if r[11]:
-                p = r[11][0]
-                lines.append(f"   {p[:70]}{'…' if len(p) > 70 else ''}")
+            info = "・".join(x for x in (f"潛在 {up:+.1f}%" if up is not None else "", chg, rating or "") if x)
+            hl = (r[11][0][:70] + ("…" if len(r[11][0]) > 70 else "")) if r[11] else ""
+            color = sign_tone(tgt - prev) if prev is not None and prev != tgt else "#0F172A"
+            m.stock(name, code, broker[:6], f"{tgt:g}", color=color, star=code in wl, sub="\n".join(x for x in (info, hl) if x))
         if len(new) > 12:
-            lines.append(f"…還有 {len(new) - 12} 份")
-        lines.append(f"{SITE}/reports/")
-        msgs.append("\n".join(lines))
+            m.note(f"還有 {len(new) - 12} 份，見網站")
+        msgs.append(m)
 
     # 2) 國際類股／指數大波動（美股、貴金屬、BDI、SCFI…）：每個指數每個日期只推一次，
     #    只在台股還能反應時推（指數日期之後的第一個台股交易日 13:30 前）
@@ -407,25 +438,28 @@ def intel_alert(dry: bool) -> int:
                 "SI=F": "白銀", "PL=F": "白金", "^XAU": "費城金銀指數", "^HUI": "金蟲指數", "BDI": "BDI 散裝指數",
                 "SCFI": "SCFI 貨櫃運價", "TWD=X": "美元兌台幣"}
         nm = lambda q: NAME.get(q["sym"], q["sym"])  # noqa: E731
-        lines = ["🌏 國際類股大波動：" + "、".join(f"{nm(q)} {q['chg']:+.2f}%{'（週）' if q.get('weekly') else ''}" for _, t in hit_groups for q in t)]
+        m = Msg("🌏 國際類股大波動", "、".join(f"{nm(q)} {q['chg']:+.2f}%{'（週）' if q.get('weekly') else ''}" for _, t in hit_groups for q in t),
+                accent="#06b6d4", url=f"{SITE}/global/", button="開啟國際類股")
         for g, trig in hit_groups:
-            lines.append(f"【{g['name']}】" + "、".join(f"{nm(q)} {q['chg']:+.2f}%（{q['date'][5:].replace('-', '/')}）" for q in trig))
+            m.section(g["name"])
+            for q in trig:
+                m.kv(f"{nm(q)}（{q['date'][5:].replace('-', '/')}{'・週' if q.get('weekly') else ''}）", f"{q['chg']:+.2f}%", color=sign_tone(q["chg"]))
             # 用觸發的那個指數自己的 β；變動最大的觸發指數優先
             q_top = max(trig, key=lambda q: abs(q["chg"]))
-            react = [m for m in (q_top.get("react") or []) if abs(m.get("exp") or 0) >= 0.3][:8]
-            members = [m["name"] for m in g.get("members", [])[:8]]
+            react = [x for x in (q_top.get("react") or []) if abs(x.get("exp") or 0) >= 0.3][:8]
             if react:
-                lines.append("  開盤留意：" + "、".join(f"{m['name']} {m['exp']:+.1f}%" for m in react))
-            elif members:
-                lines.append("  相關台股：" + "、".join(members))
-        lines.append("（預估＝β × 指數漲跌，依過去約半年的隔日連動推算，僅供參考）")
-        lines.append(f"{SITE}/global/")
-        msgs.append("\n".join(lines))
+                m.cols("", "預估開盤")
+                for x in react:
+                    m.stock(x["name"], x.get("code", ""), "", f"{x['exp']:+.1f}%", color=sign_tone(x["exp"]))
+            elif g.get("members"):
+                m.line("相關台股：" + "、".join(x["name"] for x in g["members"][:8]), color="#64748B")
+        m.note("預估＝β × 指數漲跌，依過去約半年的隔日連動推算，僅供參考")
+        msgs.append(m)
     state["us"] = sorted(done)[-300:]
 
-    for text in msgs:
-        print(text + "\n")
-        if not dry and not first and not send(text):
+    for m in msgs:
+        print(m.text() + "\n")
+        if not dry and not first and not send(m):
             print("（沒有設定任何推播管道，只印出內容）")
     if not msgs:
         print("沒有新的券商報告或國際類股大波動")
@@ -444,6 +478,7 @@ def main():
     ap.add_argument("--intel-alert", action="store_true")
     ap.add_argument("--strategy-alert", action="store_true")
     ap.add_argument("--turnover-alert", action="store_true")
+    ap.add_argument("--preview", action="store_true", help="不管有沒有推過，把每日戰報、策略、高週轉三張卡片各發一次（測試排版用）")
     a = ap.parse_args()
     if a.check:
         return check()
@@ -455,11 +490,20 @@ def main():
         return strategy_alert(a.dry_run)
     if a.turnover_alert:
         return turnover_alert(a.dry_run)
-    text = compose()
-    print(text)
+    if a.preview:
+        msg = compose()
+        msg.title = "【預覽】" + msg.title
+        print(msg.text())
+        if not a.dry_run:
+            send(msg)
+        strategy_alert(a.dry_run, force=True)
+        turnover_alert(a.dry_run, force=True)
+        return 0
+    msg = compose()
+    print(msg.text())
     if a.dry_run:
         return 0
-    if not send(text):
+    if not send(msg):
         print("\n（沒有設定任何推播管道，只印出內容。設定方式見本檔開頭說明。）")
     return 0
 

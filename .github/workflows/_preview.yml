@@ -1,0 +1,15 @@
+name: _preview
+on: { push: { branches: [claude/youthful-rubin-xo17ci] } }
+jobs:
+  p:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with: { python-version: '3.11' }
+      - run: pip install requests
+      - run: TZ=Asia/Taipei python3 scripts/build_views.py > /dev/null
+      - run: TZ=Asia/Taipei python3 scripts/notify.py --preview
+        env:
+          LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
+          LINE_USER_ID: ${{ secrets.LINE_USER_ID }}
