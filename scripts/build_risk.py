@@ -2,7 +2,10 @@
 市場風險監控 → public/data/risk.json
   來源：data/intel/risk.json（Yahoo：VIX、VVIX、VIX9D、VIX3M、SKEW、MOVE、美元指數；FRED：高收益／投資級債利差、10Y−2Y、金融壓力指數）
         data/futures/daily.json（台指選擇權 P/C、外資台指期淨部位）、public/data/chips/futures.json（散戶小台多空比）
-  CDS（信用違約交換）沒有免費公開資料，用 ICE BofA 公司債利差（OAS）代替：高收益債利差和 CDX HY 走勢高度一致
+  CDS（信用違約交換）沒有免費公開資料：整體信用用 ICE BofA 公司債利差（OAS）代替，高收益債利差和 CDX HY 走勢高度一致；
+  個別科技廠用 CreditGrades 模型的「股價隱含 CDS」：股價、EWMA 波動度、每股負債（Yahoo 季報總負債 ÷ 流通股數）
+  → 5 年 CDS 利差估計（Oracle 約 190～210bp，和新聞報導的實際 CDS 相近）；低負債公司模型值接近 0，只看變化
+  5 日上升 ≥ 75bp，或上升 ≥ 25bp 且 ≥ 25%（而且目前 ≥ 50bp）列入警示
   每個指標：最新值、1 日／5 日／20 日變化、近一年百分位、依門檻分「正常／警戒／危險」
   風險溫度（0～100，越高越緊張）：每個核心指標取「絕對水準分數」和「近一年百分位」各半，再平均；每天回算近一年走勢
     絕對水準分數：平靜值 0 分、警戒門檻 50 分、危險門檻 80 分、再超過一段到 100 分，中間線性內插
@@ -12,6 +15,8 @@ from __future__ import annotations
 
 import bisect
 import json
+import math
+from math import exp, log, sqrt
 from datetime import datetime
 from pathlib import Path
 
@@ -49,6 +54,100 @@ TW_SPECS = [
     ("retail", "散戶小台多空比", "retail", "%", 1, "散戶在小台指的多空比。散戶越偏多，反向來看越需要留意。"),
 ]
 CORE = [s[0] for s in SPECS if s[8]]
+CDS_NAMES = {"ORCL": "Oracle", "CRWV": "CoreWeave", "NBIS": "Nebius", "INTC": "Intel", "SMCI": "Super Micro", "DELL": "Dell",
+             "MU": "美光", "AMD": "AMD", "AVGO": "Broadcom", "META": "Meta", "MSFT": "Microsoft", "GOOGL": "Alphabet",
+             "AMZN": "Amazon", "NVDA": "NVIDIA"}
+VOL_WIN = 60          # 至少要有 60 天價格才開始算
+EWMA = 0.97           # 股價波動度的指數加權衰減
+CDS_JUMP_BP = 25      # 5 日上升至少 25bp
+CDS_JUMP_PCT = 25     # 而且至少上升 25%
+CDS_JUMP_BIG = 75     # 或 5 日上升 75bp 以上（本來就高的公司，百分比不會太大）
+CDS_MIN = 50          # 只看 50bp 以上的（低負債公司模型值接近 0，百分比變化沒有意義）
+
+
+def _phi(x: float) -> float:
+    return 0.5 * math.erfc(-x / sqrt(2))
+
+
+def creditgrades(S: float, D: float, sig_s: float, r: float = 0.04, T: float = 5, Lbar: float = 0.5, lam: float = 0.3, R: float = 0.5):
+    """CreditGrades（RiskMetrics, 2002）股價隱含 5 年 CDS 利差（bp）
+    S 股價、D 每股負債、sig_s 股價年化波動、Lbar 違約時債權平均回收門檻、lam 其不確定性、R 回收率"""
+    if S <= 0 or D <= 0 or sig_s <= 0:
+        return 0.0
+    LD = Lbar * D
+    d = (S + LD) / LD * exp(lam ** 2)
+    sig = sig_s * S / (S + LD)
+
+    def P(t):
+        A = sqrt(sig ** 2 * t + lam ** 2)
+        return _phi(-A / 2 + log(d) / A) - d * _phi(-A / 2 - log(d) / A)
+
+    xi = lam ** 2 / sig ** 2
+    z = sqrt(0.25 + 2 * r / sig ** 2)
+
+    def G(u):
+        v = sig * sqrt(u)
+        return d ** (z + 0.5) * _phi(-log(d) / v - z * v) + d ** (-z + 0.5) * _phi(-log(d) / v + z * v)
+
+    try:
+        H = exp(r * xi) * (G(T + xi) - G(xi))
+        P0, PT = P(0), P(T)
+        den = P0 - PT * exp(-r * T) - H
+        return max(0.0, r * (1 - R) * (1 - P0 + H) / den * 1e4) if den > 0 else 0.0
+    except (OverflowError, ValueError, ZeroDivisionError):
+        return 0.0
+
+
+def _asof(rows: list, d: str):
+    """財報時間序列中「d 當天以前最新」的一筆（都比 d 晚就用最早一筆）"""
+    v = None
+    for x, val in rows:
+        if x <= d:
+            v = val
+    return v if v is not None else (rows[0][1] if rows else None)
+
+
+def credit_block(raw: dict, fund: dict) -> list:
+    tnx = dict(raw.get("^TNX", []))
+    out = []
+    for sym, name in CDS_NAMES.items():
+        px, f = raw.get(sym) or [], fund.get(sym) or {}
+        if len(px) < VOL_WIN + 30 or not f.get("debt") or not f.get("shares"):
+            continue
+        # 波動度用 EWMA（衰減 0.97，約 23 天半衰期），單日報酬先截在 ±8%：
+        # 一般滾動視窗遇到單日暴漲暴跌，會在 60 天後突然掉出視窗造成斷崖；大漲也不該讓違約風險暴增
+        var, vs = None, []
+        for i in range(1, len(px)):
+            x = max(-0.08, min(0.08, log(px[i][1] / px[i - 1][1])))
+            var = x * x if var is None else EWMA * var + (1 - EWMA) * x * x
+            vs.append(sqrt(var * 252))
+        ser = []
+        for i in range(max(VOL_WIN, len(px) - HIST), len(px)):
+            d, S = px[i]
+            vol = vs[i - 1]
+            debt, sh = _asof(f["debt"], d), _asof(f["shares"], d)
+            if not debt or not sh:
+                continue
+            r = (tnx.get(d) or 4.0) / 100
+            ser.append([d, round(creditgrades(S, debt / sh, vol, r), 1), vol])
+        if len(ser) < 25:
+            continue
+        vals = [x[1] for x in ser]
+        v = vals[-1]
+        D = _asof(f["debt"], ser[-1][0]) / _asof(f["shares"], ser[-1][0])
+        S = px[-1][1]
+        out.append({"sym": sym, "name": name, "date": ser[-1][0], "value": v, "chg1": round(v - vals[-2], 1),
+                    "chg5": round(v - vals[-6], 1), "chg20": round(v - vals[-21], 1) if len(vals) > 20 else None,
+                    "v5": vals[-6], "pct": _pct(vals[-252:], v), "price": S, "vol": round(ser[-1][2] * 100, 1),
+                    "lev": round(0.5 * D / (S + 0.5 * D) * 100, 1), "debtB": round(_asof(f["debt"], ser[-1][0]) / 1e9, 1),
+                    "spark": [[d, x] for d, x, _ in ser]})
+    out.sort(key=lambda x: -x["value"])
+    return out
+
+
+def cds_jumps(credit: list) -> list:
+    return [c for c in credit if c["value"] >= CDS_MIN and (c["chg5"] >= CDS_JUMP_BIG or
+            (c["chg5"] >= CDS_JUMP_BP and c["v5"] > 0 and c["chg5"] / c["v5"] * 100 >= CDS_JUMP_PCT))]
 HIST = 260
 
 
@@ -157,7 +256,12 @@ def build(data_dir: Path, public_dir: Path):
     vix = next((i for i in inds if i["id"] == "vix"), None)
     if vix and vix["chg1"] is not None and vix["value"] - vix["chg1"] > 0 and vix["chg1"] / (vix["value"] - vix["chg1"]) >= 0.2:
         alerts.append(f"VIX 單日大漲 {vix['chg1'] / (vix['value'] - vix['chg1']) * 100:.0f}%")
+    credit = credit_block(raw, (_load(data_dir / "intel" / "risk.json", {}) or {}).get("fund", {}))
+    jumps = cds_jumps(credit)
+    for c in jumps:
+        alerts.append(f"{c['name']} 股價隱含 CDS 5 日 +{c['chg5']:.0f}bp（{c['v5']:.0f} → {c['value']:.0f}bp）")
     out = {"updatedAt": datetime.now(TPE).isoformat(timespec="minutes"), "asof": raw["^VIX"][-1][0],
+           "credit": credit, "cdsJumps": [c["sym"] for c in jumps],
            "temp": t_now, "tempLabel": _temp_label(t_now) if t_now is not None else None,
            "temp5": temp[-6][1] if len(temp) > 5 else None, "tempHist": temp, "alerts": alerts,
            "indicators": inds, "tw": tw}

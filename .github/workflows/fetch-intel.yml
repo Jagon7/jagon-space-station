@@ -1,6 +1,6 @@
 name: Intel Fetch
 
-# 券商報告、法說會新聞、美股行情；抓完立刻檢查有沒有新券商報告要推播（美股與國際類股改由 morning.yml 08:00 盤前快報統一發）。
+# 券商報告、法說會新聞、美股行情與風險指標；抓完檢查有沒有新券商報告、新的市場風險警示要推播（國際類股改由 morning.yml 08:00 盤前快報統一發）。
 # 美股收盤（台北 04:00／05:00）後跑幾次，確保台股開盤前就送出提醒；白天每 3 小時補抓新報告。
 # GitHub 排程常延後，所以多排幾次；推過的記在 data/notify/intel-alerted.json，不會重複推。
 on:
@@ -39,9 +39,18 @@ jobs:
           JSS_DATA_DIR: ./data
       - name: Build data views
         run: TZ=Asia/Taipei python3 scripts/build_views.py
-      - name: Alert (new reports, US moves)
+      - name: Alert (new reports)
         continue-on-error: true
         run: TZ=Asia/Taipei python3 scripts/notify.py --intel-alert
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
+          LINE_USER_ID: ${{ secrets.LINE_USER_ID }}
+      - name: Market risk alert (VIX, credit spreads, tech implied CDS)
+        continue-on-error: true
+        run: TZ=Asia/Taipei python3 scripts/notify.py --risk-alert
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}

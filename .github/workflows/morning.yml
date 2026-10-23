@@ -30,6 +30,15 @@ jobs:
       - run: pip install requests
       - name: Build data views
         run: TZ=Asia/Taipei python3 scripts/build_views.py > /dev/null
+      - name: Market risk alert (held overnight)
+        continue-on-error: true
+        run: TZ=Asia/Taipei python3 scripts/notify.py --risk-alert
+        env:
+          LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
+          LINE_USER_ID: ${{ secrets.LINE_USER_ID }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
       - name: Send morning brief at 08:00
         run: TZ=Asia/Taipei python3 scripts/notify.py --morning
         env:

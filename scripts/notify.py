@@ -10,6 +10,7 @@
   LINE    ：LINE_CHANNEL_TOKEN、LINE_USER_ID（Messaging API push message）
 用法：python scripts/notify.py [--dry-run] [--check] [--insider-alert] [--preview]
   LINE 用 Flex 卡片（排版在 scripts/line_flex.py），Telegram／Discord 用同內容的純文字
+  --risk-alert：市場風險警示（新條件成立才推，夜間 23:00～07:30 不推；記在 data/notify/risk-alerted.json）
   --morning：盤前快報（台指期夜盤＋富台指、美股主要指數、市場風險、類股龍頭與台股預估），週一到五 08:00；加 --preview 立刻發一張預覽
              夜盤抓不到時用富台指（optratw.com 背後的第三方 API）換算，再不行用美股 EWT
   --preview：不管有沒有推過，把每日戰報、策略、高週轉三張卡片各發一次（測試排版用）
@@ -576,7 +577,10 @@ def morning_brief(dry: bool, force: bool = False) -> int:
             tag = "（20日 " if i["id"] == "hy" else "（"
             val = f"{i['value']:,.{i['dec']}f}{unit}" + ("" if chg is None else f"{tag}{chg:+,.{i['dec']}f}）")
             m.kv(i["name"] + ("" if i["level"] == "正常" else f"・{i['level']}"), val, color=lv[i["level"]])
-        for x in rk.get("alerts", [])[:4]:
+        cr = [c for c in rk.get("credit", []) if c["value"] >= 50][:5]
+        if cr:
+            m.kv("科技廠隱含 CDS（5 日）", "、".join(f"{c['sym']} {c['value']:.0f}({c['chg5']:+.0f})" for c in cr))
+        for x in rk.get("alerts", [])[:5]:
             m.line(f"⚠ {x}", color="#D97706")
 
     # 4) 類股龍頭與台股預估反應：龍頭漲跌幅大的優先
@@ -618,6 +622,86 @@ def morning_brief(dry: bool, force: bool = False) -> int:
         state["sent"] = sorted(set(state["sent"]) | {today.isoformat()})[-60:]
         MORNING_STATE.parent.mkdir(parents=True, exist_ok=True)
         MORNING_STATE.write_text(json.dumps(state, ensure_ascii=False, indent=0), encoding="utf-8")
+    return 0
+
+
+RISK_STATE = ROOT / "data" / "notify" / "risk-alerted.json"
+
+
+def risk_triggers(rk: dict) -> dict:
+    """目前成立的風險條件：key → 說明。條件消失後再出現會重新提醒"""
+    out = {}
+    if rk.get("tempLabel") in ("偏高", "高"):
+        out[f"temp:{rk['tempLabel']}"] = f"風險溫度 {rk['temp']:.0f}，進入「{rk['tempLabel']}」"
+    for i in rk.get("indicators", []):
+        if i["level"] != "正常" and i.get("core"):
+            unit = "bp" if i["unit"] == "bp" else ""
+            out[f"{i['id']}:{i['level']}"] = f"{i['name']} {i['value']:,.{i['dec']}f}{unit}，達{i['level']}門檻"
+    hy = next((i for i in rk.get("indicators", []) if i["id"] == "hy"), None)
+    if hy and (hy.get("chg20") or 0) >= 50:
+        out["hy:widen"] = f"高收益債利差 20 日擴大 {hy['chg20']:.0f}bp"
+    vix = next((i for i in rk.get("indicators", []) if i["id"] == "vix"), None)
+    if vix and vix.get("chg1") and vix["value"] - vix["chg1"] > 0 and vix["chg1"] / (vix["value"] - vix["chg1"]) >= 0.2:
+        out[f"vix:jump:{vix['date']}"] = f"VIX 單日大漲 {vix['chg1'] / (vix['value'] - vix['chg1']) * 100:.0f}%（{vix['value']:.1f}）"
+    for c in rk.get("credit", []):
+        if c["sym"] in rk.get("cdsJumps", []):
+            out[f"cds:{c['sym']}"] = f"{c['name']} 股價隱含 CDS 5 日 +{c['chg5']:.0f}bp（{c['v5']:.0f} → {c['value']:.0f}bp）"
+    return out
+
+
+def risk_alert(dry: bool, force: bool = False) -> int:
+    """市場風險警示：有新的風險條件成立就推（夜間 23:00～07:30 不推，留到早上）"""
+    rk = load("risk.json", {}) or {}
+    if rk.get("temp") is None:
+        print("沒有風險資料")
+        return 0
+    now = datetime.now(TPE_TZ)
+    quiet = now.hour >= 23 or now.hour * 60 + now.minute < 7 * 60 + 30
+    try:
+        state = json.loads(RISK_STATE.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        state = None
+    cur = risk_triggers(rk)
+    if state is None and not force:  # 第一次執行：現有條件當作已提醒
+        state = {"active": sorted(cur)}
+        if not dry:
+            RISK_STATE.parent.mkdir(parents=True, exist_ok=True)
+            RISK_STATE.write_text(json.dumps(state, ensure_ascii=False, indent=0), encoding="utf-8")
+        print("第一次執行，記錄目前條件：", list(cur))
+        return 0
+    new = [k for k in cur if force or k not in set((state or {}).get("active", []))]
+    if not new:
+        print("沒有新的風險警示")
+    elif quiet and not force:
+        print("夜間不推播，留到早上：", new)
+        return 0
+    md = lambda d: f"{int(d[5:7])}/{int(d[8:10])}"  # noqa: E731
+    if new:
+        t = rk["temp"]
+        m = Msg(("【預覽】" if force else "") + "🚨 市場風險警示", f"美股 {md(rk['asof'])} 收盤・風險溫度 {t:.0f}（{rk['tempLabel']}）",
+                accent="#E5484D", url=f"{SITE}/risk/", button="開啟市場風險監控")
+        m.section("新觸發", f"{len(new)} 項")
+        for k in new:
+            m.line(f"⚠ {cur[k]}", color="#E5484D", bold=True)
+        others = [v for k, v in cur.items() if k not in new]
+        if others:
+            m.section("持續中")
+            for v in others[:6]:
+                m.line(f"・{v}", color="#D97706")
+        moved = sorted((c for c in rk.get("credit", []) if c["value"] >= 50), key=lambda c: -c["chg5"])[:6]
+        if moved:
+            m.section("科技廠股價隱含 CDS")
+            m.cols("5 日變化", "目前")
+            for c in moved:
+                m.stock(c["name"], c["sym"], f"{c['chg5']:+.0f}bp", f"{c['value']:.0f}bp", color=sign_tone(c["chg5"]))
+        m.note("股價隱含 CDS 由 CreditGrades 模型以股價、波動度與負債估算，非市場實際 CDS 報價；只看變化方向與幅度")
+        print(m.text())
+        if not dry and not send(m):
+            print("（沒有設定任何推播管道，只印出內容）")
+    if not dry and not force:
+        state = {"active": sorted(cur)}
+        RISK_STATE.parent.mkdir(parents=True, exist_ok=True)
+        RISK_STATE.write_text(json.dumps(state, ensure_ascii=False, indent=0), encoding="utf-8")
     return 0
 
 
@@ -677,6 +761,7 @@ def main():
     ap.add_argument("--intel-alert", action="store_true")
     ap.add_argument("--strategy-alert", action="store_true")
     ap.add_argument("--turnover-alert", action="store_true")
+    ap.add_argument("--risk-alert", action="store_true", help="市場風險警示：風險溫度偏高、指標達警戒／危險、VIX 暴漲、信用利差擴大、科技廠隱含 CDS 跳升")
     ap.add_argument("--morning", action="store_true", help="盤前快報：台指期夜盤、美股主要指數、類股龍頭與台股預估（08:00 發）")
     ap.add_argument("--preview", action="store_true", help="不管有沒有推過，把每日戰報、策略、高週轉三張卡片各發一次（測試排版用）")
     a = ap.parse_args()
@@ -692,6 +777,8 @@ def main():
         return turnover_alert(a.dry_run)
     if a.morning:
         return morning_brief(a.dry_run, force=a.preview)
+    if a.risk_alert:
+        return risk_alert(a.dry_run, force=a.preview)
     if a.preview:
         msg = compose()
         msg.title = "【預覽】" + msg.title

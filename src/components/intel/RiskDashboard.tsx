@@ -10,7 +10,9 @@ type Ind = {
   spark: [string, number][];
 };
 type Tw = { id: string; name: string; unit: string; dec: number; desc: string; date: string; value: number; chg1: number | null; chg5: number | null; pct: number; spark: [string, number][] };
+type Cds = { sym: string; name: string; date: string; value: number; chg1: number; chg5: number; chg20: number | null; pct: number; price: number; vol: number; lev: number; debtB: number; spark: [string, number][] };
 type Data = {
+  credit?: Cds[]; cdsJumps?: string[];
   updatedAt: string; asof: string; temp: number | null; tempLabel: string | null; temp5: number | null; tempHist: [string, number][];
   alerts: string[]; indicators: Ind[]; tw: Tw[];
 };
@@ -123,6 +125,48 @@ export default function RiskDashboard() {
         ) : null;
       })}
 
+      {!!data.credit?.length && (
+        <section>
+          <h2 className="text-sm font-semibold text-white mb-1">科技廠信用風險（股價隱含 CDS）</h2>
+          <p className="text-xs text-[#8b97ab] mb-3 leading-relaxed">
+            單一公司 CDS 沒有免費報價，這裡用 CreditGrades 模型，由股價、波動度、每股負債估算 5 年期 CDS 利差（Oracle 約 170～210bp，和新聞報導的實際 CDS 相近）。
+            負債少的公司模型值接近 0，看不出變化；5 日上升 ≥ 75bp，或上升 ≥ 25bp 且 ≥ 25% 會推播警示。
+          </p>
+          <div className="rounded-xl border border-[#243247] bg-[#0d1220] overflow-x-auto">
+            <table className="w-full text-sm whitespace-nowrap">
+              <thead>
+                <tr className="border-b border-[#243247] text-[11px] text-[#8b97ab] text-right">
+                  <th className="px-4 py-2.5 font-normal text-left">公司</th><th className="px-3 py-2.5 font-normal">隱含 CDS</th>
+                  <th className="px-3 py-2.5 font-normal">1 日</th><th className="px-3 py-2.5 font-normal">5 日</th><th className="px-3 py-2.5 font-normal">20 日</th>
+                  <th className="px-3 py-2.5 font-normal w-40">近一年</th><th className="px-3 py-2.5 font-normal">股價</th><th className="px-3 py-2.5 font-normal">波動度</th>
+                  <th className="px-3 py-2.5 font-normal">總負債</th><th className="px-3 py-2.5 font-normal">槓桿</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.credit.filter((c) => c.value >= 5 || data.cdsJumps?.includes(c.sym)).map((c) => {
+                  const hit = data.cdsJumps?.includes(c.sym);
+                  const d = (v: number | null) => v == null ? <span className="text-[#475569]">—</span> : <span className={v > 0 ? "text-[#f59e0b]" : v < 0 ? "text-[#8b97ab]" : "text-[#475569]"}>{v > 0 ? "+" : ""}{v.toFixed(0)}</span>;
+                  return (
+                    <tr key={c.sym} className={`border-b border-[#243247]/60 text-right font-mono ${hit ? "bg-[#f05252]/5" : ""}`}>
+                      <td className="px-4 py-2 text-left font-sans"><span className="text-slate-200">{c.name}</span><span className="ml-1.5 font-mono text-xs text-[#8b97ab]">{c.sym}</span>{hit && <span className="ml-1.5 text-[10px] text-[#f05252]">⚠ 跳升</span>}</td>
+                      <td className={`px-3 py-2 font-semibold ${c.value >= 300 ? "text-[#f05252]" : c.value >= 100 ? "text-[#f59e0b]" : "text-slate-200"}`}>{c.value.toFixed(0)} bp</td>
+                      <td className="px-3 py-2">{d(c.chg1)}</td><td className="px-3 py-2">{d(c.chg5)}</td><td className="px-3 py-2">{d(c.chg20)}</td>
+                      <td className="px-3 py-1 w-40"><Spark data={c.spark} color={hit ? "#f05252" : "#4f8cff"} /></td>
+                      <td className="px-3 py-2 text-slate-300">{c.price.toFixed(2)}</td><td className="px-3 py-2 text-slate-400">{c.vol.toFixed(0)}%</td>
+                      <td className="px-3 py-2 text-slate-400">{c.debtB.toFixed(0)}B</td><td className="px-3 py-2 text-slate-400">{c.lev.toFixed(0)}%</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+          {data.credit.some((c) => c.value < 5) && (
+            <p className="mt-2 text-[11px] text-[#8b97ab]">負債相對市值很低、模型值接近 0（信用風險極低）：{data.credit.filter((c) => c.value < 5).map((c) => `${c.name}（${c.value.toFixed(1)}bp）`).join("、")}</p>
+          )}
+          <p className="mt-2 text-[11px] text-[#7c8aa0]">波動度＝EWMA 年化股價波動；槓桿＝0.5×每股負債 ÷（股價＋0.5×每股負債），越高代表股價下跌時越接近違約邊界。模型估計值僅供觀察變化方向，不是實際 CDS 報價。</p>
+        </section>
+      )}
+
       {!!data.tw.length && (
         <section>
           <h2 className="text-sm font-semibold text-white mb-3">台股端</h2>
@@ -147,7 +191,8 @@ export default function RiskDashboard() {
       <Note>
         風險溫度＝各核心指標（VIX、VVIX、VIX 期限結構、MOVE、高收益債利差、投資級債利差、金融壓力指數、美元 20 日變化）的分數平均；
         每個指標的分數是「絕對水準」（平靜 0、警戒門檻 50、危險門檻 80）和「近一年百分位」各占一半。
-        CDS（信用違約交換）利差沒有免費公開資料，這裡用 ICE BofA 公司債利差（OAS）代替，高收益債利差和 CDX HY 的走勢高度一致。
+        CDS（信用違約交換）利差沒有免費公開資料：整體信用用 ICE BofA 公司債利差（OAS）代替，高收益債利差和 CDX HY 的走勢高度一致；個別科技廠用 CreditGrades 股價隱含 CDS。
+        有新的風險條件成立（溫度進入偏高／高、核心指標達警戒或危險、VIX 單日大漲 20%、高收益債利差 20 日擴大 50bp、科技廠隱含 CDS 跳升）會推播 LINE，夜間 23:00～07:30 留到早上再發。
         美股資料為前一個交易日收盤，FRED 利差通常晚一天公布。
       </Note>
     </div>
