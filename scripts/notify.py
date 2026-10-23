@@ -57,10 +57,20 @@ def yi(v):
     return f"{'+' if v > 0 else ''}{v:.0f}億" if abs(v) >= 10 else f"{'+' if v > 0 else ''}{v:.1f}億"
 
 
+MAINT_LOW, RATIO_HI = 130, 50
+
+
+def wan(v) -> str:
+    """萬元 → 「+1.23 億」或「-850 萬」"""
+    if v is None:
+        return "—"
+    return f"{v / 1e4:+.2f} 億" if abs(v) >= 1e4 else f"{v:+,.0f} 萬"
+
+
 def compose() -> Msg:
     sig = load("signals.json", {}) or {}
     day = sig.get("date") or "—"
-    m = Msg("📡 Jagon 每日戰報", day, accent="#4f8cff", url=f"{SITE}/watchlist/", button="開啟自選股")
+    m = Msg("📡 Jagon 每日戰報", day, accent="#4f8cff", url=f"{SITE}/short/", button="開啟券差偵察")
 
     atm = (load("market/atmosphere.json", {}) or {}).get("days") or []
     if atm:
@@ -92,6 +102,20 @@ def compose() -> Msg:
         if r[7] is not None:
             m.kv("散戶小台多空比", f"{r[7]:+.1f}%", color=sign_tone(r[7]))
 
+    short = load("market/short.json", {}) or {}
+    sc = short.get("cols") or []
+    srow = {r[0]: dict(zip(sc, r)) for r in short.get("rows", [])}
+
+    def margin_line(r: dict) -> str:
+        parts = [f"融資 {r['mBal']:,} 張（{r['mChg']:+,}・{wan(r.get('mAmt'))}）"]
+        if r.get("maint") is not None:
+            parts.append(f"維持率 {r['maint']:.0f}%{'⚠' if r['maint'] < MAINT_LOW else ''}")
+        if r.get("use") is not None:
+            parts.append(f"使用率 {r['use']:.1f}%")
+        if r.get("ratio") is not None:
+            parts.append(f"券資比 {r['ratio']:.1f}%{'⚠' if r['ratio'] > RATIO_HI else ''}")
+        return "・".join(parts)
+
     wl = watchlist()
     if wl:
         m.section("⭐ 自選股", f"{len(wl)} 檔")
@@ -102,10 +126,35 @@ def compose() -> Msg:
             q = quotes.get(c)
             items = sig.get("sig", {}).get(c, [])
             sub = "\n".join(f"{mark(d)} {cat}｜{text}" for cat, text, d in items[:6]) or "沒有特別訊號"
+            if c in srow and srow[c].get("mBal") is not None:
+                sub += "\n💰 " + margin_line(srow[c])
             if q and q[2] is not None:
                 m.stock(q[0], c, f"{q[1]}", f"{q[2]:+.2f}%", color=sign_tone(q[2]), sub=sub)
             else:
                 m.stock(c, "", sub=sub)
+
+    # 融資風險：維持率 < 130%（追繳、可能斷頭）、券資比 > 50%（空單重、易軋空）；只看融資 500 張以上的普通股
+    stocks = [r for c, r in srow.items() if re.fullmatch(r"[1-9]\d{3}", c) and (r.get("mBal") or 0) >= 500]
+    low = sorted([r for r in stocks if r.get("maint") is not None and r["maint"] < MAINT_LOW], key=lambda r: r["maint"])
+    if low:
+        m.section(f"⚠ 融資維持率 < {MAINT_LOW}%", f"{len(low)} 檔")
+        m.cols("融資增減", "維持率")
+        for r in low[:10]:
+            m.stock(r["name"], r["code"], wan(r.get("mAmt")), f"{r['maint']:.0f}%", color="#E5484D",
+                    sub=f"融資 {r['mBal']:,} 張・使用率 {r['use'] or 0:.1f}%・券資比 {r['ratio'] or 0:.1f}%・近 20 日 {r['chg20'] or 0:+.1f}%")
+        if len(low) > 10:
+            m.note(f"還有 {len(low) - 10} 檔，見網站券差偵察")
+    hi = sorted([r for r in stocks if (r.get("ratio") or 0) > RATIO_HI], key=lambda r: -r["ratio"])
+    if hi:
+        m.section(f"⚠ 券資比 > {RATIO_HI}%", f"{len(hi)} 檔")
+        m.cols("融資增減", "券資比")
+        for r in hi[:10]:
+            m.stock(r["name"], r["code"], wan(r.get("mAmt")), f"{r['ratio']:.0f}%", color="#D97706",
+                    sub=f"融券 {r['sBal']:,} 張（{r['sChg']:+,}）・融資 {r['mBal']:,} 張・維持率 {r['maint'] or 0:.0f}%・近 5 日 {r['chg5'] or 0:+.1f}%")
+        if len(hi) > 10:
+            m.note(f"還有 {len(hi) - 10} 檔，見網站券差偵察")
+    if low or hi:
+        m.note("融資維持率為估算（以融資新增日均價推算平均成本，上市融資 6 成、上櫃 5 成）；只列融資 500 張以上")
 
     m.section("🔎 今日重點")
     short = load("market/short.json", {}) or {}
