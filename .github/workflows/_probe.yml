@@ -12,6 +12,6 @@ jobs:
           cd scripts && python3 -c "
           import fetch_intel as f
           d={}
-          f.fetch_fred(d); f.fetch_us(d, f.RISK_TICKERS, '2y')
+          f.fetch_fred(d)
           print({k:(len(v), v[-1]) for k,v in d.items()})"
         env: { JSS_DATA_DIR: ../data }

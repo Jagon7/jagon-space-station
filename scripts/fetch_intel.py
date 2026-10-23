@@ -22,6 +22,7 @@ import html
 import json
 import os
 import re
+import subprocess
 import sys
 import time
 from datetime import datetime, timedelta, timezone
@@ -440,10 +441,12 @@ FRED_SERIES = {"BAMLH0A0HYM2": "高收益債利差", "BAMLC0A0CM": "投資級債
 
 def fetch_fred(series: dict):
     for sid in FRED_SERIES:
+        # FRED 對 Python requests 會一直卡住到逾時（curl 正常），所以用 curl 抓
         try:
-            r = S.get("https://fred.stlouisfed.org/graph/fredgraph.csv", params={"id": sid}, timeout=60)
+            text = subprocess.run(["curl", "-sS", "-m", "60", "-A", UA, f"https://fred.stlouisfed.org/graph/fredgraph.csv?id={sid}"],
+                                  capture_output=True, text=True, timeout=90).stdout
             rows = []
-            for line in r.text.splitlines()[1:]:
+            for line in text.splitlines()[1:]:
                 d, _, v = line.partition(",")
                 try:
                     rows.append([d, round(float(v), 4)])
@@ -451,7 +454,10 @@ def fetch_fred(series: dict):
                     pass
             if rows:
                 series[sid] = rows[-800:]
-        except requests.RequestException:
+        except (OSError, subprocess.SubprocessError):
+            log(f"  ✗ FRED {sid} 抓不到")
+            continue
+        if not rows:
             log(f"  ✗ FRED {sid} 抓不到")
         time.sleep(0.5)
 
