@@ -3,7 +3,7 @@ import {
   TrendingUp, BarChart2, Shield, DollarSign,
   FileText, Calendar, ArrowDownUp, Zap, Activity,
   PieChart, Search, Layers, Ticket, Users,
-  UserCheck, Star, Filter, Landmark, LineChart, Globe, Newspaper, Mic, Crosshair, RotateCw, Gauge,
+  UserCheck, Star, Filter, Landmark, LineChart, Globe, Newspaper, Mic, Crosshair, RotateCw, Gauge, CalendarClock,
 } from "lucide-react";
 
 const modules = [
@@ -12,6 +12,13 @@ const modules = [
     title: "十日波段策略",
     desc: "出量做多、輿情籌碼兩個策略的明日進場名單、持有中部位與到期出場，每天推播 LINE",
     href: "/strategy",
+    accent: "#f05252",
+  },
+  {
+    icon: CalendarClock,
+    title: "除權息黑K",
+    desc: "近兩週要除息的高殖利率股，除息日開盤放空、持有 4 天；附個股期、自營商動向與 5 年回測",
+    href: "/exdiv",
     accent: "#f05252",
   },
   {

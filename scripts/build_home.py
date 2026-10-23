@@ -73,6 +73,11 @@ def build(data_dir: Path, public_dir: Path):
     if big:
         top = sorted(big, key=lambda c: -big[c])[:3]
         alerts.append({"level": "amber", "text": f"內部人大額申報轉讓（近 7 天 ≥1 億）：{len(big)} 家（{'、'.join(names[c] for c in top)}）", "href": "/insider"})
+    ex = P("exdiv.json")
+    cand = [u for u in ex.get("upcoming", []) if u.get("ok")]
+    if cand:
+        tm = [u["name"] for u in cand if u.get("tomorrow")]
+        alerts.append({"level": "info", "text": f"除權息黑K：未來兩週候選 {len(cand)} 檔" + (f"，明天除息 {'、'.join(tm)}" if tm else ""), "href": "/exdiv"})
     rd = rep.get("date")
     nrep = [r for r in rep.get("rows", []) if r[0] == rd and r[9] == "broker"]
     if nrep:

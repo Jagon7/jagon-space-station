@@ -10,6 +10,7 @@
   LINE    ：LINE_CHANNEL_TOKEN、LINE_USER_ID（Messaging API push message）
 用法：python scripts/notify.py [--dry-run] [--check] [--insider-alert] [--preview]
   LINE 用 Flex 卡片（排版在 scripts/line_flex.py），Telegram／Discord 用同內容的純文字
+  --exdiv-alert：除權息黑K（明天除息的放空候選、明天要回補的部位；沒有就不發）
   --risk-alert：市場風險警示（新條件成立才推，夜間 23:00～07:30 不推；記在 data/notify/risk-alerted.json）
   --morning：盤前快報（台指期夜盤＋富台指、美股主要指數、市場風險、類股龍頭與台股預估），週一到五 08:00；加 --preview 立刻發一張預覽
              夜盤抓不到時用富台指（optratw.com 背後的第三方 API）換算，再不行用美股 EWT
@@ -625,6 +626,68 @@ def morning_brief(dry: bool, force: bool = False) -> int:
     return 0
 
 
+EXDIV_STATE = ROOT / "data" / "notify" / "exdiv-alerted.json"
+
+
+def exdiv_alert(dry: bool, force: bool = False) -> int:
+    """除權息黑K：明天除息、符合條件（殖利率 ≥ 4%、日均成交 ≥ 5000 萬）的放空候選，以及明天該回補的部位；沒有就不發"""
+    ex = load("exdiv.json", {}) or {}
+    asof, nxt = ex.get("asof"), ex.get("next")
+    if asof != last_trading_day() and not force:
+        print(f"除權息資料還沒更新（{asof}）")
+        return 0
+    try:
+        state = json.loads(EXDIV_STATE.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        state = {"sent": []}
+    if asof in state["sent"] and not force:
+        print(f"{asof} 的除權息黑K已推過")
+        return 0
+    md = lambda d: f"{int(d[5:7])}/{int(d[8:10])}"  # noqa: E731
+    cand = [u for u in ex.get("upcoming", []) if u["tomorrow"] and u["ok"]]
+    cover = [a for a in ex.get("active", []) if a.get("exit") == nxt]
+    soon = [u for u in ex.get("upcoming", []) if u["ok"] and not u["tomorrow"]][:8]
+    if not cand and not cover and not force:
+        print("明天沒有除息候選、也沒有要回補的部位")
+        if not dry:
+            state["sent"] = sorted(set(state["sent"]) | {asof})[-60:]
+            EXDIV_STATE.parent.mkdir(parents=True, exist_ok=True)
+            EXDIV_STATE.write_text(json.dumps(state, ensure_ascii=False, indent=0), encoding="utf-8")
+        return 0
+    bt = next((g for g in (ex.get("backtest") or {}).get("groups", []) if "有個股期" in g["group"] and "4%" in g["group"]), None)
+    m = Msg(("【預覽】" if force else "") + "📉 除權息黑K", f"{md(nxt)} 除息日開盤放空・持有 {ex.get('hold', 4)} 天", accent="#E5484D",
+            url=f"{SITE}/exdiv/", button="開啟除權息黑K")
+    m.section(f"{md(nxt)} 除息放空候選", f"{len(cand)} 檔")
+    if cand:
+        m.cols("現金股利", "殖利率")
+        for u in sorted(cand, key=lambda u: -(u["y"] or 0)):
+            tags = "・".join(x for x in ("有個股期" if u["sf"] else "無個股期", "可現沖先賣" if not u["noShort"] else "暫停先賣後買",
+                                         f"日均 {u['valYi']:g} 億", f"自營商 10 日 {u['dealer']:+,} 張") if x)
+            m.stock(u["name"], u["code"], f"{u['cash']:g} 元", f"{u['y']:.2f}%", color="#D97706", sub=tags)
+    else:
+        m.line("明天沒有符合條件的除息股", color="#64748B")
+    if cover:
+        m.section(f"⏰ {md(nxt)} 收盤回補", f"{len(cover)} 檔")
+        m.cols("除息日", "目前損益")
+        for a in cover:
+            m.stock(a["name"], a["code"], md(a["date"]), f"{a['ret']:+.2f}%", color=sign_tone(a["ret"]))
+    if soon:
+        m.section("之後兩週的候選")
+        for u in soon:
+            m.stock(u["name"], u["code"], md(u["date"]), f"{u['y']:.2f}%", color="#D97706")
+    if bt:
+        m.note(f"回測（{bt['n']} 次，殖利率 ≥ 4%＋有個股期）：放空 4 天平均 {bt['avg']:+.2f}%、勝率 {bt['win']:.0f}%，扣個股期成本 {bt['netFut']:+.2f}%")
+    print(m.text())
+    if not dry:
+        if not send(m):
+            print("（沒有設定任何推播管道，只印出內容）")
+        if not force:
+            state["sent"] = sorted(set(state["sent"]) | {asof})[-60:]
+            EXDIV_STATE.parent.mkdir(parents=True, exist_ok=True)
+            EXDIV_STATE.write_text(json.dumps(state, ensure_ascii=False, indent=0), encoding="utf-8")
+    return 0
+
+
 RISK_STATE = ROOT / "data" / "notify" / "risk-alerted.json"
 
 
@@ -761,6 +824,7 @@ def main():
     ap.add_argument("--intel-alert", action="store_true")
     ap.add_argument("--strategy-alert", action="store_true")
     ap.add_argument("--turnover-alert", action="store_true")
+    ap.add_argument("--exdiv-alert", action="store_true", help="除權息黑K：明天除息的放空候選與明天要回補的部位")
     ap.add_argument("--risk-alert", action="store_true", help="市場風險警示：風險溫度偏高、指標達警戒／危險、VIX 暴漲、信用利差擴大、科技廠隱含 CDS 跳升")
     ap.add_argument("--morning", action="store_true", help="盤前快報：台指期夜盤、美股主要指數、類股龍頭與台股預估（08:00 發）")
     ap.add_argument("--preview", action="store_true", help="不管有沒有推過，把每日戰報、策略、高週轉三張卡片各發一次（測試排版用）")
@@ -777,6 +841,8 @@ def main():
         return turnover_alert(a.dry_run)
     if a.morning:
         return morning_brief(a.dry_run, force=a.preview)
+    if a.exdiv_alert:
+        return exdiv_alert(a.dry_run, force=a.preview)
     if a.risk_alert:
         return risk_alert(a.dry_run, force=a.preview)
     if a.preview:
