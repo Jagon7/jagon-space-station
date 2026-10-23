@@ -17,6 +17,9 @@ concurrency:
   group: data-fetch
   cancel-in-progress: false
 
+env:
+  SITE_URL: ${{ vars.SITE_URL }}   # 推播裡的網站連結（搬到 Cloudflare 後在 repo variables 設定）
+
 jobs:
   fetch:
     runs-on: ubuntu-latest
