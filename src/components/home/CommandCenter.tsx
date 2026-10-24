@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { AlertTriangle, ArrowRight, Crosshair, Globe, Info, RotateCw, ShieldAlert } from "lucide-react";
+import { AlertTriangle, ArrowRight, CalendarDays, Crosshair, Globe, Info, RotateCw, ShieldAlert } from "lucide-react";
 import WatchCard from "./WatchCard";
 
 export type Home = {
@@ -14,7 +14,50 @@ export type Home = {
   strategy: { asof: string | null; next: string | null; s1: { code: string; name: string; v: number }[]; s1n: number; s2: { code: string; name: string; v: number | null }[]; s2n: number; exits: number; exitAvg: number | null };
   turnover: { asof: string | null; next: string | null; list: { code: string; name: string; t: number; dt: number | null }[]; o2c: number | null; black: number | null; top: { code: string; name: string; t: number }[] };
   global: { date: string | null; idx: { name: string; chg: number }[]; groups: { name: string; sym: string; chg: number; react: { name: string; exp: number }[] }[] };
+  week?: { from: string; to: string; days: { d: string; wd: string; next: boolean; items: { cat: string; text: string; hi: boolean; href: string | null }[] }[] };
 };
+
+const CAT: Record<string, string> = { 休市: "#f05252", 結算: "#f59e0b", 總經: "#a78bfa", 財報: "#06b6d4", 法說: "#4f8cff", ETF: "#22c55e", 除息: "#f97316", 營收: "#8b97ab" };
+
+function Week({ w }: { w: NonNullable<Home["week"]> }) {
+  return (
+    <div className="rounded-xl border border-[#243247] bg-[#0d1220] p-5">
+      <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+        <div className="flex items-center gap-2">
+          <CalendarDays className="w-4 h-4 text-[#a78bfa]" /><h3 className="text-sm font-semibold text-white">下週重點大事</h3>
+          <span className="text-[11px] text-[#8b97ab]">{md(w.from)}～{md(w.to)}・台北時間</span>
+        </div>
+        <div className="flex flex-wrap gap-2 text-[10px]">
+          {Object.entries(CAT).map(([k, c]) => <span key={k} className="inline-flex items-center gap-1 text-[#8b97ab]"><span className="w-1.5 h-1.5 rounded-full" style={{ background: c }} />{k}</span>)}
+        </div>
+      </div>
+      {!w.days.length ? <p className="text-xs text-[#7c8aa0]">這段期間沒有重大事件</p> : (
+        <div className="grid gap-3 items-start sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+          {w.days.map((d) => (
+            <div key={d.d} className={`rounded-lg border p-3 ${d.items.some((i) => i.hi) ? "border-[#a78bfa]/30 bg-[#a78bfa]/[0.03]" : "border-[#1c2738]"}`}>
+              <div className="flex items-baseline gap-2 mb-1.5">
+                <span className="font-mono text-sm font-semibold text-white">{md(d.d)}</span>
+                <span className="text-[11px] text-[#8b97ab]">週{d.wd}{!d.next && "・本週"}</span>
+              </div>
+              <ul className="space-y-1">
+                {d.items.map((i) => {
+                  const body = (
+                    <span className={`flex items-start gap-1.5 text-[12px] leading-snug ${i.hi ? "text-white font-medium" : "text-slate-400"}`}>
+                      <span className="mt-[5px] w-1.5 h-1.5 shrink-0 rounded-full" style={{ background: CAT[i.cat] ?? "#8b97ab" }} />
+                      <span><span className="text-[10px] mr-1" style={{ color: CAT[i.cat] ?? "#8b97ab" }}>{i.cat}</span>{i.text}</span>
+                    </span>
+                  );
+                  return <li key={i.cat + i.text}>{i.href ? <Link href={i.href} className="block rounded hover:bg-white/5">{body}</Link> : body}</li>;
+                })}
+              </ul>
+            </div>
+          ))}
+        </div>
+      )}
+      <p className="mt-3 text-[10px] text-[#7c8aa0]">粗體＝重點。美股財報標「盤後」的，台股隔天才反應；總經數據時間為台北時間，晚上公布的影響隔天台股開盤。</p>
+    </div>
+  );
+}
 
 const md = (d?: string | null) => (d ? `${Number(d.slice(5, 7))}/${Number(d.slice(8, 10))}` : "—");
 const tone = (v: number | null | undefined) => (v == null || v === 0 ? "text-[#8b97ab]" : v > 0 ? "text-[#f05252]" : "text-[#22c55e]");
@@ -153,6 +196,8 @@ export default function CommandCenter({ h }: { h: Home }) {
           </div>
         </Panel>
       </div>
+
+      {h.week && <Week w={h.week} />}
 
       <WatchCard />
     </section>

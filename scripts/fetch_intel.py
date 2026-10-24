@@ -13,6 +13,8 @@
   data/intel/reports.json   {"items": [{id, date, code, name, broker, rating, target, prev, kind, title, points, url}]}
   data/intel/confnews.json  {"items": [{id, date, code, name, title, kind, points, body, url}]}
   data/intel/us.json        {"updatedAt", "series": {代號: [[日期, 收盤], ...]}}
+  data/intel/week.json      未來兩週國際行事曆：重要經濟數據與央行會議（TradingView economic-calendar）、
+                            大型美股財報（Nasdaq earnings calendar），給首頁「下週重點大事」
 用法：python scripts/fetch_intel.py [--pages 30] [--backfill-days 0]
 """
 from __future__ import annotations
@@ -79,6 +81,48 @@ def load(path: Path, default):
 def save(path: Path, obj):
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(obj, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+
+
+MACRO_COUNTRIES = "US,CN,JP,EU,TW"
+EARN_MIN_CAP = 1e11  # 美股財報：市值 ≥ 1000 億美元，或是國際類股頁追蹤的公司
+
+
+def fetch_week(days: int = 14) -> dict:
+    today = datetime.now(TPE).date()
+    end = today + timedelta(days=days)
+    macro = []
+    try:
+        r = S.get("https://economic-calendar.tradingview.com/events", timeout=30, headers={"Origin": "https://www.tradingview.com"},
+                  params={"from": f"{today}T00:00:00.000Z", "to": f"{end}T00:00:00.000Z", "countries": MACRO_COUNTRIES})
+        for e in r.json().get("result", []):
+            if (e.get("importance") or 0) < 1:
+                continue
+            t = datetime.fromisoformat(e["date"].replace("Z", "+00:00")).astimezone(TPE)
+            macro.append({"t": t.isoformat(timespec="minutes"), "country": e.get("country"), "title": e.get("title"),
+                          "period": e.get("period"), "forecast": e.get("forecast"), "previous": e.get("previous")})
+    except (requests.RequestException, ValueError, KeyError):
+        pass
+    earn = []
+    d = today
+    while d <= end:
+        if d.weekday() < 5:
+            out = subprocess.run(["curl", "-s", "-m", "30", "-A", "Mozilla/5.0", "-H", "Accept: application/json",
+                                  f"https://api.nasdaq.com/api/calendar/earnings?date={d}"], capture_output=True, text=True).stdout
+            try:
+                rows = (json.loads(out).get("data") or {}).get("rows") or []
+            except ValueError:
+                rows = []
+            for x in rows:
+                try:
+                    cap = float(x.get("marketCap", "").replace("$", "").replace(",", ""))
+                except ValueError:
+                    cap = 0
+                if cap >= EARN_MIN_CAP or x.get("symbol") in US_TICKERS:
+                    earn.append({"date": d.isoformat(), "sym": x["symbol"], "name": x.get("name"), "cap": cap,
+                                 "time": {"time-pre-market": "盤前", "time-after-hours": "盤後"}.get(x.get("time"), "")})
+            time.sleep(0.5)
+        d += timedelta(days=1)
+    return {"macro": macro, "earnings": earn}
 
 
 def text_of(content: str) -> str:
@@ -657,6 +701,10 @@ def main():
         rdoc["updatedAt"] = now
         save(rk, rdoc)
         log(f"風險指標：{len(rdoc['series'])} 項")
+        wk = fetch_week()
+        if wk["macro"] or wk["earnings"]:  # 都抓不到就保留舊檔
+            save(OUT / "week.json", {"updatedAt": now, **wk})
+        log(f"國際行事曆：經濟數據 {len(wk['macro'])} 項、美股財報 {len(wk['earnings'])} 家")
     return 0
 
 
