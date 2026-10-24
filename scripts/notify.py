@@ -608,7 +608,7 @@ def morning_brief(dry: bool, force: bool = False) -> int:
             m.stock(g["name"], NAME.get(q["sym"], q["sym"]), close, f"{q['chg']:+.2f}%", color=sign_tone(q["chg"]), sub=sub)
         m.note("台股預估＝β × 龍頭漲跌（過去約半年的隔日連動），只列預估 ±0.3% 以上的股票，僅供參考")
 
-    # 4) 85g 開高走低觀察：熱門股前 5 日漲 ≥ 10%，開盤落在開高 1.5～6% 的價位就是候選
+    # 4) 85g 開高走低觀察：熱門股今天漲停或前 5 日漲 ≥ 10%，開盤落在開高 0～4% 的價位就是候選
     g85 = load("85g.json", {}) or {}
     cand = [c for c in g85.get("cand", []) if not c.get("noShort")]
     if cand and not closed:
@@ -616,7 +616,7 @@ def morning_brief(dry: bool, force: bool = False) -> int:
         m.cols("近 5 日", "開在這裡就留意")
         for c in sorted(cand, key=lambda c: -(c["p5"] or 0))[:6]:
             m.stock(c["name"], c["code"], f"{c['p5']:+.1f}%", f"{c['lo']:g}～{c['hi']:g}", color="#D97706", sub=c.get("sector") or "")
-        m.note("開高 1.5～6%：先看 15 分鐘，跌破開盤價再分批賣，13:00 後買回；不加碼、開漲停不碰")
+        m.note("開高 0～4%：09～10 點趁衝高分批賣，中午後低檔分批買回；一路創高就停損、不加碼，開漲停不碰")
 
     print(m.text())
     if dry:

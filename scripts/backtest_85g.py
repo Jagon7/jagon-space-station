@@ -6,7 +6,8 @@
   熱門族群股（記憶體、光通訊、面板…）開高時，開盤 30 分鐘內分批賣出，13:00 之後接近收盤買回 → 吃「開高走低」。
   另一種是指數大跌、熱門股開很低時先買，等盤中拉高一段賣出 → 吃「開低反彈」。
 回測兩種打法（日線，約 5 年）：
-  A 開高走低：前一日成交金額前 50 名的熱門股，開盤漲 1.5%～6%（不含開漲停），開盤賣、收盤買回
+  A 開高走低：前一日成交金額前 100 名、前一日漲停或前 5 日漲 ≥ 10% 的熱門股，開盤漲 0～4%，開盤賣、收盤買回
+     （條件來自 85g 2024/12～2026/9 共 170 多張對帳單的統計：76% 是成交前 100 名、八成以上前一日漲停或近 5 日大漲、65% 開高 0～4%）
   B 開低反彈：指數開低 ≥ 1%，熱門股開盤跌 ≥ 3%，開盤買、收盤賣
   成本：現股當沖證交稅 0.15% ＋ 手續費約 0.09%（打折後）≈ 0.24%
 另用近 60 天 5 分 K（--intraday）測「等 15 分鐘、跌破開盤價才賣」與停損的差別。
@@ -32,8 +33,12 @@ ROOT = Path(__file__).resolve().parent.parent
 DATA = Path(os.environ.get("JSS_DATA_DIR", ROOT / "data"))
 TZ = timezone(timedelta(hours=8))
 COST = 0.24
-TOP = 50
-GAP_LO, GAP_HI, RUN5 = 1.5, 6.0, 10.0
+TOP = 100
+GAP_LO, GAP_HI, RUN5, LIMIT = 0.0, 4.0, 10.0, 9.5
+
+
+def hot(e):
+    return e["prev"] >= LIMIT or e["p5"] >= RUN5
 
 
 def ohlc(r: dict) -> dict:
@@ -43,6 +48,13 @@ def ohlc(r: dict) -> dict:
         if o and h and l and c and v:
             out[datetime.fromtimestamp(t, TZ).date().isoformat()] = (o, h, l, c, v)
     return out
+
+
+def top3(ev):
+    by = collections.defaultdict(list)
+    for e in ev:
+        by[e["d"]].append(e)
+    return [e for d in by.values() for e in sorted(d, key=lambda e: e["rank"])[:3]]
 
 
 def stat(name, ev, side=-1):
@@ -55,7 +67,7 @@ def stat(name, ev, side=-1):
 
 
 def intraday(q_last: dict) -> list:
-    """近 60 天 5 分 K：前一日成交金額前 50、開高 1.5～6% 的事件，比較開盤賣與 09:15 跌破開盤價才賣"""
+    """近 60 天 5 分 K：A 條件的事件，比較開盤賣與 09:15 跌破開盤價才賣"""
     daily = {}
     for f in sorted((DATA / "daily").glob("20*.json"))[-62:]:
         j = json.loads(f.read_text(encoding="utf-8"))
@@ -90,11 +102,12 @@ def intraday(q_last: dict) -> list:
         for c in tops[p]:
             b = (B.get(c) or {}).get(d)
             pc, p5 = (daily[p].get(c) or [0] * 9)[5], (daily[days[i - 6]].get(c) or [0] * 9)[5]
-            if not b or len(b) < 40 or not pc or not p5:
+            ppc = (daily[days[i - 2]].get(c) or [0] * 9)[5]
+            if not b or len(b) < 40 or not pc or not p5 or not ppc:
                 continue
             o = b[0][0]
             gap = (o / pc - 1) * 100
-            if not GAP_LO <= gap < GAP_HI:
+            if not GAP_LO <= gap < GAP_HI or not hot({"prev": (pc / ppc - 1) * 100, "p5": (pc / p5 - 1) * 100}):
                 continue
             close = b[-1][3]
             hi15, px15 = max(x[1] for x in b[:3]), b[2][3]
@@ -103,7 +116,7 @@ def intraday(q_last: dict) -> list:
                 if x[1] >= hi15 * 1.01:
                     rs = -(hi15 * 1.01 / px15 - 1) * 100
                     break
-            rows.append({"run": (pc / p5 - 1) * 100 >= RUN5, "open": -(close / o - 1) * 100, "fail": px15 < o,
+            rows.append({"run": (pc / ppc - 1) * 100 >= LIMIT, "open": -(close / o - 1) * 100, "fail": px15 < o,
                          "r15": -(close / px15 - 1) * 100, "stop": rs})
 
     def s(name, ev, k):
@@ -113,11 +126,11 @@ def intraday(q_last: dict) -> list:
         return {"group": name, "n": len(ev), "avg": round(st.mean(r), 2), "med": round(st.median(r), 2),
                 "win": round(sum(x > 0 for x in r) / len(r) * 100, 1), "net": round(st.mean(r) - COST, 2)}
     run = [e for e in rows if e["run"]]
-    out = [s("開高 1.5～6%：09:00 開盤賣", rows, "open"),
+    out = [s(f"A 條件（開高 {GAP_LO:g}～{GAP_HI:g}%）：09:00 開盤賣", rows, "open"),
            s("　└ 等 15 分鐘，跌破開盤價才賣（09:15）", [e for e in rows if e["fail"]], "r15"),
            s("　└ 同上，漲破前 15 分最高 +1% 停損", [e for e in rows if e["fail"]], "stop"),
            s("　└ 15 分鐘後還在開盤價之上（不做）", [e for e in rows if not e["fail"]], "r15"),
-           s("前 5 日漲 ≥ 10%＋開高：09:00 開盤賣", run, "open"),
+           s("其中前一日漲停：09:00 開盤賣", run, "open"),
            s("　└ 等 15 分鐘，跌破開盤價才賣", [e for e in run if e["fail"]], "r15"),
            s("　└ 同上＋停損", [e for e in run if e["fail"]], "stop")]
     return [x for x in out if x], (days[6] if len(days) > 6 else None), days[-1]
@@ -143,31 +156,33 @@ def main():
     for c, d in stocks.items():
         for day, (o, h, l, cl, v) in d.items():
             val[day][c] = cl * v
-    top = {day: set(sorted(m, key=lambda c: -m[c])[:TOP]) for day, m in val.items()}
+    top = {day: {c: k + 1 for k, c in enumerate(sorted(m, key=lambda c: -m[c])[:TOP])} for day, m in val.items()}
     ev = []
     for c, d in stocks.items():
         days = sorted(d)
         for i in range(6, len(days)):
             day, p = days[i], days[i - 1]
-            if day not in igap or c not in top.get(p, ()):
+            if day not in igap or c not in top.get(p, {}):
                 continue
             o, h, l, cl, v = d[day]
             pc = d[p][3]
-            ev.append({"d": day, "gap": (o / pc - 1) * 100, "prev": (pc / d[days[i - 2]][3] - 1) * 100, "p5": (pc / d[days[i - 6]][3] - 1) * 100,
+            ev.append({"d": day, "c": c, "rank": top[p][c], "gap": (o / pc - 1) * 100, "prev": (pc / d[days[i - 2]][3] - 1) * 100, "p5": (pc / d[days[i - 6]][3] - 1) * 100,
                        "ig": igap[day], "oc": (cl / o - 1) * 100, "oh": (h / o - 1) * 100, "ol": (l / o - 1) * 100, "lim": o >= pc * 1.095})
-    A = [e for e in ev if GAP_LO <= e["gap"] < GAP_HI]
-    Ar = [e for e in A if e["p5"] >= RUN5]
-    groups = [stat("熱門股全部（基準：開盤賣、收盤買回）", ev)]
-    for lo, hi in ((0, 1.5), (1.5, 3), (3, 6), (6, 9.5)):
-        groups.append(stat(f"開高 {lo:g}～{hi:g}%", [e for e in ev if lo <= e["gap"] < hi and not e["lim"]]))
-    groups += [stat("開漲停", [e for e in ev if e["lim"]]),
-               stat(f"A 開高 {GAP_LO:g}～{GAP_HI:g}%", A),
-               stat("A＋前 5 日漲 ≥ 10%（漲多）", Ar),
-               stat("A＋前 5 日漲 ≥ 25%（大漲）", [e for e in A if e["p5"] >= 25]),
-               stat("A＋前一日漲停", [e for e in A if e["prev"] >= 9.5]),
-               stat("A＋指數開高 ≥ 0.8%", [e for e in A if e["ig"] >= 0.8]),
-               stat("A＋前 5 日漲 ≥ 10%＋指數開高 ≥ 0.3%", [e for e in Ar if e["ig"] >= 0.3])]
-    years = [stat(f"{y} 年（A＋前 5 日漲 ≥ 10%）", [e for e in Ar if e["d"].startswith(y)]) for y in sorted({e["d"][:4] for e in Ar})]
+    G = [e for e in ev if GAP_LO <= e["gap"] < GAP_HI]
+    Ar = [e for e in G if hot(e)]
+    groups = [stat(f"熱門股全部（前一日成交前 {TOP}，開盤賣、收盤買回）", ev),
+              stat(f"開高 {GAP_LO:g}～{GAP_HI:g}%（不挑強勢）", G),
+              stat(f"A：開高 {GAP_LO:g}～{GAP_HI:g}%＋前一日漲停或前 5 日漲 ≥ {RUN5:g}%", Ar),
+              stat("A＋前一日漲停", [e for e in Ar if e["prev"] >= LIMIT]),
+              stat("A＋當天符合條件中成交金額最大的 3 檔", top3(Ar)),
+              stat("A＋前一日成交前 20 名", [e for e in Ar if e["rank"] <= 20]),
+              stat("A＋前 5 日漲 ≥ 25%", [e for e in Ar if e["p5"] >= 25]),
+              stat("A＋指數開高 ≥ 0.5%", [e for e in Ar if e["ig"] >= 0.5]),
+              stat("A＋指數開低", [e for e in Ar if e["ig"] < 0]),
+              stat("強勢股開高 4～9.5%", [e for e in ev if 4 <= e["gap"] < 9.5 and hot(e)]),
+              stat("強勢股開低", [e for e in ev if e["gap"] < 0 and hot(e)]),
+              stat("開漲停", [e for e in ev if e["lim"]])]
+    years = [stat(f"{y} 年（A 條件）", [e for e in Ar if e["d"].startswith(y)]) for y in sorted({e["d"][:4] for e in Ar})]
     B = [e for e in ev if e["gap"] <= -3 and e["ig"] <= -1]
     bgroups = [stat("開低 ≥ 3%（指數不限）", [e for e in ev if e["gap"] <= -3], 1),
                stat("B 指數開低 ≥ 1%＋個股開低 ≥ 3%", B, 1),
