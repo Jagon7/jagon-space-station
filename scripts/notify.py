@@ -759,7 +759,7 @@ def etf_alert(dry: bool, force: bool = False) -> int:
             url=f"{SITE}/etf-flow/", button="開啟 ETF 頁")
 
     def ws(ids):
-        return "、".join(short(i) for i in ids[:3]) + (f" 等 {len(ids)} 檔" if len(ids) > 3 else "")
+        return "、".join(etfs[i]["c"] for i in ids[:4]) + (f" 等 {len(ids)} 檔" if len(ids) > 4 else "")
 
     m.section("主動 ETF 合計買超", "扣除申購贖回")
     if buys:
@@ -794,7 +794,7 @@ def etf_alert(dry: bool, force: bool = False) -> int:
             sl = [x for x in moves if x[1] < 0][:2]
             txt = "　".join(x for x in ("買 " + "、".join(f"{names.get(c, c)} {v:+.1f}億" for c, v in b) if b else "",
                                          "賣 " + "、".join(f"{names.get(c, c)} {v:+.1f}億" for c, v in sl) if sl else "") if x)
-            m.stock(short(i), etfs[i]["c"], "", f"{(etfs[i].get('aum') or 0) / 1e8:,.0f} 億", color=FLAT, sub=txt)
+            m.stock(etfs[i]["c"], short(i), "", f"{(etfs[i].get('aum') or 0) / 1e8:,.0f} 億", color=FLAT, sub=txt)
     # 被動 ETF：成分股新增／刪除（同一天）
     pas = []
     for i, rows in chg.items():
@@ -809,7 +809,7 @@ def etf_alert(dry: bool, force: bool = False) -> int:
         for i, add, rm in sorted(pas, key=lambda x: -(etfs[x[0]].get("aum") or 0))[:6]:
             txt = "・".join(x for x in (("納入 " + "、".join(names.get(c, c) for c in add[:5])) if add else "",
                                          ("刪除 " + "、".join(names.get(c, c) for c in rm[:5])) if rm else "") if x)
-            m.stock(etfs[i]["n"], etfs[i]["c"], "", "", color=FLAT, sub=txt)
+            m.stock(etfs[i]["c"], etfs[i]["n"], "", "", color=FLAT, sub=txt)
     # 資金流入流出（申購贖回金額）
     rows = [r for r in aum.get("rows", []) if r[7]]
     if rows and aum.get("date"):
@@ -817,7 +817,7 @@ def etf_alert(dry: bool, force: bool = False) -> int:
         for lab, rs in (("流入", sorted(rows, key=lambda r: -r[7])[:4]), ("流出", sorted(rows, key=lambda r: r[7])[:3])):
             rs = [r for r in rs if (r[7] > 0) == (lab == "流入")]
             if rs:
-                m.kv(lab, "、".join(f"{r[1]} {r[7] / 1e8:+.0f}億" for r in rs), color=sign_tone(rs[0][7]))
+                m.kv(lab, "、".join(f"{r[0]} {r[7] / 1e8:+.0f}億" for r in rs), color=sign_tone(rs[0][7]))
     m.note("主動 ETF 金額＝股數變化（已扣除申購贖回造成的等比例增減）× 收盤價；★＝自選股")
     print(m.text())
     if dry:
