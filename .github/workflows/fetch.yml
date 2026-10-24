@@ -105,6 +105,14 @@ jobs:
         env:
           JSS_DATA_DIR: ./data
 
+      - name: 85g intraday fade backtest (Saturdays)
+        if: always() && steps.fetch.conclusion != 'cancelled' && github.event.schedule == '13 2 * * 6'
+        continue-on-error: true
+        timeout-minutes: 20
+        run: python3 scripts/backtest_85g.py --cache /tmp/yahoo --intraday
+        env:
+          JSS_DATA_DIR: ./data
+
       - name: Commit and push data
         if: always() && steps.fetch.conclusion != 'cancelled'
         run: |

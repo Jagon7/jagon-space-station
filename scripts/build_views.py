@@ -20,6 +20,7 @@ import build_strategy  # noqa: E402
 import build_turnover  # noqa: E402
 import build_risk  # noqa: E402
 import build_exdiv  # noqa: E402
+import build_85g  # noqa: E402
 import build_home  # noqa: E402
 
 
@@ -242,4 +243,5 @@ if __name__ == "__main__":
     build_risk.build(DATA_DIR, ROOT / "public" / "data")
     build_signals.build(ROOT / "public" / "data")
     build_exdiv.build(DATA_DIR, ROOT / "public" / "data")
+    build_85g.build(DATA_DIR, ROOT / "public" / "data")
     build_home.build(DATA_DIR, ROOT / "public" / "data")

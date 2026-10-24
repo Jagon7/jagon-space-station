@@ -22,6 +22,7 @@ const navItems: NavItem[] = [
       { label: "十日波段策略", href: "/strategy" },
       { label: "高週轉率黑K", href: "/turnover" },
       { label: "除權息黑K", href: "/exdiv" },
+      { label: "85g 當沖策略", href: "/85g" },
       { label: "統計戰報", href: "/stats" },
       { label: "族群強弱", href: "/sectors" },
       { label: "產業細分類", href: "/industry" },
