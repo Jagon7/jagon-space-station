@@ -14,6 +14,7 @@
   --risk-alert：市場風險警示（新條件成立才推，夜間 23:00～07:30 不推；記在 data/notify/risk-alerted.json）
   --morning：盤前快報（台指期夜盤＋富台指、美股主要指數、市場風險、類股龍頭與台股預估），週一到五 08:00；加 --preview 立刻發一張預覽
              夜盤抓不到時用富台指（optratw.com 背後的第三方 API）換算，再不行用美股 EWT
+  --etf-alert：每日 ETF 持股變化摘要（主動 ETF 合計買賣超、新建倉／出清、被動 ETF 成分異動、資金流向），週一到五 20:00
   --preview：不管有沒有推過，把每日戰報、策略、高週轉三張卡片各發一次（測試排版用）
   --strategy-alert：兩個十日波段策略明日進場名單與到期出場提醒（資料到齊才發，每個交易日一次）
   --turnover-alert：週轉率前 20 名且收漲停的隔日開高走低觀察名單（每個交易日一次；沒有符合的股票就不發）
@@ -691,6 +692,151 @@ def exdiv_alert(dry: bool, force: bool = False) -> int:
     return 0
 
 
+ETF_STATE = ROOT / "data" / "notify" / "etf-sent.json"
+
+
+def etf_alert(dry: bool, force: bool = False) -> int:
+    """每日 ETF 持股變化摘要（週一到五 20:00）：主動 ETF 合計買賣超（扣除申購贖回）、新建倉／出清、
+    各主動 ETF 最大動作、被動 ETF 成分異動、ETF 資金流入流出。同一份持股日期只發一次"""
+    core = load("etf/core.json", {}) or {}
+    act = load("etf/active.json", {}) or {}
+    aum = load("etf/aum.json", {}) or {}
+    etfs = core.get("etfs", [])
+    names = {c: n.rstrip("*") for c, n in {**core.get("names", {}), **act.get("names", {})}.items()}
+    now = datetime.now(TPE_TZ)
+    if now.weekday() >= 5 and not force:
+        print("週末不發 ETF 摘要")
+        return 0
+    if now.hour * 60 + now.minute > 22 * 60 + 30 and not force:
+        print("已經超過 22:30，不發 ETF 摘要")
+        return 0
+    ev = {int(k): v[-1] for k, v in act.get("events", {}).items() if v}
+    if not ev:
+        print("沒有主動式 ETF 持股資料")
+        return 0
+    day = max(e[0] for e in ev.values())
+    try:
+        state = json.loads(ETF_STATE.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        state = {"sent": []}
+    if day in state["sent"] and not force:
+        print(f"{day} 的 ETF 持股變化已推過（新的持股還沒公布）")
+        return 0
+    md = lambda d: f"{int(d[5:7])}/{int(d[8:10])}"  # noqa: E731
+    short = lambda i: re.sub(r"^主動", "", etfs[i]["n"])  # noqa: E731
+    wl = set(watchlist())
+
+    # 主動 ETF：同一天的變化加總（扣除申購贖回後的股數 × 收盤價）
+    agg: dict[str, dict] = {}
+    per = []
+    today_ev = {i: e for i, e in ev.items() if e[0] == day}
+    for i, (d, pd, ratio, rows) in today_ev.items():
+        moves = []
+        for code, raw, adj, px in rows:
+            # 原始股數沒變的只是申購贖回造成的比例差（持股還沒跟著調整），不算買賣；小於 500 萬也略過
+            if not px or not raw or not adj or abs(adj * px) < 5e6:
+                continue
+            v = adj * px / 1e8
+            a = agg.setdefault(code, {"v": 0.0, "buy": [], "sell": [], "new": [], "out": []})
+            a["v"] += v
+            (a["buy"] if v > 0 else a["sell"]).append(i)
+            moves.append((code, v))
+        moves.sort(key=lambda x: -abs(x[1]))
+        if moves:
+            per.append((i, moves))
+    # 新建倉／出清：看原始股數從 0 變有、從有變 0
+    chg = {i: rows for i, rows in core.get("changes", [])}
+    for i in today_ev:
+        for code, ps, cs, pw, cw, val in chg.get(i, []):
+            if code in agg:
+                if not ps and cs:
+                    agg[code]["new"].append(i)
+                elif ps and not cs:
+                    agg[code]["out"].append(i)
+    buys = sorted((x for x in agg.items() if x[1]["v"] >= 0.05), key=lambda x: -x[1]["v"])[:8]
+    sells = sorted((x for x in agg.items() if x[1]["v"] <= -0.05), key=lambda x: x[1]["v"])[:8]
+    m = Msg(("【預覽】" if force else "") + "📊 ETF 持股變化", f"{md(day)} 持股・主動 ETF {len(today_ev)} 檔有更新", accent="#8B5CF6",
+            url=f"{SITE}/etf-flow/", button="開啟 ETF 頁")
+
+    def ws(ids):
+        return "、".join(short(i) for i in ids[:3]) + (f" 等 {len(ids)} 檔" if len(ids) > 3 else "")
+
+    m.section("主動 ETF 合計買超", "扣除申購贖回")
+    if buys:
+        m.cols("買／賣檔數", "金額")
+        for code, a in buys:
+            tag = ("新建倉：" + ws(a["new"]) + "・") if a["new"] else ""
+            m.stock(names.get(code, code), code, f"{len(a['buy'])}／{len(a['sell'])}", f"+{a['v']:.2f} 億", color=sign_tone(1), sub=tag + "買：" + ws(a["buy"]), star=code in wl)
+    else:
+        m.line("沒有明顯買超", color=FLAT)
+    m.section("主動 ETF 合計賣超", "扣除申購贖回")
+    if sells:
+        m.cols("買／賣檔數", "金額")
+        for code, a in sells:
+            tag = ("出清：" + ws(a["out"]) + "・") if a["out"] else ""
+            m.stock(names.get(code, code), code, f"{len(a['buy'])}／{len(a['sell'])}", f"{a['v']:.2f} 億", color=sign_tone(-1), sub=tag + "賣：" + ws(a["sell"]), star=code in wl)
+    else:
+        m.line("沒有明顯賣超", color=FLAT)
+    # 其他新建倉／出清（不在上面兩張表裡的）
+    shown = {c for c, _ in buys + sells}
+    newo = [(c, a) for c, a in agg.items() if c not in shown and (a["new"] or a["out"])]
+    if newo:
+        m.section("其他新建倉／出清")
+        for c, a in sorted(newo, key=lambda x: -abs(x[1]["v"]))[:6]:
+            txt = "・".join(x for x in (("新建倉 " + ws(a["new"])) if a["new"] else "", ("出清 " + ws(a["out"])) if a["out"] else "") if x)
+            m.line(f"{'★' if c in wl else ''}{names.get(c, c)} {c}：{txt}（{a['v']:+.2f} 億）", color=sign_tone(a["v"]))
+    # 各主動 ETF 最大動作（依規模）
+    per.sort(key=lambda x: -(etfs[x[0]].get("aum") or 0))
+    if per:
+        m.section("各主動 ETF 最大動作", f"前 {min(8, len(per))} 大")
+        for i, moves in per[:8]:
+            b = [x for x in moves if x[1] > 0][:2]
+            sl = [x for x in moves if x[1] < 0][:2]
+            txt = "　".join(x for x in ("買 " + "、".join(f"{names.get(c, c)} {v:+.1f}億" for c, v in b) if b else "",
+                                         "賣 " + "、".join(f"{names.get(c, c)} {v:+.1f}億" for c, v in sl) if sl else "") if x)
+            m.stock(short(i), etfs[i]["c"], "", f"{(etfs[i].get('aum') or 0) / 1e8:,.0f} 億", color=FLAT, sub=txt)
+    # 被動 ETF：成分股新增／刪除（同一天）
+    pas = []
+    for i, rows in chg.items():
+        if etfs[i]["k"] != "P" or etfs[i]["d"] != day:
+            continue
+        add = [r[0] for r in rows if not r[1] and r[2]]
+        rm = [r[0] for r in rows if r[1] and not r[2]]
+        if add or rm:
+            pas.append((i, add, rm))
+    if pas:
+        m.section("被動 ETF 成分異動")
+        for i, add, rm in sorted(pas, key=lambda x: -(etfs[x[0]].get("aum") or 0))[:6]:
+            txt = "・".join(x for x in (("納入 " + "、".join(names.get(c, c) for c in add[:5])) if add else "",
+                                         ("刪除 " + "、".join(names.get(c, c) for c in rm[:5])) if rm else "") if x)
+            m.stock(etfs[i]["n"], etfs[i]["c"], "", "", color=FLAT, sub=txt)
+    # 資金流入流出（申購贖回金額）
+    rows = [r for r in aum.get("rows", []) if r[7]]
+    if rows and aum.get("date"):
+        m.section(f"ETF 資金流向（{md(aum['date'])}）")
+        for lab, rs in (("流入", sorted(rows, key=lambda r: -r[7])[:4]), ("流出", sorted(rows, key=lambda r: r[7])[:3])):
+            rs = [r for r in rs if (r[7] > 0) == (lab == "流入")]
+            if rs:
+                m.kv(lab, "、".join(f"{r[1]} {r[7] / 1e8:+.0f}億" for r in rs), color=sign_tone(rs[0][7]))
+    m.note("主動 ETF 金額＝股數變化（已扣除申購贖回造成的等比例增減）× 收盤價；★＝自選股")
+    print(m.text())
+    if dry:
+        return 0
+    if not force:
+        target = now.replace(hour=20, minute=0, second=0, microsecond=0)
+        if now < target:
+            import time
+            print(f"等到 20:00 再發（{(target - now).total_seconds() / 60:.0f} 分鐘）")
+            time.sleep((target - now).total_seconds())
+    if not send(m):
+        print("（沒有設定任何推播管道，只印出內容）")
+    if not force:
+        state["sent"] = sorted(set(state["sent"]) | {day})[-60:]
+        ETF_STATE.parent.mkdir(parents=True, exist_ok=True)
+        ETF_STATE.write_text(json.dumps(state, ensure_ascii=False, indent=0), encoding="utf-8")
+    return 0
+
+
 RISK_STATE = ROOT / "data" / "notify" / "risk-alerted.json"
 
 
@@ -829,6 +975,7 @@ def main():
     ap.add_argument("--turnover-alert", action="store_true")
     ap.add_argument("--exdiv-alert", action="store_true", help="除權息黑K：明天除息的放空候選與明天要回補的部位")
     ap.add_argument("--risk-alert", action="store_true", help="市場風險警示：風險溫度偏高、指標達警戒／危險、VIX 暴漲、信用利差擴大、科技廠隱含 CDS 跳升")
+    ap.add_argument("--etf-alert", action="store_true", help="每日 ETF 持股變化摘要（週一到五 20:00；加 --preview 立刻發預覽）")
     ap.add_argument("--morning", action="store_true", help="盤前快報：台指期夜盤、美股主要指數、類股龍頭與台股預估（08:00 發）")
     ap.add_argument("--preview", action="store_true", help="不管有沒有推過，把每日戰報、策略、高週轉三張卡片各發一次（測試排版用）")
     a = ap.parse_args()
@@ -844,6 +991,8 @@ def main():
         return turnover_alert(a.dry_run)
     if a.morning:
         return morning_brief(a.dry_run, force=a.preview)
+    if a.etf_alert:
+        return etf_alert(a.dry_run, force=a.preview)
     if a.exdiv_alert:
         return exdiv_alert(a.dry_run, force=a.preview)
     if a.risk_alert:
