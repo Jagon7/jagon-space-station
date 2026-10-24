@@ -204,7 +204,7 @@ export default function G85Dashboard() {
       {view === "trades" && (
         <div className="space-y-5">
           <p className="text-xs text-[#8b97ab]">{data.trades.source}。每張對帳單只露出部分成交；用買賣價對照當天小時 K 推估成交時段與先後順序（「先賣（推估）」＝只看到賣單或順序較難判斷，但賣在開盤第一小時）。
-            月／區間對帳單的損益是整段期間的合計，不是當天。</p>
+            月／區間對帳單的損益是整段期間的合計，不是當天。2023/10 以前沒有小時 K，只能用價位在當天高低區間的位置推估先後。</p>
           <section className="grid gap-4 md:grid-cols-3 rounded-xl border border-[#243247] bg-[#0d1220] p-5">
             <Bars title="前一天的漲跌" rows={ts.prev} />
             <Bars title="前 5 日漲幅" rows={ts.p5} />
@@ -239,7 +239,7 @@ export default function G85Dashboard() {
                   ))}
                 </tbody>
               </table>
-              <p className="mt-2 text-[11px] text-[#7c8aa0]">2024 年部位小、標的分散（中小型股、先買後賣也不少），買回價大約在平盤；2025 年起集中在前一日漲停或連漲的熱門股、平均每天賺得多一倍；
+              <p className="mt-2 text-[11px] text-[#7c8aa0]">2023 年平均每天只賺 9 萬、標的多是成交 50 名外的中小型股，但賣價比開盤高約 1%（開盤後的衝高賣得最漂亮）；2024 年部位放大、標的仍分散（中小型股、先買後賣也不少），買回價大約在平盤；2025 年起集中在前一日漲停或連漲的熱門股、平均每天賺得多一倍；
                 2026 年幾乎只打成交前 50 名的超級熱門股（記憶體、光通訊），開高走低吃得更深（買回價比昨收低約 3%）。「年」以對帳單日期計，各年張數不同，只能看趨勢。</p>
             </section>
           )}
