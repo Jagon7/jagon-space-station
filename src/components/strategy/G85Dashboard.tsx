@@ -17,7 +17,8 @@ type Share = [string, number][];
 type Stats = { n: number; days: number; from: string; to: string; daily: { n: number; win: number; avg: number; max: number; min: number; sum: number };
   prev: Share; p5: Share; gap: Share; vr: Share; rank: Share; sellVsPc: number; sellVsOpen: number; buyVsPc: number; sellFirstHour: number; buyAfterNoon: number;
   sellPos: number; buyPos: number; closeVsOpen: number; win: { n: number; closePos: number; closeVsOpen: number };
-  loss: { n: number; closePos: number; closeVsOpen: number; limitUp: number; list: [string, string, number, number][] }; long: [string, string, number, number, number | null][]; sides: Record<string, number> };
+  loss: { n: number; closePos: number; closeVsOpen: number; limitUp: number; list: [string, string, number, number][] }; long: [string, string, number, number, number | null][]; sides: Record<string, number>;
+  years?: Record<string, { n: number; days: number; win: number; sum: number; avg: number; short: number; long: number; limitUp: number; rank50: number; gap04: number; sellVsOpen: number; buyVsPc: number }> };
 type G = { group: string; n: number; avg: number; med: number; win: number; net: number };
 type Bt = { updatedAt: string; cost: number; from: string; to: string; n: number; groups: G[]; years: G[]; bGroups: G[]; bRise: Record<string, number>;
   aRisk: { up3: number; up5: number; dn3: number }; intraday?: G[]; intraFrom?: string; intraTo?: string };
@@ -217,6 +218,31 @@ export default function G85Dashboard() {
               <p>賺錢日收盤比開盤 <b className="font-mono text-[#22c55e]">{pct(ts.win.closeVsOpen, 1)}</b>；賠錢日 <b className="font-mono text-[#f05252]">{pct(ts.loss.closeVsOpen, 1)}</b></p>
             </div>
           </section>
+          {ts.years && (
+            <section className="rounded-xl border border-[#243247] bg-[#0d1220] p-5 overflow-x-auto">
+              <h3 className="text-sm text-white font-semibold mb-2">打法的演變（逐年）</h3>
+              <table className="w-full text-[12px] font-mono">
+                <thead><tr className="text-[#8b97ab] text-[11px]">
+                  {["年", "對帳單", "當日損益天數", "勝率", "合計", "平均每天", "先賣後買", "先買後賣", "前一日漲停", "前日成交前 50", "開高 0～4%", "賣價比開盤", "買回比昨收"].map((h) => <th key={h} className="text-right first:text-left font-normal px-2 py-1 whitespace-nowrap">{h}</th>)}
+                </tr></thead>
+                <tbody>
+                  {Object.entries(ts.years).map(([y, v]) => (
+                    <tr key={y} className="border-t border-[#1c2738] text-slate-300">
+                      <td className="px-2 py-1.5 text-white">{y}</td>
+                      <td className="px-2 text-right">{v.n}</td><td className="px-2 text-right">{v.days}</td>
+                      <td className="px-2 text-right">{Math.round(v.win / v.days * 100)}%</td>
+                      <td className="px-2 text-right text-[#f05252]">{wan(v.sum)}</td><td className="px-2 text-right">{wan(v.avg)}</td>
+                      <td className="px-2 text-right text-[#f59e0b]">{v.short}%</td><td className="px-2 text-right text-[#06b6d4]">{v.long}%</td>
+                      <td className="px-2 text-right">{v.limitUp}%</td><td className="px-2 text-right">{v.rank50}%</td><td className="px-2 text-right">{v.gap04}%</td>
+                      <td className="px-2 text-right">{pct(v.sellVsOpen, 1)}</td><td className="px-2 text-right">{pct(v.buyVsPc, 1)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <p className="mt-2 text-[11px] text-[#7c8aa0]">2024 年部位小、標的分散（中小型股、先買後賣也不少），買回價大約在平盤；2025 年起集中在前一日漲停或連漲的熱門股、平均每天賺得多一倍；
+                2026 年幾乎只打成交前 50 名的超級熱門股（記憶體、光通訊），開高走低吃得更深（買回價比昨收低約 3%）。「年」以對帳單日期計，各年張數不同，只能看趨勢。</p>
+            </section>
+          )}
           {cur && (
             <section className="rounded-xl border border-[#243247] bg-[#0d1220] p-4 grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
               <TradeChart t={cur} />
