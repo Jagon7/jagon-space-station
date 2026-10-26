@@ -338,6 +338,19 @@
       "closePrice": 114.5,
       "market": "上市",
       "underwriter": "凱基證券股份有限公司"
+    },
+    {
+      "code": "6597",
+      "name": "立誠",
+      "cbSeries": "第70次",
+      "filingDate": "2026-10-27",
+      "bookBuildDate": "2026-10-27",
+      "listingDate": "2026-11-06",
+      "amount": 4.5,
+      "conversionPrice": null,
+      "closePrice": 0.0,
+      "market": "上櫃",
+      "underwriter": "福邦證券股份有限公司"
     }
   ]
 }
