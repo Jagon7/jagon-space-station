@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-23",
+  "date": "2026-10-27",
   "data": [
     {
       "code": "3167",
@@ -30,16 +30,6 @@
       "endDate": "2026-10-28",
       "announceDate": "115/10/20",
       "market": "上市"
-    },
-    {
-      "code": "3354",
-      "name": "律勝",
-      "count": 1,
-      "condition": "連續3個營業日",
-      "period": "115/10/21~115/10/28",
-      "endDate": "2026-10-28",
-      "announceDate": "115/10/20",
-      "market": "上櫃"
     },
     {
       "code": "3287",
@@ -79,6 +69,46 @@
       "period": "115/10/23~115/10/30",
       "endDate": "2026-10-30",
       "announceDate": "115/10/22",
+      "market": "上櫃"
+    },
+    {
+      "code": "3354",
+      "name": "律勝",
+      "count": 4,
+      "condition": "連續3個營業日",
+      "period": "115/10/28~115/11/03",
+      "endDate": "2026-11-03",
+      "announceDate": "115/10/27",
+      "market": "上櫃"
+    },
+    {
+      "code": "5475",
+      "name": "德宏",
+      "count": 4,
+      "condition": "連續5個營業日",
+      "period": "115/10/28~115/11/03",
+      "endDate": "2026-11-03",
+      "announceDate": "115/10/27",
+      "market": "上櫃"
+    },
+    {
+      "code": "6751",
+      "name": "智聯服務",
+      "count": 4,
+      "condition": "連續3個營業日",
+      "period": "115/10/28~115/11/03",
+      "endDate": "2026-11-03",
+      "announceDate": "115/10/27",
+      "market": "上櫃"
+    },
+    {
+      "code": "6925",
+      "name": "意藍",
+      "count": 4,
+      "condition": "連續3個營業日",
+      "period": "115/10/28~115/11/03",
+      "endDate": "2026-11-03",
+      "announceDate": "115/10/27",
       "market": "上櫃"
     },
     {

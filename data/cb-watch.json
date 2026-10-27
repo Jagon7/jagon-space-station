@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-23",
+  "date": "2026-10-27",
   "data": [
     {
       "code": "5291",
@@ -10,7 +10,7 @@
       "listingDate": "2026-07-31",
       "amount": 2.0,
       "conversionPrice": null,
-      "closePrice": 58.6,
+      "closePrice": 56.4,
       "market": "上櫃",
       "underwriter": "統一綜合證券股份有限公司"
     },
@@ -23,7 +23,7 @@
       "listingDate": "2026-07-31",
       "amount": 30.0,
       "conversionPrice": null,
-      "closePrice": 291.5,
+      "closePrice": 280.5,
       "market": "上櫃",
       "underwriter": "凱基證券股份有限公司"
     },
@@ -36,21 +36,21 @@
       "listingDate": "2026-07-31",
       "amount": 15.0,
       "conversionPrice": null,
-      "closePrice": 790.0,
+      "closePrice": 753.0,
       "market": "上櫃",
       "underwriter": "國票綜合證券股份有限公司"
     },
     {
-      "code": "1229",
-      "name": "聯華",
+      "code": "",
+      "name": "聯華電子",
       "cbSeries": "第46次",
       "filingDate": "2026-07-24",
       "bookBuildDate": "2026-07-24",
       "listingDate": "2026-08-07",
       "amount": 120.0,
       "conversionPrice": null,
-      "closePrice": 39.95,
-      "market": "上市",
+      "closePrice": null,
+      "market": "",
       "underwriter": "宏遠證券股份有限公司"
     },
     {
@@ -62,21 +62,21 @@
       "listingDate": "2026-08-07",
       "amount": 5.0,
       "conversionPrice": null,
-      "closePrice": 71.7,
+      "closePrice": 72.2,
       "market": "上櫃",
       "underwriter": "統一綜合證券股份有限公司"
     },
     {
-      "code": "3019",
-      "name": "亞光",
+      "code": "3081",
+      "name": "聯亞",
       "cbSeries": "第48次",
       "filingDate": "2026-07-31",
       "bookBuildDate": "2026-07-31",
       "listingDate": "2026-08-14",
       "amount": 18.0,
       "conversionPrice": null,
-      "closePrice": 129.5,
-      "market": "上市",
+      "closePrice": 2500.0,
+      "market": "上櫃",
       "underwriter": "元大證券股份有限公司"
     },
     {
@@ -88,21 +88,21 @@
       "listingDate": "2026-08-14",
       "amount": 2.5,
       "conversionPrice": null,
-      "closePrice": 45.8,
+      "closePrice": 45.15,
       "market": "上櫃",
       "underwriter": "統一綜合證券股份有限公司"
     },
     {
-      "code": "3016",
-      "name": "嘉晶",
+      "code": "",
+      "name": "嘉晶電子",
       "cbSeries": "第50次",
       "filingDate": "2026-08-05",
       "bookBuildDate": "2026-08-05",
       "listingDate": "2026-08-14",
       "amount": 3.5,
       "conversionPrice": null,
-      "closePrice": 145.0,
-      "market": "上市",
+      "closePrice": null,
+      "market": "",
       "underwriter": "凱基證券股份有限公司"
     },
     {
@@ -119,16 +119,16 @@
       "underwriter": "台新綜合證券股份有限公司"
     },
     {
-      "code": "7631",
-      "name": "聚賢研發-創",
+      "code": "",
+      "name": "聚賢研發",
       "cbSeries": "第52次",
       "filingDate": "2026-08-12",
       "bookBuildDate": "2026-08-12",
       "listingDate": "2026-08-28",
       "amount": 4.0,
       "conversionPrice": null,
-      "closePrice": 126.0,
-      "market": "上市",
+      "closePrice": null,
+      "market": "",
       "underwriter": "宏遠證券股份有限公司"
     },
     {
@@ -140,7 +140,7 @@
       "listingDate": "2026-09-11",
       "amount": 2.0,
       "conversionPrice": null,
-      "closePrice": 23.7,
+      "closePrice": 22.75,
       "market": "上櫃",
       "underwriter": "永豐金證券股份有限公司"
     },
@@ -153,7 +153,7 @@
       "listingDate": "2026-09-11",
       "amount": 5.0,
       "conversionPrice": null,
-      "closePrice": 129.0,
+      "closePrice": 132.0,
       "market": "上櫃",
       "underwriter": "統一綜合證券股份有限公司"
     },
@@ -166,7 +166,7 @@
       "listingDate": "2026-09-18",
       "amount": 30.0,
       "conversionPrice": null,
-      "closePrice": 328.0,
+      "closePrice": 330.5,
       "market": "上櫃",
       "underwriter": "群益金鼎證券股份有限公司"
     },
@@ -179,7 +179,7 @@
       "listingDate": "2026-09-18",
       "amount": 2.0,
       "conversionPrice": null,
-      "closePrice": 59.0,
+      "closePrice": 58.7,
       "market": "上櫃",
       "underwriter": "凱基證券股份有限公司"
     },
@@ -192,25 +192,25 @@
       "listingDate": "2026-09-25",
       "amount": 4.0,
       "conversionPrice": null,
-      "closePrice": 60.7,
+      "closePrice": 62.2,
       "market": "上櫃",
       "underwriter": "統一綜合證券股份有限公司"
     },
     {
-      "code": "8442",
-      "name": "威宏-KY",
+      "code": "",
+      "name": "威宏控股",
       "cbSeries": "第59次",
       "filingDate": "2026-09-14",
       "bookBuildDate": "2026-09-14",
       "listingDate": "2026-09-25",
       "amount": 2.0,
       "conversionPrice": null,
-      "closePrice": 48.05,
-      "market": "上市",
+      "closePrice": null,
+      "market": "",
       "underwriter": "富邦綜合證券股份有限公司"
     },
     {
-      "code": "2646",
+      "code": "",
       "name": "星宇航空",
       "cbSeries": "第60次",
       "filingDate": "2026-09-14",
@@ -218,8 +218,8 @@
       "listingDate": "2026-09-25",
       "amount": 5.0,
       "conversionPrice": null,
-      "closePrice": 20.15,
-      "market": "上市",
+      "closePrice": null,
+      "market": "",
       "underwriter": "元大證券股份有限公司"
     },
     {
@@ -231,21 +231,21 @@
       "listingDate": "2026-09-25",
       "amount": 3.0,
       "conversionPrice": null,
-      "closePrice": 49.3,
+      "closePrice": 48.65,
       "market": "上櫃",
       "underwriter": "兆豐證券股份有限公司"
     },
     {
-      "code": "8996",
-      "name": "高力",
+      "code": "",
+      "name": "高力熱處理工業",
       "cbSeries": "第62次",
       "filingDate": "2026-09-23",
       "bookBuildDate": "2026-09-23",
       "listingDate": "2026-10-09",
       "amount": 25.0,
       "conversionPrice": null,
-      "closePrice": 1560.0,
-      "market": "上市",
+      "closePrice": null,
+      "market": "",
       "underwriter": "富邦綜合證券股份有限公司"
     },
     {
@@ -262,16 +262,16 @@
       "underwriter": "凱基證券股份有限公司"
     },
     {
-      "code": "6438",
-      "name": "迅得",
+      "code": "",
+      "name": "迅得機械",
       "cbSeries": "第64次",
       "filingDate": "2026-09-29",
       "bookBuildDate": "2026-09-29",
       "listingDate": "2026-10-09",
       "amount": 5.0,
       "conversionPrice": null,
-      "closePrice": 164.0,
-      "market": "上市",
+      "closePrice": null,
+      "market": "",
       "underwriter": "台新綜合證券股份有限公司"
     },
     {
@@ -283,21 +283,21 @@
       "listingDate": "2026-10-16",
       "amount": 5.0,
       "conversionPrice": null,
-      "closePrice": 167.0,
+      "closePrice": 165.0,
       "market": "上櫃",
       "underwriter": "永豐金證券股份有限公司"
     },
     {
-      "code": "2492",
-      "name": "華新科",
+      "code": "",
+      "name": "華新科技",
       "cbSeries": "第66次",
       "filingDate": "2026-10-13",
       "bookBuildDate": "2026-10-13",
       "listingDate": "2026-10-23",
       "amount": 45.0,
       "conversionPrice": null,
-      "closePrice": 368.0,
-      "market": "上市",
+      "closePrice": null,
+      "market": "",
       "underwriter": "國泰綜合證券股份有限公司"
     },
     {
@@ -309,34 +309,34 @@
       "listingDate": "2026-10-30",
       "amount": 100.0,
       "conversionPrice": null,
-      "closePrice": 1420.0,
+      "closePrice": 1280.0,
       "market": "上櫃",
       "underwriter": "統一綜合證券股份有限公司"
     },
     {
-      "code": "6658",
-      "name": "聯策",
+      "code": "",
+      "name": "聯策科技",
       "cbSeries": "第68次",
       "filingDate": "2026-10-20",
       "bookBuildDate": "2026-10-20",
       "listingDate": "2026-10-30",
       "amount": 2.5,
       "conversionPrice": null,
-      "closePrice": 190.0,
-      "market": "上市",
+      "closePrice": null,
+      "market": "",
       "underwriter": "台新綜合證券股份有限公司"
     },
     {
-      "code": "3702",
-      "name": "大聯大",
+      "code": "",
+      "name": "大聯大控股",
       "cbSeries": "第69次",
       "filingDate": "2026-10-20",
       "bookBuildDate": "2026-10-20",
       "listingDate": "2026-10-30",
       "amount": 150.0,
       "conversionPrice": null,
-      "closePrice": 114.5,
-      "market": "上市",
+      "closePrice": null,
+      "market": "",
       "underwriter": "凱基證券股份有限公司"
     },
     {
@@ -348,7 +348,7 @@
       "listingDate": "2026-11-06",
       "amount": 4.5,
       "conversionPrice": null,
-      "closePrice": 0.0,
+      "closePrice": 69.2,
       "market": "上櫃",
       "underwriter": "福邦證券股份有限公司"
     }

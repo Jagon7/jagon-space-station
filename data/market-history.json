@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-23",
+  "date": "2026-10-27",
   "data": [
     {
       "date": "2026-09-11",
@@ -750,6 +750,34 @@
         {
           "name": "生技醫療",
           "count": 2
+        },
+        {
+          "name": "其他電子",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "date": "2026-10-27",
+      "limitUpCount": 21,
+      "marketMood": "中性",
+      "taiexChange": 0.12,
+      "topSectors": [
+        {
+          "name": "電機機械",
+          "count": 5
+        },
+        {
+          "name": "電子零組件",
+          "count": 4
+        },
+        {
+          "name": "電腦週邊",
+          "count": 3
+        },
+        {
+          "name": "資訊服務",
+          "count": 3
         },
         {
           "name": "其他電子",

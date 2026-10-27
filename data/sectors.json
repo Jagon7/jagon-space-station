@@ -1,10 +1,15 @@
 {
-  "date": "2026-10-23",
+  "date": "2026-10-27",
   "data": [
     {
-      "name": "資訊服務",
-      "count": 6,
-      "momentum": "strong"
+      "name": "電機機械",
+      "count": 5,
+      "momentum": "normal"
+    },
+    {
+      "name": "電子零組件",
+      "count": 4,
+      "momentum": "normal"
     },
     {
       "name": "電腦週邊",
@@ -12,22 +17,12 @@
       "momentum": "normal"
     },
     {
-      "name": "半導體",
-      "count": 2,
-      "momentum": "weak"
-    },
-    {
-      "name": "生技醫療",
-      "count": 2,
-      "momentum": "weak"
+      "name": "資訊服務",
+      "count": 3,
+      "momentum": "normal"
     },
     {
       "name": "其他電子",
-      "count": 1,
-      "momentum": "weak"
-    },
-    {
-      "name": "光電",
       "count": 1,
       "momentum": "weak"
     },
@@ -37,17 +32,22 @@
       "momentum": "weak"
     },
     {
-      "name": "塑膠",
+      "name": "光電",
       "count": 1,
       "momentum": "weak"
     },
     {
-      "name": "綠能環保",
+      "name": "數位雲端",
       "count": 1,
       "momentum": "weak"
     },
     {
-      "name": "電子零組件",
+      "name": "運動休閒",
+      "count": 1,
+      "momentum": "weak"
+    },
+    {
+      "name": "半導體",
       "count": 1,
       "momentum": "weak"
     }
