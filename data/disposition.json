@@ -2,26 +2,6 @@
   "date": "2026-10-27",
   "data": [
     {
-      "code": "3167",
-      "name": "大量",
-      "count": 1,
-      "condition": "連續五次",
-      "period": "115/10/20～115/10/27",
-      "endDate": "2026-10-27",
-      "announceDate": "115/10/19",
-      "market": "上市"
-    },
-    {
-      "code": "6716",
-      "name": "應廣",
-      "count": 1,
-      "condition": "連續3個營業日",
-      "period": "115/10/20~115/10/27",
-      "endDate": "2026-10-27",
-      "announceDate": "115/10/19",
-      "market": "上櫃"
-    },
-    {
       "code": "2424",
       "name": "隴華",
       "count": 1,
