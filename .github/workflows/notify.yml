@@ -110,10 +110,11 @@ jobs:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
           LINE_USER_ID: ${{ secrets.LINE_USER_ID }}
+      # 資料到齊（或早上的保底）才記成已發送；手動補發舊資料不算，免得擋住當天真正的戰報
       - name: Mark as sent
-        if: steps.send.outcome == 'success' && steps.sent.outputs.cache-hit != 'true'
+        if: steps.send.outcome == 'success' && steps.sent.outputs.cache-hit != 'true' && (steps.check.outputs.ready == 'true' || github.event_name == 'schedule')
         run: echo "${{ steps.check.outputs.date }}" > .notify-sent
-      - if: steps.send.outcome == 'success' && steps.sent.outputs.cache-hit != 'true'
+      - if: steps.send.outcome == 'success' && steps.sent.outputs.cache-hit != 'true' && (steps.check.outputs.ready == 'true' || github.event_name == 'schedule')
         uses: actions/cache/save@v4
         with:
           path: .notify-sent
