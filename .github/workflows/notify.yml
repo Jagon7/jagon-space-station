@@ -2,7 +2,7 @@ name: Daily Notify
 
 # 資料抓完就推播：每次資料抓取跑完都檢查一次，行情、法人、融資券都到齊才發，
 # 同一個交易日只發一次（用 Actions cache 記錄已發送的日期）。
-# 隔天早上 09:27 再保底一次：資料還沒到齊也照發現有的內容。
+# 隔天早上 09:27 再保底一次：資料還沒到齊也照發現有的內容（排程延後到 13:00 以後才跑就不保底，避免把昨天的內容當成今天發）。
 # 另外每次都檢查內部人大額異動（≥1 億），有新的就另外發一則快訊；資料到齊後推兩個波段策略的明日進場名單、高週轉＋漲停名單（已推過的記在 data/notify/）。
 on:
   workflow_run:
@@ -101,7 +101,8 @@ jobs:
         if: >-
           github.event_name == 'workflow_dispatch' ||
           (steps.sent.outputs.cache-hit != 'true' &&
-           (steps.check.outputs.ready == 'true' || github.event_name == 'schedule'))
+           (steps.check.outputs.ready == 'true' ||
+            (github.event_name == 'schedule' && steps.check.outputs.fallback == 'true')))
         run: python3 scripts/notify.py
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
