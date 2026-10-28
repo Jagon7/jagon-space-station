@@ -3,16 +3,21 @@
   "data": [
     {
       "name": "半導體",
-      "count": 7,
-      "momentum": "strong"
-    },
-    {
-      "name": "電子零組件",
-      "count": 6,
+      "count": 15,
       "momentum": "strong"
     },
     {
       "name": "光電",
+      "count": 15,
+      "momentum": "strong"
+    },
+    {
+      "name": "電子零組件",
+      "count": 13,
+      "momentum": "strong"
+    },
+    {
+      "name": "通信網路",
       "count": 5,
       "momentum": "normal"
     },
@@ -20,6 +25,16 @@
       "name": "化工",
       "count": 4,
       "momentum": "normal"
+    },
+    {
+      "name": "電機機械",
+      "count": 2,
+      "momentum": "weak"
+    },
+    {
+      "name": "電腦週邊",
+      "count": 2,
+      "momentum": "weak"
     },
     {
       "name": "數位雲端",
@@ -32,22 +47,7 @@
       "momentum": "weak"
     },
     {
-      "name": "通信網路",
-      "count": 1,
-      "momentum": "weak"
-    },
-    {
       "name": "電器電纜",
-      "count": 1,
-      "momentum": "weak"
-    },
-    {
-      "name": "資訊服務",
-      "count": 1,
-      "momentum": "weak"
-    },
-    {
-      "name": "鋼鐵",
       "count": 1,
       "momentum": "weak"
     }

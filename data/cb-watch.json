@@ -351,6 +351,19 @@
       "closePrice": 66.5,
       "market": "上櫃",
       "underwriter": "福邦證券股份有限公司"
+    },
+    {
+      "code": "2530",
+      "name": "華建",
+      "cbSeries": "第71次",
+      "filingDate": "2026-10-29",
+      "bookBuildDate": "2026-10-29",
+      "listingDate": "2026-11-13",
+      "amount": 4.0,
+      "conversionPrice": null,
+      "closePrice": 19.9,
+      "market": "上市",
+      "underwriter": "台新綜合證券股份有限公司"
     }
   ]
 }

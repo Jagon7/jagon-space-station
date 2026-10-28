@@ -793,23 +793,23 @@
       "topSectors": [
         {
           "name": "半導體",
-          "count": 7
-        },
-        {
-          "name": "電子零組件",
-          "count": 6
+          "count": 15
         },
         {
           "name": "光電",
+          "count": 15
+        },
+        {
+          "name": "電子零組件",
+          "count": 13
+        },
+        {
+          "name": "通信網路",
           "count": 5
         },
         {
           "name": "化工",
           "count": 4
-        },
-        {
-          "name": "數位雲端",
-          "count": 2
         }
       ]
     }
