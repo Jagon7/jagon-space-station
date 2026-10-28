@@ -792,24 +792,24 @@
       "taiexChange": 2.04,
       "topSectors": [
         {
-          "name": "半導體",
-          "count": 15
+          "name": "光電",
+          "count": 10
         },
         {
-          "name": "光電",
-          "count": 15
+          "name": "半導體",
+          "count": 8
         },
         {
           "name": "電子零組件",
-          "count": 13
+          "count": 7
         },
         {
           "name": "通信網路",
-          "count": 5
+          "count": 4
         },
         {
-          "name": "化工",
-          "count": 4
+          "name": "電腦週邊",
+          "count": 2
         }
       ]
     }
