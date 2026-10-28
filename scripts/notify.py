@@ -237,7 +237,9 @@ def check() -> int:
     out = os.environ.get("GITHUB_OUTPUT")
     if out:
         with open(out, "a", encoding="utf-8") as f:
-            f.write(f"ready={'true' if ready else 'false'}\ndate={day}\n")
+            # 保底推播只在早上做（補前一個交易日）；GitHub 排程常延後好幾小時，下午才跑的話日期會換成今天、內容卻還是昨天的
+            morning = datetime.now(timezone(timedelta(hours=8))).hour < 13
+            f.write(f"ready={'true' if ready else 'false'}\ndate={day}\nfallback={'true' if morning else 'false'}\n")
     return 0
 
 
