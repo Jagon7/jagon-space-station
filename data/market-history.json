@@ -820,24 +820,20 @@
       "taiexChange": -1.42,
       "topSectors": [
         {
-          "name": "電子零組件",
-          "count": 6
-        },
-        {
-          "name": "半導體",
-          "count": 3
-        },
-        {
-          "name": "資訊服務",
-          "count": 3
-        },
-        {
           "name": "電腦週邊",
           "count": 2
         },
         {
-          "name": "光電",
+          "name": "電子零組件",
           "count": 2
+        },
+        {
+          "name": "半導體",
+          "count": 1
+        },
+        {
+          "name": "生技醫療",
+          "count": 1
         }
       ]
     }

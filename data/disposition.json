@@ -2,16 +2,6 @@
   "date": "2026-10-29",
   "data": [
     {
-      "code": "3287",
-      "name": "廣寰科",
-      "count": 1,
-      "condition": "連續3個營業日",
-      "period": "115/10/22~115/10/29",
-      "endDate": "2026-10-29",
-      "announceDate": "115/10/21",
-      "market": "上櫃"
-    },
-    {
       "code": "5205",
       "name": "中茂",
       "count": 4,
@@ -98,7 +88,7 @@
       "condition": "連續三次",
       "period": "115/10/30～115/11/05",
       "endDate": "2026-11-05",
-      "announceDate": "*115/10/29",
+      "announceDate": "115/10/29",
       "market": "上市"
     },
     {
@@ -128,7 +118,7 @@
       "condition": "連續三次及當日沖銷標準",
       "period": "115/10/30～115/11/09",
       "endDate": "2026-11-09",
-      "announceDate": "*115/10/29",
+      "announceDate": "115/10/29",
       "market": "上市"
     }
   ]

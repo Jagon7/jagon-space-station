@@ -364,6 +364,32 @@
       "closePrice": 19.8,
       "market": "上市",
       "underwriter": "台新綜合證券股份有限公司"
+    },
+    {
+      "code": "9958",
+      "name": "世紀鋼",
+      "cbSeries": "第72次",
+      "filingDate": "2026-10-30",
+      "bookBuildDate": "2026-10-30",
+      "listingDate": "2026-11-13",
+      "amount": 15.0,
+      "conversionPrice": null,
+      "closePrice": 86.5,
+      "market": "上市",
+      "underwriter": "永豐金證券股份有限公司"
+    },
+    {
+      "code": "6534",
+      "name": "正瀚-創",
+      "cbSeries": "第73次",
+      "filingDate": "2026-10-30",
+      "bookBuildDate": "2026-10-30",
+      "listingDate": "2026-11-13",
+      "amount": 7.0,
+      "conversionPrice": null,
+      "closePrice": 92.0,
+      "market": "上市",
+      "underwriter": "富邦綜合證券股份有限公司"
     }
   ]
 }
