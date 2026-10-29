@@ -4,7 +4,7 @@
     {
       "code": "3105",
       "name": "穩懋",
-      "sector": "其他",
+      "sector": "半導體",
       "change": 10.0,
       "volume": 56374,
       "tradeValue": 33433049000.0,
@@ -76,7 +76,7 @@
     {
       "code": "6727",
       "name": "亞泰金屬",
-      "sector": "其他",
+      "sector": "電子零組件",
       "change": 9.9,
       "volume": 2068,
       "tradeValue": 1028568000.0,
@@ -94,7 +94,7 @@
     {
       "code": "8099",
       "name": "大世科",
-      "sector": "其他",
+      "sector": "資訊服務",
       "change": 9.51,
       "volume": 7835,
       "tradeValue": 800606400.0,
@@ -130,7 +130,7 @@
     {
       "code": "3691",
       "name": "碩禾",
-      "sector": "其他",
+      "sector": "光電",
       "change": 9.92,
       "volume": 1771,
       "tradeValue": 255024000.0,
@@ -148,7 +148,7 @@
     {
       "code": "6233",
       "name": "旺玖",
-      "sector": "其他",
+      "sector": "半導體",
       "change": 9.96,
       "volume": 8208,
       "tradeValue": 251486850.0,
@@ -166,7 +166,7 @@
     {
       "code": "8089",
       "name": "康全電訊",
-      "sector": "其他",
+      "sector": "通信網路",
       "change": 9.85,
       "volume": 2835,
       "tradeValue": 81487300.0,
@@ -202,7 +202,7 @@
     {
       "code": "3597",
       "name": "映興",
-      "sector": "其他",
+      "sector": "電子零組件",
       "change": 9.93,
       "volume": 899,
       "tradeValue": 39340500.0,
@@ -220,7 +220,7 @@
     {
       "code": "4706",
       "name": "大恭",
-      "sector": "其他",
+      "sector": "化工",
       "change": 9.9,
       "volume": 321,
       "tradeValue": 17315900.0,
@@ -238,7 +238,7 @@
     {
       "code": "6240",
       "name": "松崗",
-      "sector": "其他",
+      "sector": "資訊服務",
       "change": 9.96,
       "volume": 479,
       "tradeValue": 17313700.0,
@@ -256,7 +256,7 @@
     {
       "code": "3332",
       "name": "幸康",
-      "sector": "其他",
+      "sector": "電子零組件",
       "change": 9.92,
       "volume": 231,
       "tradeValue": 16582600.0,
@@ -274,7 +274,7 @@
     {
       "code": "8272",
       "name": "全景軟體",
-      "sector": "其他",
+      "sector": "資訊服務",
       "change": 9.91,
       "volume": 222,
       "tradeValue": 15635100.0,
@@ -310,7 +310,7 @@
     {
       "code": "5245",
       "name": "智晶",
-      "sector": "其他",
+      "sector": "光電",
       "change": 10.0,
       "volume": 228,
       "tradeValue": 4132400.0,
@@ -328,7 +328,7 @@
     {
       "code": "8291",
       "name": "尚茂",
-      "sector": "其他",
+      "sector": "電子零組件",
       "change": 9.98,
       "volume": 124,
       "tradeValue": 3738900.0,
