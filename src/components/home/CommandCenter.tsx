@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { AlertTriangle, ArrowRight, CalendarDays, Crosshair, Globe, Info, RotateCw, ShieldAlert } from "lucide-react";
 import WatchCard from "./WatchCard";
+import FlowCard from "./FlowCard";
 
 export type Home = {
   updatedAt: string;
@@ -153,6 +154,9 @@ export default function CommandCenter({ h }: { h: Home }) {
           </div>
         </div>
       )}
+
+      {/* 盤中即時資金流 */}
+      <FlowCard />
 
       {/* 明日行動 */}
       <div className="grid gap-4 lg:grid-cols-3">

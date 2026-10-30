@@ -4,9 +4,9 @@ import { useEffect, useState } from "react";
 import { useWatchlist } from "@/lib/watchlist";
 import { Empty, Kpi, KpiRow, Note, Pills, SortTable, type Column } from "@/components/data-ui";
 
-type Sector = { name: string; net: number; out: number; in: number; amt: number; n: number; slices: number[] };
-type Stock = { code: string; name: string; sector: string; close: number | null; chg: number; amt: number; out: number; in: number; net: number };
-type Flow = { updatedAt: string; date: string; status: "pre" | "live" | "closed"; n: number; cover: number | null; sliceMin: number; slices: string[];
+export type Sector = { name: string; net: number; out: number; in: number; amt: number; n: number; slices: number[] };
+export type Stock = { code: string; name: string; sector: string; close: number | null; chg: number; amt: number; out: number; in: number; net: number };
+export type Flow = { updatedAt: string; date: string; status: "pre" | "live" | "closed"; n: number; cover: number | null; sliceMin: number; slices: string[];
   total: { net: number; out: number; in: number }; sectors: Sector[]; stocks: Stock[] };
 type View = "sector" | "slice" | "stock";
 
@@ -14,26 +14,10 @@ type View = "sector" | "slice" | "stock";
 // 未登入每個 IP 每小時 60 次，所以每 90 秒讀一次；API 被限流時退回 raw
 const API = "https://api.github.com/repos/Jagon7/jagon-space-station/contents/flow.json?ref=live";
 const RAW = "https://raw.githubusercontent.com/Jagon7/jagon-space-station/live/flow.json";
-const yi = (v: number, d = 1) => `${v > 0 ? "+" : ""}${v.toFixed(d)} 億`;
-const tone = (v: number) => (v > 0 ? "text-[#f05252]" : v < 0 ? "text-[#22c55e]" : "text-[#8b97ab]");
-const num = (v: React.ReactNode, cls = "text-slate-300") => <span className={`font-mono ${cls}`}>{v}</span>;
-
-function Bar({ v, max }: { v: number; max: number }) {
-  const w = max ? Math.min(Math.abs(v) / max, 1) * 50 : 0;
-  return (
-    <div className="relative h-3 w-full rounded bg-[#141c2e]">
-      <div className="absolute top-0 h-3 w-px bg-[#475569]" style={{ left: "50%" }} />
-      <div className={`absolute top-0 h-3 rounded ${v >= 0 ? "bg-[#f05252]/70" : "bg-[#22c55e]/70"}`} style={v >= 0 ? { left: "50%", width: `${w}%` } : { right: "50%", width: `${w}%` }} />
-    </div>
-  );
-}
-
-export default function FlowDashboard() {
+/** 讀盤中資金流，每 90 秒自動更新（首頁卡片與 /flow 頁共用） */
+export function useFlow() {
   const [data, setData] = useState<Flow | null>(null);
   const [err, setErr] = useState(false);
-  const [view, setView] = useState<View>("sector");
-  const [pick, setPick] = useState<string | null>(null);
-  const wl = useWatchlist();
   useEffect(() => {
     let stop = false;
     const load = () => fetch(API, { headers: { Accept: "application/vnd.github.raw+json" }, cache: "no-store" })
@@ -44,6 +28,28 @@ export default function FlowDashboard() {
     const id = setInterval(load, 90000);
     return () => { stop = true; clearInterval(id); };
   }, []);
+  return { data, err };
+}
+
+const yi = (v: number, d = 1) => `${v > 0 ? "+" : ""}${v.toFixed(d)} 億`;
+const tone = (v: number) => (v > 0 ? "text-[#f05252]" : v < 0 ? "text-[#22c55e]" : "text-[#8b97ab]");
+const num = (v: React.ReactNode, cls = "text-slate-300") => <span className={`font-mono ${cls}`}>{v}</span>;
+
+export function Bar({ v, max }: { v: number; max: number }) {
+  const w = max ? Math.min(Math.abs(v) / max, 1) * 50 : 0;
+  return (
+    <div className="relative h-3 w-full rounded bg-[#141c2e]">
+      <div className="absolute top-0 h-3 w-px bg-[#475569]" style={{ left: "50%" }} />
+      <div className={`absolute top-0 h-3 rounded ${v >= 0 ? "bg-[#f05252]/70" : "bg-[#22c55e]/70"}`} style={v >= 0 ? { left: "50%", width: `${w}%` } : { right: "50%", width: `${w}%` }} />
+    </div>
+  );
+}
+
+export default function FlowDashboard() {
+  const { data, err } = useFlow();
+  const [view, setView] = useState<View>("sector");
+  const [pick, setPick] = useState<string | null>(null);
+  const wl = useWatchlist();
   if (!data) return <div className="py-16 text-center text-sm text-[#8b97ab] font-mono">{err ? "還沒有資料（盤中資金流在交易日 09:00 後開始更新）" : "載入中…"}</div>;
   const t = new Date(data.updatedAt);
   const hm = t.toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "Asia/Taipei" });
