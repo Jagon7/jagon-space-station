@@ -1,0 +1,50 @@
+name: Intraday Money Flow
+
+# 盤中即時資金流：週一到五 08:45（台灣時間）啟動，訂閱永豐行情（只看報價、不下單）到 13:35，
+# 每分鐘把各產業主動買賣淨額推到 live 分支（網站「即時資金流」頁每分鐘讀），收盤後存 data/flow/ 到 main。
+# GitHub 排程常延後；晚開始也沒關係，程式會用永豐的累計內外盤張數補回之前的部分。
+on:
+  schedule:
+    - cron: '41 0 * * 1-5'    # 08:41 台灣時間
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: flow-live
+  cancel-in-progress: false
+
+jobs:
+  flow:
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: main
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.11'
+      - run: pip install shioaji==1.7.9
+      - name: Collect intraday flow until 13:35
+        run: python3 -u scripts/flow_live.py --until 13:35 --interval 60
+        env:
+          SHIOAJI_API_KEY: ${{ secrets.SHIOAJI_API_KEY }}
+          SHIOAJI_SECRET_KEY: ${{ secrets.SHIOAJI_SECRET_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          JSS_DATA_DIR: ./data
+      - name: Save day result
+        if: always()
+        run: |
+          rm -f shioaji.log
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add data/flow/ 2>/dev/null || exit 0
+          git diff --staged --quiet && exit 0
+          git commit -m "data: flow $(TZ=Asia/Taipei date +%Y-%m-%d)"
+          for i in 1 2 3 4 5; do
+            git push && exit 0
+            git pull --rebase -X theirs origin main || { git rebase --abort; git pull --no-rebase -X ours origin main; }
+          done
+          exit 1
