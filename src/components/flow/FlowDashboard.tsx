@@ -10,8 +10,10 @@ type Flow = { updatedAt: string; date: string; status: "pre" | "live" | "closed"
   total: { net: number; out: number; in: number }; sectors: Sector[]; stocks: Stock[] };
 type View = "sector" | "slice" | "stock";
 
-// 盤中資料放在 repo 的 live 分支（每分鐘覆蓋），直接讀 GitHub raw；加時間參數避開 CDN 快取
-const SRC = "https://raw.githubusercontent.com/Jagon7/jagon-space-station/live/flow.json";
+// 盤中資料放在 repo 的 live 分支（每分鐘覆蓋）。raw.githubusercontent 會快取 5 分鐘，改讀 GitHub API（快取 60 秒）；
+// 未登入每個 IP 每小時 60 次，所以每 90 秒讀一次；API 被限流時退回 raw
+const API = "https://api.github.com/repos/Jagon7/jagon-space-station/contents/flow.json?ref=live";
+const RAW = "https://raw.githubusercontent.com/Jagon7/jagon-space-station/live/flow.json";
 const yi = (v: number, d = 1) => `${v > 0 ? "+" : ""}${v.toFixed(d)} 億`;
 const tone = (v: number) => (v > 0 ? "text-[#f05252]" : v < 0 ? "text-[#22c55e]" : "text-[#8b97ab]");
 const num = (v: React.ReactNode, cls = "text-slate-300") => <span className={`font-mono ${cls}`}>{v}</span>;
@@ -34,12 +36,12 @@ export default function FlowDashboard() {
   const wl = useWatchlist();
   useEffect(() => {
     let stop = false;
-    const load = () => fetch(`${SRC}?t=${Math.floor(Date.now() / 30000)}`, { cache: "no-store" })
-      .then((r) => (r.ok ? r.json() : Promise.reject()))
+    const load = () => fetch(API, { headers: { Accept: "application/vnd.github.raw+json" }, cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : fetch(RAW, { cache: "no-store" }).then((x) => (x.ok ? x.json() : Promise.reject()))))
       .then((d: Flow) => { if (!stop) { setData(d); setErr(false); } })
       .catch(() => { if (!stop) setErr(true); });
     load();
-    const id = setInterval(load, 60000);
+    const id = setInterval(load, 90000);
     return () => { stop = true; clearInterval(id); };
   }, []);
   if (!data) return <div className="py-16 text-center text-sm text-[#8b97ab] font-mono">{err ? "還沒有資料（盤中資金流在交易日 09:00 後開始更新）" : "載入中…"}</div>;
@@ -123,7 +125,7 @@ export default function FlowDashboard() {
 
       <Note>
         主動買賣淨額＝外盤成交金額（成交在賣價，買方主動）− 內盤成交金額（成交在買價，賣方主動），單位億元。紅色＝資金主動流入、綠色＝主動流出。
-        每 {data.sliceMin} 分鐘切片是該時段內新增的淨額；網頁每分鐘自動更新。只看前一日成交金額前 200 大，冷門股不在內。
+        每 {data.sliceMin} 分鐘切片是該時段內新增的淨額；網頁每 90 秒自動更新。只看前一日成交金額前 200 大，冷門股不在內。
       </Note>
     </div>
   );
