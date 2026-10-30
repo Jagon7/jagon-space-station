@@ -13,6 +13,11 @@ jobs:
       - uses: actions/setup-python@v7
         with:
           python-version: '3.11'
+      # 只列出 repo 有哪些 secret 的「名稱」，不印內容（排查讀不到金鑰用）
+      - name: List secret names
+        run: python3 -c "import json,os;print('repo secrets:', sorted(json.loads(os.environ['S']).keys()))"
+        env:
+          S: ${{ toJSON(secrets) }}
       - run: pip install shioaji==1.7.9
       - run: python3 scripts/shioaji_check.py
         env:
