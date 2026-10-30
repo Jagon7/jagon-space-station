@@ -38,8 +38,10 @@ def prod():
 
 def sim():
     k, s = os.environ.get("SHIOAJI_TEST_API_KEY"), os.environ.get("SHIOAJI_TEST_SECRET_KEY")
+    if not k or not s:  # 沒有另外放臨時金鑰，就用 SHIOAJI_API_KEY（使用者可直接把它換成有交易權限的金鑰）
+        k, s = os.environ.get("SHIOAJI_API_KEY"), os.environ.get("SHIOAJI_SECRET_KEY")
+        print("模擬：沒有讀到 SHIOAJI_TEST_*，改用 SHIOAJI_API_KEY 做模擬測試")
     if not k or not s:
-        print("模擬：沒有設定 SHIOAJI_TEST_API_KEY／SHIOAJI_TEST_SECRET_KEY，略過模擬測試")
         return None
     api = sj.Shioaji(simulation=True)
     try:
