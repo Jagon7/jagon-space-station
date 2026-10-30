@@ -20,7 +20,8 @@ def prod():
         return False
     api = sj.Shioaji()
     try:
-        api.login(api_key=k, secret_key=s, fetch_contract=True, contracts_timeout=30000)
+        api.login(api_key=k, secret_key=s)
+        api.fetch_contracts(contract_download=True)
     except Exception as e:  # noqa: BLE001
         print(f"正式：登入失敗：{e}")
         return False
@@ -42,15 +43,15 @@ def sim():
         return None
     api = sj.Shioaji(simulation=True)
     try:
-        api.login(api_key=k, secret_key=s, fetch_contract=True, contracts_timeout=30000)
+        api.login(api_key=k, secret_key=s)
+        api.fetch_contracts(contract_download=True)
     except Exception as e:  # noqa: BLE001
         print(f"模擬：登入失敗：{e}")
         return False
     print(f"模擬：登入成功，證券帳戶 {'有' if api.stock_account else '沒有'}")
     c = api.Contracts.Stocks["2890"]
-    order = api.Order(price=c.reference, quantity=1, action=sj.constant.Action.Buy,
-                      price_type=sj.constant.StockPriceType.LMT, order_type=sj.constant.OrderType.ROD,
-                      order_lot=sj.constant.StockOrderLot.Common, account=api.stock_account)
+    order = api.Order(price=c.reference, quantity=1, action=sj.Action.Buy, price_type=sj.StockPriceType.LMT,
+                      time_in_force=sj.TimeInForce.ROD, order_lot=sj.StockOrderLot.Common, account=api.stock_account)
     try:
         t = api.place_order(c, order)
         print(f"模擬：測試單已送出（永豐金 {c.reference} 買 1 張，模擬單），狀態 {t.status.status}")
