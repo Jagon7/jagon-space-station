@@ -102,26 +102,6 @@
       "market": "上櫃"
     },
     {
-      "code": "3691",
-      "name": "碩禾",
-      "count": 4,
-      "condition": "連續3個營業日",
-      "period": "115/11/02~115/11/06",
-      "endDate": "2026-11-06",
-      "announceDate": "115/10/30",
-      "market": "上櫃"
-    },
-    {
-      "code": "8099",
-      "name": "大世科",
-      "count": 4,
-      "condition": "連續3個營業日",
-      "period": "115/11/02~115/11/06",
-      "endDate": "2026-11-06",
-      "announceDate": "115/10/30",
-      "market": "上櫃"
-    },
-    {
       "code": "3441",
       "name": "聯一光",
       "count": 1,
@@ -140,16 +120,6 @@
       "endDate": "2026-11-09",
       "announceDate": "115/10/29",
       "market": "上市"
-    },
-    {
-      "code": "3374",
-      "name": "精材",
-      "count": 4,
-      "condition": "連續5個營業日及沖銷標準",
-      "period": "115/11/02~115/11/10",
-      "endDate": "2026-11-10",
-      "announceDate": "115/10/30",
-      "market": "上櫃"
     }
   ]
 }
