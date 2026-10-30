@@ -55,33 +55,58 @@ class Flow:
         self.lock = threading.Lock()
         self.s: dict[str, dict] = {}
         self.slices: list[tuple[str, dict]] = []  # (切片開始時間, 各產業截至切片結束的累計淨額)
+        self.votes = {True: 0, False: 0}  # True＝trade_ask_vol_sum 是外盤
 
     def on_tick(self, _exchange, t):
         if getattr(t, "simtrade", False) or getattr(t, "intraday_odd", False):
             return  # 試撮、盤中零股不算
         code = t.code
+        v = float(t.volume or 0)
+        ask, bid = float(getattr(t, "trade_ask_vol_sum", 0) or 0), float(getattr(t, "trade_bid_vol_sum", 0) or 0)
         with self.lock:
             st = self.s.get(code)
             if st is None:
-                # 第一次收到：用累計外盤／內盤張數 × 均價補回訂閱前的部分（扣掉這一筆，下面再加）
+                # 第一次收到：記下累計的兩個方向張數（扣掉這一筆）與均價，訂閱前那段之後依判定的對應換算成金額
                 avg = float(t.avg_price or t.close or 0)
-                v = float(t.volume or 0)
-                ask = float(getattr(t, "trade_ask_vol_sum", 0) or 0) - (v if t.tick_type == 1 else 0)
-                bid = float(getattr(t, "trade_bid_vol_sum", 0) or 0) - (v if t.tick_type == 2 else 0)
-                st = self.s[code] = {"out": max(ask, 0) * 1000 * avg, "in": max(bid, 0) * 1000 * avg}
+                st = self.s[code] = {"out": 0.0, "in": 0.0, "a0": ask, "b0": bid, "avg": avg, "first": True}
+            else:
+                # 用逐筆成交校正：外盤成交（tick_type=1）時哪個累計欄位增加，那個欄位就是外盤
+                if v and t.tick_type in (1, 2):
+                    da, db = ask - st.get("pa", ask), bid - st.get("pb", bid)
+                    if (da > 0) != (db > 0):
+                        self.votes[(t.tick_type == 1) == (da > 0)] += 1
+            st["pa"], st["pb"] = ask, bid
             amt = float(t.amount or 0)
             if t.tick_type == 1:
                 st["out"] += amt
             elif t.tick_type == 2:
                 st["in"] += amt
+            if st.pop("first", False):  # 第一筆已含在累計張數裡，基準扣掉它
+                if t.tick_type == 1:
+                    st["sub"] = v
+                elif t.tick_type == 2:
+                    st["subin"] = v
             st.update(close=float(t.close), chg=float(t.pct_chg or 0), amt=float(t.total_amount or 0), ts=t.datetime.strftime("%H:%M:%S"))
+
+    def base(self, st):
+        """訂閱前那段的外盤、內盤金額（依校正結果決定 trade_ask_vol_sum 是外盤還是內盤）"""
+        ask_is_out = self.votes[True] >= self.votes[False]
+        o0, i0 = (st["a0"], st["b0"]) if ask_is_out else (st["b0"], st["a0"])
+        o0 -= st.get("sub", 0)
+        i0 -= st.get("subin", 0)
+        return max(o0, 0) * 1000 * st["avg"], max(i0, 0) * 1000 * st["avg"]
+
+    def totals(self, st):
+        bo, bi = self.base(st)
+        return st["out"] + bo, st["in"] + bi
 
     def by_sector(self):
         out: dict[str, dict] = {}
         for code, st in self.s.items():
             g = out.setdefault(self.sectors[code], {"out": 0.0, "in": 0.0, "amt": 0.0, "n": 0})
-            g["out"] += st["out"]
-            g["in"] += st["in"]
+            o, i = self.totals(st)
+            g["out"] += o
+            g["in"] += i
             g["amt"] += st.get("amt", 0)
             g["n"] += 1
         return out
@@ -89,9 +114,12 @@ class Flow:
     def snapshot(self, cover, status):
         with self.lock:
             secs = self.by_sector()
-            stocks = [{"code": c, "name": self.names[c], "sector": self.sectors[c], "close": st.get("close"), "chg": round(st.get("chg", 0), 2),
-                       "amt": round(st.get("amt", 0) / 1e8, 2), "out": round(st["out"] / 1e8, 2), "in": round(st["in"] / 1e8, 2),
-                       "net": round((st["out"] - st["in"]) / 1e8, 2)} for c, st in self.s.items()]
+            stocks = []
+            for c, st in self.s.items():
+                o, i = self.totals(st)
+                stocks.append({"code": c, "name": self.names[c], "sector": self.sectors[c], "close": st.get("close"), "chg": round(st.get("chg", 0), 2),
+                               "amt": round(st.get("amt", 0) / 1e8, 2), "out": round(o / 1e8, 2), "in": round(i / 1e8, 2), "net": round((o - i) / 1e8, 2)})
+            votes = dict(self.votes)
             slices = list(self.slices)
         labels = [s[0] for s in slices]
         sectors = []
@@ -106,7 +134,7 @@ class Flow:
         return {"updatedAt": datetime.now(TPE).isoformat(timespec="seconds"), "date": datetime.now(TPE).date().isoformat(), "status": status,
                 "n": len(stocks), "cover": round(cover * 100, 1) if cover else None, "sliceMin": SLICE_MIN, "slices": labels,
                 "total": {"net": round((tot_out - tot_in) / 1e8, 2), "out": round(tot_out / 1e8, 2), "in": round(tot_in / 1e8, 2)},
-                "sectors": sectors, "stocks": stocks}
+                "calib": {"askIsOut": votes[True], "askIsIn": votes[False]}, "sectors": sectors, "stocks": stocks}
 
     def close_slice(self, label):
         with self.lock:
@@ -186,7 +214,7 @@ def main():
         done = now >= end
         doc = flow.snapshot(cover, "closed" if done else ("live" if now >= open_t else "pre"))
         publish(doc, not a.no_push)
-        log(f"{len(flow.s)} 檔有成交，總淨額 {doc['total']['net']:+.1f} 億")
+        log(f"{len(flow.s)} 檔有成交，總淨額 {doc['total']['net']:+.1f} 億，內外盤校正 {flow.votes}")
         if done:
             break
         time.sleep(a.interval)
