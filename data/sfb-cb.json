@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-29",
+  "date": "2026-10-30",
   "data": [
     {
       "code": "2344",
@@ -1851,7 +1851,7 @@
       "code": "2344",
       "name": "華邦電子",
       "market": "上市",
-      "status": "審查中",
+      "status": "生效",
       "cbType": "轉換公司債(無擔保)",
       "amount": 140.0,
       "currency": "台幣",
@@ -1864,7 +1864,7 @@
       "code": "2344",
       "name": "華邦電子",
       "market": "上市",
-      "status": "審查中",
+      "status": "生效",
       "cbType": "轉換公司債(無擔保)",
       "amount": 40.0,
       "currency": "台幣",
@@ -1877,7 +1877,7 @@
       "code": "3706",
       "name": "神達控股",
       "market": "上市",
-      "status": "審查中",
+      "status": "生效",
       "cbType": "轉換公司債(無擔保)",
       "amount": 100.0,
       "currency": "台幣",
@@ -1890,7 +1890,7 @@
       "code": "3706",
       "name": "神達控股",
       "market": "上市",
-      "status": "審查中",
+      "status": "生效",
       "cbType": "轉換公司債(無擔保)",
       "amount": 20.0,
       "currency": "台幣",
@@ -1903,7 +1903,7 @@
       "code": "5434",
       "name": "崇越科技",
       "market": "上市",
-      "status": "審查中",
+      "status": "生效",
       "cbType": "轉換公司債(無擔保)",
       "amount": 20.0,
       "currency": "台幣",
@@ -1916,7 +1916,7 @@
       "code": "6922",
       "name": "宸曜",
       "market": "上櫃",
-      "status": "審查中",
+      "status": "生效",
       "cbType": "轉換公司債(無擔保)",
       "amount": 5.0,
       "currency": "台幣",
@@ -2015,6 +2015,32 @@
       "effectiveDate": "2026-11-10",
       "withdrawDate": null,
       "underwriter": "富邦證券"
+    },
+    {
+      "code": "7728",
+      "name": "光焱科技",
+      "market": "上櫃",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 5.0,
+      "currency": "台幣",
+      "filingDate": "2026-10-29",
+      "effectiveDate": "2026-11-16",
+      "withdrawDate": null,
+      "underwriter": "元大證券"
+    },
+    {
+      "code": "7728",
+      "name": "光焱科技",
+      "market": "上櫃",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 6.0,
+      "currency": "台幣",
+      "filingDate": "2026-10-29",
+      "effectiveDate": "2026-11-16",
+      "withdrawDate": null,
+      "underwriter": "元大證券"
     }
   ]
 }
