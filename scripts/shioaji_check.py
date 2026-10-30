@@ -49,9 +49,20 @@ def main():
             return
         log("模擬：登入成功")
         accounts(api, "模擬")
-        log("模擬：下載商品檔…")
-        api.fetch_contracts(contract_download=True)
-        c = api.Contracts.Stocks["2890"]
+        log("模擬：等商品檔…")  # shioaji 1.7 登入後會自動在背景下載，不能再另外呼叫 fetch_contracts
+        c = None
+        for _ in range(90):
+            try:
+                c = api.Contracts.Stocks["2890"]
+            except Exception:  # noqa: BLE001
+                c = None
+            if c is not None:
+                break
+            time.sleep(1)
+        if c is None:
+            log("模擬：等不到商品檔，改用手動下載")
+            api.fetch_contracts(contract_download=True)
+            c = api.Contracts.Stocks["2890"]
         log(f"模擬：2890 參考價 {c.reference}")
         order = api.Order(price=c.reference, quantity=1, action=sj.Action.Buy, price_type=sj.StockPriceType.LMT,
                           time_in_force=sj.TimeInForce.ROD, order_lot=sj.StockOrderLot.Common,
