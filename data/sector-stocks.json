@@ -4084,15 +4084,6 @@
         "tradeValue": 95300326.0
       },
       {
-        "code": "7867",
-        "name": "特力屋",
-        "market": "上市",
-        "changePercent": 0.0,
-        "closePrice": 44.2,
-        "volume": 2453,
-        "tradeValue": 104615413.0
-      },
-      {
         "code": "9941",
         "name": "裕融",
         "market": "上市",
@@ -16364,6 +16355,15 @@
         "closePrice": 18.0,
         "volume": 24,
         "tradeValue": 427950.0
+      },
+      {
+        "code": "7867",
+        "name": "特力屋",
+        "market": "上市",
+        "changePercent": 0.0,
+        "closePrice": 44.2,
+        "volume": 2453,
+        "tradeValue": 104615413.0
       },
       {
         "code": "6195",
