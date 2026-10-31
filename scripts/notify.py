@@ -14,6 +14,7 @@
   --risk-alert：市場風險警示（新條件成立才推，夜間 23:00～07:30 不推；記在 data/notify/risk-alerted.json）
   --morning：盤前快報（台指期夜盤＋富台指、美股主要指數、市場風險、類股龍頭與台股預估），週一到五 08:00；加 --preview 立刻發一張預覽
              夜盤抓不到時用富台指（optratw.com 背後的第三方 API）換算，再不行用美股 EWT
+  --g85-alert：85g 當沖標的（開高走低候選、開盤價位區間、打法），週一到五 08:30
   --etf-alert：每日 ETF 持股變化摘要（主動 ETF 合計買賣超、新建倉／出清、被動 ETF 成分異動、資金流向），週一到五 20:00
   --preview：不管有沒有推過，把每日戰報、策略、高週轉三張卡片各發一次（測試排版用）
   --strategy-alert：兩個十日波段策略明日進場名單與到期出場提醒（資料到齊才發，每個交易日一次）
@@ -34,7 +35,7 @@ from pathlib import Path
 
 import requests
 
-from line_flex import FLAT, Msg, sign_tone
+from line_flex import FLAT, INK, Msg, sign_tone
 
 ROOT = Path(__file__).resolve().parent.parent
 PUB = ROOT / "public" / "data"
@@ -610,16 +611,6 @@ def morning_brief(dry: bool, force: bool = False) -> int:
             m.stock(g["name"], NAME.get(q["sym"], q["sym"]), close, f"{q['chg']:+.2f}%", color=sign_tone(q["chg"]), sub=sub)
         m.note("台股預估＝β × 龍頭漲跌（過去約半年的隔日連動），只列預估 ±0.3% 以上的股票，僅供參考")
 
-    # 4) 85g 開高走低觀察：熱門股今天漲停或前 5 日漲 ≥ 10%，開盤落在開高 0～4% 的價位就是候選
-    g85 = load("85g.json", {}) or {}
-    cand = [c for c in g85.get("cand", []) if not c.get("noShort")]
-    if cand and not closed:
-        m.section("85g 開高走低觀察", f"{len(cand)} 檔")
-        m.cols("近 5 日", "開在這裡就留意")
-        for c in sorted(cand, key=lambda c: -(c["p5"] or 0))[:6]:
-            m.stock(c["name"], c["code"], f"{c['p5']:+.1f}%", f"{c['lo']:g}～{c['hi']:g}", color="#D97706", sub=c.get("sector") or "")
-        m.note("開高 0～4%：09～10 點趁衝高分批賣，中午後低檔分批買回；一路創高就停損、不加碼，開漲停不碰")
-
     print(m.text())
     if dry:
         return 0
@@ -636,6 +627,82 @@ def morning_brief(dry: bool, force: bool = False) -> int:
         state["sent"] = sorted(set(state["sent"]) | {today.isoformat()})[-60:]
         MORNING_STATE.parent.mkdir(parents=True, exist_ok=True)
         MORNING_STATE.write_text(json.dumps(state, ensure_ascii=False, indent=0), encoding="utf-8")
+    return 0
+
+
+G85_STATE = ROOT / "data" / "notify" / "g85-sent.json"
+
+
+def g85_alert(dry: bool, force: bool = False) -> int:
+    """85g 當沖標的（週一到五 08:30）：前一交易日成交金額前 100、當天漲停或近 5 日漲 ≥ 10% 的熱門股，
+    今天開盤落在開高 0～4% 的價位就是先賣後買的候選；暫停先賣後買的不列。每個交易日一次"""
+    now = datetime.now(TPE_TZ)
+    today = now.date()
+    if not force and (today.weekday() >= 5 or today.isoformat() in _holidays()):
+        print("今天休市，不發 85g 標的")
+        return 0
+    try:
+        state = json.loads(G85_STATE.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        state = {"sent": []}
+    if today.isoformat() in state["sent"] and not force:
+        print("今天的 85g 標的已發過")
+        return 0
+    if now.hour >= 9 and not force:
+        print("已經開盤，不發 85g 標的")
+        return 0
+    g = load("85g.json", {}) or {}
+    md = lambda d: f"{int(d[5:7])}/{int(d[8:10])}"  # noqa: E731
+    asof = g.get("asof") or ""
+    ru = g.get("rule") or {}
+    lo, hi = (ru.get("gap") or [0, 4])
+    cand = sorted((c for c in g.get("cand", []) if not c.get("noShort")), key=lambda c: c.get("rank") or 999)
+    blocked = [c for c in g.get("cand", []) if c.get("noShort")]
+    stale = asof and asof != prev_trading_day(today).isoformat()
+    m = Msg(("【預覽】" if force else "") + "🎯 85g 當沖標的", f"{md(today.isoformat())}（週{WEEK[today.weekday()]}）・依 {md(asof) if asof else '—'} 收盤",
+            accent="#D97706", url=f"{SITE}/85g/", button="開啟 85g 策略")
+    if stale:
+        m.line(f"⚠️ 資料停在 {md(asof)}，昨天的收盤資料還沒抓到，名單僅供參考", color="#D97706")
+    m.section("開高走低候選", f"{len(cand)} 檔")
+    if cand:
+        m.cols("昨收", f"開在這裡＝開高 {lo:g}～{hi:g}%")
+        for c in cand[:10]:
+            lim = "漲停" if (c.get("chg") or 0) >= 9.5 else f"{c['chg']:+.1f}%"
+            sub = "・".join(x for x in (c.get("sector") or "", f"昨 {lim}", f"5 日 {c['p5']:+.1f}%", f"成交第 {c['rank']} 名 {c['valYi']:g} 億") if x)
+            m.stock(c["name"], c["code"], f"{c['close']:g}", f"{c['lo']:g}～{c['hi']:g}", color="#D97706", sub=sub)
+    else:
+        m.line("昨天的熱門股沒有漲停或近 5 日大漲的，今天沒有候選", color=FLAT)
+    if blocked:
+        m.note("暫停先賣後買（不能現股當沖放空）：" + "、".join(f"{c['name']}" for c in blocked[:6]))
+    m.section("打法")
+    m.line(f"① 開盤落在上面的區間（開高 {lo:g}～{hi:g}%）才做；開漲停、開平或開低不做", color=INK)
+    m.line("② 09:00～10:00 趁開盤後衝高分批賣，不追價、不加碼", color=INK)
+    m.line("③ 12:00 後到收盤前在低檔分批買回", color=INK)
+    m.line("④ 開盤後一路創高、收在高檔是虧損日的共同點：過開盤高點就停損", color=INK)
+    sm = (g.get("summary") or {}).get("top3") or {}
+    bt = next((x for x in (g.get("backtest") or {}).get("groups", []) if x["group"].startswith("A：")), None)
+    if sm.get("n") or bt:
+        parts = []
+        if bt:
+            parts.append(f"5 年回測 {bt['n']:,} 筆平均 {bt['avg']:+.2f}%、勝率 {bt['win']:.0f}%")
+        if sm.get("n"):
+            parts.append(f"近期每天最熱 3 檔 {sm['n']} 筆平均 {sm['avg']:+.2f}%、勝率 {sm['win']:.0f}%")
+        m.note("；".join(parts) + "（開盤賣、收盤買回，未扣成本）")
+    print(m.text())
+    if dry:
+        return 0
+    if not force:
+        target = now.replace(hour=8, minute=30, second=0, microsecond=0)
+        if now < target:
+            import time
+            print(f"等到 08:30 再發（{(target - now).total_seconds() / 60:.0f} 分鐘）")
+            time.sleep((target - now).total_seconds())
+    if not send(m):
+        print("（沒有設定任何推播管道，只印出內容）")
+    if not force:
+        state["sent"] = sorted(set(state["sent"]) | {today.isoformat()})[-60:]
+        G85_STATE.parent.mkdir(parents=True, exist_ok=True)
+        G85_STATE.write_text(json.dumps(state, ensure_ascii=False, indent=0), encoding="utf-8")
     return 0
 
 
@@ -988,6 +1055,7 @@ def main():
     ap.add_argument("--exdiv-alert", action="store_true", help="除權息黑K：明天除息的放空候選與明天要回補的部位")
     ap.add_argument("--risk-alert", action="store_true", help="市場風險警示：風險溫度偏高、指標達警戒／危險、VIX 暴漲、信用利差擴大、科技廠隱含 CDS 跳升")
     ap.add_argument("--etf-alert", action="store_true", help="每日 ETF 持股變化摘要（週一到五 20:00；加 --preview 立刻發預覽）")
+    ap.add_argument("--g85-alert", action="store_true", help="85g 當沖標的（週一到五 08:30；加 --preview 立刻發預覽）")
     ap.add_argument("--morning", action="store_true", help="盤前快報：台指期夜盤、美股主要指數、類股龍頭與台股預估（08:00 發）")
     ap.add_argument("--preview", action="store_true", help="不管有沒有推過，把每日戰報、策略、高週轉三張卡片各發一次（測試排版用）")
     a = ap.parse_args()
@@ -1001,6 +1069,8 @@ def main():
         return strategy_alert(a.dry_run)
     if a.turnover_alert:
         return turnover_alert(a.dry_run)
+    if a.g85_alert:
+        return g85_alert(a.dry_run, force=a.preview)
     if a.morning:
         return morning_brief(a.dry_run, force=a.preview)
     if a.etf_alert:

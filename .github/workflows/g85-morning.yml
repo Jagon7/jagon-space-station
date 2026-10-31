@@ -1,0 +1,59 @@
+name: 85g Morning Picks
+
+# 85g 當沖標的：週一到五 08:30（台灣時間）LINE 推播今天的開高走低候選。
+# 08:23 啟動、算好後等到 08:30 才發；08:37 備援。發過的日期記在 data/notify/g85-sent.json；超過 09:00 就不發。
+on:
+  schedule:
+    - cron: '23 0 * * 1-5'   # 08:23 台灣時間
+    - cron: '37 0 * * 1-5'   # 08:37 備援
+  workflow_dispatch:
+    inputs:
+      preview:
+        description: '立刻發一張預覽（不記錄已發送）'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: g85-morning
+  cancel-in-progress: false
+
+env:
+  SITE_URL: ${{ secrets.SITE_URL || vars.SITE_URL }}
+
+jobs:
+  picks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: main
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.11'
+      - run: pip install requests
+      - name: Build data views
+        run: TZ=Asia/Taipei python3 scripts/build_views.py > /dev/null
+      - name: Send 85g picks at 08:30
+        run: TZ=Asia/Taipei python3 scripts/notify.py --g85-alert ${{ inputs.preview && '--preview' || '' }}
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
+          LINE_USER_ID: ${{ secrets.LINE_USER_ID }}
+      - name: Save sent state
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add data/notify/
+          git diff --staged --quiet && exit 0
+          git commit -m "notify: 85g picks sent"
+          for i in 1 2 3 4 5; do
+            git push && exit 0
+            git pull --rebase -X theirs origin main || { git rebase --abort; git pull --no-rebase -X ours origin main; }
+          done
+          exit 1
