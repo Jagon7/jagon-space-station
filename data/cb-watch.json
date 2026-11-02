@@ -10,7 +10,7 @@
       "listingDate": "2026-08-07",
       "amount": 120.0,
       "conversionPrice": null,
-      "closePrice": 39.65,
+      "closePrice": 39.95,
       "market": "上市",
       "underwriter": "宏遠證券股份有限公司"
     },
@@ -36,7 +36,7 @@
       "listingDate": "2026-08-14",
       "amount": 18.0,
       "conversionPrice": null,
-      "closePrice": 124.0,
+      "closePrice": 123.5,
       "market": "上市",
       "underwriter": "元大證券股份有限公司"
     },
@@ -62,7 +62,7 @@
       "listingDate": "2026-08-14",
       "amount": 3.5,
       "conversionPrice": null,
-      "closePrice": 125.5,
+      "closePrice": 127.5,
       "market": "上市",
       "underwriter": "凱基證券股份有限公司"
     },
@@ -88,7 +88,7 @@
       "listingDate": "2026-08-28",
       "amount": 4.0,
       "conversionPrice": null,
-      "closePrice": 124.0,
+      "closePrice": 125.5,
       "market": "上市",
       "underwriter": "宏遠證券股份有限公司"
     },
@@ -166,7 +166,7 @@
       "listingDate": "2026-09-25",
       "amount": 2.0,
       "conversionPrice": null,
-      "closePrice": 47.65,
+      "closePrice": 46.95,
       "market": "上市",
       "underwriter": "富邦綜合證券股份有限公司"
     },
@@ -179,7 +179,7 @@
       "listingDate": "2026-09-25",
       "amount": 5.0,
       "conversionPrice": null,
-      "closePrice": 19.75,
+      "closePrice": 19.95,
       "market": "上市",
       "underwriter": "元大證券股份有限公司"
     },
@@ -205,7 +205,7 @@
       "listingDate": "2026-10-09",
       "amount": 25.0,
       "conversionPrice": null,
-      "closePrice": 1435.0,
+      "closePrice": 1510.0,
       "market": "上市",
       "underwriter": "富邦綜合證券股份有限公司"
     },
@@ -231,7 +231,7 @@
       "listingDate": "2026-10-09",
       "amount": 5.0,
       "conversionPrice": null,
-      "closePrice": 155.0,
+      "closePrice": 154.5,
       "market": "上市",
       "underwriter": "台新綜合證券股份有限公司"
     },
@@ -257,7 +257,7 @@
       "listingDate": "2026-10-23",
       "amount": 45.0,
       "conversionPrice": null,
-      "closePrice": 381.0,
+      "closePrice": 356.0,
       "market": "上市",
       "underwriter": "國泰綜合證券股份有限公司"
     },
@@ -283,7 +283,7 @@
       "listingDate": "2026-10-30",
       "amount": 2.5,
       "conversionPrice": null,
-      "closePrice": 170.5,
+      "closePrice": 168.0,
       "market": "上市",
       "underwriter": "台新綜合證券股份有限公司"
     },
@@ -296,7 +296,7 @@
       "listingDate": "2026-10-30",
       "amount": 150.0,
       "conversionPrice": null,
-      "closePrice": 108.5,
+      "closePrice": 105.5,
       "market": "上市",
       "underwriter": "凱基證券股份有限公司"
     },
@@ -322,7 +322,7 @@
       "listingDate": "2026-11-13",
       "amount": 4.0,
       "conversionPrice": null,
-      "closePrice": 19.15,
+      "closePrice": 19.2,
       "market": "上市",
       "underwriter": "台新綜合證券股份有限公司"
     },
@@ -335,7 +335,7 @@
       "listingDate": "2026-11-13",
       "amount": 15.0,
       "conversionPrice": null,
-      "closePrice": 82.6,
+      "closePrice": 84.0,
       "market": "上市",
       "underwriter": "永豐金證券股份有限公司"
     },
@@ -348,7 +348,7 @@
       "listingDate": "2026-11-13",
       "amount": 7.0,
       "conversionPrice": null,
-      "closePrice": 91.6,
+      "closePrice": 92.2,
       "market": "上市",
       "underwriter": "富邦綜合證券股份有限公司"
     },
@@ -361,7 +361,7 @@
       "listingDate": "2026-11-13",
       "amount": 140.0,
       "conversionPrice": null,
-      "closePrice": 164.5,
+      "closePrice": 162.0,
       "market": "上市",
       "underwriter": "中國信託綜合證券股份有限公司"
     },
@@ -387,7 +387,7 @@
       "listingDate": "2026-11-13",
       "amount": 100.0,
       "conversionPrice": null,
-      "closePrice": 76.8,
+      "closePrice": 77.0,
       "market": "上市",
       "underwriter": "凱基證券股份有限公司"
     }
