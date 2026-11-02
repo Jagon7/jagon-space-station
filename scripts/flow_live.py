@@ -176,6 +176,10 @@ def main():
     if today.weekday() >= 5 or today.isoformat() in hol:
         log("今天休市")
         return 0
+    hh, mm = map(int, a.until.split(":"))
+    if datetime.now(TPE) >= datetime.now(TPE).replace(hour=hh, minute=mm, second=0, microsecond=0):
+        log("已經收盤，不啟動（避免排隊中的重複執行覆蓋今天的結果）")
+        return 0
     import shioaji as sj
 
     codes, names, sectors, cover = universe()
@@ -200,7 +204,6 @@ def main():
             log(f"{c} 訂閱失敗：{e}")
     log(f"已訂閱 {ok} 檔")
 
-    hh, mm = map(int, a.until.split(":"))
     end = datetime.now(TPE).replace(hour=hh, minute=mm, second=0, microsecond=0)
     open_t = datetime.now(TPE).replace(hour=9, minute=0, second=0, microsecond=0)
     next_slice = open_t

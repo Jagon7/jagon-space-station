@@ -1,0 +1,7 @@
+name = "jss-scheduler"
+main = "index.js"
+compatibility_date = "2024-09-23"
+workers_dev = false   # 不開對外網址，只跑排程
+
+[triggers]
+crons = ["*/5 * * * *"]
