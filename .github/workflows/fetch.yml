@@ -9,7 +9,12 @@ on:
     - cron: '37 13 * * 1-5'   # 21:37：融資融券、借券
     - cron: '43 15 * * 1-5'   # 23:43：補漏
     - cron: '13 2 * * 6'      # 週六 10:13：補週五漏掉的、月營收／季報
-  workflow_dispatch:        # 可手動觸發
+  workflow_dispatch:        # 可手動觸發；Cloudflare 排程週六會帶 weekly=true
+    inputs:
+      weekly:
+        description: '週六的每週任務（月營收／季報、回測）'
+        type: boolean
+        default: false
 
 # 兩個抓取 workflow 共用同一組，排隊依序執行，不會同時推送
 concurrency:
@@ -98,7 +103,7 @@ jobs:
           JSS_DATA_DIR: ./data
 
       - name: Ex-dividend fade backtest (Saturdays)
-        if: always() && steps.fetch.conclusion != 'cancelled' && github.event.schedule == '13 2 * * 6'
+        if: always() && steps.fetch.conclusion != 'cancelled' && (github.event.schedule == '13 2 * * 6' || inputs.weekly)
         continue-on-error: true
         timeout-minutes: 20
         run: python3 scripts/backtest_exdiv.py --cache /tmp/yahoo --hq
@@ -106,7 +111,7 @@ jobs:
           JSS_DATA_DIR: ./data
 
       - name: 85g intraday fade backtest (Saturdays)
-        if: always() && steps.fetch.conclusion != 'cancelled' && github.event.schedule == '13 2 * * 6'
+        if: always() && steps.fetch.conclusion != 'cancelled' && (github.event.schedule == '13 2 * * 6' || inputs.weekly)
         continue-on-error: true
         timeout-minutes: 20
         run: python3 scripts/backtest_85g.py --cache /tmp/yahoo --intraday
