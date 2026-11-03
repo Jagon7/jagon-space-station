@@ -390,6 +390,19 @@
       "closePrice": 77.0,
       "market": "上市",
       "underwriter": "凱基證券股份有限公司"
+    },
+    {
+      "code": "4916",
+      "name": "事欣科",
+      "cbSeries": "第78次",
+      "filingDate": "2026-11-04",
+      "bookBuildDate": "2026-11-04",
+      "listingDate": "2026-11-13",
+      "amount": 10.0,
+      "conversionPrice": null,
+      "closePrice": 102.5,
+      "market": "上市",
+      "underwriter": "統一綜合證券股份有限公司"
     }
   ]
 }

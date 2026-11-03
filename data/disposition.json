@@ -2,56 +2,6 @@
   "date": "2026-11-03",
   "data": [
     {
-      "code": "3354",
-      "name": "律勝",
-      "count": 4,
-      "condition": "連續3個營業日",
-      "period": "115/10/28~115/11/03",
-      "endDate": "2026-11-03",
-      "announceDate": "115/10/27",
-      "market": "上櫃"
-    },
-    {
-      "code": "5475",
-      "name": "德宏",
-      "count": 4,
-      "condition": "連續5個營業日",
-      "period": "115/10/28~115/11/03",
-      "endDate": "2026-11-03",
-      "announceDate": "115/10/27",
-      "market": "上櫃"
-    },
-    {
-      "code": "6751",
-      "name": "智聯服務",
-      "count": 4,
-      "condition": "連續3個營業日",
-      "period": "115/10/28~115/11/03",
-      "endDate": "2026-11-03",
-      "announceDate": "115/10/27",
-      "market": "上櫃"
-    },
-    {
-      "code": "6925",
-      "name": "意藍",
-      "count": 4,
-      "condition": "連續3個營業日",
-      "period": "115/10/28~115/11/03",
-      "endDate": "2026-11-03",
-      "announceDate": "115/10/27",
-      "market": "上櫃"
-    },
-    {
-      "code": "4542",
-      "name": "科嶠",
-      "count": 1,
-      "condition": "連續5個營業日及沖銷標準",
-      "period": "115/10/23~115/11/03",
-      "endDate": "2026-11-03",
-      "announceDate": "115/10/22",
-      "market": "上櫃"
-    },
-    {
       "code": "4577",
       "name": "達航科技",
       "count": 1,
@@ -118,7 +68,7 @@
       "condition": "連續三次",
       "period": "115/11/04～115/11/10",
       "endDate": "2026-11-10",
-      "announceDate": "*115/11/03",
+      "announceDate": "115/11/03",
       "market": "上市"
     },
     {
