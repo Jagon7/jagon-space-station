@@ -1,23 +1,18 @@
 {
-  "date": "2026-11-02",
+  "date": "2026-11-03",
   "data": [
     {
       "name": "資訊服務",
-      "count": 9,
+      "count": 8,
       "momentum": "strong"
     },
     {
       "name": "電機機械",
-      "count": 6,
-      "momentum": "strong"
-    },
-    {
-      "name": "半導體",
-      "count": 4,
+      "count": 5,
       "momentum": "normal"
     },
     {
-      "name": "光電",
+      "name": "生技醫療",
       "count": 4,
       "momentum": "normal"
     },
@@ -27,12 +22,7 @@
       "momentum": "normal"
     },
     {
-      "name": "數位雲端",
-      "count": 3,
-      "momentum": "normal"
-    },
-    {
-      "name": "生技醫療",
+      "name": "光電",
       "count": 3,
       "momentum": "normal"
     },
@@ -42,13 +32,23 @@
       "momentum": "weak"
     },
     {
-      "name": "電腦週邊",
+      "name": "數位雲端",
       "count": 2,
       "momentum": "weak"
     },
     {
-      "name": "化工",
+      "name": "半導體",
       "count": 2,
+      "momentum": "weak"
+    },
+    {
+      "name": "鋼鐵",
+      "count": 1,
+      "momentum": "weak"
+    },
+    {
+      "name": "電腦週邊",
+      "count": 1,
       "momentum": "weak"
     }
   ]
