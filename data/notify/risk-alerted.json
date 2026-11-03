@@ -4,6 +4,9 @@
 "cds:DELL",
 "cds:INTC",
 "cds:NBIS",
-"cds:ORCL"
+"cds:ORCL",
+"temp:偏高",
+"vix:警戒",
+"vixts:警戒"
 ]
 }
