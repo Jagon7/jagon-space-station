@@ -2,42 +2,37 @@
   "date": "2026-11-04",
   "data": [
     {
-      "name": "資訊服務",
-      "count": 8,
-      "momentum": "strong"
-    },
-    {
       "name": "電腦週邊",
-      "count": 8,
-      "momentum": "strong"
-    },
-    {
-      "name": "電機機械",
-      "count": 7,
-      "momentum": "strong"
-    },
-    {
-      "name": "電子零組件",
       "count": 6,
       "momentum": "strong"
     },
     {
-      "name": "化工",
-      "count": 4,
+      "name": "電機機械",
+      "count": 3,
       "momentum": "normal"
     },
     {
       "name": "光電",
-      "count": 3,
-      "momentum": "normal"
+      "count": 2,
+      "momentum": "weak"
     },
     {
-      "name": "半導體",
-      "count": 3,
-      "momentum": "normal"
+      "name": "化工",
+      "count": 2,
+      "momentum": "weak"
+    },
+    {
+      "name": "電子零組件",
+      "count": 2,
+      "momentum": "weak"
     },
     {
       "name": "通信網路",
+      "count": 1,
+      "momentum": "weak"
+    },
+    {
+      "name": "資訊服務",
       "count": 1,
       "momentum": "weak"
     },
@@ -48,6 +43,11 @@
     },
     {
       "name": "鋼鐵",
+      "count": 1,
+      "momentum": "weak"
+    },
+    {
+      "name": "紡織纖維",
       "count": 1,
       "momentum": "weak"
     }
