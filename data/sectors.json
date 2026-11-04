@@ -8,33 +8,33 @@
     },
     {
       "name": "電腦週邊",
-      "count": 7,
+      "count": 8,
       "momentum": "strong"
     },
     {
       "name": "電機機械",
-      "count": 3,
+      "count": 7,
+      "momentum": "strong"
+    },
+    {
+      "name": "電子零組件",
+      "count": 6,
+      "momentum": "strong"
+    },
+    {
+      "name": "化工",
+      "count": 4,
       "momentum": "normal"
     },
     {
       "name": "光電",
-      "count": 2,
-      "momentum": "weak"
+      "count": 3,
+      "momentum": "normal"
     },
     {
-      "name": "化工",
-      "count": 2,
-      "momentum": "weak"
-    },
-    {
-      "name": "鋼鐵",
-      "count": 2,
-      "momentum": "weak"
-    },
-    {
-      "name": "電子零組件",
-      "count": 2,
-      "momentum": "weak"
+      "name": "半導體",
+      "count": 3,
+      "momentum": "normal"
     },
     {
       "name": "通信網路",
@@ -47,7 +47,7 @@
       "momentum": "weak"
     },
     {
-      "name": "數位雲端",
+      "name": "鋼鐵",
       "count": 1,
       "momentum": "weak"
     }
