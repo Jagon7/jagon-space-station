@@ -403,6 +403,32 @@
       "closePrice": 96.6,
       "market": "上市",
       "underwriter": "統一綜合證券股份有限公司"
+    },
+    {
+      "code": "4566",
+      "name": "時碩工業",
+      "cbSeries": "第79次",
+      "filingDate": "2026-11-05",
+      "bookBuildDate": "2026-11-05",
+      "listingDate": "2026-11-20",
+      "amount": 10.0,
+      "conversionPrice": null,
+      "closePrice": 79.2,
+      "market": "上市",
+      "underwriter": "台新綜合證券股份有限公司"
+    },
+    {
+      "code": "4906",
+      "name": "正文",
+      "cbSeries": "第80次",
+      "filingDate": "2026-11-05",
+      "bookBuildDate": "2026-11-05",
+      "listingDate": "2026-11-20",
+      "amount": 12.0,
+      "conversionPrice": null,
+      "closePrice": 36.2,
+      "market": "上市",
+      "underwriter": "凱基證券股份有限公司"
     }
   ]
 }

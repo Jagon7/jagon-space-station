@@ -78,7 +78,7 @@
       "condition": "最近十個營業日已有六次",
       "period": "115/11/05～115/11/11",
       "endDate": "2026-11-11",
-      "announceDate": "*115/11/04",
+      "announceDate": "115/11/04",
       "market": "上市"
     },
     {
