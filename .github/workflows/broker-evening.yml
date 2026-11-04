@@ -2,7 +2,7 @@ name: Broker Evening Alert
 
 # 重點分點大額進出：週一到五 20:00（台灣時間）LINE 推播單一分點當日買賣超 ≥ 5000 萬的個股。
 # Cloudflare 排程 19:45 觸發（備援 20:25）：先抓今天的分點資料（富邦／MoneyDJ，約 18:00 後公布），等到 20:00 才發。
-# 發過的日期記在 data/notify/broker-sent.json；分點資料還沒出來就不發、等備援；超過 22:30 不發。
+# 發過的日期記在 data/notify/broker-sent.json；分點資料還沒出來就不發、等備援；超過 22:30 不發（手動執行可勾預覽）。
 on:
   schedule:
     - cron: '45 11 * * 1-5'   # 19:45 台灣時間（備援，主要由 Cloudflare 觸發）
