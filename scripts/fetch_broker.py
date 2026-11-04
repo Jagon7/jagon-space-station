@@ -39,6 +39,7 @@ BRANCHES = [
     ("兆豐中壢", "兆豐-中壢"),
     ("兆豐大安", "兆豐-大安"),
     ("台新五權西", "台新-五權西"),
+    ("台新西松", "台新-西松"),
 ]
 
 DATA_DIR = Path(os.environ.get("JSS_DATA_DIR", Path(__file__).resolve().parent.parent / "data"))

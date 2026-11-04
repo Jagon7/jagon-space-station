@@ -24,6 +24,8 @@ const PLAN = [
   ["17:20", ALL, "fetch-intel.yml"],
   ["18:15", WD, "fetch.yml"],            // 三大法人、期貨
   ["19:40", WD, "etf-evening.yml"],      // ETF 持股變化，等到 20:00 才發
+  ["19:45", WD, "broker-evening.yml"],   // 重點分點大額進出，等到 20:00 才發
+  ["20:25", WD, "broker-evening.yml"],   // 分點資料晚出來時的備援
   ["20:20", ALL, "fetch-intel.yml"],
   ["21:20", WD, "fetch-etf.yml"],
   ["21:35", WD, "fetch.yml"],            // 融資融券（資料到齊後自動發每日戰報）
