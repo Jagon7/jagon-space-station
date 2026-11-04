@@ -1,0 +1,63 @@
+name: Broker Evening Alert
+
+# 重點分點大額進出：週一到五 20:00（台灣時間）LINE 推播單一分點當日買賣超 ≥ 5000 萬的個股。
+# Cloudflare 排程 19:45 觸發（備援 20:25）：先抓今天的分點資料（富邦／MoneyDJ，約 18:00 後公布），等到 20:00 才發。
+# 發過的日期記在 data/notify/broker-sent.json；分點資料還沒出來就不發、等備援；超過 22:30 不發。
+on:
+  schedule:
+    - cron: '45 11 * * 1-5'   # 19:45 台灣時間（備援，主要由 Cloudflare 觸發）
+    - cron: '25 12 * * 1-5'   # 20:25 備援
+  workflow_dispatch:
+    inputs:
+      preview:
+        description: '立刻發一張預覽（不記錄已發送）'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: broker-evening
+  cancel-in-progress: false
+
+env:
+  SITE_URL: ${{ secrets.SITE_URL || vars.SITE_URL }}
+
+jobs:
+  alert:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: main
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.11'
+      - run: pip install requests
+      - name: Fetch broker branch trades
+        run: python3 scripts/fetch_broker.py --days 3
+        continue-on-error: true
+        env:
+          JSS_DATA_DIR: ./data
+      - name: Send broker alert at 20:00
+        run: TZ=Asia/Taipei python3 scripts/notify.py --broker-alert ${{ inputs.preview && '--preview' || '' }}
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
+          LINE_USER_ID: ${{ secrets.LINE_USER_ID }}
+      - name: Save data and sent state
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add data/broker/ data/notify/
+          git diff --staged --quiet && exit 0
+          git commit -m "data: broker + alert $(TZ=Asia/Taipei date +%Y-%m-%d)"
+          for i in 1 2 3 4 5; do
+            git push && exit 0
+            git pull --rebase -X theirs origin main || { git rebase --abort; git pull --no-rebase -X ours origin main; }
+          done
+          exit 1

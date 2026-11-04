@@ -14,6 +14,7 @@
   --risk-alert：市場風險警示（新條件成立才推，夜間 23:00～07:30 不推；記在 data/notify/risk-alerted.json）
   --morning：盤前快報（台指期夜盤＋富台指、美股主要指數、市場風險、類股龍頭與台股預估），週一到五 08:00；加 --preview 立刻發一張預覽
              夜盤抓不到時用富台指（optratw.com 背後的第三方 API）換算，再不行用美股 EWT
+  --broker-alert：重點分點（富邦新店、永豐內湖、康和總…）當日買賣超 ≥ 5000 萬的個股，週一到五 20:00
   --g85-alert：85g 當沖標的（開高走低候選、開盤價位區間、打法），週一到五 08:30
   --etf-alert：每日 ETF 持股變化摘要（主動 ETF 合計買賣超、新建倉／出清、被動 ETF 成分異動、資金流向），週一到五 20:00
   --preview：不管有沒有推過，把每日戰報、策略、高週轉三張卡片各發一次（測試排版用）
@@ -184,6 +185,38 @@ def compose() -> Msg:
     return m
 
 
+FLEX_MAX = 26000  # LINE 單一 bubble 上限約 30KB，留點餘裕
+
+
+def split_flex(msg):
+    """卡片太長就在段落（section）之間切成幾張，標題加 (1/2)…"""
+    if len(json.dumps(msg.flex(), ensure_ascii=False).encode()) <= FLEX_MAX:
+        return [msg]
+    groups, cur = [], []
+    for it in msg.items:
+        if it[0] == "section" and cur:
+            groups.append(cur)
+            cur = []
+        cur.append(it)
+    groups.append(cur)
+    parts, buf = [], []
+    for g in groups:
+        trial = Msg(msg.title, msg.subtitle, msg.accent, msg.url, msg.button)
+        trial.items = buf + g
+        if buf and len(json.dumps(trial.flex(), ensure_ascii=False).encode()) > FLEX_MAX:
+            parts.append(buf)
+            buf = list(g)
+        else:
+            buf = buf + g
+    parts.append(buf)
+    out = []
+    for i, items in enumerate(parts):
+        p = Msg(f"{msg.title}（{i + 1}/{len(parts)}）", msg.subtitle, msg.accent, msg.url, msg.button)
+        p.items = items
+        out.append(p)
+    return out
+
+
 def send(msg) -> int:
     """msg 可以是純文字或 Msg；LINE 用 Flex 卡片（失敗就退回純文字），其他管道用文字"""
     text = msg if isinstance(msg, str) else msg.text()
@@ -207,8 +240,11 @@ def send(msg) -> int:
                                  headers={"Authorization": f"Bearer {ltok}"}, json={"to": luser, "messages": [message]})
         r = None
         if not isinstance(msg, str):
-            r = push(msg.flex())
-            print("LINE flex", r.status_code, r.text[:300])
+            for part in split_flex(msg):
+                r = push(part.flex())
+                print("LINE flex", r.status_code, r.text[:300])
+                if r.status_code != 200:
+                    break
         if r is None or r.status_code != 200:
             r = push({"type": "text", "text": text[:4900]})
             print("LINE text", r.status_code, r.text[:200])
@@ -771,6 +807,106 @@ def exdiv_alert(dry: bool, force: bool = False) -> int:
     return 0
 
 
+BROKER_STATE = ROOT / "data" / "notify" / "broker-sent.json"
+BROKER_ALERT = ["富邦新店", "永豐內湖", "康和總公司", "元大松江", "凱基信義", "凱基松山", "凱基三多", "兆豐中壢", "台新西松"]
+BROKER_MIN = 5e4  # 仟元＝5000 萬
+
+
+def broker_alert(dry: bool, force: bool = False) -> int:
+    """重點分點當日買賣超 ≥ 5000 萬的個股（週一到五 20:00）。資料來源 data/broker/<日期>.json（fetch_broker.py，金額單位仟元）；
+    ETF 不列；買超、賣超各別列，多個分點同時買／賣同一檔的另外標出"""
+    now = datetime.now(TPE_TZ)
+    today = now.date().isoformat()
+    if not force and (now.weekday() >= 5 or today in _holidays()):
+        print("今天休市，不發分點通知")
+        return 0
+    try:
+        state = json.loads(BROKER_STATE.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        state = {"sent": []}
+    if today in state["sent"] and not force:
+        print("今天的分點通知已發過")
+        return 0
+    if now.hour * 60 + now.minute > 22 * 60 + 30 and not force:
+        print("已經超過 22:30，不發分點通知")
+        return 0
+    files = sorted((ROOT / "data" / "broker").glob("20*.json"))
+    doc = json.loads(files[-1].read_text(encoding="utf-8")) if files else {}
+    day = doc.get("date")
+    if day != today and not force:
+        print(f"分點資料還沒有今天的（最新 {day}）")
+        return 0
+    br = doc.get("branches", {})
+    md = lambda d: f"{int(d[5:7])}/{int(d[8:10])}"  # noqa: E731
+    wl = set(watchlist())
+    hits: dict[str, list] = {}  # 代號 → [(分點, 淨額億)]
+    per = []
+    for label in BROKER_ALERT:
+        rows = br.get(label)
+        if rows is None:
+            per.append((label, None, None))
+            continue
+        b, sl = [], []
+        for code, name, buy, sell, bq, sq in rows:
+            if code.startswith("0") or buy is None or sell is None:
+                continue
+            net = buy - sell
+            if abs(net) < BROKER_MIN:
+                continue
+            lots = (bq or 0) - (sq or 0) if bq is not None and sq is not None else None
+            px = (buy if net > 0 else sell) / ((bq if net > 0 else sq) or 0) if ((bq if net > 0 else sq) or 0) else None
+            item = (code, name, net / 1e5, lots, px)
+            (b if net > 0 else sl).append(item)
+            hits.setdefault(code, []).append((label, net / 1e5, name))
+        b.sort(key=lambda x: -x[2])
+        sl.sort(key=lambda x: x[2])
+        per.append((label, b, sl))
+    n = sum(len(x[1] or []) + len(x[2] or []) for x in per)
+    m = Msg(("【預覽】" if force else "") + "🏦 分點大額進出", f"{md(day or today)}・單一分點買賣超 ≥ 5000 萬・{n} 筆", accent="#0EA5E9",
+            url=f"{SITE}/broker/", button="開啟分點追蹤")
+    multi = {c: v for c, v in hits.items() if len(v) >= 2}
+    if multi:
+        m.section("多個分點同時進出", f"{len(multi)} 檔")
+        for c, v in sorted(multi.items(), key=lambda kv: -abs(sum(x[1] for x in kv[1]))):
+            tot = sum(x[1] for x in v)
+            m.stock(v[0][2], c, f"{len(v)} 個分點", f"{tot:+.2f} 億", color=sign_tone(tot), star=c in wl,
+                    sub="、".join(f"{x[0]} {x[1]:+.2f}" for x in v))
+    for label, b, sl in per:
+        if b is None:
+            m.section(label)
+            m.line("今天沒有資料", color=FLAT)
+            continue
+        if not b and not sl:
+            continue
+        m.section(label, f"買 {len(b)}・賣 {len(sl)}")
+        m.cols("張數", "淨額")
+        for code, name, net, lots, px in b + sl:
+            sub = f"均價約 {px:,.1f}" if px else ""
+            m.stock(name, code, f"{lots:+,.0f} 張" if lots is not None else "", f"{net:+.2f} 億", color=sign_tone(net), star=code in wl, sub=sub)
+    quiet = [label for label, b, sl in per if b is not None and not b and not sl]
+    if quiet:
+        m.note("沒有 5000 萬以上進出：" + "、".join(quiet))
+    if not n:
+        m.line("今天這些分點都沒有單一個股買賣超 5000 萬以上", color=FLAT)
+    m.note("淨額＝該分點當日買進金額 − 賣出金額（富邦／MoneyDJ 分點明細，各分點買、賣超前 50 名）；ETF 不列；★＝自選股")
+    print(m.text())
+    if dry:
+        return 0
+    if not force:
+        target = now.replace(hour=20, minute=0, second=0, microsecond=0)
+        if now < target:
+            import time
+            print(f"等到 20:00 再發（{(target - now).total_seconds() / 60:.0f} 分鐘）")
+            time.sleep((target - now).total_seconds())
+    if not send(m):
+        print("（沒有設定任何推播管道，只印出內容）")
+    if not force:
+        state["sent"] = sorted(set(state["sent"]) | {today})[-60:]
+        BROKER_STATE.parent.mkdir(parents=True, exist_ok=True)
+        BROKER_STATE.write_text(json.dumps(state, ensure_ascii=False, indent=0), encoding="utf-8")
+    return 0
+
+
 ETF_STATE = ROOT / "data" / "notify" / "etf-sent.json"
 
 
@@ -1055,6 +1191,7 @@ def main():
     ap.add_argument("--exdiv-alert", action="store_true", help="除權息黑K：明天除息的放空候選與明天要回補的部位")
     ap.add_argument("--risk-alert", action="store_true", help="市場風險警示：風險溫度偏高、指標達警戒／危險、VIX 暴漲、信用利差擴大、科技廠隱含 CDS 跳升")
     ap.add_argument("--etf-alert", action="store_true", help="每日 ETF 持股變化摘要（週一到五 20:00；加 --preview 立刻發預覽）")
+    ap.add_argument("--broker-alert", action="store_true", help="重點分點當日買賣超 ≥ 5000 萬（週一到五 20:00；加 --preview 立刻發預覽）")
     ap.add_argument("--g85-alert", action="store_true", help="85g 當沖標的（週一到五 08:30；加 --preview 立刻發預覽）")
     ap.add_argument("--morning", action="store_true", help="盤前快報：台指期夜盤、美股主要指數、類股龍頭與台股預估（08:00 發）")
     ap.add_argument("--preview", action="store_true", help="不管有沒有推過，把每日戰報、策略、高週轉三張卡片各發一次（測試排版用）")
@@ -1069,6 +1206,8 @@ def main():
         return strategy_alert(a.dry_run)
     if a.turnover_alert:
         return turnover_alert(a.dry_run)
+    if a.broker_alert:
+        return broker_alert(a.dry_run, force=a.preview)
     if a.g85_alert:
         return g85_alert(a.dry_run, force=a.preview)
     if a.morning:
