@@ -9,7 +9,7 @@
 
 輸出：
   margin_seed.json  {"asof", "cost": {代號: [平均成本, 融資餘額]}}  build_market.py 從 asof 的隔天接著用每日資料重播
-  margin_hist.json  {"series": [[日期, 上市推估維持率, 上櫃推估維持率]]}  大盤融資維持率走勢
+  margin_hist.json  {"series": [[日期, 上市維持率, 上櫃維持率]]}  大盤融資維持率走勢（融資市值 ÷ 交易所公布的融資金額）
 每日原始融資資料存在 --cache（GitHub Actions cache），再跑只補新的日子
 用法：python scripts/backfill_margin.py [--start 2021-11-15] [--cache 目錄] [--yahoo 目錄] [--minutes 280]
 """
@@ -26,7 +26,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from backtest_exdiv import yahoo  # noqa: E402
-from fetch_market_daily import TPE, log, tpex_margin, twse_margin  # noqa: E402
+from fetch_market_daily import TPE, log, margin_amt, tpex_margin, twse_margin  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 DATA = Path(os.environ.get("JSS_DATA_DIR", ROOT / "data"))
@@ -40,7 +40,17 @@ def fetch_days(days, cache: Path, deadline: float):
     for d in days:
         f = cache / f"{d.isoformat()}.json"
         if f.exists():
-            got[d] = json.loads(f.read_text(encoding="utf-8"))
+            doc = json.loads(f.read_text(encoding="utf-8"))
+            # 舊的快取沒有官方融資金額，有時間就補抓
+            if doc["t"] and "a" not in doc and time.time() < deadline:
+                try:
+                    doc["a"] = margin_amt(d)
+                    f.write_text(json.dumps(doc, separators=(",", ":")), encoding="utf-8")
+                    log(f"{d}：補融資金額 {doc['a']}")
+                except RuntimeError as e:
+                    log(f"{d} 融資金額抓取失敗：{e}")
+                time.sleep(2.5)
+            got[d] = doc
             continue
         if time.time() > deadline:
             log(f"時間到，{d} 之後下次再補")
@@ -56,6 +66,12 @@ def fetch_days(days, cache: Path, deadline: float):
             continue
         doc = {"t": {c: [x[0], x[5], x[6], x[7]] for c, x in t.items() if len(x) >= 8},
                "o": {c: [x[0], x[5], x[6], x[7]] for c, x in o.items() if len(x) >= 8}}
+        if t:
+            try:
+                time.sleep(1.5)
+                doc["a"] = margin_amt(d)
+            except RuntimeError as e:
+                log(f"{d} 融資金額抓取失敗：{e}")
         f.write_text(json.dumps(doc, separators=(",", ":")), encoding="utf-8")
         got[d] = doc
         if t:
@@ -113,16 +129,20 @@ def main():
     px = closes(codes, Path(a.yahoo))
 
     cost: dict[str, list] = {}
+    lastp: dict[str, float] = {}
     series = []
     for d in trade_days:
         ds = d.isoformat()
-        val = {0: 0.0, 1: 0.0}
-        loan = {0: 0.0, 1: 0.0}
+        amt = raw[d].get("a") or [None, None]
+        row = [ds]
         for m, key in ((0, "t"), (1, "o")):
+            val = loan = bal_all = bal_known = 0.0
             for c, (bal, buy, sell, rep) in raw[d][key].items():
+                bal_all += bal or 0
                 p = px.get(c, {}).get(ds)
                 if not p:
                     continue
+                pp, lastp[c] = lastp.get(c), p
                 st = cost.get(c)
                 if st is None or st[1] <= 0:
                     st = cost[c] = [p, bal]
@@ -132,10 +152,17 @@ def main():
                     tot = keep + b
                     st[0] = (st[0] * keep + p * b) / tot if tot > 0 else p
                     st[1] = bal
-                if bal > 0:
-                    val[m] += p * bal
-                    loan[m] += st[0] * RATIO[m] * bal
-        series.append([ds, round(val[0] / loan[0] * 100, 1) if loan[0] else None, round(val[1] / loan[1] * 100, 1) if loan[1] else None])
+                # Yahoo 偶爾有錯價：單日跳動超過 35% 的那天不算進大盤市值
+                if bal > 0 and not (pp and abs(p / pp - 1) > 0.35):
+                    val += p * bal * 1000
+                    loan += st[0] * RATIO[m] * bal * 1000
+                    bal_known += bal
+            # 大盤維持率＝融資市值 ÷ 官方融資金額（缺收盤的股票按張數比例扣掉）；沒有官方金額才用推估成本
+            if amt[m] and bal_known and bal_all:
+                row.append(round(val / (amt[m] * bal_known / bal_all) * 100, 1))
+            else:
+                row.append(round(val / loan * 100, 1) if loan else None)
+        series.append(row)
     out = DATA / "strategy"
     out.mkdir(parents=True, exist_ok=True)
     seed = {"asof": trade_days[-1].isoformat(), "start": trade_days[0].isoformat(),

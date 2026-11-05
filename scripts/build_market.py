@@ -194,8 +194,9 @@ def build(data_dir: Path, out_dir: Path):
         return x[3] if x else 0
 
     # 融資平均成本（推估）：build_margin.replay（長期 seed＋每日融資買賣重播），維持率＝收盤 ÷（成本 × 融資成數）
-    from build_margin import replay
+    from build_margin import calib, replay
     cost, _, _ = replay(days, data_dir)
+    kk = calib(cost, days)
 
     short_rows = []
     for c, mv in lastm.get("m", {}).items():
@@ -205,6 +206,7 @@ def build(data_dir: Path, out_dir: Path):
         mb, mchg, sb, schg, offset = mv[:5]
         lim = mv[8] if len(mv) > 8 else None
         avg = cost.get(c, [None])[0]
+        avg = avg * kk[q[1]] if avg else avg
         maint = round(q[5] / (avg * (0.5 if q[1] else 0.6)) * 100, 1) if avg and mb else None
         cl = closes[c]
         vol5 = [days[j]["q"].get(c, [0] * 8)[7] for j in range(max(0, li - 4), li + 1)]

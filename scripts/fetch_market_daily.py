@@ -236,6 +236,23 @@ def tpex_sbl(d: date):
     return parse_sbl(f, rows)
 
 
+def margin_amt(d: date) -> list:
+    """當天融資金額（元）[上市, 上櫃]；抓不到的那一邊是 None"""
+    out = [None, None]
+    doc = get_json("https://www.twse.com.tw/rwd/zh/marginTrading/MI_MARGN", {"date": d.strftime("%Y%m%d"), "selectType": "MS", "response": "json"})
+    for t in tables(doc) if doc.get("stat") == "OK" else []:
+        for r in t.get("data") or []:
+            if str(r[0]).strip().startswith("融資金額"):
+                out[0] = lots(r[5]) * 1000
+    time.sleep(1.5)
+    doc = get_json("https://www.tpex.org.tw/www/zh-tw/margin/balance", {"date": tpex_date(d), "response": "json"})
+    if str(doc.get("date", "")) == d.strftime("%Y%m%d"):
+        for r in (doc.get("tables") or [{}])[0].get("summary") or []:
+            if str(r[1]).strip().startswith("融資金"):
+                out[1] = lots(r[6]) * 1000
+    return out
+
+
 def _cnt(v) -> tuple[int, int]:
     m = re.match(r"([\d,]+)(?:\(([\d,]+)\))?", str(v).strip())
     return (lots(m.group(1)), lots(m.group(2) or 0)) if m else (0, 0)

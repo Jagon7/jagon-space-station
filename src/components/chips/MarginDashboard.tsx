@@ -8,7 +8,7 @@ import { Kpi, KpiRow, Note, Pills, SortTable, type Column } from "@/components/d
 
 type Row = { code: string; name: string; mk: string; etf: boolean; close: number; maint: number; call: number; dist: number; cost: number; pnl: number;
   bal: number; dm20: number; amt: number; aval: number; chg20: number | null; hot: boolean; tag: string | null };
-type Data = { updatedAt: string; date: string; seed: boolean; start: string; market: { tw: number | null; otc: number | null; series: [string, number | null, number | null][] };
+type Data = { updatedAt: string; date: string; seed: boolean; start: string; k?: { tw: number; otc: number }; market: { tw: number | null; otc: number | null; series: [string, number | null, number | null][] };
   count: { below: number; near: number; hot: number }; rows: Row[] };
 type Scope = "hot" | "all" | "etf";
 
@@ -63,15 +63,15 @@ export default function MarginDashboard() {
         </div>
       )}
       <KpiRow>
-        <Kpi label={`上市推估維持率（${md(data.date)}）`} value={data.market.tw != null ? `${data.market.tw}%` : "—"} color={data.market.tw != null && data.market.tw < 150 ? "text-[#f59e0b]" : "text-white"} sub={`再跌 ${drop(data.market.tw)} 到 130%`} />
-        <Kpi label="上櫃推估維持率" value={data.market.otc != null ? `${data.market.otc}%` : "—"} color={data.market.otc != null && data.market.otc < 150 ? "text-[#f59e0b]" : "text-white"} sub={`再跌 ${drop(data.market.otc)} 到 130%`} />
+        <Kpi label={`上市融資維持率（${md(data.date)}）`} value={data.market.tw != null ? `${data.market.tw}%` : "—"} color={data.market.tw != null && data.market.tw < 150 ? "text-[#f59e0b]" : "text-white"} sub={`再跌 ${drop(data.market.tw)} 到 130%`} />
+        <Kpi label="上櫃融資維持率" value={data.market.otc != null ? `${data.market.otc}%` : "—"} color={data.market.otc != null && data.market.otc < 150 ? "text-[#f59e0b]" : "text-white"} sub={`再跌 ${drop(data.market.otc)} 到 130%`} />
         <Kpi label="熱門股已低於 130%" value={data.count.below} unit="檔" color="text-[#f05252]" sub={`共 ${data.count.hot} 檔熱門股`} />
         <Kpi label="熱門股 130～145%" value={data.count.near} unit="檔" color="text-[#f59e0b]" sub="接近追繳線" />
       </KpiRow>
 
       <section className="mb-6 rounded-xl border border-[#243247] bg-[#0d1220] p-5">
         <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
-          <h3 className="text-sm font-semibold text-white">大盤融資維持率（推估）</h3>
+          <h3 className="text-sm font-semibold text-white">大盤融資維持率</h3>
           <Pills<"1y" | "all"> value={range} onChange={setRange} options={[{ value: "1y", label: "近一年" }, { value: "all", label: `全部（${data.market.series[0] ? data.market.series[0][0].slice(0, 7) : ""} 起）` }]} />
         </div>
         <ResponsiveContainer width="100%" height={260}>
@@ -102,6 +102,7 @@ export default function MarginDashboard() {
       <Note>
         推估融資成本：從 {data.start} 起逐日重播融資買進（以當天均價加入）、融資賣出與現金償還（依平均成本出場），除權、減資時成本跟著調整。
         推估維持率＝收盤 ÷（成本 × 融資成數），上市 6 成、上櫃 5 成；追繳價＝維持率剛好 130% 的股價。
+        大盤融資維持率＝全體融資餘額市值（含 ETF）÷ 證交所、櫃買中心公布的融資金額。個股成本再乘上校正係數（官方融資金額 ÷ 推估借款合計{data.k ? `，目前上市 ${data.k.tw}、上櫃 ${data.k.otc}` : ""}），讓個股加總和官方借款一致。
         判讀依近 20 日融資增減 × 股價漲跌：追價（資增價漲）、攤平（資增價跌）、洗籌（資減價漲）、斷頭（資減價跌且維持率 &lt; 140%）、減碼（其他資減價跌）。
         實際維持率依個別帳戶、整戶擔保品而不同，這裡是全體融資戶的平均推估。
       </Note>
