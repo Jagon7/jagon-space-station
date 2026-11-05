@@ -193,39 +193,9 @@ def build(data_dir: Path, out_dir: Path):
         x = dd.get("s", {}).get(code)
         return x[3] if x else 0
 
-    # 融資平均成本（估算）：交易所沒有公布個股融資金額，用每天融資新增部位的當日均價（成交金額 ÷ 成交股數）加權平均，
-    # 減少的部位視為依平均成本出場；有融資買進／賣出／現償明細的日子用明細，沒有的用淨增減
-    # 融資維持率＝收盤價 ÷（平均成本 × 融資成數）；上市融資成數 6 成、上櫃 5 成，低於 130% 券商會發追繳
-    # 除權息、減資、分割：當天參考價（收盤−漲跌）和前一天收盤不同時，成本跟著同比例調整
-    cost: dict[str, list] = {}  # 代號 → [平均成本, 餘額]
-    prev_close: dict[str, float] = {}
-    for d in days:
-        mm = d.get("m") or {}
-        for c, q in d["q"].items():
-            if not q or not q[5]:
-                continue
-            pc = prev_close.get(c)
-            prev_close[c] = q[5]
-            st = cost.get(c)
-            if st and pc and q[6] is not None:
-                ref = q[5] - q[6]
-                if ref > 0 and abs(ref / pc - 1) > 0.003:
-                    st[0] *= ref / pc
-            x = mm.get(c)
-            if x is None:
-                continue
-            px = q[8] / (q[7] * 1000) if q[7] and q[8] else q[5]
-            if st is None or st[1] <= 0:
-                cost[c] = [px, x[0]]
-                continue
-            avg, bal = st
-            if len(x) >= 8 and x[5] is not None and x[6] is not None and x[7] is not None:
-                keep = max(bal - x[6] - x[7], 0)
-                buy = x[5]
-            else:
-                keep, buy = (bal, x[1]) if x[1] > 0 else (bal + x[1], 0)
-            tot = keep + buy
-            cost[c] = [(avg * keep + px * buy) / tot if tot > 0 else px, x[0]]
+    # 融資平均成本（推估）：build_margin.replay（長期 seed＋每日融資買賣重播），維持率＝收盤 ÷（成本 × 融資成數）
+    from build_margin import replay
+    cost, _, _ = replay(days, data_dir)
 
     short_rows = []
     for c, mv in lastm.get("m", {}).items():

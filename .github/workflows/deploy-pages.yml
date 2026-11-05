@@ -8,7 +8,7 @@ on:
   push:
     branches: [main]
   workflow_run:
-    workflows: ["Daily Stock Data Fetch", "ETF Holdings Fetch", "Intel Fetch", "ETF Evening Summary", "Broker Evening Alert"]
+    workflows: ["Daily Stock Data Fetch", "ETF Holdings Fetch", "Intel Fetch", "ETF Evening Summary", "Broker Evening Alert", "Margin Cost Backfill"]
     types: [completed]
   workflow_dispatch:
 
