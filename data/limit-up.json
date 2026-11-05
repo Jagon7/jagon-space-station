@@ -67,10 +67,10 @@
       "openPrice": 83.3,
       "limitTime": "--:--",
       "market": "上櫃",
-      "instiForeign": 1,
+      "instiForeign": 90,
       "instiTrust": 0,
       "instiDealer": 0,
-      "instiTotal": 1,
+      "instiTotal": 90,
       "reason": ""
     },
     {
@@ -85,10 +85,10 @@
       "openPrice": 45.0,
       "limitTime": "--:--",
       "market": "上櫃",
-      "instiForeign": -2,
-      "instiTrust": 0,
+      "instiForeign": 34,
+      "instiTrust": 3,
       "instiDealer": 0,
-      "instiTotal": -2,
+      "instiTotal": 37,
       "reason": ""
     },
     {
@@ -121,10 +121,10 @@
       "openPrice": 33.65,
       "limitTime": "--:--",
       "market": "上櫃",
-      "instiForeign": 3,
+      "instiForeign": 101,
       "instiTrust": 0,
       "instiDealer": 0,
-      "instiTotal": 3,
+      "instiTotal": 101,
       "reason": ""
     },
     {
@@ -157,10 +157,10 @@
       "openPrice": 17.1,
       "limitTime": "--:--",
       "market": "上櫃",
-      "instiForeign": 6,
+      "instiForeign": 8,
       "instiTrust": 0,
       "instiDealer": 0,
-      "instiTotal": 6,
+      "instiTotal": 8,
       "reason": ""
     },
     {
