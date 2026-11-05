@@ -1,0 +1,56 @@
+name: Active ETF Cost
+
+# 主動式 ETF 建倉成本：逐日抓各檔從掛牌起的持股，用股數增減重播平均成本（停損監控用）。
+# 第一次要抓一年多的每日持股（約 1～3 小時）；每日原始持股存在 Actions cache，之後每天只補新的日子。
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 14 * * 1-5'   # 22:00 台灣時間（主要由 Cloudflare 觸發）：多數投信已公布當日持股
+
+permissions:
+  contents: write
+
+concurrency:
+  group: active-cost
+  cancel-in-progress: false
+
+jobs:
+  cost:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: main
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.11'
+      - run: pip install requests openpyxl pdfplumber
+      - name: Restore raw holdings cache
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.cache/jss-active
+          key: active-raw-${{ github.run_id }}
+          restore-keys: active-raw-
+      - name: Rebuild active ETF cost
+        run: python3 -u scripts/active_cost.py --minutes 240
+        env:
+          JSS_DATA_DIR: ./data
+      - name: Save raw holdings cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: ~/.cache/jss-active
+          key: active-raw-${{ github.run_id }}
+      - name: Commit
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add data/etf/active_cost.json 2>/dev/null || exit 0
+          git diff --staged --quiet && exit 0
+          git commit -m "data: active etf cost $(TZ=Asia/Taipei date +%Y-%m-%d)"
+          for i in 1 2 3 4 5; do
+            git push && exit 0
+            git pull --rebase -X theirs origin main || { git rebase --abort; git pull --no-rebase -X ours origin main; }
+          done
+          exit 1

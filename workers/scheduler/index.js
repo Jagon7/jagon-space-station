@@ -30,6 +30,7 @@ const PLAN = [
   ["20:20", ALL, "fetch-intel.yml"],
   ["21:20", WD, "fetch-etf.yml"],
   ["21:35", WD, "fetch.yml"],            // 融資融券（資料到齊後自動發每日戰報）
+  ["22:00", WD, "active-cost.yml"],      // 主動式 ETF 建倉成本（停損監控）
   ["23:20", ALL, "fetch-intel.yml"],
   ["23:40", WD, "fetch.yml"],
   ["23:50", WD, "fetch-etf.yml"],
