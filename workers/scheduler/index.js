@@ -18,6 +18,7 @@ const PLAN = [
   ["08:40", WD, "flow-live.yml"],        // 即時資金流，跑到 13:35
   ["10:10", [6], "fetch.yml", { weekly: "true" }],  // 週六：補週五、月營收／季報、回測
   ["11:20", ALL, "fetch-intel.yml"],
+  ["11:30", [6], "margin-backfill.yml"],  // 週六：補融資成本（推估融資維持率）
   ["11:35", TUE_SAT, "fetch-etf.yml"],
   ["14:20", ALL, "fetch-intel.yml"],
   ["15:45", WD, "fetch.yml"],            // 收盤行情

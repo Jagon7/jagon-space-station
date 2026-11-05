@@ -1,0 +1,56 @@
+name: Margin Cost Backfill
+
+# 推估融資成本：從 2021 年底起逐日重播每檔股票的融資買賣（證交所／櫃買中心），算出融資戶平均成本與大盤推估維持率。
+# 第一次要抓約 1,200 個交易日（約 2 小時）；每日原始資料存在 Actions cache，之後每週六只補新的日子。
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '30 3 * * 6'   # 週六 11:30（台灣時間；主要由 Cloudflare 觸發）
+
+permissions:
+  contents: write
+
+concurrency:
+  group: margin-backfill
+  cancel-in-progress: false
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: main
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.11'
+      - run: pip install requests
+      - name: Restore raw margin cache
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.cache/jss-margin
+          key: margin-raw-${{ github.run_id }}
+          restore-keys: margin-raw-
+      - name: Backfill margin cost
+        run: python3 -u scripts/backfill_margin.py --minutes 300
+        env:
+          JSS_DATA_DIR: ./data
+      - name: Save raw margin cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: ~/.cache/jss-margin
+          key: margin-raw-${{ github.run_id }}
+      - name: Commit seed
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add data/strategy/margin_seed.json data/strategy/margin_hist.json 2>/dev/null || exit 0
+          git diff --staged --quiet && exit 0
+          git commit -m "data: margin cost seed $(TZ=Asia/Taipei date +%Y-%m-%d)"
+          for i in 1 2 3 4 5; do
+            git push && exit 0
+            git pull --rebase -X theirs origin main || { git rebase --abort; git pull --no-rebase -X ours origin main; }
+          done
+          exit 1
