@@ -141,6 +141,12 @@ def build(data_dir: Path, public_dir: Path):
         for i, x in enumerate(offi.get(r[0]) or []):
             if x is not None:
                 r[i + 1] = x
+    # 回補歷史偶有單日異常（某天 Yahoo 收盤或官方金額有誤）：只有那一天偏離前後兩天 5% 以上、前後兩天又很接近的，當成缺值
+    for i in range(1, len(series) - 1):
+        for j in (1, 2):
+            a, x, b = series[i - 1][j], series[i][j], series[i + 1][j]
+            if a and x and b and abs(b / a - 1) < 0.03 and min(abs(x / a - 1), abs(x / b - 1)) > 0.05 and series[i][0] not in offi:
+                series[i][j] = None
     last = m_days[-1]
     li = days.index(last)
     q, mm = last["q"], last["m"]
