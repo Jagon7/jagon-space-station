@@ -139,10 +139,12 @@ def main():
             val = loan = bal_all = bal_known = 0.0
             for c, (bal, buy, sell, rep) in raw[d][key].items():
                 bal_all += bal or 0
-                p = px.get(c, {}).get(ds)
+                pp = lastp.get(c)
+                # Yahoo 偶爾整天缺收盤（例如 2025-08-01），缺的沿用前一天
+                p = px.get(c, {}).get(ds) or pp
                 if not p:
                     continue
-                pp, lastp[c] = lastp.get(c), p
+                lastp[c] = p
                 st = cost.get(c)
                 if st is None or st[1] <= 0:
                     st = cost[c] = [p, bal]
@@ -152,8 +154,9 @@ def main():
                     tot = keep + b
                     st[0] = (st[0] * keep + p * b) / tot if tot > 0 else p
                     st[1] = bal
-                # Yahoo 偶爾有錯價：單日跳動超過 35% 的那天不算進大盤市值
-                if bal > 0 and not (pp and abs(p / pp - 1) > 0.35):
+                # Yahoo 偶爾有錯價：單日跳動超過 35% 的那天不算進大盤市值；
+                # 減資股的歷史價會被 Yahoo 回推放大（例如光耀 2021 年變成 33 萬元），單檔市值超過整個市場融資金額 25% 的也不算
+                if bal > 0 and not (pp and abs(p / pp - 1) > 0.35) and not (amt[m] and p * bal * 1000 > amt[m] * 0.25):
                     val += p * bal * 1000
                     loan += st[0] * RATIO[m] * bal * 1000
                     bal_known += bal
