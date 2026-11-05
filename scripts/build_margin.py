@@ -8,7 +8,9 @@
   融資戶損益＝收盤 ÷ 成本 − 1
   熱門股：20 日均成交值 ≥ 5 億、融資 ≥ 100 張
   判讀（近 20 日融資增減 × 股價漲跌）：追價（資增價漲）、攤平（資增價跌）、洗籌（資減價漲）、斷頭（資減價跌且維持率 < 140%）、減碼（其他資減價跌）
-大盤推估維持率：全部有融資的股票，融資市值合計 ÷ 融資借款合計（上市、上櫃分開），歷史走勢接在 margin_hist.json 後面
+大盤維持率：全部有融資的股票（含 ETF）融資市值合計 ÷ 交易所公布的融資金額（上市、上櫃分開），和 toalpha、財經媒體的算法一樣；
+  沒有官方金額的日子才用推估借款。歷史走勢接在 margin_hist.json 後面
+個股校正：推估成本 × 校正係數 k（官方融資金額 ÷ 推估借款合計，上市、上櫃分開），讓個股加總和官方借款一致
 """
 from __future__ import annotations
 
@@ -24,7 +26,7 @@ HOT_VAL, HOT_BAL = 5e8, 100
 
 
 def replay(days: list[dict], data_dir: Path):
-    """→ (cost {代號: [平均成本, 餘額]}, 每天大盤推估維持率 [[日期, 上市, 上櫃]], 是否用了 seed)"""
+    """→ (cost {代號: [平均成本, 餘額]}, 每天大盤維持率 [[日期, 上市, 上櫃]], 是否用了 seed)"""
     seed = _load(data_dir / "strategy" / "margin_seed.json", {}) or {}
     dates = [d["date"] for d in days]
     start = 0
@@ -65,12 +67,41 @@ def replay(days: list[dict], data_dir: Path):
                 tot = keep + buy
                 st[0] = (st[0] * keep + px * buy) / tot if tot > 0 else px
                 st[1] = x[0]
-            if x[0] > 0 and not c.startswith("0"):
-                val[q[1]] += q[5] * x[0]
-                loan[q[1]] += st[0] * RATIO[q[1]] * x[0]
+            if x[0] > 0:
+                val[q[1]] += q[5] * x[0] * 1000
+                loan[q[1]] += st[0] * RATIO[q[1]] * x[0] * 1000
         if mm:
-            series.append([d["date"], round(val[0] / loan[0] * 100, 1) if loan[0] else None, round(val[1] / loan[1] * 100, 1) if loan[1] else None])
+            off = d.get("off") or {}
+            amt = {0: (off.get("twse") or {}).get("mAmt"), 1: (off.get("tpex") or {}).get("mAmt")}
+            row = [d["date"]]
+            for m in (0, 1):
+                # 有交易所公布的融資金額就用官方：融資市值 ÷ 融資金額；沒有才用推估成本
+                if amt[m] and val[m]:
+                    row.append(round(val[m] / amt[m] * 100, 1))
+                else:
+                    row.append(round(val[m] / loan[m] * 100, 1) if loan[m] else None)
+            series.append(row)
     return cost, series, used
+
+
+def calib(cost: dict, days: list[dict]) -> dict:
+    """校正係數 k＝官方融資金額 ÷ 推估借款合計（最近一天有融資明細和官方金額的；上市、上櫃分開）"""
+    k = {0: 1.0, 1: 1.0}
+    for d in reversed(days):
+        off = d.get("off") or {}
+        amt = {0: (off.get("twse") or {}).get("mAmt"), 1: (off.get("tpex") or {}).get("mAmt")}
+        if not d.get("m") or not (amt[0] or amt[1]):
+            continue
+        loan = {0: 0.0, 1: 0.0}
+        for c, x in d["m"].items():
+            v, st = d["q"].get(c), cost.get(c)
+            if v and st and x[0] > 0:
+                loan[v[1]] += st[0] * RATIO[v[1]] * x[0] * 1000
+        for m in (0, 1):
+            if amt[m] and loan[m]:
+                k[m] = amt[m] / loan[m]
+        return k
+    return k
 
 
 def tag(dm: float, chg: float | None, maint: float | None) -> str | None:
@@ -89,9 +120,27 @@ def build(data_dir: Path, public_dir: Path):
     if not m_days:
         return
     cost, series, used = replay(days, data_dir)
+    k = calib(cost, days)
     hist = (_load(data_dir / "strategy" / "margin_hist.json", {}) or {}).get("series", []) if used else []
     seen = {r[0] for r in series}
     series = [r for r in hist if r[0] not in seen] + series
+    # 每日檔有官方融資金額的日子，一律用官方算法覆蓋：融資市值（含 ETF）÷ 融資金額
+    offi = {}
+    for d in m_days:
+        off = d.get("off") or {}
+        amt = [(off.get("twse") or {}).get("mAmt"), (off.get("tpex") or {}).get("mAmt")]
+        if not (amt[0] or amt[1]):
+            continue
+        val = [0.0, 0.0]
+        for c, x in d["m"].items():
+            v = d["q"].get(c)
+            if v and v[5] and x[0] > 0:
+                val[v[1]] += v[5] * x[0] * 1000
+        offi[d["date"]] = [round(val[m] / amt[m] * 100, 1) if amt[m] and val[m] else None for m in (0, 1)]
+    for r in series:
+        for i, x in enumerate(offi.get(r[0]) or []):
+            if x is not None:
+                r[i + 1] = x
     last = m_days[-1]
     li = days.index(last)
     q, mm = last["q"], last["m"]
@@ -104,7 +153,7 @@ def build(data_dir: Path, public_dir: Path):
         if not v or not v[5] or not st or not x[0]:
             continue
         mk = v[1]
-        avg = st[0]
+        avg = st[0] * k[mk]
         maint = v[5] / (avg * RATIO[mk]) * 100
         call = CALL / 100 * avg * RATIO[mk]
         vals = [(dd["q"].get(c) or [0] * 9)[8] or 0 for dd in days[max(0, li - 19): li + 1]]
@@ -121,11 +170,12 @@ def build(data_dir: Path, public_dir: Path):
     stocks = [r for r in rows if not r["etf"]]
     lt = series[-1] if series else [None, None, None]
     out = {"updatedAt": datetime.now(TPE).isoformat(timespec="minutes"), "date": last["date"], "seed": used,
+           "k": {"tw": round(k[0], 3), "otc": round(k[1], 3)},
            "start": (_load(data_dir / "strategy" / "margin_seed.json", {}) or {}).get("start") if used else days[0]["date"],
            "market": {"tw": lt[1], "otc": lt[2], "series": series},
            "count": {"below": sum(r["maint"] < CALL for r in stocks if r["hot"]), "near": sum(CALL <= r["maint"] < 145 for r in stocks if r["hot"]),
                      "hot": sum(r["hot"] for r in stocks)},
            "rows": rows}
     (public_dir / "margin.json").write_text(json.dumps(out, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
-    print(f"融資斷頭監控：{last['date']} 大盤推估維持率 上市 {lt[1]}%、上櫃 {lt[2]}%，熱門股 {out['count']['hot']} 檔中 {out['count']['below']} 檔低於 130%"
+    print(f"融資斷頭監控：{last['date']} 大盤融資維持率 上市 {lt[1]}%、上櫃 {lt[2]}%，熱門股 {out['count']['hot']} 檔中 {out['count']['below']} 檔低於 130%"
           f"（{'有' if used else '沒有'}長期成本 seed）")
