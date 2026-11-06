@@ -128,3 +128,66 @@ def trade_impact(new_w: dict, old_w: dict, aum_yuan: float, price: dict, turnove
                      "turnover": tv, "multiple": mult, "new": new_w.get(k, 0.0), "old": old_w.get(k, 0.0)})
     rows.sort(key=lambda r: -(r["multiple"] if not is_na(r["multiple"]) else -1e18))
     return rows
+
+
+def buffer_select(order: list, existing, n: int, top_in: int, out_after: int, max_repl: int | None,
+                  keep_existing_when_over: int | None = None) -> tuple[list, list]:
+    """
+    臺灣指數公司 SmartBeta 指數的「緩衝區＋替換檔數上限」（00919、00929 編製規則 伍、一、2）：
+      1. 排名 ≤ top_in 的直接納入；既有成分股排名 > out_after 刪除（不合格的既有成分股本來就不在 order 裡）。
+      2. 排名 top_in+1 ~ out_after 為候選：既有成分股優先、再依排名補滿 n 檔（還不夠就往後依排名補）。
+      3. 替換檔數（新納入檔數）超過 max_repl 時：依排名優先選取至多 n − max_repl 檔既有成分股，
+         再以非既有成分股補滿 n 檔（00919 編製規則註 7；00929 未另訂，比照辦理）。
+    order：已排序的合格股票；回傳 (最終成分股依排名, 處理說明)。
+    """
+    ex = set(existing)
+    rank = {k: i for i, k in enumerate(order, 1)}
+    notes = []
+    final = [k for k in order if rank[k] <= top_in]
+    cand = [k for k in order if top_in < rank[k] <= out_after]
+    for k in [k for k in cand if k in ex] + [k for k in cand if k not in ex]:
+        if len(final) >= n:
+            break
+        final.append(k)
+    for k in order:
+        if len(final) >= n:
+            break
+        if k not in final and (k not in ex or rank[k] <= out_after):
+            final.append(k)
+            notes.append(f"候選不足，依排名遞補 {k}")
+    if len(final) > n:   # 前 top_in 名就超過 n 檔（top_in ≤ n 時不會發生）
+        final = final[:n]
+    repl = [k for k in final if k not in ex]
+    if max_repl is not None and len(repl) > max_repl:
+        keep = keep_existing_when_over if keep_existing_when_over is not None else n - max_repl
+        olds = [k for k in order if k in ex][:keep]
+        news = [k for k in order if k not in ex][: n - len(olds)]
+        notes.append(f"替換 {len(repl)} 檔超過上限 {max_repl} 檔：改取既有成分股前 {len(olds)} 檔＋非既有成分股 {len(news)} 檔")
+        final = sorted(olds + news, key=lambda k: rank[k])
+    return sorted(final, key=lambda k: rank[k]), notes
+
+
+def aum_plan_auto(aum_k: float, mult: float = 1.2, unit_k: float = 25_000_000) -> float:
+    """預擬資產管理規模＝追蹤指數資產 × 1.2，無條件進位到新台幣 250 億元的倍數（千元）。"""
+    return math.ceil(aum_k * mult / unit_k) * unit_k
+
+
+def priority_include(final: list, order: list, existing, priority: set, max_repl: int) -> tuple[list, list]:
+    """
+    00929 編製規則註 3「12 月定審優先納入最近 4 季現金股利發放達 2 次以上之公司」（原試算表的做法）：
+    合格且配息 ≥ 2 次的非成分股，不論排名都優先納入；替換檔數還沒到上限就擠掉排名最差的既有成分股，
+    到上限了就擠掉排名最差、配息不到 2 次的新納入股。
+    """
+    ex = set(existing)
+    rank = {k: i for i, k in enumerate(order, 1)}
+    final, notes = list(final), []
+    for x in [k for k in order if k in priority and k not in ex and k not in final]:
+        repl = sum(1 for k in final if k not in ex)
+        pool = ([k for k in final if k in ex] if repl < max_repl else
+                [k for k in final if k not in ex and k not in priority])
+        if not pool:
+            break
+        y = max(pool, key=lambda k: rank[k])
+        final[final.index(y)] = x
+        notes.append(f"配息頻率優先納入 {x}（排名 {rank[x]}），替換 {y}（排名 {rank[y]}）")
+    return sorted(final, key=lambda k: rank[k]), notes

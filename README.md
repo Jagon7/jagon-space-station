@@ -34,7 +34,7 @@ ETF 持股來源在 `scripts/etf_sources.py`（每家投信一個函式），追
 
 ## ETF 換股預估（00919、0050、0051、0056、00929）
 
-原本用 TEJ 匯出資料的換股試算表，改成只用官方公開資料、每天自動重算（`ETF Rebalance Prediction` workflow，平日 21:50、隔日 09:20）：
+原本用 TEJ 匯出資料的換股試算表，改成只用官方公開資料、每天自動重算（`ETF Rebalance Prediction` workflow）：平日 18:17 開始抓當天資料與財報、算完後 **19:00 推播**到 LINE／Telegram／Discord（`notify.py --rebalance-alert`，用 Daily Notify 同一組 secrets）；隔日 09:20 只補歷史資料。00919、00929 的選股（緩衝區、替換上限、市值結構、配息頻率優先）與權重上限照臺灣指數公司編製規則（00919 V1.2.0、00929 V2.2.1）：
 
 1. `scripts/fetch_rebalance.py` 抓公開資料到 `data/rebalance/raw/`：每日行情（證交所 MI_INDEX、櫃買 afterTrading）、
    發行股數／產業別（OpenAPI）、董監持股（OpenAPI t187ap11）、外資持股（MI_QFIIS、櫃買 qfii）、

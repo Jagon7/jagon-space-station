@@ -14,7 +14,8 @@ from __future__ import annotations
 
 import math
 
-from .common import NA, add_months, cap_redistribute, is_na, mean, rank_asc, rank_desc, trade_impact, xsum
+from .common import (NA, add_months, aum_plan_auto, buffer_select, cap_redistribute, is_na, mean, priority_include,
+                     rank_asc, rank_desc, trade_impact, xsum)
 
 INDUSTRIES = {"24", "25", "26", "27", "28", "29", "30", "31", "22", "35", "36"}
 
@@ -25,8 +26,13 @@ DEFAULT = {
     "year": 2026,
     "lam": 0.94,                     # 指數平滑波動度 λ
     "vol_days": 252,
-    "n_const": 50, "add_rank": 35, "del_rank": 66,
-    "aum_plan": 175000000,           # 預擬資產（千元），原表 1750 億
+    "n_const": 50, "add_rank": 35, "del_rank": 65,  # 35 名內納入、既有成分股 65 名後刪除
+    "max_changes": 16,               # 12 月定審至多替換 16 檔（6 月 24 檔）
+    "december": True,
+    "official": True,                # True：照編製規則（週轉率 8 個月、市值 ≥ 50 億、註 5 放寬上限）；False：照原試算表
+    "ffturn_months": None,           # 自由流通週轉率 ≥ 3% 的月數門檻（None：official 用 8、原試算表用 7）
+    "min_mcap": 5000,                # 發行市值 ≥ 50 億（百萬元）
+    "aum_plan": "auto",              # 預擬資產（千元）："auto"＝AUM×1.2 無條件進位到 250 億；原表填 175000000
     "cap_max": 0.10, "cap_liq_mult": 5, "cap_issue": 0.06, "cap_ff": 0.15, "cap_rounds": 5,
     "manual": {},
 }
@@ -176,7 +182,8 @@ def select(full: dict, old: dict, c: dict) -> dict:
         f["top20_12m"] = 1 if (r12[k] is not None and r12[k] <= n * 0.2) else 0
         f["cond1"] = 1 if f["top20_12m"] + f["ffturn_ok"] >= 1 else 0
         f["cond2"] = 1 if (r1[k] is not None and r1[k] <= int(n * 0.8)) else 0
-        f["top200"] = 1 if (rm[k] is not None and rm[k] <= 200) else 0
+        f["top200"] = 1 if (rm[k] is not None and rm[k] <= 200
+                            and (not c.get("official") or f["mcap"] >= c["min_mcap"])) else 0
         f["liq_ok"] = 1 if f["cond1"] + f["cond2"] + f["top200"] == 3 else 0
     th = {"tv12": next((full[k]["tv12"] for k in L if r12[k] == int(n * 0.2)), NA),
           "tv1": next((full[k]["tv1"] for k in L if r1[k] == int(n * 0.8)), NA),
@@ -209,31 +216,20 @@ def select(full: dict, old: dict, c: dict) -> dict:
     ranked = sorted((k for k in AY if not is_na(full[k]["yield"])), key=lambda k: -full[k]["yield"])
     rank = {k: i for i, k in enumerate(ranked, 1)}
     cond_del = [k for k in old if k not in rank]
-    rank_del = [k for k in ranked if k in old and rank[k] >= c["del_rank"]]
-    adds = [k for k in ranked if k not in old and rank[k] <= c["add_rank"]]
-    notes = []
+    rank_del = [k for k in ranked if k in old and rank[k] > c["del_rank"]]
     man = c.get("manual") or {}
     if man.get("add") is not None and man.get("del") is not None:
-        adds, dels = list(man["add"]), list(man["del"])
-        notes.append("人工覆寫")
+        adds, dels, notes = list(man["add"]), list(man["del"]), ["人工覆寫"]
     else:
-        # 刪除優先順序（原表註記）：先剔市值＆流動性沒過的 → 再踢關卡數少的 → 再踢股利率較低的
-        def prio(k):
-            f = full.get(k, {})
-            return (f.get("liq_ok", 0), f.get("passes", 0), f.get("yield") or 0)
-        dels = sorted(set(cond_del), key=prio) + [k for k in sorted(rank_del, key=lambda k: -rank[k]) if k not in cond_del]
-        keep = [k for k in old if k not in dels]
-        while len(keep) + len(adds) > c["n_const"]:
-            worst = max(keep, key=lambda k: rank.get(k, 1e9))
-            keep.remove(worst)
-            dels.append(worst)
-            notes.append(f"遞補剔除 {worst}")
-        for k in ranked:
-            if len(keep) + len(adds) >= c["n_const"]:
-                break
-            if k not in old and k not in adds:
-                adds.append(k)
-                notes.append(f"遞補納入 {k}")
+        # 編製規則 伍、一、2：35 名內納入、既有 65 名後刪除、36~65 名既有優先；12 月至多替換 16 檔（6 月 24 檔）
+        final, notes = buffer_select(ranked, old, c["n_const"], c["add_rank"], c["del_rank"], c["max_changes"])
+        if c.get("december", True):
+            # 註 3：12 月定審優先納入最近 4 季配息 ≥ 2 次的公司
+            final, n2 = priority_include(final, ranked, old, {k for k in ranked if (full[k].get("freq") or 0) >= 2},
+                                         c["max_changes"])
+            notes += n2
+        adds = [k for k in final if k not in old]
+        dels = [k for k in old if k not in final]
     final = [k for k in old if k not in dels] + adds
     return {"L": L, "thresholds": {**th, "vol": lv, "yield": ly, "cv": lc, "pe": lp}, "AF": AF,
             "ranked": [{"rank": rank[k], "code": k, "name": full[k]["name"], "yield": full[k]["yield"],
@@ -250,22 +246,42 @@ def weigh(final: list, full: dict, c: dict) -> dict:
     tv = {k: full[k]["tv3avg"] or 0 for k in final}
     tt = sum(tv.values())
     issue = {k: full[k]["mcap"] * 1000 for k in final}
-    cap = {k: min(c["cap_max"], c["cap_liq_mult"] * (ffm[k] / tf + tv[k] / tt) / 2,
-                  issue[k] * c["cap_issue"] / c["aum_plan"], ffm[k] * c["cap_ff"] / c["aum_plan"]) for k in final}
-    out = cap_redistribute(w, cap, c["cap_rounds"])
+    def caps(pi, pf, plan):
+        return {k: min(c["cap_max"], c["cap_liq_mult"] * (ffm[k] / tf + tv[k] / tt) / 2,
+                       issue[k] * pi / plan, ffm[k] * pf / plan) for k in final}
+    pi, pf, plan = c["cap_issue"], c["cap_ff"], c["aum_plan"]
+    cap = caps(pi, pf, plan)
+    notes = []
+    if c.get("official") and sum(cap.values()) < 1:
+        # 註 5：發行市值上限每次放寬 0.5%（最多 10%）、自由流通市值上限每次放寬 1.25%；
+        #       仍不行就把資產倍數以 0.05 為單位調降到 1 倍
+        base = plan / 1.2
+        mult = 1.2
+        while sum(cap.values()) < 1 and pi < 0.10 - 1e-12:
+            pi, pf = min(pi + 0.005, 0.10), pf + 0.0125
+            cap = caps(pi, pf, plan)
+        while sum(cap.values()) < 1 and mult > 1.0 + 1e-12:
+            mult = round(mult - 0.05, 2)
+            plan = base * mult
+            cap = caps(pi, pf, plan)
+        notes.append(f"上限放寬為發行市值 {pi:.1%}、自由流通市值 {pf:.2%}，資產倍數 {mult:g}")
+    out = cap_redistribute(w, cap, c["cap_rounds"] if not c.get("official") else 200)
     return {"rows": [{"code": k, "name": full[k]["name"], "yield": y[k], "raw": w[k], "cap": cap[k], "final": out[k]}
-                     for k in final], "final": out, "sum": sum(out.values())}
+                     for k in final], "final": out, "sum": sum(out.values()), "notes": notes}
 
 
 def compute(b: dict, cfg: dict | None = None) -> dict:
     c = {**DEFAULT, **(cfg or {})}
     old = b["etf"]["00929"]["weights"]
+    if c["aum_plan"] == "auto":
+        c["aum_plan"] = aum_plan_auto(b["etf"]["00929"]["aum"] or 0)
     full = metrics(b, c)
     sel = select(full, old, c)
     w = weigh(sel["final"], full, c)
     oldw = {k: v / 100 for k, v in old.items()}
     impact = trade_impact(w["final"], oldw, (b["etf"]["00929"]["aum"] or 0) * 1000,
                           {k: v["price"] for k, v in full.items()}, b["turnover1"])
+    sel["notes"] = sel["notes"] + w["notes"]
     return {"etf": "00929", "asof": b["asof"], "config": c, "universe": full, **sel, "weights": w, "impact": impact}
 
 
@@ -309,12 +325,13 @@ def extras(pub, b: dict, c: dict) -> dict:
             for k, v in pub.px(d).items():
                 mv[k][d[:7]] += v[1] or 0
     b["ffturn_ok"] = {}
+    months_need = c["ffturn_months"] or (8 if c.get("official") else 7)   # 編製規則：12 個月中至少 8 個月
     for k, per in mv.items():
         sh, ins = basic.get(k, {}).get("sh"), b["insider"].get(k)
         if not sh or ins is None:
             continue
         ffs = (1 - math.floor(ins + 1e-9) / 100) * sh
-        b["ffturn_ok"][k] = 1 if ffs and sum(1 for mo in months if per.get(mo, 0) / ffs >= 0.03) >= 7 else 0
+        b["ffturn_ok"][k] = 1 if ffs and sum(1 for mo in months if per.get(mo, 0) / ffs >= 0.03) >= months_need else 0
     # 波動度：近 252 個交易日的日報酬（%）
     last = days[-c["vol_days"] - 1:]
     rets = defaultdict(list)

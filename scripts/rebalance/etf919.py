@@ -13,7 +13,8 @@
 """
 from __future__ import annotations
 
-from .common import (NA, apply_floor, cap_redistribute, is_na, rank_desc, trade_impact, xsum)
+from .common import (NA, aum_plan_auto, apply_floor, buffer_select, cap_redistribute, is_na, rank_desc,
+                     trade_impact, xsum)
 
 DEFAULT = {
     "year": 2026,              # 審核年度（12 月審核用今年前三季）
@@ -24,10 +25,14 @@ DEFAULT = {
     "n_const": 40,             # 成分股檔數
     "add_rank": 20,            # 排名前 20 的非成分股納入
     "del_rank": 60,            # 排名 61 以後的成分股剔除
-    "max_changes": 8,          # 每次最多換幾檔（原表：條件剔除 6 檔 + 排名剔除 2 檔 = 8）
+    "max_changes": 8,          # 12 月定審至多替換 8 檔（編製規則 伍、一、2）
+    "december": True,          # 12 月定審（5 月定審沒有替換上限，且用股利率而非預估股利率）
+    "top5_max": 0.65,          # 前五大權重合計上限
+    "liq_min_count": 150,      # 流動性檢驗通過不足 150 檔時，依日均成交金額指標補齊
+    "official": True,          # True：照編製規則（含註 5 上限無法滿足時降預擬規模、重分配到收斂）；False：照原試算表（6 輪）
     "top50_min": 7,            # 至少 7 檔為母體市值前 50 大
     "top150_min": 20,          # 至少 20 檔為母體市值前 150 大
-    "aum_plan": 750000000,     # 預擬資產（千元），原表 7500 億
+    "aum_plan": "auto",        # 預擬資產（千元）："auto"＝AUM×1.2 無條件進位到 250 億；原表填 750000000
     "cap_issue": 0.06,         # 發行市值 6%
     "cap_ff": 0.15,            # 自由流通市值 15%
     "cap_max": 0.15,           # 單一成分股 15%
@@ -159,6 +164,8 @@ def compute(b: dict, cfg: dict | None = None) -> dict:
     names = b["names"]
     old = b["etf"]["00919"]["weights"]          # {code: 權重%}
     aum_k = b["etf"]["00919"]["aum"]            # 千元
+    if c["aum_plan"] == "auto":
+        c["aum_plan"] = aum_plan_auto(aum_k)
 
     # 919條件篩選(全版)
     full = {}
@@ -196,6 +203,16 @@ def compute(b: dict, cfg: dict | None = None) -> dict:
     mcap_th = pool[th_code]["mcap"] if th_code else NA
     for k, v in full.items():
         v["top300"] = 1 if (v["mcap_rank"] is not None and v["mcap_rank"] <= c["top_mcap"]) else 0
+    if c.get("official"):
+        # 流動性檢驗通過不足 150 檔時，依日平均成交金額指標由大到小補齊
+        top = [k for k, v in full.items() if v["top300"]]
+        ok = [k for k in top if full[k]["liq_ok"]]
+        if len(ok) < c["liq_min_count"]:
+            rest = sorted((k for k in top if not full[k]["liq_ok"] and not is_na(full[k]["tv_min"])),
+                          key=lambda k: -full[k]["tv_min"])
+            for k in rest[: c["liq_min_count"] - len(ok)]:
+                full[k]["liq_ok"] = 1
+    for k, v in full.items():
         v["pass"] = 1 if (v["top300"] and v["liq_ok"] + v["roe_ok"] + v["ff10"] == 3) else 0
 
     cand = [k for k in pool if full[k]["pass"] == 1 and full[k]["est_yield"] != ""]
@@ -216,7 +233,7 @@ def compute(b: dict, cfg: dict | None = None) -> dict:
     return {
         "etf": "00919", "asof": b["asof"], "config": c, "mcap_threshold": mcap_th,
         "mcap_threshold_code": th_code, "universe": full, "ranked": ranked,
-        "add": adds, "del": dels, "notes": notes, "final": final, "weights": weights, "impact": impact,
+        "add": adds, "del": dels, "notes": notes + weights["notes"], "final": final, "weights": weights, "impact": impact,
     }
 
 
@@ -227,39 +244,42 @@ def _rounddown(x, n):
 
 def select(full: dict, cand: list, old: dict, c: dict):
     """
-    原表欄位：
-      條件剔除   = 既有成分股不在合格排序名單（AX）
-      20內納入   = 非成分股、排名 1~20（AY）
-      61後剔除   = 成分股、排名 > 60（AX48）
-      最終納入／剔除 = 人工（AZ、BA）。原表結果：條件剔除全部剔除，再從「61後剔除」挑排名最差的補到 8 檔，
-                     納入取「20內納入」排名最前面的同樣檔數。
+    臺灣精選高息指數編製規則 伍、一、2（V1.2.0）：
+      排名 ≤ 20 納入；既有成分股排名 > 60 刪除；21~60 名既有成分股優先、依排名補滿 40 檔；
+      12 月定審至多替換 8 檔（超過時依預估股利率取既有成分股至多 32 檔＋非既有補滿 40 檔，註 7）；
+      再檢查至少 7 檔屬母體發行市值前 50 大、20 檔屬前 150 大，不足時在維持替換檔數下換股（註 7）。
+    （原試算表的 AY「20內納入」、AX「61後剔除」、AZ／BA 人工挑選，就是這個程序的結果。）
     """
     man = c.get("manual") or {}
     if man.get("add") is not None and man.get("del") is not None:
         return list(man["add"]), list(man["del"]), ["人工覆寫"]
+    final, notes = buffer_select(cand, old, c["n_const"], c["add_rank"], c["del_rank"],
+                                 c["max_changes"] if c.get("december", True) else None)
     rank = {k: i for i, k in enumerate(cand, 1)}
-    cond_del = [k for k in old if k not in rank]
-    rank_del = sorted([k for k in old if k in rank and rank[k] > c["del_rank"]], key=lambda k: -rank[k])
-    add_pool = [k for k in cand if k not in old and rank[k] <= c["add_rank"]]
-    notes = []
-    dels = list(cond_del)
-    room = max(c["max_changes"] - len(dels), 0)
-    dels += rank_del[:room]
-    n = min(len(dels), len(add_pool)) if len(dels) >= len(add_pool) else len(dels)
-    # 成分股檔數要維持 n_const：剔除幾檔就納入幾檔；合格的新股不夠時，剔除只留條件剔除＋可遞補的
-    adds = add_pool[:n]
-    if len(adds) < len(dels):
-        notes.append(f"20 名內新股只有 {len(add_pool)} 檔，剔除 {len(dels)} 檔，需從 21 名後遞補")
-        extra = [k for k in cand if k not in old and k not in adds]
-        adds += extra[: len(dels) - len(adds)]
-    # 市值結構：至少 7 檔前 50 大、20 檔前 150 大（原表 BD 欄檢查，BN/BU 欄人工調整）
-    final = [k for k in old if k not in dels] + adds
-    n50 = sum(1 for k in final if (full.get(k, {}).get("mcap_rank") or 9999) <= 50)
-    n150 = sum(1 for k in final if (full.get(k, {}).get("mcap_rank") or 9999) <= 150)
-    need = max(c["top50_min"] - n50, 0, c["top150_min"] - n150)
-    if need:
-        notes.append(f"市值結構不足（前50大 {n50} 檔、前150大 {n150} 檔），需人工調整 {need} 檔")
+    mr = lambda k: full.get(k, {}).get("mcap_rank") or 9999  # noqa: E731
+    for top, need in ((50, c["top50_min"]), (150, c["top150_min"])):
+        while sum(1 for k in final if mr(k) <= top) < need:
+            ins = [k for k in cand if k not in final and mr(k) <= top]
+            swapped = False
+            for x in ins:   # 維持替換檔數：同為既有／非既有之間互換
+                outs = [k for k in final if mr(k) > top and (k in old) == (x in old)]
+                if outs:
+                    y = max(outs, key=lambda k: rank[k])
+                    final[final.index(y)] = x
+                    notes.append(f"市值前 {top} 大不足 {need} 檔：以 {x} 替換 {y}")
+                    swapped = True
+                    break
+            if not swapped:
+                notes.append(f"市值前 {top} 大不足 {need} 檔，且無可替換股票")
+                break
+    final.sort(key=lambda k: rank[k])
+    adds = [k for k in final if k not in old]
+    dels = [k for k in old if k not in final]
     return adds, dels, notes
+
+
+def _caps(final, issue, ffm, c, plan):
+    return {k: min(c["cap_max"], issue[k] * c["cap_issue"] / plan, ffm[k] * c["cap_ff"] / plan) for k in final}
 
 
 def weigh(final: list, full: dict, b: dict, c: dict) -> dict:
@@ -286,11 +306,33 @@ def weigh(final: list, full: dict, b: dict, c: dict) -> dict:
         raw[k] = NA if i is None or not bl[i] else (med[k] or 0) / bl[i] * bw[i]
     issue = {k: full[k]["mcap"] * 1000 for k in final}                      # 千元
     ffm = {k: issue[k] * (full[k]["ff"] if not is_na(full[k]["ff"]) else 1) for k in final}
-    cap = {k: min(c["cap_max"], issue[k] * c["cap_issue"] / c["aum_plan"], ffm[k] * c["cap_ff"] / c["aum_plan"])
-           for k in final}
-    capped = cap_redistribute(raw, cap, c["cap_rounds"])
+    plan = c["aum_plan"]
+    cap = _caps(final, issue, ffm, c, plan)
+    notes = []
+    if c.get("official") and sum(cap.values()) < 1:
+        # 註 5：無法滿足 b 時，改用可滿足 b 的「預擬資產管理規模」最大值
+        lo, hi = 1.0, plan
+        for _ in range(100):
+            mid = (lo + hi) / 2
+            lo, hi = (mid, hi) if sum(_caps(final, issue, ffm, c, mid).values()) >= 1 else (lo, mid)
+        plan = lo
+        cap = _caps(final, issue, ffm, c, plan)
+        notes.append(f"上限無法滿足，預擬資產管理規模改為 {plan / 1e5:,.0f} 億元")
+    capped = cap_redistribute(raw, cap, c["cap_rounds"] if not c.get("official") else 200)
+    if c.get("official"):
+        # 前五大權重合計不得超過 65%：超過部分依其餘成分股權重比例分配
+        top5 = sorted(capped, key=lambda k: -capped[k])[:5]
+        t5 = sum(capped[k] for k in top5)
+        if t5 > c["top5_max"]:
+            f = c["top5_max"] / t5
+            rest = [k for k in capped if k not in top5]
+            rs = sum(capped[k] for k in rest)
+            extra = t5 - c["top5_max"]
+            capped = {k: (capped[k] * f if k in top5 else capped[k] + extra * capped[k] / rs) for k in capped}
+            notes.append("前五大權重超過 65%，已等比例調降")
     floored = apply_floor(capped, c["floor"])
     rows = [{"code": k, "name": full[k]["name"], "yield": yl[k], "yield_share": share[k], "tv_median": med[k],
              "band": band_of.get(k), "raw": raw[k], "issue_mcap": issue[k], "ff_mcap": ffm[k], "cap": cap[k],
              "capped": capped[k], "final": floored[k]} for k in final]
-    return {"rows": rows, "final": floored, "sum": sum(floored.values()), "bands": bands}
+    return {"rows": rows, "final": floored, "sum": sum(floored.values()), "bands": bands, "aum_plan": plan,
+            "notes": notes}

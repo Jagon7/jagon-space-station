@@ -131,6 +131,9 @@ class Public:
                 "aum": (s.get("aum") or 0) / 1000, "date": s.get("date")}
 
     def daytrade(self, day: str) -> dict:
+        own = self.raw / "daytrade" / f"{day}.json"
+        if own.exists():
+            return _read(own, {})
         doc = _read(self.d / "strategy" / "daytrade.json", {})
         d = (doc.get("days") or doc).get(day) or {}
         return {**(d.get("tw") or {}), **(d.get("tp") or {})}

@@ -107,7 +107,8 @@ def load_919(path: str) -> tuple[dict, CalamineWorkbook]:
 
 def check_919(path: str):
     b, wb = load_919(path)
-    res = etf919.compute(b, {"year": int(b["asof"][:4])})
+    # 原表權重：預擬規模手填 7500 億、重分配做 6 輪、沒有註 5 的降規模處理 → official=False
+    res = etf919.compute(b, {"year": int(b["asof"][:4]), "aum_plan": 750000000, "official": False})
     bad = 0
 
     def cmp(label, mine, theirs, tol=1e-9):
@@ -332,11 +333,15 @@ def check_929(path: str):
                    "not_full": int(g(4) or 0), "ff": g(5), "ff10": int(g(6) or 0), "tv12": g(7), "tv1": g(8),
                    "ffturn_ok": int(g(12) or 0), "vol": g(25), "avg_yield": g(28), "cv": g(31), "pe5": g(34),
                    "pe3": g(35), "pe_diff": g(36), "roe_ok": int(g(39) or 0), "yield": g(41), "freq": 0}
+    for r in old[2:]:
+        if r[0] and _code(r[0]) in full:
+            full[_code(r[0])]["freq"] = _num(r[70]) or 0
     tv3 = {_code(r[0]): _num(r[3]) for r in _sheet(wb, "成交值")[2:] if r[0]}
     for k in full:
         full[k]["tv3avg"] = tv3.get(k)
     orig = {_code(r[3]): _num(r[7]) for r in _sheet(wb, "原始成分股")[1:] if r[2] == "股票"}
-    sel = etf929.select(full, orig, etf929.DEFAULT)
+    cfg = {**etf929.DEFAULT, "official": False, "aum_plan": 175000000}
+    sel = etf929.select(full, orig, cfg)
     s = _sheet(wb, "條件篩選")
     t_rank = [_code(r[55]) for r in s[1:] if len(r) > 55 and r[55]]
     mine = [x["code"] for x in sel["ranked"]]
@@ -351,7 +356,7 @@ def check_929(path: str):
     print(f"最終名單：試算表 {len(t_final)} 檔；公開版 {len(sel['final'])} 檔；只在試算表 {sorted(t_final - set(sel['final']))}"
           f"，只在公開版 {sorted(set(sel['final']) - t_final)}")
     # 4) 用試算表的最終名單算權重
-    w = etf929.weigh(sorted(t_final, key=lambda k: list(t_final).index(k)), full, etf929.DEFAULT)
+    w = etf929.weigh(sorted(t_final), full, cfg)
     ws_ = _sheet(wb, "權重預估(以250E為單位)")
     nbw = 0
     for r in ws_[1:]:

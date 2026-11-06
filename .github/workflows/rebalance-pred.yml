@@ -1,31 +1,37 @@
 name: ETF Rebalance Prediction
 
-# 00919、0050、0051、0056、00929 換股預估：抓公開資料（證交所、櫃買中心、公開資訊觀測站），照原試算表算法每天重算。
+# 00919、0050、0051、0056、00929 換股預估：抓公開資料（證交所、櫃買中心、公開資訊觀測站），照原試算表算法每天重算，
+# 週一到五晚上 7 點推播（LINE／Telegram／Discord，用 Daily Notify 同一組 secrets）。
 # 財報季每天都有公司新公布財報，所以每天都重抓 OpenAPI 最新一季並重算。
-# 歷史資料（行情約 25 個月、本益比 5 年、財報 6 年、除權息 7 年）第一次要分幾次排程慢慢補齊（每家來源有限速，
-# 遇到流量限制就停，下次接著補），補齊前預估頁會顯示「資料補齊中」。
+# 18:17 開始：先抓「今天」的行情、當沖、財報、股利，剩下的時間補歷史資料（行情約 25 個月、本益比 5 年、財報 6 年、
+# 除權息 7 年；每家來源有限速，遇到流量限制就停，下次接著補），算完等到 19:00 再推播。
+# 歷史資料補齊前，推播與網頁會顯示「資料補齊中」與缺少的項目，不會給出預估。
 on:
   schedule:
-    - cron: '50 13 * * 1-5'   # 21:50 台灣時間：當日行情、當沖、OpenAPI 財報都已更新
-    - cron: '20 1 * * 2-6'    # 09:20 台灣時間：補前一晚被限流沒抓完的、凌晨才更新的財報
+    - cron: '17 10 * * 1-5'   # 18:17 台灣時間（GitHub 排程常延後，提早開始；推播固定等到 19:00）
+    - cron: '20 1 * * 2-6'    # 09:20 台灣時間：只補歷史資料與凌晨才更新的財報，不推播
   workflow_dispatch:
     inputs:
       minutes:
         description: '抓取時間上限（分鐘）；首次補歷史資料可以設大一點'
         default: '40'
+      notify:
+        description: '算完立刻推播（不等 19:00、同一天推過也再推）'
+        type: boolean
+        default: false
 
 permissions:
   contents: write
-
-concurrency:
-  group: data-fetch
-  cancel-in-progress: false
 
 jobs:
   predict:
     runs-on: ubuntu-latest
     timeout-minutes: 120
-
+    concurrency:
+      group: data-fetch   # 與其他抓取 workflow 排隊，不同時推送
+      cancel-in-progress: false
+    outputs:
+      evening: ${{ steps.when.outputs.evening }}
     steps:
       - uses: actions/checkout@v7
 
@@ -36,8 +42,22 @@ jobs:
       - name: Install dependencies
         run: pip install requests openpyxl
 
+      - id: when
+        name: Evening run?
+        run: |
+          h=$(TZ=Asia/Taipei date +%H)
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] || [ "$h" -ge 15 ]; then echo "evening=true" >> "$GITHUB_OUTPUT"; else echo "evening=false" >> "$GITHUB_OUTPUT"; fi
+          # 晚上那次要在 19:00 前算完：抓取最多到 18:48
+          if [ "${{ github.event_name }}" = "schedule" ] && [ "$h" -ge 15 ]; then
+            left=$(( ( $(TZ=Asia/Taipei date -d '18:48' +%s) - $(date +%s) ) / 60 ))
+            [ "$left" -lt 8 ] && left=8
+            echo "MINUTES=$left" >> "$GITHUB_ENV"
+          else
+            echo "MINUTES=${{ github.event.inputs.minutes || '40' }}" >> "$GITHUB_ENV"
+          fi
+
       - name: Fetch public data
-        run: python3 scripts/fetch_rebalance.py --minutes ${{ github.event.inputs.minutes || '40' }}
+        run: python3 scripts/fetch_rebalance.py --minutes "$MINUTES"
         env:
           JSS_DATA_DIR: ./data
 
@@ -64,4 +84,48 @@ jobs:
             git pull --rebase -X theirs origin main || { git rebase --abort; git pull --no-rebase -X ours origin main; }
           done
           echo "::error::Gave up pushing data after 5 attempts"
+          exit 1
+
+  notify:
+    needs: predict
+    if: needs.predict.outputs.evening == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    concurrency:
+      group: notify
+      cancel-in-progress: false
+    env:
+      SITE_URL: ${{ secrets.SITE_URL || vars.SITE_URL }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: main   # 拿到剛推上去的預估結果
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.11'
+      - run: pip install requests
+      - name: Wait until 19:00 (Asia/Taipei)
+        if: github.event_name == 'schedule'
+        run: |
+          now=$(date +%s); target=$(TZ=Asia/Taipei date -d '19:00' +%s)
+          if [ "$now" -lt "$target" ]; then echo "等到 19:00（$(( (target - now) / 60 )) 分鐘）"; sleep $(( target - now )); fi
+      - name: Send rebalance prediction
+        run: TZ=Asia/Taipei python3 scripts/notify.py --rebalance-alert ${{ github.event.inputs.notify == 'true' && '--preview' || '' }}
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
+          LINE_USER_ID: ${{ secrets.LINE_USER_ID }}
+      - name: Record sent date
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add data/notify/rebalance-sent.json 2>/dev/null || true
+          if git diff --staged --quiet; then exit 0; fi
+          git commit -m "data: rebalance alert sent $(TZ=Asia/Taipei date +%Y-%m-%d)"
+          for i in 1 2 3 4 5; do
+            git push && exit 0
+            git pull --rebase -X theirs origin main || { git rebase --abort; git pull --no-rebase -X ours origin main; }
+          done
           exit 1

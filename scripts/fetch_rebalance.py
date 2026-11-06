@@ -22,7 +22,7 @@ ETF 換股預估（0050／0051／0056／00919／00929）需要的公開資料，
   pe/<日期>.json         個股本益比（00929 五年平均本益比用）：證交所 BWIBBU_d、櫃買 peQryDate
 
 月營收沿用 fetch_fundamentals.py 的 data/fund/revenue，ETF 持股與規模沿用 fetch_etf.py 的 data/etf。
-當沖股數沿用 fetch_strategy.py 的 data/strategy/daytrade.json。
+  daytrade/<日期>.json   當沖成交股數（證交所 TWTB4U、櫃買 intraday/stat）；沒有時沿用 data/strategy/daytrade.json
 
 用法：python scripts/fetch_rebalance.py [--minutes 25] [px basic insider foreign fin div pe]
 """
@@ -228,9 +228,9 @@ def _tpex_px(d: date):
     return out
 
 
-def px():
+def px(recent: int | None = None):
     skip = set(read_json(OUT / "px" / "_skip.json", []))
-    days = [d for d in trading_days(PX_DAYS) if d.isoformat() not in skip]
+    days = [d for d in trading_days(PX_DAYS) if d.isoformat() not in skip][:recent]
     todo = [d for d in days if not (OUT / "px" / f"{d}.json").exists()]
     log(f"每日行情：缺 {len(todo)} 天")
     for d in todo:
@@ -435,7 +435,7 @@ def _openapi_fin() -> tuple[str, dict]:
     return tag, doc
 
 
-def fin():
+def fin(latest_only: bool = False):
     tag, latest = _openapi_fin()
     if tag:
         path = OUT / "fin" / f"{tag}.json"
@@ -444,6 +444,8 @@ def fin():
             old.setdefault(c, {}).update(v)
         write_json(path, old)
         log(f"財報 {tag}（OpenAPI 最新）：{len(latest)} 家，累計 {len(old)} 家")
+    if latest_only:
+        return
     for i, (y, q) in enumerate(_quarters(FIN_QUARTERS)):
         path = OUT / "fin" / f"{y}Q{q}.json"
         have = read_json(path, {})
@@ -487,11 +489,16 @@ def roc_date(s: str) -> str | None:
     return f"{int(m.group(1)) + 1911}-{int(m.group(2)):02d}-{int(m.group(3)):02d}"
 
 
-def div():
+_DIV_DONE: set[int] = set()   # 本次執行已更新的年度（避免重抓）
+
+
+def div(recent_only: bool = False):
     this = datetime.now(TPE).year
-    for y in range(this, this - DIV_YEARS, -1):
+    for y in range(this, this - (1 if recent_only else DIV_YEARS), -1):
         path = OUT / "div" / f"{y}.json"
         if path.exists() and y < this - 1 or late() or "mops" in BLOCKED:
+            continue
+        if y in _DIV_DONE:
             continue
         doc = []
         ok = True
@@ -514,6 +521,7 @@ def div():
                     # [代號, 所屬年度, 所屬季別, 現金股利, 股票股利, 除息日, 除權日, 公告日]
                     doc.append([c[0], p[0], p[1], cash, stock, roc_date(c[10]), roc_date(c[6]), roc_date(c[16])])
         if ok and doc:
+            _DIV_DONE.add(y)
             write_json(path, doc)
             log(f"除權息公告 {y}：{len(doc)} 筆")
     board = []
@@ -530,6 +538,31 @@ def div():
     if board:
         write_json(OUT / "div_board.json", board)
         log(f"董事會決議股利：{len(board)} 筆")
+
+
+# ---------------- 當沖股數（換手量 = 成交量 − 當沖） ----------------
+
+def daytrade():
+    """證交所 TWTB4U、櫃買 intraday/stat：近 5 個交易日的當沖成交股數（晚上 7 點前跑，不等 fetch_strategy）。"""
+    for d in trading_days(10)[:5]:
+        path = OUT / "daytrade" / f"{d}.json"
+        if path.exists():
+            continue
+        doc = {}
+        for src, url, params in (
+                ("twse", TWSE + "exchangeReport/TWTB4U", {"date": d.strftime("%Y%m%d"), "selectType": "All", "response": "json"}),
+                ("tpex", TPEX + "www/zh-tw/intraday/stat", {"type": "Daily", "date": d.strftime("%Y/%m/%d"), "response": "json"})):
+            j = get_json(src, url, params=params)
+            tbs = (j or {}).get("tables") or []
+            if len(tbs) < 2:
+                continue
+            for r in tbs[1].get("data") or []:
+                c = str(r[0]).strip()
+                if is_stock(c):
+                    doc[c] = int(num(r[3]) or 0)
+        if len(doc) > 500:
+            write_json(path, doc)
+            log(f"當沖 {d}：{len(doc)} 檔")
 
 
 # ---------------- 本益比 ----------------
@@ -566,7 +599,13 @@ def pe():
     write_json(OUT / "pe" / "_skip.json", sorted(skip))
 
 
-JOBS = {"basic": basic, "insider": insider, "px": px, "foreign": foreign, "fin": fin, "div": div, "pe": pe}
+# 先抓「今天」要用的（晚上 7 點要出結果），剩下的時間再補歷史資料
+JOBS = {
+    "basic": basic, "insider": insider,
+    "px_today": lambda: px(recent=5), "daytrade": daytrade, "foreign": foreign,
+    "fin_today": lambda: fin(latest_only=True), "div_today": lambda: div(recent_only=True),
+    "px": px, "fin": fin, "div": div, "pe": pe,
+}
 
 
 def main():

@@ -14,6 +14,7 @@
   --risk-alert：市場風險警示（新條件成立才推，夜間 23:00～07:30 不推；記在 data/notify/risk-alerted.json）
   --morning：盤前快報（台指期夜盤＋富台指、美股主要指數、市場風險、類股龍頭與台股預估），週一到五 08:00；加 --preview 立刻發一張預覽
              夜盤抓不到時用富台指（optratw.com 背後的第三方 API）換算，再不行用美股 EWT
+  --rebalance-alert：ETF 換股預估（00919、0050、0051、0056、00929 預估納入／剔除、預估張數），週一到五 19:00
   --broker-alert：重點分點（富邦新店、永豐內湖、康和總…）當日買賣超 ≥ 5000 萬的個股，週一到五 20:00
   --g85-alert：85g 當沖標的（開高走低候選、開盤價位區間、打法），週一到五 08:30
   --etf-alert：每日 ETF 持股變化摘要（主動 ETF 合計買賣超、新建倉／出清、被動 ETF 成分異動、資金流向），週一到五 20:00
@@ -1273,6 +1274,67 @@ def intel_alert(dry: bool) -> int:
     return 0
 
 
+
+REBAL_STATE = ROOT / "data" / "notify" / "rebalance-sent.json"
+REBAL_NAMES = {"00919": "群益台灣精選高息", "0050": "元大台灣50", "0051": "元大中型100", "0056": "元大高股息",
+               "00929": "復華台灣科技優息"}
+
+
+def rebalance_alert(dry: bool, force: bool = False) -> int:
+    """ETF 換股預估（00919、0050、0051、0056、00929），週一到五 19:00；同一個資料日只發一次。"""
+    pred_dir = Path(os.environ.get("JSS_DATA_DIR", ROOT / "data")) / "rebalance" / "pred"
+    docs = []
+    for code in REBAL_NAMES:
+        try:
+            docs.append(json.loads((pred_dir / f"{code}.json").read_text(encoding="utf-8")))
+        except (OSError, ValueError):
+            pass
+    if not docs:
+        print("沒有換股預估資料")
+        return 0
+    asof = max(d.get("asof") or "" for d in docs)
+    try:
+        state = json.loads(REBAL_STATE.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        state = {"sent": []}
+    if asof in state["sent"] and not force:
+        print(f"{asof} 的換股預估已推過")
+        return 0
+    md = f"{int(asof[5:7])}/{int(asof[8:10])}"
+    m = Msg(("【預覽】" if force else "") + "🔄 ETF 換股預估", f"{md} 收盤資料・公開資料每日重算", accent="#4f8cff",
+            url=f"{SITE}/etf-flow/?tab=predict", button="開啟換股預估")
+    for d in docs:
+        code = d["etf"]
+        title = f"{code} {REBAL_NAMES.get(code, '')}"
+        if not d.get("ready", True):
+            m.section(title, "資料補齊中")
+            m.line("缺：" + "、".join(d.get("missing") or []), color=FLAT)
+            continue
+        m.section(title, f"納入 {len(d['add'])}・剔除 {len(d['del'])}")
+        if d["add"] or d["del"]:
+            m.cols("預估張數", "量能倍數")
+        for r in d["add"]:
+            m.stock(r["name"], r["code"], f"{r['lots']:,.0f}" if r.get("lots") is not None else "—",
+                    f"{r['mult']:.1f}x" if r.get("mult") is not None else "—", up=True, sub="納入")
+        for r in d["del"]:
+            m.stock(r["name"], r["code"], f"{r['lots']:,.0f}" if r.get("lots") is not None else "—",
+                    f"{r['mult']:.1f}x" if r.get("mult") is not None else "—", up=False, sub="剔除")
+        if not d["add"] and not d["del"]:
+            m.line("目前預估沒有成分股異動", color=FLAT)
+    m.note("預估張數＝權重調整×ETF 規模÷股價；量能倍數＝預估張數÷扣除當沖後的日成交量。"
+           "依指數規則用證交所、櫃買、公開資訊觀測站公開資料計算，僅供參考，以指數公司公告為準。")
+    print(m.text())
+    if dry:
+        return 0
+    if not send(m):
+        print("（沒有設定任何推播管道，只印出內容）")
+    if not force:
+        state["sent"] = sorted(set(state["sent"]) | {asof})[-60:]
+        REBAL_STATE.parent.mkdir(parents=True, exist_ok=True)
+        REBAL_STATE.write_text(json.dumps(state, ensure_ascii=False, indent=0), encoding="utf-8")
+    return 0
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry-run", action="store_true")
@@ -1284,6 +1346,7 @@ def main():
     ap.add_argument("--exdiv-alert", action="store_true", help="除權息黑K：明天除息的放空候選與明天要回補的部位")
     ap.add_argument("--risk-alert", action="store_true", help="市場風險警示：風險溫度偏高、指標達警戒／危險、VIX 暴漲、信用利差擴大、科技廠隱含 CDS 跳升")
     ap.add_argument("--etf-alert", action="store_true", help="每日 ETF 持股變化摘要（週一到五 20:00；加 --preview 立刻發預覽）")
+    ap.add_argument("--rebalance-alert", action="store_true", help="ETF 換股預估（週一到五 19:00；加 --preview 立刻發預覽）")
     ap.add_argument("--broker-alert", action="store_true", help="重點分點當日買賣超 ≥ 5000 萬（週一到五 20:00；加 --preview 立刻發預覽）")
     ap.add_argument("--active-alert", action="store_true", help="主動 ETF 停損＋融資斷頭（週一到五晚上；加 --preview 立刻發預覽）")
     ap.add_argument("--g85-alert", action="store_true", help="85g 當沖標的（週一到五 08:30；加 --preview 立刻發預覽）")
@@ -1302,6 +1365,8 @@ def main():
         return turnover_alert(a.dry_run)
     if a.broker_alert:
         return broker_alert(a.dry_run, force=a.preview)
+    if a.rebalance_alert:
+        return rebalance_alert(a.dry_run, force=a.preview)
     if a.active_alert:
         return active_alert(a.dry_run, force=a.preview)
     if a.g85_alert:
