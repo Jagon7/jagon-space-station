@@ -17,11 +17,14 @@ from __future__ import annotations
 from openpyxl.styles import Alignment, Font, PatternFill
 from openpyxl.utils import get_column_letter
 
+# 跟原試算表相同的格式：權重 0.00%、金額／張數用會計格式、倍數兩位小數、換手量整數
 PCT = "0.00%"
-PCT3 = "0.000%"
-NUM0 = "#,##0"
-NUM1 = "#,##0.0"
-NUM2 = "#,##0.00"
+PCT3 = "0.00%"
+NUM0 = '_-* #,##0_-;\\-* #,##0_-;_-* "-"??_-;_-@_-'
+NUM1 = "0"
+NUM2 = '_-* #,##0.00_-;\\-* #,##0.00_-;_-* "-"??_-;_-@_-'
+PRICE = "General"
+YELLOW = PatternFill("solid", fgColor="FFFF00")
 HEAD = Font(bold=True)
 FILL = {"add": PatternFill("solid", fgColor="FDE2E2"), "del": PatternFill("solid", fgColor="DCF5E3"),
         "adj": PatternFill("solid", fgColor="E3ECFB"), "head": PatternFill("solid", fgColor="EDEDED")}
@@ -61,9 +64,10 @@ def weight_sheet(wb, etf: str, asof: str, final_w: dict, old_w: dict, names: dic
     r = 2
     for k in final:
         ws.cell(r, 1, _label(k, names))
-        ws.cell(r, 2, price.get(k)).number_format = NUM2
+        ws.cell(r, 2, price.get(k)).number_format = PRICE
         ws.cell(r, 3, old_w.get(k, 0.0)).number_format = PCT
-        ws.cell(r, 4, final_w[k]).number_format = PCT
+        c = ws.cell(r, 4, final_w[k])
+        c.number_format, c.fill = PCT, YELLOW
         r += 1
     ws.cell(r, 3, sum(old_w.get(k, 0.0) for k in final)).number_format = PCT
     ws.cell(r, 4, sum(final_w.values())).number_format = PCT
