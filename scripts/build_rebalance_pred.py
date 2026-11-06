@@ -111,8 +111,10 @@ def readiness(pub: Public, need: dict) -> list[str]:
             miss.append(f"歷史本益比（{n}/{need['pe_days']} 天）")
     if need.get("foreign") and not list((pub.raw / "foreign").glob("20*.json")):
         miss.append("外資持股")
-    if not list((pub.raw / "insider").glob("20*.json")):
-        miss.append("董監持股")
+    ins = sorted((pub.raw / "insider").glob("20*.json"))
+    n_ins = len(json.loads(ins[-1].read_text(encoding="utf-8"))) if ins else 0
+    if n_ins < 1500:   # 上市＋上櫃約 1,950 家；只剩一個市場時不給預估
+        miss.append(f"董監持股（只有 {n_ins} 檔）")
     return miss
 
 

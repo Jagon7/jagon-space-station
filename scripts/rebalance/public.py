@@ -68,6 +68,17 @@ class Public:
             q = out.setdefault(p.stem, {})
             for c, v in doc.items():
                 q.setdefault(c, {}).update({k: x for k, x in v.items() if x is not None})
+        # OpenAPI 的單季數（ni_q／nip_q／eps_q）：彙總表的累計數還沒有時，用前一季累計 + 單季
+        for qk in sorted(out):
+            y, n = int(qk[:4]), int(qk[-1])
+            prev = out.get(f"{y}Q{n - 1}", {}) if n > 1 else {}
+            for c, v in out[qk].items():
+                for f in ("ni", "nip", "eps"):
+                    if v.get(f) is None and v.get(f + "_q") is not None:
+                        if n == 1:
+                            v[f] = v[f + "_q"]
+                        elif prev.get(c, {}).get(f) is not None:
+                            v[f] = prev[c][f] + v[f + "_q"]
         return out
 
     @staticmethod
@@ -97,15 +108,22 @@ class Public:
         return out
 
     def dividends(self) -> dict:
-        """{代號: {(所屬年度, 'Q1'..'Q4'): 每股現金股利}}；同一期別多次公告取最後一次。"""
-        latest = {}
+        """
+        {代號: {(所屬年度, 'Q1'..'Q4'): 每股現金股利}}。
+        同一期別常有兩則公告：除息（現金）和除權（股票，現金欄 0），要分開看；
+        現金股利取「有除息日或現金 > 0」的公告中最後一則（更正公告會蓋掉舊的）。
+        """
+        cash_ann, seen = {}, set()
         for p in sorted((self.raw / "div").glob("20*.json")):
-            for c, y, q, cash, _stock, exd, _exr, ann in _read(p, []):
+            for c, y, q, cash, _stock, exd, _exr, ann, *_ in _read(p, []):
                 k = (c, y, q)
-                if k not in latest or (ann or "") >= latest[k][1]:
-                    latest[k] = (cash, ann or "")
-        board = _read(self.raw / "div_board.json", [])
-        for c, y, q, cash, *_ in board:
+                seen.add(k)
+                if (cash or exd) and (k not in cash_ann or (ann or "") >= cash_ann[k][1]):
+                    cash_ann[k] = (cash or 0.0, ann or "")
+        latest = {k: v for k, v in cash_ann.items()}
+        for k in seen - set(latest):            # 只有配股、沒有現金
+            latest[k] = (0.0, "")
+        for c, y, q, cash, *_ in _read(self.raw / "div_board.json", []):
             latest.setdefault((c, y, q), (cash, ""))
         out = defaultdict(dict)
         for (c, y, q), (cash, _) in latest.items():
@@ -233,7 +251,7 @@ class Public:
             adj = defaultdict(lambda: 1.0)
             ev = defaultdict(lambda: [0.0, 0.0])   # (代號, 日期) → [現金, 股票股利率]
             for f in sorted((self.raw / "div").glob("20*.json")):
-                for c, _y, _q, cash, stock, exd, exr, *_ in _read(f, []):
+                for c, _y, _q, cash, stock, exd, exr, *_rest in _read(f, []):
                     if exd and all_days[0] < exd <= all_days[-1] and cash:
                         ev[(c, exd)][0] += cash
                     if exr and all_days[0] < exr <= all_days[-1] and stock:
