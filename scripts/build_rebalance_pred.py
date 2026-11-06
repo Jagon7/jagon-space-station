@@ -150,6 +150,7 @@ def run_ftse(pub: Public, cfg: dict, asof: str | None):
            "iw_csv": str(ROOT / cfg["iw_csv"]) if cfg.get("iw_csv") else None}
     b = pub.bundle(asof, etfs=("0050", "0051", "0056"))
     b = pub.ftse_extras(b, cfg)
+    cfg = {**cfg, "official": cfg.get("official", True)}
     Y = int(b["asof"][:4])
     ly, lm = int(cfg["liq_end"][:4]), int(cfg["liq_end"][5:7])
     start = f"{ly - 1 if lm < 12 else ly}-{(lm % 12) + 1:02d}-01"

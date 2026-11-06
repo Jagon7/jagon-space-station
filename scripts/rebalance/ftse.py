@@ -16,7 +16,7 @@
 """
 from __future__ import annotations
 
-from .common import NA, cap_redistribute, is_na, trade_impact
+from .common import NA, aum_plan_auto, cap_redistribute, is_na, trade_impact
 from .etf919 import eps_growth, four_q_dividend
 
 DEFAULT = {
@@ -26,9 +26,12 @@ DEFAULT = {
     "n50": 50, "add50": 40, "del50": 61,
     "n100": 100, "add100": 130, "del100": 171,
     "n56": 50, "add56": 35, "del56": 66,
-    "aum_plan_56": 975000000,  # 0056 預擬資產（千元），原表 9750 億
-    "cap_rounds_56": 2,
-    "dps_w1": 1 / 12, "dps_w2": 11 / 12,
+    "aum_plan_56": "auto",     # 0056 預擬資產（千元）："auto"＝追蹤資產×1.2 無條件進位到 250 億（Dividend+ 規則 4.5.1）；原表 975000000
+    "cap_rounds_56": 2,        # 原表重分配 2 輪；official 時做到收斂
+    "dps_w1": None, "dps_w2": None,  # None：依計算日到會計年度結束的月數 n，n/12 與 (12−n)/12（規則 4.3）；原表 1/12、11/12
+    "max_add_56": 5, "max_del_56": 5,  # 規則 4.2.11：每次最多納入 5 檔、剔除 5 檔
+    "official": True,          # True：照 FTSE Ground Rules；False：照原試算表
+    "calc_date": None,
 }
 
 
@@ -47,10 +50,11 @@ def universe(b: dict, c: dict, old50: dict, old51: dict) -> dict:
         ins = b["insider"].get(k)
         pub = NA if ins is None else round(1 - ins / 100, 2)
         ff = b["iw_override"].get(k) if k in b["iw_override"] else pub          # data!I（審核用）
-        ffw = b.get("ff_override", {}).get(k, ff)                                # data!F（權重用）
         fol = b["foreign"].get(k, {}).get("fol")
         head = b["foreign"].get(k, {}).get("headroom")
         iw = NA if is_na(ff) else (min(fol, ff) if not is_na(fol) else ff)
+        # 權重用的 investability weight：FTSE 檔（原表 data!F）；公開版＝自由流通與外資上限取小（Ground Rules 4.2）
+        ffw = b.get("ff_override", {}).get(k, iw if k not in b["iw_override"] else ff)
         if is_na(iw):
             ff_ok = 0
         elif iw <= 0.05:
@@ -170,7 +174,9 @@ def select_56(b: dict, uni: dict, pool: list, old56: dict, c: dict) -> dict:
         price = b["close"].get(k)
         ib = b["ibes"].get(k)
         if ib:
-            dps = ib["dps1"] * c["dps_w1"] + ib["dps2"] * c["dps_w2"]
+            w1 = c["dps_w1"] if c["dps_w1"] is not None else c["_n_fy1"] / 12
+            w2 = c["dps_w2"] if c["dps_w2"] is not None else (12 - c["_n_fy1"]) / 12
+            dps = ib["dps1"] * w1 + ib["dps2"] * w2
             yld, brokers, src = (dps / price if price else NA), ib.get("brokers", 0), "IBES"
         else:
             d4, _ = four_q_dividend(b["div"].get(k, {}), Y)
@@ -207,7 +213,28 @@ def select_56(b: dict, uni: dict, pool: list, old56: dict, c: dict) -> dict:
     add = [k for k in cand if rank[k] <= c["add56"] and k not in old56]
     dele = [k for k in cand if rank[k] >= c["del56"] and k in old56]
     cond = [k for k in old56 if k not in rank]
-    final, fill, over = _fill(list(old56), add, dele + cond, cand, c["n56"], set())
+    if c.get("official"):
+        # 規則 4.2.11：最多納入 5、剔除 5；離開母體／上一年度零股利／沒有預估股利（4.2.1~4.2.3）的強制剔除不受限
+        forced = [k for k in old56 if k not in rows or rows[k]["div_ok"] == 0 or is_na(rows[k]["yield"])]
+        others = [k for k in cond if k not in forced]   # 其他條件不適用既有成分股，理論上不會有
+        normal = sorted(dele + others, key=lambda k: -rank.get(k, 1e9))
+        dels = forced + normal[: max(0, c["max_del_56"] - len(forced))]
+        adds = add[: c["max_add_56"]]
+        final = [k for k in old56 if k not in dels] + adds
+        fill, over = [], []
+        for k in cand:                      # 4.2.9：不足 50 檔依排名補
+            if len(final) >= c["n56"]:
+                break
+            if k not in final and k not in dels:
+                final.append(k)
+                fill.append(k)
+        while len(final) > c["n56"]:        # 超過 50 檔剔除排名最差的既有成分股
+            worst = max((k for k in final if k in old56), key=lambda k: rank.get(k, 1e9))
+            final.remove(worst)
+            over.append(worst)
+        cond = forced
+    else:
+        final, fill, over = _fill(list(old56), add, dele + cond, cand, c["n56"], set())
     return {"rows": rows, "thresholds": {"tv6m": th_tv, "ltr": th_ltr, "eta": th_eta, "cseta": th_cs},
             "ranked": [{"rank": rank[k], **{x: rows[k][x] for x in ("code", "name", "yield", "yield_src", "exist")}}
                        for k in cand],
@@ -222,7 +249,7 @@ def weights_56(final: list, rows: dict, uni: dict, b: dict, c: dict) -> dict:
     issue = {k: b["mcap"][k] for k in final}                                        # 百萬
     inv = {k: issue[k] * (uni.get(k, {}).get("iw") or 1) for k in final}
     cap = {k: min(issue[k] * 0.06 * 1000 / c["aum_plan_56"], inv[k] * 0.15 * 1000 / c["aum_plan_56"]) for k in final}
-    out = cap_redistribute(w, cap, c["cap_rounds_56"])
+    out = cap_redistribute(w, cap, c["cap_rounds_56"] if not c.get("official") else 200)
     return {"rows": [{"code": k, "yield": y[k], "raw": w[k], "cap": cap[k], "final": out[k]} for k in final],
             "final": out, "sum": sum(out.values())}
 
@@ -231,9 +258,21 @@ def compute(b: dict, cfg: dict | None = None) -> dict:
     c = {**DEFAULT, **(cfg or {})}
     e = b["etf"]
     old50, old51, old56 = e["0050"]["weights"], e["0051"]["weights"], e["0056"]["weights"]
+    if c["aum_plan_56"] == "auto":
+        c["aum_plan_56"] = aum_plan_auto(e["0056"]["aum"] or 0)
+    cm = int((c.get("calc_date") or b["asof"])[5:7])
+    c["_n_fy1"] = 12 - cm   # 計算日到會計年度（12 月）結束的月數：11 月 → 1、5 月 → 7
     if "annual_liq" not in b:
-        ff = {k: (b["iw_override"][k] if k in b.get("iw_override", {}) else
-                  (NA if b["insider"].get(k) is None else round(1 - b["insider"][k] / 100, 2))) for k in b["universe"]}
+        def _iw(k):
+            if k in b.get("iw_override", {}):
+                return b["iw_override"][k]
+            ins = b["insider"].get(k)
+            if ins is None:
+                return NA
+            ff_ = round(1 - ins / 100, 2)
+            fol = (b.get("foreign", {}).get(k) or {}).get("fol")
+            return min(ff_, fol) if fol else ff_   # 流動性用審核期末的 IW；IW ≥ FOL 時用 FOL
+        ff = {k: _iw(k) for k in b["universe"]}
         meds = b.get("month_medians", {})
         b["annual_liq"] = annual_liquidity(meds, b.get("shares", {}), ff, set(old50) | set(old51),
                                            b.get("month_days", {}))

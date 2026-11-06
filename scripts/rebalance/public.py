@@ -228,7 +228,21 @@ class Public:
         all_days = [d for d in self.px_days() if start <= d <= asof]
         if all_days:
             p0, p1 = self.px(all_days[0]), self.px(all_days[-1])
-            b["ltr"] = {c: (p1[c][0] / v[0] - 1) for c, v in p0.items() if c in p1 and v[0] and p1[c][0]}
+            # Dividend+ 規則 4.2.6：累積總報酬（含現金股利、股票股利），每日 (P_T×(1+s)+D_T)/P_{T-1} 連乘
+            #   = (期末價/期初價) × Π 除權息日 (P_T×(1+s)+D_T)/P_T
+            adj = defaultdict(lambda: 1.0)
+            ev = defaultdict(lambda: [0.0, 0.0])   # (代號, 日期) → [現金, 股票股利率]
+            for f in sorted((self.raw / "div").glob("20*.json")):
+                for c, _y, _q, cash, stock, exd, exr, *_ in _read(f, []):
+                    if exd and all_days[0] < exd <= all_days[-1] and cash:
+                        ev[(c, exd)][0] += cash
+                    if exr and all_days[0] < exr <= all_days[-1] and stock:
+                        ev[(c, exr)][1] += stock / 10        # 面額 10 元
+            for (c, d), (cash, srate) in ev.items():
+                p = self.px(d).get(c)
+                if p and p[0]:
+                    adj[c] *= (p[0] * (1 + srate) + cash) / p[0]
+            b["ltr"] = {c: (p1[c][0] / v[0]) * adj[c] - 1 for c, v in p0.items() if c in p1 and v[0] and p1[c][0]}
             b["mkt_6m_ago"] = {c: v[3] for c, v in p0.items()}
         else:
             b["ltr"], b["mkt_6m_ago"] = {}, {}
@@ -241,7 +255,9 @@ class Public:
                 if c in b["eta"] or not v.get("assets"):
                     continue
                 pref = (basic.get(c, {}).get("pref") or 0) * 10 / 1000          # 特別股股本（千元，面額 10 元）
-                b["eta"][c] = (((v.get("eq") or 0) + pref) / v["assets"], (v.get("cap") or 0) / v["assets"])
+                # 規則 4.2.7：Total Shareholders' Equity = 特別股股本 + 普通股股東權益（歸屬母公司權益）
+                common = v.get("eqp") if v.get("eqp") is not None else v.get("eq")
+                b["eta"][c] = (((common or 0) + pref) / v["assets"], (v.get("cap") or 0) / v["assets"])
         # 上一會計年度有沒有發現金股利（0056「定期審核前之會計年度股利」）
         Y = int(asof[:4])
         b["fy_div"] = {c: sum(x for (y, q), x in d.items() if y == Y - 1) for c, d in b["div"].items()}

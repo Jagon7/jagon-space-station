@@ -228,7 +228,8 @@ def load_ftse(path: str):
 def check_ftse(path: str):
     from . import ftse
     b, cfg, wb = load_ftse(path)
-    res = ftse.compute(b, cfg)
+    # 原表：0056 預擬規模手填 9750 億、DPS 權重 1/12、11/12、重分配 2 輪、沒有每次 5 檔上限 → official=False
+    res = ftse.compute(b, {**cfg, "official": False, "aum_plan_56": 975000000, "dps_w1": 1 / 12, "dps_w2": 11 / 12})
     bad = 0
     d = _sheet(wb, "data")
     nd = 0
