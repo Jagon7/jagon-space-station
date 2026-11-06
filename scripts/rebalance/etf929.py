@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import math
 
-from .common import (NA, add_months, aum_plan_auto, buffer_select, cap_redistribute, is_na, mean, priority_include,
+from .common import (NA, xl, add_months, aum_plan_auto, buffer_select, cap_redistribute, is_na, mean, priority_include,
                      rank_asc, rank_desc, trade_impact, xsum)
 
 INDUSTRIES = {"24", "25", "26", "27", "28", "29", "30", "31", "22", "35", "36"}
@@ -160,7 +160,7 @@ def metrics(b: dict, c: dict) -> dict:
         out[k] = {"code": k, "name": b["names"].get(k, ""),
                   "ff_ok": 1 if (ins is not None and insd <= 0.9) else 0,
                   "price": price, "mcap": mcap, "not_full": 0 if b["alt"].get(k) else 1, "ff": ff,
-                  "ff10": 1 if (not is_na(ff) and ff >= 0.1) else 0,
+                  "ff10": 1 if (not is_na(ff) and xl(ff) >= 0.1) else 0,
                   "tv12": b["tv12_sum"].get(k), "tv1": b["tv1_sum"].get(k), "tv3avg": b["tv3_avg"].get(k),
                   "ffturn_ok": b["ffturn_ok"].get(k, 0), "vol": b["vol"].get(k, NA), "avg_yield": avg,
                   "cv": cv, "pe5": pe5, "pe3": pe3,

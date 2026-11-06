@@ -191,3 +191,8 @@ def priority_include(final: list, order: list, existing, priority: set, max_repl
         final[final.index(y)] = x
         notes.append(f"配息頻率優先納入 {x}（排名 {rank[x]}），替換 {y}（排名 {rank[y]}）")
     return sorted(final, key=lambda k: rank[k]), notes
+
+
+def xl(x):
+    """Excel 比較數值時只看 15 位有效數字（1−0.9 會等於 0.1）；比較前先四捨五入。"""
+    return x if is_na(x) else float(f"{x:.15g}")

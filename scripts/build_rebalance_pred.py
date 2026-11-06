@@ -70,6 +70,24 @@ IMPACT_COLS = [("code", "代號"), ("name", "名稱"), ("old", "原有權重"), 
                ("multiple", "預估影響倍數")]
 
 
+def trading_days_of_month(y: int, m: int) -> list[str]:
+    from datetime import date as _d, timedelta as _td
+    hol = set(json.loads((DATA_DIR / "calendar.json").read_text(encoding="utf-8")).get("holidays", [])) \
+        if (DATA_DIR / "calendar.json").exists() else set()
+    d, out = _d(y, m, 1), []
+    while d.month == m:
+        if d.weekday() < 5 and d.isoformat() not in hol:
+            out.append(d.isoformat())
+        d += _td(days=1)
+    return out
+
+
+def may_effective_date(y: int) -> str:
+    """00919 編製規則：5 月第 17 個交易日為審核基準日，間隔 5 個交易日後生效（例：2026 → 6/3）。"""
+    days = trading_days_of_month(y, 5) + trading_days_of_month(y, 6)
+    return days[16 + 6]
+
+
 def readiness(pub: Public, need: dict) -> list[str]:
     """回傳缺少的資料（空 list ＝ 資料齊全）。need: px_from（行情要從哪天起）、div_years、fin_quarters、pe_days、foreign。"""
     miss = []
@@ -110,10 +128,25 @@ def summary(code, adds, dels, names, weights, impact, notes=(), extra=None):
 def run_919(pub: Public, cfg: dict, asof: str | None):
     import openpyxl
     b = pub.bundle(asof, etfs=("00919",))
-    Y = cfg.get("year", int(b["asof"][:4]))
+    Y = cfg["year"] if isinstance(cfg.get("year"), int) else int(b["asof"][:4])
+    cfg = {**cfg, "year": Y}
+    # 1~6 月預估 5 月定審（股利率、除息排除），7~12 月預估 12 月定審（預估股利率、至多換 8 檔）
+    review = cfg.get("review")
+    if review in (None, "auto"):
+        review = "5月" if int(b["asof"][5:7]) <= 6 else "12月"
     miss = readiness(pub, {"px_from": b["windows"]["6m"][0], "div_years": [Y - 1, Y],
                            "fin_quarters": [f"{Y}Q2", f"{Y}Q1", f"{Y - 1}Q4"]})
-    res = etf919.compute(b, cfg)
+    if review == "5月":
+        from scripts.rebalance.public import may_extras
+        b = may_extras(pub, b, Y)
+        may = {k: v for k, v in (cfg.get("may") or {}).items() if v not in (None, "auto")}
+        if "eff_date" not in may:
+            may["eff_date"] = may_effective_date(Y)
+        res = etf919.compute_may(b, {**cfg, **may})
+        miss += [m for m in readiness(pub, {"fin_quarters": [f"{Y - 1}Q4", f"{Y - 1}Q3"],
+                                             "div_years": [Y - 3, Y - 2]}) if m not in miss]
+    else:
+        res = etf919.compute(b, cfg)
     names = b["names"]
     uni = list(res["universe"].values())
     wb = openpyxl.Workbook()
@@ -137,7 +170,8 @@ def run_919(pub: Public, cfg: dict, asof: str | None):
     OUT.mkdir(parents=True, exist_ok=True)
     wb.save(OUT / "00919.xlsx")
     s = summary("00919", res["add"], res["del"], names, res["weights"]["final"], res["impact"], res["notes"],
-                {"mcap_threshold": res["mcap_threshold"], "windows": b["windows"], "missing": miss})
+                {"mcap_threshold": res["mcap_threshold"], "windows": b["windows"], "missing": miss,
+                 "review": review})
     write_json(OUT / "00919.json", {**s, "asof": b["asof"], "ranked": res["ranked"][:80],
                                     "weights": res["weights"]["rows"], "impact": impact_rows(res["impact"], names),
                                     "config": res["config"]})

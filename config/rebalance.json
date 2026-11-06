@@ -1,12 +1,18 @@
 {
-  "_說明": "ETF 換股預估參數（每次審核前更新日期）。選股與權重照指數規則（臺灣指數公司 00919 V1.2.0、00929 V2.2.1；FTSE TWSE Taiwan Index Series v5.2、Dividend+ v4.2）；aum_plan 填 \"auto\"＝追蹤資產×1.2 無條件進位到 250 億。official=false 則完全照原試算表（重分配 6/5 輪、不放寬上限）。manual 可人工覆寫最終納入／剔除，例如 {\"add\": [\"2330\"], \"del\": [\"3231\"]}。",
+  "_說明": "ETF 換股預估參數（每次審核前更新日期）。選股與權重照指數規則（臺灣指數公司 00919 V1.2.0、00929 V2.2.1；FTSE TWSE Taiwan Index Series v5.2、Dividend+ v4.2）；aum_plan 填 \"auto\"＝追蹤資產×1.2 無條件進位到 250 億。official=false 則完全照原試算表（重分配 6/5 輪、不放寬上限）。manual 可人工覆寫最終納入／剔除，例如 {\"add\": [\"2330\"], \"del\": [\"3231\"]}。 00919 的 review：auto＝1~6 月算 5 月定審（股利率、除息排除、不限替換檔數）、7~12 月算 12 月定審（預估股利率、至多換 8 檔）；may.eff_date 是 5 月定審生效日。",
   "00919": {
-    "year": 2026,
+    "year": "auto",
     "aum_plan": "auto",
     "max_changes": 8,
     "december": true,
     "official": true,
-    "manual": {}
+    "manual": {},
+    "review": "auto",
+    "may": {
+      "eff_date": "auto",
+      "exdiv_after": null,
+      "exclude": []
+    }
   },
   "ftse": {
     "calc_date": "2026-11-23",
