@@ -26,6 +26,7 @@ sys.path.insert(0, str(ROOT))
 
 from scripts.rebalance import etf919, etf929, ftse  # noqa: E402
 from scripts.rebalance.public import Public  # noqa: E402
+from scripts.rebalance.report import weight_sheet  # noqa: E402
 
 DATA_DIR = Path(os.environ.get("JSS_DATA_DIR", ROOT / "data"))
 OUT = DATA_DIR / "rebalance" / "pred"
@@ -167,6 +168,10 @@ def run_919(pub: Public, cfg: dict, asof: str | None):
                                              ("ff_mcap", "自由流通市值(千)"), ("cap", "投資上限"), ("capped", "重分配後"),
                                              ("final", "預估權重")])
     sheet(wb, "預估影響", impact_rows(res["impact"], names), IMPACT_COLS)
+    e = b["etf"]["00919"]
+    weight_sheet(wb, "919", b["asof"], res["weights"]["final"], {k: v / 100 for k, v in e["weights"].items()}, names,
+                 {k: v["price"] for k, v in res["universe"].items()}, b["turnover1"], (e["aum"] or 0) * 1000,
+                 res["add"], res["del"])
     OUT.mkdir(parents=True, exist_ok=True)
     wb.save(OUT / "00919.xlsx")
     s = summary("00919", res["add"], res["del"], names, res["weights"]["final"], res["impact"], res["notes"],
@@ -219,6 +224,9 @@ def run_ftse(pub: Public, cfg: dict, asof: str | None):
             sheet(wb, "權重", [{"code": k, "name": names.get(k, ""), "final": v} for k, v in r["weights"].items()],
                   [("code", "代號"), ("name", "名稱"), ("final", "預估權重")])
         sheet(wb, "預估影響", impact_rows(r["impact"], names), IMPACT_COLS)
+        e = b["etf"][code]
+        weight_sheet(wb, code, b["asof"], r["weights"], {k: v / 100 for k, v in e["weights"].items()}, names,
+                     b["close"], b["turnover5"], (e["aum"] or 0) * 1000, r["add"], r["del"])
         OUT.mkdir(parents=True, exist_ok=True)
         wb.save(OUT / f"{code}.xlsx")
         notes = []
@@ -262,6 +270,10 @@ def run_929(pub: Public, cfg: dict, asof: str | None):
     sheet(wb, "權重預估", res["weights"]["rows"], [("code", "代號"), ("name", "名稱"), ("yield", "股利率"),
                                                ("raw", "股利率比重"), ("cap", "上限"), ("final", "預估權重")])
     sheet(wb, "預估影響", impact_rows(res["impact"], names), IMPACT_COLS)
+    e = b["etf"]["00929"]
+    weight_sheet(wb, "929", b["asof"], res["weights"]["final"], {k: v / 100 for k, v in e["weights"].items()}, names,
+                 {k: v["price"] for k, v in res["universe"].items()}, b["turnover1"], (e["aum"] or 0) * 1000,
+                 res["add"], res["del"])
     OUT.mkdir(parents=True, exist_ok=True)
     wb.save(OUT / "00929.xlsx")
     s = summary("00929", res["add"], res["del"], names, res["weights"]["final"], res["impact"], res["notes"],
