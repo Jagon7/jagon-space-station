@@ -2,11 +2,11 @@
 """
 股癌（Gooaye）每集重點 → LINE
 
-流程：抓 SoundOn RSS 最新一集 → 沒發過就下載音檔 → faster-whisper 語音轉文字 → AI 整理重點與提到的個股（Claude 有額度就用，否則用免費的 GitHub Models）
+流程：抓 SoundOn RSS 最新一集 → 沒發過就下載音檔 → faster-whisper 語音轉文字 → AI 整理重點與提到的個股（Claude → 免費的 Gemini → 都不能用時改列逐字稿提到的個股）
      → 台股個股對照網站的融資維持率、主動 ETF DD → LINE 卡片；重點存在 data/gooaye/<集數>.json（逐字稿不存）
 發過的集數記在 data/notify/gooaye-sent.json
 用法：python scripts/gooaye.py [--preview]（不管有沒有發過，重做最新一集並發預覽、不記錄）[--dry-run]
-需要：pip install faster-whisper anthropic requests imageio-ffmpeg（或系統有 ffmpeg）；環境變數 ANTHROPIC_API_KEY 或 GITHUB_TOKEN（Actions 內建，需 permissions: models: read）
+需要：pip install faster-whisper anthropic requests imageio-ffmpeg（或系統有 ffmpeg）；環境變數 ANTHROPIC_API_KEY 或 GEMINI_API_KEY（都沒有也會發，只是改列提到的個股）
 """
 from __future__ import annotations
 
@@ -122,103 +122,85 @@ def claude(ep: dict, text: str) -> dict:
     return parse_json(resp.content[0].text.strip())
 
 
-GH_ENDPOINTS = [("https://models.github.ai/inference/chat/completions", ["openai/gpt-4.1", "openai/gpt-4.1-mini"]),
-                ("https://models.inference.ai.azure.com/chat/completions", ["gpt-4o", "gpt-4o-mini"])]  # 舊端點備用
-CHUNK = 4500  # GitHub Models 免費額度每次請求約 8000 tokens，逐字稿切段
-PART = """以下是投資 Podcast《股癌》{ep} 逐字稿的第 {i}/{n} 段（語音辨識有錯字，請依上下文修正股票名稱與英文術語；業配廣告不要整理）。
-把這一段的重點整理成 JSON（繁體中文，沒有的欄位給空陣列）：
-{{"market": ["盤勢觀點"], "strategy": ["操作策略、部位、心態"], "stocks": [{{"name": "", "code": "台股代號或美股 ticker", "market": "台股或美股", "stance": "看多／偏多／中性／偏空／看空／僅提及", "why": "理由，保留數字"}}],
- "themes": ["產業主題觀點"], "qa": ["聽眾問答：問題與回答"], "life": "生活閒聊一句話"}}
-
-逐字稿片段：
-{text}"""
-MERGE = """以下是投資 Podcast《股癌》{ep}（{date}）各段逐字稿整理出的重點（JSON 陣列，依節目順序）。請合併、去除重複，整理成最終版本，全部用繁體中文：
-{{
-  "headline": "一句話總結本集最重要的觀點（30 字內）",
-  "market": ["盤勢觀點，3～5 點，每點 40 字內，保留具體數字"],
-  "strategy": ["操作策略、部位與心態，2～4 點，每點 40 字內"],
-  "stocks": [{{"name": "", "code": "", "market": "台股或美股", "stance": "看多／偏多／中性／偏空／看空／僅提及", "why": "40 字內"}}],
-  "themes": ["產業或主題觀點，2～4 點，每點 40 字內"],
-  "qa": ["聽眾問答重點，每題一句，最多 4 題"],
-  "life": "開頭生活閒聊一句話（20 字內）"
-}}
-個股只留真的有討論的，同一檔合併，依討論份量排序，最多 10 檔，台股代號請填正確。
-
-各段重點：
-{parts}"""
+GEMINI_MODELS = [m for m in (os.environ.get("GEMINI_MODEL"), "gemini-2.5-flash", "gemini-flash-latest") if m]
 
 
-def gh_post(url: str, tok: str, body: dict) -> requests.Response:
-    """自己處理轉址（requests 預設會把 POST 轉成 GET，拿到的不是 API 回應）"""
-    for _ in range(4):
-        r = requests.post(url, timeout=180, allow_redirects=False, json=body,
-                          headers={"Authorization": f"Bearer {tok}", "Accept": "application/json", "Content-Type": "application/json",
-                                   "X-GitHub-Api-Version": "2022-11-28"})
-        if r.status_code in (301, 302, 303, 307, 308) and r.headers.get("location"):
-            url = requests.compat.urljoin(url, r.headers["location"])
-            log("GitHub Models 轉址到", url)
-            continue
-        return r
-    return r
-
-
-def gh_chat(prompt: str) -> dict:
-    tok = os.environ.get("GITHUB_TOKEN")
-    if not tok:
-        raise RuntimeError("沒有 GITHUB_TOKEN")
+def gemini(ep: dict, text: str) -> dict:
+    """Google Gemini 免費額度（Google AI Studio 申請的 GEMINI_API_KEY），一次就能處理整集逐字稿"""
+    key = os.environ["GEMINI_API_KEY"]
     last = None
-    for url, models in GH_ENDPOINTS:
-        for model in models:
-            for attempt in range(3):
-                body = {"model": model, "max_tokens": 3000, "temperature": 0.2, "response_format": {"type": "json_object"},
-                        "messages": [{"role": "system", "content": SYSTEM}, {"role": "user", "content": prompt}]}
-                try:
-                    r = gh_post(url, tok, body)
-                except requests.RequestException as e:
-                    last = f"{model} {e}"
-                    log("GitHub Models 連線失敗：", last)
-                    time.sleep(10)
-                    continue
-                if r.status_code == 200:
-                    try:
-                        return parse_json(r.json()["choices"][0]["message"]["content"])
-                    except (ValueError, KeyError, IndexError, TypeError, RuntimeError) as e:
-                        last = f"{model} 200 但內容不對（{r.headers.get('content-type')}）：{r.text[:300]!r} {e}"
-                        log(last)
-                        break
-                last = f"{model} {r.status_code} {r.text[:300]}"
-                log("GitHub Models 失敗：", last)
-                if r.status_code == 429:
-                    time.sleep(min(int(r.headers.get("retry-after", "30") or 30), 90))
-                elif r.status_code in (400, 401, 403, 404, 413, 422):
-                    break
-                else:
-                    time.sleep(10)
-    raise RuntimeError(f"GitHub Models 都失敗：{last}")
+    for model in GEMINI_MODELS:
+        for attempt in range(3):
+            r = requests.post(f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent", timeout=300,
+                              headers={"x-goog-api-key": key, "Content-Type": "application/json"},
+                              json={"systemInstruction": {"parts": [{"text": SYSTEM}]},
+                                    "contents": [{"role": "user", "parts": [{"text": ASK.format(ep=ep["ep"], date=ep["date"], text=text)}]}],
+                                    "generationConfig": {"temperature": 0.2, "maxOutputTokens": 8192, "responseMimeType": "application/json"}})
+            if r.status_code == 200:
+                parts = ((r.json().get("candidates") or [{}])[0].get("content") or {}).get("parts") or []
+                return parse_json("".join(p.get("text", "") for p in parts))
+            last = f"{model} {r.status_code} {r.text[:300]}"
+            log("Gemini 失敗：", last)
+            if r.status_code in (429, 500, 503):
+                time.sleep(20 * (attempt + 1))
+            else:
+                break
+    raise RuntimeError(f"Gemini 都失敗：{last}")
 
 
-def github_models(ep: dict, text: str) -> dict:
-    """免費的 GitHub Models：逐字稿切段各自整理，再合併"""
-    chunks = [text[i:i + CHUNK] for i in range(0, len(text), CHUNK)]
-    parts = []
-    for i, c in enumerate(chunks, 1):
-        log(f"整理第 {i}/{len(chunks)} 段")
-        parts.append(gh_chat(PART.format(ep=ep["ep"], i=i, n=len(chunks), text=c)))
-    return gh_chat(MERGE.format(ep=ep["ep"], date=ep["date"], parts=json.dumps(parts, ensure_ascii=False)))
+# 不靠 AI 的備案：逐字稿裡比對股票名稱，列出提到哪些個股、次數與前後文
+US_NAMES = {"NVDA": ["輝達", "NVIDIA", "Nvidia", "黃仁勳"], "AMD": ["AMD", "超微"], "INTC": ["Intel", "英特爾"], "PLTR": ["Palantir"],
+            "TSLA": ["特斯拉", "Tesla"], "AAPL": ["蘋果", "Apple"], "MSFT": ["微軟", "Microsoft"], "GOOGL": ["Google", "谷歌"],
+            "AMZN": ["亞馬遜", "Amazon"], "META": ["Meta", "臉書"], "AVGO": ["博通", "Broadcom"], "MU": ["美光", "Micron"],
+            "ORCL": ["甲骨文", "Oracle"], "CRWV": ["CoreWeave"], "ARM": ["ARM", "安謀"], "ASML": ["ASML", "艾司摩爾"],
+            "SMCI": ["美超微", "Supermicro"], "QCOM": ["高通", "Qualcomm"], "NFLX": ["Netflix", "網飛"], "COST": ["好市多", "Costco"],
+            "TSM": ["ADR"], "SNOW": ["Snowflake"], "CRM": ["Salesforce"], "NOW": ["ServiceNow"], "MRVL": ["Marvell", "邁威爾"]}
+
+
+def mentions(text: str) -> dict:
+    """台股名稱（每日檔）與常見美股，在逐字稿出現兩次以上的，依次數排序"""
+    daily = sorted((DATA / "daily").glob("20*.json"))
+    q = json.loads(daily[-1].read_text(encoding="utf-8")).get("q", {}) if daily else {}
+    names = {}
+    for code, v in q.items():
+        n = re.sub(r"[*＊]|-KY$|-創$", "", v[0] or "")
+        # 兩個字的名稱太容易誤判成一般用語，只收三個字以上，或兩個字但不是常見詞的大型股
+        if len(code) == 4 and not code.startswith("0") and (len(n) >= 3 or (len(n) == 2 and (v[8] or 0) >= 3e9)):
+            names[n] = code
+    hits = []
+    for n, code in names.items():
+        c = text.count(n)
+        if c >= 2:
+            hits.append((c, n, code, "台股"))
+    def cnt(k):  # 英文名稱要整個字比對（避免 Intel 算到 Intelligence）
+        return len(re.findall(rf"(?<![A-Za-z]){re.escape(k)}(?![A-Za-z])", text)) if k.isascii() else text.count(k)
+    for code, keys in US_NAMES.items():
+        c = sum(cnt(k) for k in keys)
+        if c >= 2:
+            hits.append((c, keys[0], code, "美股"))
+    hits.sort(key=lambda x: -x[0])
+    stocks = []
+    for c, n, code, mk in hits[:12]:
+        keys = US_NAMES.get(code, [n]) if mk == "美股" else [n]
+        pos = [m.start() for k in keys for m in [re.search(rf"(?<![A-Za-z]){re.escape(k)}(?![A-Za-z])" if k.isascii() else re.escape(k), text)] if m]
+        i = min(pos, default=-1)
+        ctx = text[max(0, i - 25): i + 45].replace("\n", " ") if i >= 0 else ""
+        stocks.append({"name": n, "code": code, "market": mk, "stance": f"提到 {c} 次", "why": f"「…{ctx}…」"})
+    return {"headline": "AI 整理沒有可用的額度，先列出本集提到的個股與原話片段", "stocks": stocks, "by": "關鍵字比對"}
 
 
 def summarize(ep: dict, text: str) -> dict:
-    """優先用 Claude（有 ANTHROPIC_API_KEY 且有額度），失敗就改用免費的 GitHub Models"""
-    if os.environ.get("ANTHROPIC_API_KEY"):
+    """依序試：Claude（ANTHROPIC_API_KEY 有額度）→ Gemini（GEMINI_API_KEY 免費額度）→ 不靠 AI 的個股關鍵字比對"""
+    for name, env, fn in (("Claude", "ANTHROPIC_API_KEY", claude), ("Gemini", "GEMINI_API_KEY", gemini)):
+        if not os.environ.get(env):
+            continue
         try:
-            s = claude(ep, text)
-            s["by"] = "Claude"
+            s = fn(ep, text)
+            s["by"] = name
             return s
         except Exception as e:  # noqa: BLE001
-            log("Claude 失敗，改用 GitHub Models：", str(e)[:200])
-    s = github_models(ep, text)
-    s["by"] = "GitHub Models"
-    return s
+            log(f"{name} 失敗：", str(e)[:200])
+    return mentions(text)
 
 
 def tw_context() -> tuple[dict, dict, dict]:

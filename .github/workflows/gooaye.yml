@@ -1,6 +1,6 @@
 name: Gooaye Episode Alert
 
-# 股癌每集重點：RSS 有新的一集就下載音檔 → faster-whisper 轉文字（約 10 分鐘）→ AI 整理重點與個股（Claude 有額度就用，否則免費的 GitHub Models）→ LINE。
+# 股癌每集重點：RSS 有新的一集就下載音檔 → faster-whisper 轉文字（約 10 分鐘）→ AI 整理重點與個股（Claude → 免費的 Gemini → 都沒有就列出逐字稿提到的個股）→ LINE。
 # 通常週三、週六 14:40～16:15 上架；Cloudflare 排程在週三、週六 16:00、17:30、21:00 檢查，另外每天 22:30 檢查一次（特別集）。
 # 沒有新集數幾秒就結束；發過的集數記在 data/notify/gooaye-sent.json，重點存在 data/gooaye/。
 on:
@@ -16,7 +16,6 @@ on:
 
 permissions:
   contents: write
-  models: read   # 免費的 GitHub Models（Claude 沒額度時用）
 
 concurrency:
   group: gooaye
@@ -50,7 +49,7 @@ jobs:
         env:
           JSS_DATA_DIR: ./data
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           SITE_URL: ${{ secrets.SITE_URL || vars.SITE_URL }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
