@@ -820,16 +820,24 @@
       "taiexChange": -4.51,
       "topSectors": [
         {
-          "name": "光電",
-          "count": 1
-        },
-        {
-          "name": "通信網路",
-          "count": 1
+          "name": "電腦週邊",
+          "count": 3
         },
         {
           "name": "半導體",
-          "count": 1
+          "count": 3
+        },
+        {
+          "name": "其他電子",
+          "count": 2
+        },
+        {
+          "name": "資訊服務",
+          "count": 2
+        },
+        {
+          "name": "綠能環保",
+          "count": 2
         }
       ]
     }
