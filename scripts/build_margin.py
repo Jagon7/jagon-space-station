@@ -10,12 +10,14 @@
   判讀（近 20 日融資增減 × 股價漲跌）：追價（資增價漲）、攤平（資增價跌）、洗籌（資減價漲）、斷頭（資減價跌且維持率 < 140%）、減碼（其他資減價跌）
 大盤維持率：全部有融資的股票（含 ETF）融資市值合計 ÷ 交易所公布的融資金額（上市、上櫃分開），和 toalpha、財經媒體的算法一樣；
   沒有官方金額的日子才用推估借款。歷史走勢接在 margin_hist.json 後面
+跌破日／斷頭日：從最新一天往回找收盤連續低於追繳價的第一天（用目前的成本推算）＝跌破 130% 的日子 T；
+  券商 T+1 發追繳通知、T+2 前要補繳，沒補的 T+3 開盤起處分（斷頭）→ 預計斷頭日＝T 之後第 3 個交易日
 個股校正：推估成本 × 校正係數 k（官方融資金額 ÷ 推估借款合計，上市、上櫃分開），讓個股加總和官方借款一致
 """
 from __future__ import annotations
 
 import json
-from datetime import datetime
+from datetime import date, datetime, timedelta
 from pathlib import Path
 
 from build_strategy import TPE, _load
@@ -23,6 +25,36 @@ from build_strategy import TPE, _load
 RATIO = {0: 0.6, 1: 0.5}
 CALL = 130.0
 HOT_VAL, HOT_BAL = 5e8, 100
+FORCE_DAYS = 3  # 跌破 130% 後第 3 個交易日開盤起可斷頭
+
+
+def add_trading_days(data_dir: Path, start: str, n: int, known: list[str]) -> str:
+    """start 之後第 n 個交易日：已有的日子用每日檔，之後用平日扣掉 data/calendar.json 的休市日"""
+    hol = set((_load(data_dir / "calendar.json", {}) or {}).get("holidays", []))
+    later = [d for d in known if d > start]
+    if len(later) >= n:
+        return later[n - 1]
+    d = date.fromisoformat(later[-1] if later else start)
+    left = n - len(later)
+    while left:
+        d += timedelta(days=1)
+        if d.weekday() < 5 and d.isoformat() not in hol:
+            left -= 1
+    return d.isoformat()
+
+
+def streak_start(days: list[dict], li: int, code: str, line: float) -> str | None:
+    """從第 li 天往回，收盤連續 < line 的第一天；最新一天沒有低於就回傳 None"""
+    start = None
+    for j in range(li, -1, -1):
+        v = days[j]["q"].get(code)
+        if not v or not v[5]:
+            continue
+        if v[5] < line:
+            start = days[j]["date"]
+        else:
+            break
+    return start
 
 
 def replay(days: list[dict], data_dir: Path):
@@ -152,6 +184,7 @@ def build(data_dir: Path, public_dir: Path):
     q, mm = last["q"], last["m"]
     d20 = m_days[-21] if len(m_days) > 20 else m_days[0]
     p20 = days[max(0, li - 20)]["q"]
+    dates = [d["date"] for d in days]
     rows = []
     for c, x in mm.items():
         v = q.get(c)
@@ -167,7 +200,9 @@ def build(data_dir: Path, public_dir: Path):
         dm = x[0] - (d20["m"].get(c) or [0])[0]
         c20 = (p20.get(c) or [None] * 6)[5]
         chg20 = round((v[5] / c20 - 1) * 100, 1) if c20 else None
+        below = streak_start(days, li, c, call) if maint < CALL else None
         rows.append({"code": c, "name": v[0], "mk": "上櫃" if mk else "上市", "etf": c.startswith("0"), "close": v[5],
+                     "below": below, "force": add_trading_days(data_dir, below, FORCE_DAYS, dates) if below else None,
                      "maint": round(maint, 1), "call": round(call, 2), "dist": round((call / v[5] - 1) * 100, 1),
                      "cost": round(avg, 2), "pnl": round((v[5] / avg - 1) * 100, 1), "bal": x[0], "dm20": dm,
                      "amt": round(x[0] * 1000 * v[5] / 1e8, 2), "aval": round(aval / 1e8, 2), "chg20": chg20,

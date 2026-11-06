@@ -7,7 +7,7 @@ import { useWatchlist } from "@/lib/watchlist";
 import { Kpi, KpiRow, Note, Pills, SortTable, type Column } from "@/components/data-ui";
 
 type Row = { code: string; name: string; mk: string; etf: boolean; close: number; maint: number; call: number; dist: number; cost: number; pnl: number;
-  bal: number; dm20: number; amt: number; aval: number; chg20: number | null; hot: boolean; tag: string | null };
+  bal: number; dm20: number; amt: number; aval: number; chg20: number | null; hot: boolean; tag: string | null; below?: string | null; force?: string | null };
 type Data = { updatedAt: string; date: string; seed: boolean; start: string; k?: { tw: number; otc: number }; market: { tw: number | null; otc: number | null; series: [string, number | null, number | null][] };
   count: { below: number; near: number; hot: number }; rows: Row[] };
 type Scope = "hot" | "all" | "etf";
@@ -32,6 +32,7 @@ export default function MarginDashboard() {
   const series = data.market.series.slice(range === "1y" ? -250 : 0).map(([d, tw, otc]) => ({ d, tw, otc }));
   const lows = (k: 1 | 2) => data.market.series.reduce<[string, number] | null>((a, r) => (r[k] != null && (!a || (r[k] as number) < a[1]) ? [r[0], r[k] as number] : a), null);
   const lowTw = lows(1), lowOtc = lows(2);
+  const today = data.updatedAt.slice(0, 10);
   const cols: Column<Row>[] = [
     { key: "name", label: "股票", render: (r) => (
       <span className="whitespace-nowrap">
@@ -43,6 +44,9 @@ export default function MarginDashboard() {
     { key: "dist", label: "距追繳", align: "right", sort: (r) => -r.dist, render: (r) => r.dist >= 0
       ? <span className="font-mono text-[#f05252] whitespace-nowrap">已低於 {r.call.toLocaleString()}</span>
       : num(`再跌 ${(-r.dist).toFixed(1)}%`, -r.dist < 10 ? "text-[#f59e0b]" : "text-slate-300") },
+    { key: "below", label: "跌破 130%", align: "right", sort: (r) => r.below ?? "9", render: (r) => num(r.below ? md(r.below) : "—", r.below ? "text-[#f05252]" : "text-[#8b97ab]") },
+    { key: "force", label: "預計斷頭日", align: "right", sort: (r) => r.force ?? "9", render: (r) => r.force
+      ? num(`${md(r.force)}${r.force <= today ? "（已到）" : ""}`, r.force <= today ? "text-[#f05252] font-semibold" : "text-[#f59e0b]") : num("—", "text-[#8b97ab]") },
     { key: "call", label: "追繳價", align: "right", sort: (r) => r.call, render: (r) => num(r.call.toLocaleString()) },
     { key: "close", label: "收盤", align: "right", sort: (r) => r.close, render: (r) => num(r.close.toLocaleString()) },
     { key: "cost", label: "推估融資成本", align: "right", sort: (r) => r.cost, render: (r) => num(r.cost.toLocaleString(), "text-[#8b97ab]") },
@@ -103,6 +107,7 @@ export default function MarginDashboard() {
         推估融資成本：從 {data.start} 起逐日重播融資買進（以當天均價加入）、融資賣出與現金償還（依平均成本出場），除權、減資時成本跟著調整。
         推估維持率＝收盤 ÷（成本 × 融資成數），上市 6 成、上櫃 5 成；追繳價＝維持率剛好 130% 的股價。
         大盤融資維持率＝全體融資餘額市值（含 ETF）÷ 證交所、櫃買中心公布的融資金額。個股成本再乘上校正係數（官方融資金額 ÷ 推估借款合計{data.k ? `，目前上市 ${data.k.tw}、上櫃 ${data.k.otc}` : ""}），讓個股加總和官方借款一致。
+        跌破 130%＝收盤連續低於追繳價的第一天（以目前推估成本回推）；券商隔天發追繳通知、兩個營業日內要補繳，沒補的第 3 個交易日開盤起可處分，所以預計斷頭日＝跌破日之後第 3 個交易日（遇休市順延）。
         判讀依近 20 日融資增減 × 股價漲跌：追價（資增價漲）、攤平（資增價跌）、洗籌（資減價漲）、斷頭（資減價跌且維持率 &lt; 140%）、減碼（其他資減價跌）。
         實際維持率依個別帳戶、整戶擔保品而不同，這裡是全體融資戶的平均推估。
       </Note>

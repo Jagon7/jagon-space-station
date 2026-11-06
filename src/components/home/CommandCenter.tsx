@@ -17,9 +17,9 @@ export type Home = {
   global: { date: string | null; idx: { name: string; chg: number }[]; groups: { name: string; sym: string; chg: number; react: { name: string; exp: number }[] }[] };
   week?: { from: string; to: string; days: { d: string; wd: string; next: boolean; items: { cat: string; text: string; hi: boolean; href: string | null }[] }[] };
   margin?: { date: string; tw: number | null; otc: number | null; twChg: number | null; otcChg: number | null; below: number; near: number; hot: number;
-    low: { code: string; name: string; maint: number; dist: number; tag: string | null }[] } | null;
+    low: { code: string; name: string; maint: number; dist: number; tag: string | null; below?: string | null; force?: string | null }[] } | null;
   active?: { date: string; asof: string; stop: number; warn: number; stocks: number; etfs: number;
-    top: { code: string; name: string; dd: number; warn: number; stop: number; n: number; worst: number | null; riskLots: number }[];
+    top: { code: string; name: string; dd: number; warn: number; stop: number; n: number; worst: number | null; riskLots: number; due?: string | null }[];
     sells: { code: string; name: string; etf: string; dd: number; c1: number; out: boolean }[] } | null;
 };
 
@@ -40,10 +40,10 @@ function MarginPanel({ m }: { m: NonNullable<Home["margin"]> }) {
         ))}
       </div>
       <div className="text-[11px] text-[#8b97ab] mb-1.5">
-        熱門股 <span className="text-[#f05252] font-mono">{m.below}</span> 檔已低於 130%、<span className="text-[#f59e0b] font-mono">{m.near}</span> 檔在 130～145%（共 {m.hot} 檔）
+        熱門股 <span className="text-[#f05252] font-mono">{m.below}</span> 檔已低於 130%（跌破後第 3 個交易日可斷頭）、<span className="text-[#f59e0b] font-mono">{m.near}</span> 檔在 130～145%（共 {m.hot} 檔）
       </div>
       <div className="flex flex-wrap gap-1.5">
-        {m.low.map((x) => <Chip key={x.code} name={x.name} code={x.code} right={`${x.maint.toFixed(0)}%${x.tag === "斷頭" ? " 斷頭" : ""}`} cls={mColor(x.maint)} />)}
+        {m.low.map((x) => <Chip key={x.code} name={x.name} code={x.code} right={`${x.maint.toFixed(0)}%${x.force ? `・斷頭 ${md(x.force)}` : ""}`} cls={mColor(x.maint)} />)}
       </div>
     </Panel>
   );
@@ -77,6 +77,7 @@ function ActivePanel({ a }: { a: NonNullable<Home["active"]> }) {
               <span className={x.stop ? "text-[#f05252]" : "text-[#f59e0b]"}>{x.warn}/{x.n} 檔</span>
               <span className="ml-2 text-[#8b97ab]">最深 <span className={ddColor(x.worst)}>{x.worst != null ? `${x.worst.toFixed(0)}%` : "—"}</span></span>
               <span className="ml-2 text-[#8b97ab]">{x.riskLots.toLocaleString()} 張</span>
+              {x.due && <span className="ml-2 text-[#f59e0b]">期限 {md(x.due)}</span>}
             </span>
           </div>
         ))}
