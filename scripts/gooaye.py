@@ -122,8 +122,8 @@ def claude(ep: dict, text: str) -> dict:
     return parse_json(resp.content[0].text.strip())
 
 
-GH_URL = "https://models.github.ai/inference/chat/completions"
-GH_MODELS = ["openai/gpt-4.1", "openai/gpt-4.1-mini"]
+GH_ENDPOINTS = [("https://models.github.ai/inference/chat/completions", ["openai/gpt-4.1", "openai/gpt-4.1-mini"]),
+                ("https://models.inference.ai.azure.com/chat/completions", ["gpt-4o", "gpt-4o-mini"])]  # 舊端點備用
 CHUNK = 4500  # GitHub Models 免費額度每次請求約 8000 tokens，逐字稿切段
 PART = """以下是投資 Podcast《股癌》{ep} 逐字稿的第 {i}/{n} 段（語音辨識有錯字，請依上下文修正股票名稱與英文術語；業配廣告不要整理）。
 把這一段的重點整理成 JSON（繁體中文，沒有的欄位給空陣列）：
@@ -148,27 +148,52 @@ MERGE = """以下是投資 Podcast《股癌》{ep}（{date}）各段逐字稿整
 {parts}"""
 
 
+def gh_post(url: str, tok: str, body: dict) -> requests.Response:
+    """自己處理轉址（requests 預設會把 POST 轉成 GET，拿到的不是 API 回應）"""
+    for _ in range(4):
+        r = requests.post(url, timeout=180, allow_redirects=False, json=body,
+                          headers={"Authorization": f"Bearer {tok}", "Accept": "application/json", "Content-Type": "application/json",
+                                   "X-GitHub-Api-Version": "2022-11-28"})
+        if r.status_code in (301, 302, 303, 307, 308) and r.headers.get("location"):
+            url = requests.compat.urljoin(url, r.headers["location"])
+            log("GitHub Models 轉址到", url)
+            continue
+        return r
+    return r
+
+
 def gh_chat(prompt: str) -> dict:
     tok = os.environ.get("GITHUB_TOKEN")
     if not tok:
         raise RuntimeError("沒有 GITHUB_TOKEN")
     last = None
-    for model in GH_MODELS:
-        for attempt in range(3):
-            r = requests.post(GH_URL, timeout=180, headers={"Authorization": f"Bearer {tok}", "Accept": "application/vnd.github+json",
-                                                            "X-GitHub-Api-Version": "2022-11-28", "Content-Type": "application/json"},
-                              json={"model": model, "max_tokens": 3000, "temperature": 0.2, "response_format": {"type": "json_object"},
-                                    "messages": [{"role": "system", "content": SYSTEM}, {"role": "user", "content": prompt}]})
-            if r.status_code == 200:
-                return parse_json(r.json()["choices"][0]["message"]["content"])
-            last = f"{model} {r.status_code} {r.text[:200]}"
-            log("GitHub Models 失敗：", last)
-            if r.status_code == 429:
-                time.sleep(min(int(r.headers.get("retry-after", "30") or 30), 90))
-            elif r.status_code in (400, 401, 403, 404, 413):
-                break
-            else:
-                time.sleep(10)
+    for url, models in GH_ENDPOINTS:
+        for model in models:
+            for attempt in range(3):
+                body = {"model": model, "max_tokens": 3000, "temperature": 0.2, "response_format": {"type": "json_object"},
+                        "messages": [{"role": "system", "content": SYSTEM}, {"role": "user", "content": prompt}]}
+                try:
+                    r = gh_post(url, tok, body)
+                except requests.RequestException as e:
+                    last = f"{model} {e}"
+                    log("GitHub Models 連線失敗：", last)
+                    time.sleep(10)
+                    continue
+                if r.status_code == 200:
+                    try:
+                        return parse_json(r.json()["choices"][0]["message"]["content"])
+                    except (ValueError, KeyError, IndexError, TypeError, RuntimeError) as e:
+                        last = f"{model} 200 但內容不對（{r.headers.get('content-type')}）：{r.text[:300]!r} {e}"
+                        log(last)
+                        break
+                last = f"{model} {r.status_code} {r.text[:300]}"
+                log("GitHub Models 失敗：", last)
+                if r.status_code == 429:
+                    time.sleep(min(int(r.headers.get("retry-after", "30") or 30), 90))
+                elif r.status_code in (400, 401, 403, 404, 413, 422):
+                    break
+                else:
+                    time.sleep(10)
     raise RuntimeError(f"GitHub Models 都失敗：{last}")
 
 
