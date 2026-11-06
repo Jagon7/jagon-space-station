@@ -6,7 +6,7 @@
      → 台股個股對照網站的融資維持率、主動 ETF DD → LINE 卡片；重點存在 data/gooaye/<集數>.json（逐字稿不存）
 發過的集數記在 data/notify/gooaye-sent.json
 用法：python scripts/gooaye.py [--preview]（不管有沒有發過，重做最新一集並發預覽、不記錄）[--dry-run]
-需要：ffmpeg、pip install faster-whisper anthropic requests；環境變數 ANTHROPIC_API_KEY
+需要：pip install faster-whisper anthropic requests imageio-ffmpeg（或系統有 ffmpeg）；環境變數 ANTHROPIC_API_KEY
 """
 from __future__ import annotations
 
@@ -14,6 +14,7 @@ import argparse
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -68,7 +69,11 @@ def transcribe(audio_url: str) -> str:
                 for chunk in r.iter_content(1 << 20):
                     f.write(chunk)
         log(f"音檔 {mp3.stat().st_size / 1e6:.0f} MB，開始轉文字（{WHISPER}）")
-        pcm = subprocess.run(["ffmpeg", "-v", "quiet", "-i", str(mp3), "-ar", "16000", "-ac", "1", "-f", "f32le", "-"],
+        ff = shutil.which("ffmpeg")
+        if not ff:
+            import imageio_ffmpeg
+            ff = imageio_ffmpeg.get_ffmpeg_exe()
+        pcm = subprocess.run([ff, "-v", "quiet", "-i", str(mp3), "-ar", "16000", "-ac", "1", "-f", "f32le", "-"],
                              capture_output=True, check=True).stdout
     audio = np.frombuffer(pcm, np.float32)
     model = WhisperModel(WHISPER, device="cpu", compute_type="int8", cpu_threads=os.cpu_count() or 4)
