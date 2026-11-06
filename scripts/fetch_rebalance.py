@@ -288,29 +288,48 @@ def basic():
 
 # ---------------- 董監持股 ----------------
 
+def _insider_rows(src_url: str) -> list:
+    for _ in range(3):                      # 檔案很大（10MB），偶爾傳一半斷掉：重試
+        rows = get_json("api", src_url)
+        if rows and len(rows) > 3000:
+            return rows
+        time.sleep(20)
+    return []
+
+
 def insider():
-    sh = {c: v["sh"] for c, v in read_json(OUT / "basic.json", {}).get("d", {}).items()}
-    rows = (get_json("api", TWSE_API + "opendata/t187ap11_L") or []) + \
-           (get_json("api", TPEX_API + "mopsfin_t187ap11_O") or [])
-    if len(rows) < 10000:
-        log(f"✗ 董監持股只抓到 {len(rows)} 筆，沿用舊檔")
+    """上市、上櫃分開抓；某一邊抓失敗就沿用上一份檔案裡那一邊的數字（不讓整份只剩一個市場）。"""
+    basic = read_json(OUT / "basic.json", {}).get("d", {})
+    sh = {c: v["sh"] for c, v in basic.items()}
+    prev_files = sorted((OUT / "insider").glob("20*.json"))
+    prev = read_json(prev_files[-1], {}) if prev_files else {}
+    doc, ym, ok = {}, {}, {}
+    for mk, url in (("TSE", TWSE_API + "opendata/t187ap11_L"), ("OTC", TPEX_API + "mopsfin_t187ap11_O")):
+        rows = _insider_rows(url)
+        ok[mk] = bool(rows)
+        by = defaultdict(dict)
+        for x in rows:
+            c = str(x.get("公司代號", "")).strip()
+            name = str(x.get("姓名", "")).strip()
+            hold = num(x.get("目前持股")) or 0
+            if not is_stock(c) or not name:
+                continue
+            # 同一人（同一法人）可能同時是董事、經理人、大股東，或一個法人有多位代表人：依姓名去重
+            by[c][name] = max(by[c].get(name, 0), hold)
+            ym[c] = str(x.get("資料年月", "")).strip()
+        if rows:
+            doc.update({c: round(sum(v.values()) / sh[c] * 100, 4) for c, v in by.items() if sh.get(c)})
+        else:
+            log(f"✗ 董監持股（{mk}）抓不到，沿用上一份")
+            doc.update({c: v for c, v in prev.items() if basic.get(c, {}).get("mk") == mk})
+    if not any(ok.values()) or not ym:
+        log("✗ 董監持股兩個市場都抓不到，沿用舊檔")
         return
-    by = defaultdict(dict)
-    ym = {}
-    for x in rows:
-        c = str(x.get("公司代號", "")).strip()
-        name = str(x.get("姓名", "")).strip()
-        hold = num(x.get("目前持股")) or 0
-        if not is_stock(c) or not name:
-            continue
-        # 同一人（同一法人）可能同時是董事、經理人、大股東，或一個法人有多位代表人：依姓名去重
-        by[c][name] = max(by[c].get(name, 0), hold)
-        ym[c] = str(x.get("資料年月", "")).strip()
-    doc = {c: round(sum(v.values()) / sh[c] * 100, 4) for c, v in by.items() if sh.get(c)}
     roc = max(ym.values())
     tag = f"{int(roc[:-2]) + 1911}-{roc[-2:]}"
     write_json(OUT / "insider" / f"{tag}.json", doc)
-    log(f"董監持股 {tag}：{len(doc)} 檔")
+    n_tse = sum(1 for c in doc if basic.get(c, {}).get("mk") == "TSE")
+    log(f"董監持股 {tag}：{len(doc)} 檔（上市 {n_tse}）")
 
 
 # ---------------- 外資持股 ----------------
@@ -409,11 +428,17 @@ def _mops_fin(y: int, q: int) -> dict | None:
     return doc
 
 
+INC_KEYS_Q = {k + "_q": v for k, v in INC_KEYS.items()}
+
+
 def _openapi_fin() -> tuple[str, dict]:
-    """OpenAPI 只有「最新一季」，但每天更新（財報季每天都有新公司）。"""
+    """
+    OpenAPI 只有「最新一季」，但每天更新（財報季每天都有新公司）。
+    注意：OpenAPI 的綜合損益表是「單季」數字（公開資訊觀測站彙總表是年初至今累計），存成 ni_q／nip_q／eps_q。
+    """
     doc, tag = {}, None
     inds = ("ci", "basi", "bd", "fh", "ins", "mim")
-    for kind, keys in (("06", INC_KEYS), ("07", BAL_KEYS)):
+    for kind, keys in (("06", INC_KEYS_Q), ("07", BAL_KEYS)):
         for ind in inds:
             for base, path in ((TWSE_API, f"opendata/t187ap{kind}_L_{ind}"), (TPEX_API, f"mopsfin_t187ap{kind}_O_{ind}")):
                 rows = get_json("api", base + path) or []
@@ -465,20 +490,31 @@ def fin(latest_only: bool = False):
 
 # ---------------- 股利 ----------------
 
-PERIOD = re.compile(r"(\d+)年(?:度)?(?:第([一二三四1-4])季|(上|下)半年)?")
+PERIOD = re.compile(r"(\d+)年(?:度)?")
 CN = {"一": 1, "二": 2, "三": 3, "四": 4}
 
 
 def parse_period(s: str):
-    """'114年' → (2025,'Q4')；'115年第1季' → (2026,'Q1')；'114年下半年' → (2025,'Q4')；'115年上半年' → (2026,'Q2')"""
-    m = PERIOD.search(s.replace(" ", ""))
+    """
+    股利所屬期間 → (所屬年度, 'Q1'..'Q4')（TEJ 口徑：上半年放 Q2、下半年與年度放 Q4）。
+    認得：'114年'、'114年度'、'115年第1季'、'115年第一季'、'114年上半年(度)'、'前半年'、'下半年'、'後半年'、
+          以及日期區間 '115/01/01~115/06/30'（看結束月份）。
+    """
+    t = str(s).replace(" ", "").replace("\u3000", "")
+    m = re.search(r"(\d{2,3})/(\d{1,2})/\d{1,2}\s*[~～-]\s*(\d{2,3})/(\d{1,2})/\d{1,2}", t)
+    if m:
+        y, em = int(m.group(3)) + 1911, int(m.group(4))
+        return y, f"Q{(em - 1) // 3 + 1}"
+    m = PERIOD.search(t)
     if not m:
         return None
     y = int(m.group(1)) + 1911
-    if m.group(2):
-        return y, f"Q{CN.get(m.group(2), m.group(2))}"
-    if m.group(3):
-        return y, "Q2" if m.group(3) == "上" else "Q4"
+    rest = t[m.end():]
+    q = re.search(r"第([一二三四1-4])季", rest)
+    if q:
+        return y, f"Q{CN.get(q.group(1), q.group(1))}"
+    if re.search(r"上半|前半|半年度|上期|前期", rest) and not re.search(r"下半|後半", rest):
+        return y, "Q2"
     return y, "Q4"
 
 
@@ -518,8 +554,8 @@ def div(recent_only: bool = False):
                     #       7 盈餘分配現金股利 8 公積發放現金 9 特別股現金股利 10 除息交易日 11 發放日 … 16 公告日期
                     cash = (num(c[7]) or 0) + (num(c[8]) or 0)
                     stock = (num(c[4]) or 0) + (num(c[5]) or 0)
-                    # [代號, 所屬年度, 所屬季別, 現金股利, 股票股利, 除息日, 除權日, 公告日]
-                    doc.append([c[0], p[0], p[1], cash, stock, roc_date(c[10]), roc_date(c[6]), roc_date(c[16])])
+                    # [代號, 所屬年度, 所屬季別, 現金股利, 股票股利, 除息日, 除權日, 公告日, 股利所屬期間原文]
+                    doc.append([c[0], p[0], p[1], cash, stock, roc_date(c[10]), roc_date(c[6]), roc_date(c[16]), c[2]])
         if ok and doc:
             _DIV_DONE.add(y)
             write_json(path, doc)
