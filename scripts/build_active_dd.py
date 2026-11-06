@@ -4,6 +4,8 @@
 讀 data/etf/active_cost.json（active_cost.py 回推的各檔主動式 ETF 每個部位平均建倉成本），配上最新收盤：
   DD＝收盤 ÷ 平均成本 − 1；投信風控常見做法是虧損約 40% 就要停損或檢討，-40% 價＝成本 × 0.6
   距停損＝停損價 ÷ 收盤 − 1（負的＝還要跌多少）
+  跌破日：從最新一天往回找收盤連續低於 -40% 價（用目前的平均成本推算）的第一天；
+  預估停損期限：投信停損規則不公開，假設跌破後 GRACE 個交易日內要處理（檢討或賣出）
   疑似停損：最新一天減碼 ≥ 50 張（或整個出清）、而且 DD 已到 -30% 以下的部位
   個股彙總：同一檔股票被幾檔主動式 ETF 持有、其中幾檔 DD 已到 -30%、-40%，合計可能被停損的張數與市值
 """
@@ -13,19 +15,24 @@ import json
 from datetime import datetime
 from pathlib import Path
 
+from build_margin import add_trading_days, streak_start
 from build_strategy import TPE, _load
 
 STOP = -40.0
 WARN = -30.0
+GRACE = 5
 
 
 def compute(data_dir: Path) -> dict | None:
     src = _load(data_dir / "etf" / "active_cost.json", {}) or {}
     etfs = src.get("etfs") or {}
-    daily = sorted((data_dir / "daily").glob("20*.json"))
-    last = next((d for d in (_load(p, {}) for p in reversed(daily)) if d.get("q")), None)
-    if not etfs or not last:
+    if not etfs:
         return None
+    days = [d for d in (_load(p, {}) for p in sorted((data_dir / "daily").glob("20*.json"))) if d.get("q")]
+    if not days:
+        return None
+    last, li = days[-1], len(days) - 1
+    dates = [d["date"] for d in days]
     q = last["q"]
     rows, agg, sells = [], {}, []
     for code, e in etfs.items():
@@ -52,14 +59,19 @@ def compute(data_dir: Path) -> dict | None:
                  "c5": round((sh - sh5) / 1000) if sh5 is not None else None, "c20": round((sh - sh20) / 1000) if sh20 is not None else None,
                  "c1": round((sh - sh1) / 1000) if sh1 is not None else None,
                  "val": round(sh * close / 1e8, 2), "dated": e["dated"]}
+            if dd <= STOP:
+                b = streak_start(days, li, c, stop)
+                r["below"], r["due"] = b, add_trading_days(data_dir, b, GRACE, dates) if b else None
             rows.append(r)
             if r["c1"] and r["c1"] <= -50 and dd <= WARN:
                 sells.append({"etf": code, "etfName": en, "code": c, "name": r["name"], "dd": r["dd"], "c1": r["c1"], "lots": r["lots"], "out": False, "asof": e["asof"]})
             if lots < 50:
                 continue  # 不到 50 張的零星部位不算進個股彙總
             a = agg.setdefault(c, {"code": c, "name": r["name"], "close": close, "n": 0, "warn": 0, "stop": 0, "lots": 0, "riskLots": 0,
-                                   "riskVal": 0.0, "costSum": 0.0, "c5": 0, "etfs": []})
+                                   "riskVal": 0.0, "costSum": 0.0, "c5": 0, "etfs": [], "due": None})
             a["n"] += 1
+            if r.get("due") and (a["due"] is None or r["due"] < a["due"]):
+                a["due"] = r["due"]
             a["lots"] += lots
             a["costSum"] += cost * sh
             a["c5"] += r["c5"] or 0
@@ -89,7 +101,7 @@ def compute(data_dir: Path) -> dict | None:
              "n": len(e["rows"])} for c, e in sorted(etfs.items())]
     sells.sort(key=lambda x: x["c1"])
     asof = max(e["asof"] for e in etfs.values())
-    return {"updatedAt": datetime.now(TPE).isoformat(timespec="minutes"), "date": last["date"], "asof": asof, "stop": STOP, "warn": WARN,
+    return {"updatedAt": datetime.now(TPE).isoformat(timespec="minutes"), "date": last["date"], "asof": asof, "stop": STOP, "warn": WARN, "grace": GRACE,
             "count": {"stop": sum(r["dd"] <= STOP for r in rows), "warn": sum(STOP < r["dd"] <= WARN for r in rows),
                       "stocks": sum(a["warn"] > 0 for a in stocks)},
             "etfs": meta, "rows": rows, "stocks": stocks, "sells": sells}

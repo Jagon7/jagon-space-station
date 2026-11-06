@@ -956,7 +956,7 @@ def active_alert(dry: bool, force: bool = False) -> int:
         m.cols("持股", "DD")
         for r in sorted(new, key=lambda r: r["dd"])[:12]:
             m.stock(r["name"], r["code"], f"{r['lots']:,} 張", f"{r['dd']:.0f}%", color="#E5484D", star=r["code"] in wl,
-                    sub=f"{r['etfName']}・成本 {r['cost']:,.1f}")
+                    sub=f"{r['etfName']}・成本 {r['cost']:,.1f}" + (f"・{md(r['below'])} 跌破、期限 {md(r['due'])}" if r.get("below") else ""))
         if len(new) > 12:
             m.note(f"另有 {len(new) - 12} 個部位，請看網頁")
     top = [a for a in ad["stocks"] if a["warn"]][:5]
@@ -965,7 +965,7 @@ def active_alert(dry: bool, force: bool = False) -> int:
         m.cols("檔數", "最深")
         for a in top:
             m.stock(a["name"], a["code"], f"{a['warn']}/{a['n']} 檔", f"{a['etfs'][0][1]:.0f}%", color="#E5484D" if a["stop"] else "#D97706",
-                    star=a["code"] in wl, sub=f"合計 {a['riskLots']:,} 張")
+                    star=a["code"] in wl, sub=f"合計 {a['riskLots']:,} 張" + (f"・最早停損期限 {md(a['due'])}" if a.get("due") else ""))
     with tempfile.TemporaryDirectory() as tmp:
         build_margin.build(ROOT / "data", Path(tmp))
         try:
@@ -980,13 +980,13 @@ def active_alert(dry: bool, force: bool = False) -> int:
                 m.kv(label, f"{v}%（再跌 {(1 - 130 / v) * 100:.1f}% 到 130%）", color="#E5484D" if v < 140 else "#D97706" if v < 150 else None)
         low = sorted([r for r in mg.get("rows", []) if r.get("hot") and not r.get("etf") and r["maint"] < 130], key=lambda r: r["maint"])
         if low:
-            m.cols("推估維持率", "追繳價")
+            m.cols("推估維持率", "預計斷頭日")
             for r in low[:8]:
-                m.stock(r["name"], r["code"], f"{r['maint']:.0f}%" + ("・斷頭" if r.get("tag") == "斷頭" else ""), f"{r['call']:,}", color="#E5484D",
-                        star=r["code"] in wl)
+                m.stock(r["name"], r["code"], f"{r['maint']:.0f}%", md(r["force"]) if r.get("force") else "—", color="#E5484D",
+                        star=r["code"] in wl, sub=f"{md(r['below'])} 跌破 130%・追繳價 {r['call']:,}" if r.get("below") else f"追繳價 {r['call']:,}")
             if len(low) > 8:
                 m.note(f"熱門股共 {len(low)} 檔低於 130%")
-    m.note("DD＝收盤 ÷ 回推平均建倉成本 − 1；疑似停損＝最新一天減碼 ≥ 50 張或出清、且 DD ≤ -30%；融資維持率為推估值；★＝自選股")
+    m.note("DD＝收盤 ÷ 回推平均建倉成本 − 1；疑似停損＝最新一天減碼 ≥ 50 張或出清、且 DD ≤ -30%；停損期限＝跌破 -40% 後第 5 個交易日（假設）；預計斷頭日＝跌破 130% 後第 3 個交易日；融資維持率為推估值；★＝自選股")
     print(m.text())
     if dry:
         return 0

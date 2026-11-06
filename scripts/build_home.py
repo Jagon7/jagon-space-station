@@ -231,13 +231,14 @@ def build(data_dir: Path, public_dir: Path):
                   "twChg": round(mg["market"]["tw"] - prev[1], 1) if prev and prev[1] and mg["market"].get("tw") else None,
                   "otcChg": round(mg["market"]["otc"] - prev[2], 1) if prev and prev[2] and mg["market"].get("otc") else None,
                   **(mg.get("count") or {}),
-                  "low": [{"code": r["code"], "name": r["name"], "maint": r["maint"], "dist": r["dist"], "tag": r.get("tag")} for r in hot[:6]]}
+                  "low": [{"code": r["code"], "name": r["name"], "maint": r["maint"], "dist": r["dist"], "tag": r.get("tag"),
+                          "below": r.get("below"), "force": r.get("force")} for r in hot[:6]]}
     ad = P("active_dd.json")
     active = None
     if ad.get("count"):
         active = {"date": ad.get("date"), "asof": ad.get("asof"), **ad["count"], "etfs": len(ad.get("etfs", [])),
                   "top": [{"code": a["code"], "name": a["name"], "dd": a["dd"], "warn": a["warn"], "stop": a["stop"], "n": a["n"],
-                           "worst": a["etfs"][0][1] if a.get("etfs") else None, "riskLots": a["riskLots"]}
+                           "worst": a["etfs"][0][1] if a.get("etfs") else None, "riskLots": a["riskLots"], "due": a.get("due")}
                           for a in ad.get("stocks", []) if a["warn"]][:6],
                   "sells": [{"code": x["code"], "name": x["name"], "etf": x["etfName"], "dd": x["dd"], "c1": x["c1"], "out": x["out"]}
                             for x in ad.get("sells", []) if x.get("asof") == ad.get("asof")][:6]}
