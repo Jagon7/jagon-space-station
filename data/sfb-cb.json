@@ -1,5 +1,5 @@
 {
-  "date": "2026-11-05",
+  "date": "2026-11-06",
   "data": [
     {
       "code": "2344",
@@ -1656,7 +1656,7 @@
       "code": "3033",
       "name": "威健實業",
       "market": "上市",
-      "status": "審查中",
+      "status": "生效",
       "cbType": "轉換公司債(無擔保)",
       "amount": 40.0,
       "currency": "台幣",
@@ -1981,7 +1981,7 @@
       "code": "3450",
       "name": "聯鈞",
       "market": "上市",
-      "status": "審查中",
+      "status": "生效",
       "cbType": "轉換公司債(無擔保)",
       "amount": 30.0,
       "currency": "台幣",
@@ -1994,7 +1994,7 @@
       "code": "6725",
       "name": "矽科宏晟",
       "market": "上櫃",
-      "status": "審查中",
+      "status": "生效",
       "cbType": "轉換公司債(無擔保)",
       "amount": 6.0,
       "currency": "台幣",
@@ -2041,6 +2041,32 @@
       "effectiveDate": "2026-11-16",
       "withdrawDate": null,
       "underwriter": "元大證券"
+    },
+    {
+      "code": "7751",
+      "name": "竑騰科技",
+      "market": "上櫃",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 10.0,
+      "currency": "台幣",
+      "filingDate": "2026-11-05",
+      "effectiveDate": "2026-11-23",
+      "withdrawDate": null,
+      "underwriter": "台新證券"
+    },
+    {
+      "code": "7751",
+      "name": "竑騰科技",
+      "market": "上櫃",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 10.0,
+      "currency": "台幣",
+      "filingDate": "2026-11-05",
+      "effectiveDate": "2026-11-23",
+      "withdrawDate": null,
+      "underwriter": "台新證券"
     }
   ]
 }

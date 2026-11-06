@@ -1,32 +1,6 @@
 {
-  "date": "2026-11-05",
+  "date": "2026-11-06",
   "data": [
-    {
-      "code": "1229",
-      "name": "聯華",
-      "cbSeries": "第46次",
-      "filingDate": "2026-07-24",
-      "bookBuildDate": "2026-07-24",
-      "listingDate": "2026-08-07",
-      "amount": 120.0,
-      "conversionPrice": null,
-      "closePrice": 38.95,
-      "market": "上市",
-      "underwriter": "宏遠證券股份有限公司"
-    },
-    {
-      "code": "3141",
-      "name": "晶宏",
-      "cbSeries": "第47次",
-      "filingDate": "2026-07-27",
-      "bookBuildDate": "2026-07-27",
-      "listingDate": "2026-08-07",
-      "amount": 5.0,
-      "conversionPrice": null,
-      "closePrice": 72.0,
-      "market": "上櫃",
-      "underwriter": "統一綜合證券股份有限公司"
-    },
     {
       "code": "3019",
       "name": "亞光",

@@ -1,18 +1,8 @@
 {
-  "date": "2026-11-05",
+  "date": "2026-11-06",
   "data": [
     {
-      "name": "生技醫療",
-      "count": 2,
-      "momentum": "weak"
-    },
-    {
       "name": "光電",
-      "count": 1,
-      "momentum": "weak"
-    },
-    {
-      "name": "資訊服務",
       "count": 1,
       "momentum": "weak"
     },
@@ -22,27 +12,7 @@
       "momentum": "weak"
     },
     {
-      "name": "其他電子",
-      "count": 1,
-      "momentum": "weak"
-    },
-    {
-      "name": "數位雲端",
-      "count": 1,
-      "momentum": "weak"
-    },
-    {
-      "name": "運動休閒",
-      "count": 1,
-      "momentum": "weak"
-    },
-    {
-      "name": "電腦週邊",
-      "count": 1,
-      "momentum": "weak"
-    },
-    {
-      "name": "綠能環保",
+      "name": "半導體",
       "count": 1,
       "momentum": "weak"
     }
