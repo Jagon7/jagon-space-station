@@ -22,15 +22,19 @@ const PLAN = [
   ["11:35", TUE_SAT, "fetch-etf.yml"],
   ["14:20", ALL, "fetch-intel.yml"],
   ["15:45", WD, "fetch.yml"],            // 收盤行情
+  ["16:00", [3, 6], "gooaye.yml"],       // 股癌新的一集（週三、週六下午上架）
   ["17:20", ALL, "fetch-intel.yml"],
+  ["17:30", [3, 6], "gooaye.yml"],
   ["18:15", WD, "fetch.yml"],            // 三大法人、期貨
   ["19:40", WD, "etf-evening.yml"],      // ETF 持股變化，等到 20:00 才發
   ["19:45", WD, "broker-evening.yml"],   // 重點分點大額進出，等到 20:00 才發
   ["20:25", WD, "broker-evening.yml"],   // 分點資料晚出來時的備援
   ["20:20", ALL, "fetch-intel.yml"],
+  ["21:00", [3, 6], "gooaye.yml"],
   ["21:20", WD, "fetch-etf.yml"],
   ["21:35", WD, "fetch.yml"],            // 融資融券（資料到齊後自動發每日戰報）
   ["22:00", WD, "active-cost.yml"],      // 主動式 ETF 建倉成本（停損監控）
+  ["22:30", ALL, "gooaye.yml"],          // 特別集
   ["23:20", ALL, "fetch-intel.yml"],
   ["23:40", WD, "fetch.yml"],
   ["23:50", WD, "fetch-etf.yml"],
