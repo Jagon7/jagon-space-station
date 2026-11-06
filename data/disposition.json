@@ -98,7 +98,7 @@
       "condition": "連續三次",
       "period": "115/11/09～115/11/13",
       "endDate": "2026-11-13",
-      "announceDate": "*115/11/06",
+      "announceDate": "115/11/06",
       "market": "上市"
     },
     {
@@ -108,7 +108,7 @@
       "condition": "連續三次",
       "period": "115/11/09～115/11/13",
       "endDate": "2026-11-13",
-      "announceDate": "*115/11/06",
+      "announceDate": "115/11/06",
       "market": "上市"
     }
   ]
