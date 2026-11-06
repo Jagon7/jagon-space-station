@@ -2,31 +2,6 @@
   "date": "2026-11-06",
   "data": [
     {
-      "name": "電腦週邊",
-      "count": 3,
-      "momentum": "normal"
-    },
-    {
-      "name": "半導體",
-      "count": 3,
-      "momentum": "normal"
-    },
-    {
-      "name": "其他電子",
-      "count": 2,
-      "momentum": "weak"
-    },
-    {
-      "name": "資訊服務",
-      "count": 2,
-      "momentum": "weak"
-    },
-    {
-      "name": "綠能環保",
-      "count": 2,
-      "momentum": "weak"
-    },
-    {
       "name": "光電",
       "count": 1,
       "momentum": "weak"
@@ -37,12 +12,7 @@
       "momentum": "weak"
     },
     {
-      "name": "化工",
-      "count": 1,
-      "momentum": "weak"
-    },
-    {
-      "name": "塑膠",
+      "name": "半導體",
       "count": 1,
       "momentum": "weak"
     }
