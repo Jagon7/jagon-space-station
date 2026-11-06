@@ -26,7 +26,9 @@ sys.path.insert(0, str(ROOT))
 
 from scripts.rebalance import etf919, etf929, ftse  # noqa: E402
 from scripts.rebalance.public import Public  # noqa: E402
-from scripts.rebalance.report import weight_sheet  # noqa: E402
+from scripts.rebalance.report import rebal_book, weight_sheet  # noqa: E402
+
+BOOK: dict = {}   # ETFRebal 整理表：{頁名: 參數}
 
 DATA_DIR = Path(os.environ.get("JSS_DATA_DIR", ROOT / "data"))
 OUT = DATA_DIR / "rebalance" / "pred"
@@ -172,6 +174,11 @@ def run_919(pub: Public, cfg: dict, asof: str | None):
     weight_sheet(wb, "919", b["asof"], res["weights"]["final"], {k: v / 100 for k, v in e["weights"].items()}, names,
                  {k: v["price"] for k, v in res["universe"].items()}, b["turnover1"], (e["aum"] or 0) * 1000,
                  res["add"], res["del"])
+    BOOK["919"] = {"sheet": "919", "label": "919", "layout": "blocks", "asof": b["asof"], "missing": miss,
+                   "final_w": res["weights"]["final"], "old_w": {k: v / 100 for k, v in e["weights"].items()},
+                   "names": names, "price": {k: v["price"] for k, v in res["universe"].items()},
+                   "turnover": b["turnover1"], "aum_yuan": (e["aum"] or 0) * 1000, "adds": res["add"],
+                   "dels": res["del"], "confidence": (cfg.get("confidence") or {})}
     OUT.mkdir(parents=True, exist_ok=True)
     wb.save(OUT / "00919.xlsx")
     s = summary("00919", res["add"], res["del"], names, res["weights"]["final"], res["impact"], res["notes"],
@@ -227,6 +234,12 @@ def run_ftse(pub: Public, cfg: dict, asof: str | None):
         e = b["etf"][code]
         weight_sheet(wb, code, b["asof"], r["weights"], {k: v / 100 for k, v in e["weights"].items()}, names,
                      b["close"], b["turnover5"], (e["aum"] or 0) * 1000, r["add"], r["del"])
+        short = code[2:]
+        BOOK[short] = {"sheet": short, "label": short, "layout": "blocks" if code == "0056" else "table",
+                       "asof": b["asof"], "missing": miss, "final_w": r["weights"],
+                       "old_w": {k: v / 100 for k, v in e["weights"].items()}, "names": names, "price": b["close"],
+                       "turnover": b["turnover5"], "aum_yuan": (e["aum"] or 0) * 1000, "adds": r["add"],
+                       "dels": r["del"], "confidence": (cfg.get("confidence") or {}).get(code, {})}
         OUT.mkdir(parents=True, exist_ok=True)
         wb.save(OUT / f"{code}.xlsx")
         notes = []
@@ -274,6 +287,11 @@ def run_929(pub: Public, cfg: dict, asof: str | None):
     weight_sheet(wb, "929", b["asof"], res["weights"]["final"], {k: v / 100 for k, v in e["weights"].items()}, names,
                  {k: v["price"] for k, v in res["universe"].items()}, b["turnover1"], (e["aum"] or 0) * 1000,
                  res["add"], res["del"])
+    BOOK["929"] = {"sheet": "929", "label": "929", "layout": "blocks", "asof": b["asof"], "missing": miss,
+                   "final_w": res["weights"]["final"], "old_w": {k: v / 100 for k, v in e["weights"].items()},
+                   "names": names, "price": {k: v["price"] for k, v in res["universe"].items()},
+                   "turnover": b["turnover1"], "aum_yuan": (e["aum"] or 0) * 1000, "adds": res["add"],
+                   "dels": res["del"], "confidence": (cfg.get("confidence") or {})}
     OUT.mkdir(parents=True, exist_ok=True)
     wb.save(OUT / "00929.xlsx")
     s = summary("00929", res["add"], res["del"], names, res["weights"]["final"], res["impact"], res["notes"],
@@ -309,6 +327,16 @@ def main():
         except Exception:  # 一檔失敗不影響其他
             failed += 1
             print(f"✗ {name}：\n{traceback.format_exc()}")
+    if BOOK:
+        # 整理表：ETFRebal_YYMMDD.xlsx（頁序 919、50、51、56、929），另存一份固定檔名給網站下載
+        asof_all = max(v["asof"] for v in BOOK.values())
+        items = [BOOK[k] for k in ("919", "50", "51", "56", "929") if k in BOOK]
+        name = f"ETFRebal_{asof_all[2:4]}{asof_all[5:7]}{asof_all[8:10]}.xlsx"
+        for old in OUT.glob("ETFRebal_*.xlsx"):
+            old.unlink()
+        rebal_book(OUT / name, asof_all, items)
+        idx["book"] = name
+        print(f"整理表：{name}")
     write_json(OUT / "index.json", idx)
     return 1 if failed and failed == len(a.jobs or jobs) else 0
 

@@ -12,7 +12,7 @@ type Pred = {
   etf: string; name: string; asof: string; ready: boolean; missing?: string[]; notes: string[];
   add: Pick[]; del: Pick[]; weights: WeightRow[]; impact: ImpactRow[]; xlsx: string | null;
 };
-export type PredictData = { etfs: Pred[] };
+export type PredictData = { etfs: Pred[]; book?: string };
 
 const pct = (v: number | null | undefined, d = 2) => (v == null ? "—" : `${(v * 100).toFixed(d)}%`);
 const num = (v: number | null | undefined, d = 0) =>
@@ -66,6 +66,11 @@ export default function PredictTab({ data }: { data: PredictData }) {
       <div className="flex flex-wrap items-center gap-3 mb-5">
         <Pills value={code} options={data.etfs.map((e) => ({ value: e.etf, label: `${e.etf} ${e.name ?? ""}` }))} onChange={setCode} />
         <span className="text-xs text-[#8b97ab] font-mono">資料日 {p.asof}</span>
+        {data.book && (
+          <a href={`${BASE}/data/${data.book}`} className="text-xs text-[#4f8cff] hover:underline" download>
+            下載換股整理表（五檔 ETF）
+          </a>
+        )}
         {p.xlsx && (
           <a href={`${BASE}/data/${p.xlsx}`} className="text-xs text-[#4f8cff] hover:underline" download>
             下載計算過程（Excel）

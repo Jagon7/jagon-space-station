@@ -249,6 +249,11 @@ def build():
         if doc["xlsx"]:
             (OUT_DIR / "predict").mkdir(parents=True, exist_ok=True)
             shutil.copyfile(pred_dir / f"{code}.xlsx", OUT_DIR / "predict" / f"{code}.xlsx")
+    books = sorted(pred_dir.glob("ETFRebal_*.xlsx"))
+    if books:
+        (OUT_DIR / "predict").mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(books[-1], OUT_DIR / "predict" / books[-1].name)
+        pred["book"] = f"etf/predict/{books[-1].name}"
     write_json("predict.json", pred)
 
     print(f"ETF 頁資料：{len(etfs)} 檔 ETF、{len(holders)} 檔個股、{len(changes)} 檔有前一份、"
