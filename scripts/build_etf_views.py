@@ -10,6 +10,7 @@
 from __future__ import annotations
 
 import json
+import shutil
 import os
 import sys
 from pathlib import Path
@@ -233,6 +234,22 @@ def build():
     reb["names"] = {c: names.get(c) or prices.names.get(c, c)
                     for e in reb["etfs"] for ev in e["events"] for c in ev["add"] + ev["del"]}
     write_json("rebalance.json", reb)
+
+    # ── 換股預估（build_rebalance_pred.py 的結果）＋ 計算過程 Excel ─────────────
+    pred_dir = DATA_DIR.parent / "rebalance" / "pred"
+    pred = {"etfs": []}
+    for code in ("00919", "0050", "0051", "0056", "00929"):
+        doc = read_json(pred_dir / f"{code}.json", None)
+        if not doc:
+            continue
+        doc["name"] = names_aum.get(code, (code,))[0] if code in names_aum else code
+        doc["xlsx"] = f"etf/predict/{code}.xlsx" if (pred_dir / f"{code}.xlsx").exists() else None
+        doc.pop("config", None)
+        pred["etfs"].append(doc)
+        if doc["xlsx"]:
+            (OUT_DIR / "predict").mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(pred_dir / f"{code}.xlsx", OUT_DIR / "predict" / f"{code}.xlsx")
+    write_json("predict.json", pred)
 
     print(f"ETF 頁資料：{len(etfs)} 檔 ETF、{len(holders)} 檔個股、{len(changes)} 檔有前一份、"
           f"AUM {len(rows)} 檔 → {OUT_DIR.relative_to(ROOT)}")
