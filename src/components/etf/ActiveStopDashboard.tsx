@@ -6,7 +6,7 @@ import { useWatchlist } from "@/lib/watchlist";
 import { Kpi, KpiRow, Note, Pills, SortTable, type Column } from "@/components/data-ui";
 
 type Row = { etf: string; etfName: string; code: string; name: string; lots: number; w: number | null; cost: number; first: string; firstPx: number;
-  close: number; dd: number; stop: number; dist: number; c5: number | null; c20: number | null; val: number; dated: boolean };
+  close: number; dd: number; stop: number; dist: number; c1?: number | null; c5: number | null; c20: number | null; val: number; dated: boolean };
 type Stock = { code: string; name: string; close: number; n: number; warn: number; stop: number; lots: number; riskLots: number; riskVal: number;
   c5: number; etfs: [string, number][]; cost: number; dd: number; vol: number | null };
 type Etf = { code: string; name: string; issuer: string; dated: boolean; start: string; asof: string; n: number };
@@ -67,6 +67,7 @@ export default function ActiveStopDashboard() {
     { key: "first", label: "建倉日／價", align: "right", sort: (r) => r.first, render: (r) => num(`${ymd(r.first)}　${r.firstPx.toLocaleString()}`, "text-[#8b97ab] whitespace-nowrap") },
     { key: "w", label: "權重", align: "right", sort: (r) => r.w ?? 0, render: (r) => num(r.w != null ? `${r.w.toFixed(2)}%` : "—") },
     { key: "lots", label: "持股（張）", align: "right", sort: (r) => r.lots, render: (r) => num(r.lots.toLocaleString()) },
+    { key: "c1", label: "最新增減", align: "right", sort: (r) => r.c1 ?? 0, render: (r) => num(r.c1 ? sign(r.c1) : "—", tone(r.c1)) },
     { key: "c5", label: "5 日增減", align: "right", sort: (r) => r.c5 ?? 0, render: (r) => num(r.c5 ? sign(r.c5) : "—", tone(r.c5)) },
     { key: "c20", label: "20 日增減", align: "right", sort: (r) => r.c20 ?? 0, render: (r) => num(r.c20 ? sign(r.c20) : "—", tone(r.c20)) },
     { key: "val", label: "市值（億）", align: "right", sort: (r) => r.val, render: (r) => num(r.val.toFixed(1)) },

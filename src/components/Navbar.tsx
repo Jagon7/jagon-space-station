@@ -46,6 +46,7 @@ const navItems: NavItem[] = [
     label: "籌碼雷達",
     children: [
       { label: "融資斷頭監控", href: "/margin" },
+      { label: "主動ETF停損監控", href: "/active-stop" },
       { label: "券差偵察", href: "/short" },
       { label: "處置預警",      href: "/disposition" },
       { label: "三大法人",       href: "/institutional" },
@@ -54,7 +55,6 @@ const navItems: NavItem[] = [
       { label: "分點買賣超",     href: "/broker" },
       { label: "內部人持股異動", href: "/insider" },
       { label: "ETF 持股",       href: "/etf-flow" },
-      { label: "主動ETF停損監控", href: "/active-stop" },
     ],
   },
   { label: "情報截收", href: "/announcements" },

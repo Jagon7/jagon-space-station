@@ -220,7 +220,29 @@ def build(data_dir: Path, public_dir: Path):
     global_ = {"date": intl.get("usDate"), "idx": [{"name": n, "chg": us[s]["chg"]} for s, n in (("^GSPC", "S&P"), ("^IXIC", "那指"), ("^SOX", "費半"), ("TSM", "TSM ADR")) if s in us],
                "groups": groups[:5]}
 
+    # ── 融資斷頭、主動 ETF 停損 ──
+    mg = P("margin.json")
+    margin = None
+    if mg.get("market"):
+        ser = [r for r in mg["market"].get("series", []) if r[1] is not None]
+        prev = ser[-2] if len(ser) > 1 else None
+        hot = sorted([r for r in mg.get("rows", []) if r.get("hot") and not r.get("etf")], key=lambda r: r["maint"])
+        margin = {"date": mg.get("date"), "tw": mg["market"].get("tw"), "otc": mg["market"].get("otc"),
+                  "twChg": round(mg["market"]["tw"] - prev[1], 1) if prev and prev[1] and mg["market"].get("tw") else None,
+                  "otcChg": round(mg["market"]["otc"] - prev[2], 1) if prev and prev[2] and mg["market"].get("otc") else None,
+                  **(mg.get("count") or {}),
+                  "low": [{"code": r["code"], "name": r["name"], "maint": r["maint"], "dist": r["dist"], "tag": r.get("tag")} for r in hot[:6]]}
+    ad = P("active_dd.json")
+    active = None
+    if ad.get("count"):
+        active = {"date": ad.get("date"), "asof": ad.get("asof"), **ad["count"], "etfs": len(ad.get("etfs", [])),
+                  "top": [{"code": a["code"], "name": a["name"], "dd": a["dd"], "warn": a["warn"], "stop": a["stop"], "n": a["n"],
+                           "worst": a["etfs"][0][1] if a.get("etfs") else None, "riskLots": a["riskLots"]}
+                          for a in ad.get("stocks", []) if a["warn"]][:6],
+                  "sells": [{"code": x["code"], "name": x["name"], "etf": x["etfName"], "dd": x["dd"], "c1": x["c1"], "out": x["out"]}
+                            for x in ad.get("sells", []) if x.get("asof") == ad.get("asof")][:6]}
+
     out = {"updatedAt": datetime.now(TPE).isoformat(timespec="minutes"), "pulse": pulse, "alerts": alerts,
-           "strategy": strategy, "turnover": turnover, "global": global_, "week": week}
+           "strategy": strategy, "turnover": turnover, "global": global_, "week": week, "margin": margin, "active": active}
     (public_dir / "home.json").write_text(json.dumps(out, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     print(f"首頁摘要：{len(alerts)} 則警示、波段 {strategy['s1n']}+{strategy['s2n']} 檔、高週轉觀察 {len(turnover['list'])} 檔、下週大事 {sum(len(d['items']) for d in week['days'])} 項")

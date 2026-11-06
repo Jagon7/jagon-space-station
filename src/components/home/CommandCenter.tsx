@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { AlertTriangle, ArrowRight, CalendarDays, Crosshair, Globe, Info, RotateCw, ShieldAlert } from "lucide-react";
+import { AlertTriangle, ArrowRight, CalendarDays, Crosshair, Globe, Info, RotateCw, ShieldAlert, TrendingDown, Scissors } from "lucide-react";
 import WatchCard from "./WatchCard";
 import FlowCard from "./FlowCard";
 
@@ -16,7 +16,74 @@ export type Home = {
   turnover: { asof: string | null; next: string | null; list: { code: string; name: string; t: number; dt: number | null }[]; o2c: number | null; black: number | null; top: { code: string; name: string; t: number }[] };
   global: { date: string | null; idx: { name: string; chg: number }[]; groups: { name: string; sym: string; chg: number; react: { name: string; exp: number }[] }[] };
   week?: { from: string; to: string; days: { d: string; wd: string; next: boolean; items: { cat: string; text: string; hi: boolean; href: string | null }[] }[] };
+  margin?: { date: string; tw: number | null; otc: number | null; twChg: number | null; otcChg: number | null; below: number; near: number; hot: number;
+    low: { code: string; name: string; maint: number; dist: number; tag: string | null }[] } | null;
+  active?: { date: string; asof: string; stop: number; warn: number; stocks: number; etfs: number;
+    top: { code: string; name: string; dd: number; warn: number; stop: number; n: number; worst: number | null; riskLots: number }[];
+    sells: { code: string; name: string; etf: string; dd: number; c1: number; out: boolean }[] } | null;
 };
+
+const mColor = (m: number | null) => (m == null ? "text-white" : m < 130 ? "text-[#f05252]" : m < 150 ? "text-[#f59e0b]" : "text-white");
+const ddColor = (d: number | null) => (d == null ? "text-[#8b97ab]" : d <= -40 ? "text-[#f05252]" : d <= -30 ? "text-[#f59e0b]" : "text-slate-300");
+
+function MarginPanel({ m }: { m: NonNullable<Home["margin"]> }) {
+  return (
+    <Panel icon={TrendingDown} title="融資斷頭監控" href="/margin" accent="#f05252" sub={`${md(m.date)} 收盤・130% 追繳線`}>
+      <div className="grid grid-cols-2 gap-3 mb-3">
+        {([["上市維持率", m.tw, m.twChg], ["上櫃維持率", m.otc, m.otcChg]] as const).map(([l, v, c]) => (
+          <div key={l} className="rounded-lg bg-[#141c2e] px-3 py-2">
+            <div className="text-[11px] text-[#8b97ab]">{l}</div>
+            <div className={`font-mono text-xl font-bold ${mColor(v)}`}>{v != null ? `${v}%` : "—"}
+              <span className={`ml-2 text-xs font-normal ${tone(c)}`}>{c != null ? sg(c, 1) : ""}</span></div>
+            <div className="text-[10px] text-[#7c8aa0]">{v ? `再跌 ${((1 - 130 / v) * 100).toFixed(1)}% 到 130%` : ""}</div>
+          </div>
+        ))}
+      </div>
+      <div className="text-[11px] text-[#8b97ab] mb-1.5">
+        熱門股 <span className="text-[#f05252] font-mono">{m.below}</span> 檔已低於 130%、<span className="text-[#f59e0b] font-mono">{m.near}</span> 檔在 130～145%（共 {m.hot} 檔）
+      </div>
+      <div className="flex flex-wrap gap-1.5">
+        {m.low.map((x) => <Chip key={x.code} name={x.name} code={x.code} right={`${x.maint.toFixed(0)}%${x.tag === "斷頭" ? " 斷頭" : ""}`} cls={mColor(x.maint)} />)}
+      </div>
+    </Panel>
+  );
+}
+
+function ActivePanel({ a }: { a: NonNullable<Home["active"]> }) {
+  return (
+    <Panel icon={Scissors} title="主動ETF停損監控" href="/active-stop" accent="#f59e0b" sub={`${a.etfs} 檔主動式 ETF・持股 ${md(a.asof)}・收盤 ${md(a.date)}`}>
+      <div className="grid grid-cols-3 gap-3 mb-3">
+        {([["DD ≤ -40%", a.stop, "text-[#f05252]", "個部位"], ["-30～-40%", a.warn, "text-[#f59e0b]", "個部位"], ["受影響個股", a.stocks, "text-white", "檔"]] as const).map(([l, v, c, u]) => (
+          <div key={l} className="rounded-lg bg-[#141c2e] px-3 py-2">
+            <div className="text-[11px] text-[#8b97ab]">{l}</div>
+            <div className={`font-mono text-xl font-bold ${c}`}>{v}<span className="ml-1 text-[10px] font-normal text-[#8b97ab]">{u}</span></div>
+          </div>
+        ))}
+      </div>
+      {!!a.sells.length && (
+        <>
+          <div className="text-[11px] text-[#8b97ab] mb-1.5">最新一天疑似停損賣出</div>
+          <div className="flex flex-wrap gap-1.5 mb-3">
+            {a.sells.map((x) => <Chip key={x.code + x.etf} name={x.name} code={x.etf} right={`${x.out ? "出清" : `${x.c1.toLocaleString()} 張`} ${x.dd.toFixed(0)}%`} cls={ddColor(x.dd)} />)}
+          </div>
+        </>
+      )}
+      <div className="text-[11px] text-[#8b97ab] mb-1.5">套牢最集中（被幾檔 ETF 套在 -30% 以下）</div>
+      <div className="space-y-1">
+        {a.top.map((x) => (
+          <div key={x.code} className="flex items-center justify-between text-[13px]">
+            <span><span className="text-slate-200">{x.name}</span><span className="ml-1.5 font-mono text-[11px] text-[#7c8aa0]">{x.code}</span></span>
+            <span className="font-mono text-xs">
+              <span className={x.stop ? "text-[#f05252]" : "text-[#f59e0b]"}>{x.warn}/{x.n} 檔</span>
+              <span className="ml-2 text-[#8b97ab]">最深 <span className={ddColor(x.worst)}>{x.worst != null ? `${x.worst.toFixed(0)}%` : "—"}</span></span>
+              <span className="ml-2 text-[#8b97ab]">{x.riskLots.toLocaleString()} 張</span>
+            </span>
+          </div>
+        ))}
+      </div>
+    </Panel>
+  );
+}
 
 const CAT: Record<string, string> = { 休市: "#f05252", 結算: "#f59e0b", 總經: "#a78bfa", 財報: "#06b6d4", 法說: "#4f8cff", ETF: "#22c55e", 除息: "#f97316", 營收: "#8b97ab" };
 
@@ -157,6 +224,14 @@ export default function CommandCenter({ h }: { h: Home }) {
 
       {/* 盤中即時資金流 */}
       <FlowCard />
+
+      {/* 融資斷頭、主動 ETF 停損 */}
+      {(h.margin || h.active) && (
+        <div className="grid gap-4 lg:grid-cols-2">
+          {h.margin && <MarginPanel m={h.margin} />}
+          {h.active && <ActivePanel a={h.active} />}
+        </div>
+      )}
 
       {/* 明日行動 */}
       <div className="grid gap-4 lg:grid-cols-3">
