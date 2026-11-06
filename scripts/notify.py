@@ -907,6 +907,99 @@ def broker_alert(dry: bool, force: bool = False) -> int:
     return 0
 
 
+ACTIVE_STATE = ROOT / "data" / "notify" / "active-sent.json"
+
+
+def active_alert(dry: bool, force: bool = False) -> int:
+    """主動 ETF 停損＋融資斷頭（週一到五，active-cost.yml 每晚 22:00 更新完成本後發）：
+    新跌破 -40% 的部位、疑似停損賣出（DD ≤ -30% 又減碼／出清）、套牢最集中的個股、大盤融資維持率與低於 130% 的熱門股"""
+    import tempfile
+    import build_active_dd
+    import build_margin
+    now = datetime.now(TPE_TZ)
+    today = now.date().isoformat()
+    if not force and (now.weekday() >= 5 or today in _holidays()):
+        print("今天休市，不發停損監控")
+        return 0
+    try:
+        state = json.loads(ACTIVE_STATE.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        state = {"sent": [], "below": None}
+    if today in state["sent"] and not force:
+        print("今天的停損監控已發過")
+        return 0
+    ad = build_active_dd.compute(ROOT / "data")
+    if not ad:
+        print("沒有主動 ETF 成本資料")
+        return 0
+    if ad["asof"] != today and not force:
+        print(f"主動 ETF 持股還沒有今天的（最新 {ad['asof']}）")
+        return 0
+    md = lambda d: f"{int(d[5:7])}/{int(d[8:10])}"  # noqa: E731
+    wl = set(watchlist())
+    big = [r for r in ad["rows"] if r["dd"] <= ad["stop"] and r["lots"] >= 50]
+    keys = {f"{r['etf']}:{r['code']}" for r in big}
+    first = state.get("below") is None
+    new = [r for r in big if f"{r['etf']}:{r['code']}" not in set(state.get("below") or [])]
+    sells = [x for x in ad["sells"] if x["asof"] == ad["asof"]]
+    m = Msg(("【預覽】" if force else "") + "✂️ 主動ETF停損＋融資斷頭",
+            f"{md(ad['asof'])}・DD ≤ -40% {ad['count']['stop']} 個部位・-30～-40% {ad['count']['warn']} 個", accent="#F59E0B",
+            url=f"{SITE}/active-stop/", button="開啟停損監控")
+    if sells:
+        m.section("疑似停損賣出", f"{len(sells)} 筆")
+        m.cols("減碼", "DD")
+        for x in sells[:12]:
+            m.stock(x["name"], x["code"], "出清" if x["out"] else f"{x['c1']:+,} 張", f"{x['dd']:.0f}%", color="#E5484D" if x["dd"] <= -40 else "#D97706",
+                    star=x["code"] in wl, sub=x["etfName"])
+    if new:
+        m.section("首次列入：DD 已到 -40%" if first else "新跌破 -40%", f"{len(new)} 個部位")
+        m.cols("持股", "DD")
+        for r in sorted(new, key=lambda r: r["dd"])[:12]:
+            m.stock(r["name"], r["code"], f"{r['lots']:,} 張", f"{r['dd']:.0f}%", color="#E5484D", star=r["code"] in wl,
+                    sub=f"{r['etfName']}・成本 {r['cost']:,.1f}")
+        if len(new) > 12:
+            m.note(f"另有 {len(new) - 12} 個部位，請看網頁")
+    top = [a for a in ad["stocks"] if a["warn"]][:5]
+    if top:
+        m.section("套牢最集中", "被幾檔 ETF 套在 -30% 以下")
+        m.cols("檔數", "最深")
+        for a in top:
+            m.stock(a["name"], a["code"], f"{a['warn']}/{a['n']} 檔", f"{a['etfs'][0][1]:.0f}%", color="#E5484D" if a["stop"] else "#D97706",
+                    star=a["code"] in wl, sub=f"合計 {a['riskLots']:,} 張")
+    with tempfile.TemporaryDirectory() as tmp:
+        build_margin.build(ROOT / "data", Path(tmp))
+        try:
+            mg = json.loads((Path(tmp) / "margin.json").read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            mg = None
+    if mg:
+        mk = mg["market"]
+        m.section("融資斷頭", md(mg["date"]))
+        for label, v in (("上市融資維持率", mk.get("tw")), ("上櫃融資維持率", mk.get("otc"))):
+            if v:
+                m.kv(label, f"{v}%（再跌 {(1 - 130 / v) * 100:.1f}% 到 130%）", color="#E5484D" if v < 140 else "#D97706" if v < 150 else None)
+        low = sorted([r for r in mg.get("rows", []) if r.get("hot") and not r.get("etf") and r["maint"] < 130], key=lambda r: r["maint"])
+        if low:
+            m.cols("推估維持率", "追繳價")
+            for r in low[:8]:
+                m.stock(r["name"], r["code"], f"{r['maint']:.0f}%" + ("・斷頭" if r.get("tag") == "斷頭" else ""), f"{r['call']:,}", color="#E5484D",
+                        star=r["code"] in wl)
+            if len(low) > 8:
+                m.note(f"熱門股共 {len(low)} 檔低於 130%")
+    m.note("DD＝收盤 ÷ 回推平均建倉成本 − 1；疑似停損＝最新一天減碼 ≥ 50 張或出清、且 DD ≤ -30%；融資維持率為推估值；★＝自選股")
+    print(m.text())
+    if dry:
+        return 0
+    if not send(m):
+        print("（沒有設定任何推播管道，只印出內容）")
+    if not force:
+        state["sent"] = sorted(set(state["sent"]) | {today})[-60:]
+        state["below"] = sorted(keys)
+        ACTIVE_STATE.parent.mkdir(parents=True, exist_ok=True)
+        ACTIVE_STATE.write_text(json.dumps(state, ensure_ascii=False, indent=0), encoding="utf-8")
+    return 0
+
+
 ETF_STATE = ROOT / "data" / "notify" / "etf-sent.json"
 
 
@@ -1192,6 +1285,7 @@ def main():
     ap.add_argument("--risk-alert", action="store_true", help="市場風險警示：風險溫度偏高、指標達警戒／危險、VIX 暴漲、信用利差擴大、科技廠隱含 CDS 跳升")
     ap.add_argument("--etf-alert", action="store_true", help="每日 ETF 持股變化摘要（週一到五 20:00；加 --preview 立刻發預覽）")
     ap.add_argument("--broker-alert", action="store_true", help="重點分點當日買賣超 ≥ 5000 萬（週一到五 20:00；加 --preview 立刻發預覽）")
+    ap.add_argument("--active-alert", action="store_true", help="主動 ETF 停損＋融資斷頭（週一到五晚上；加 --preview 立刻發預覽）")
     ap.add_argument("--g85-alert", action="store_true", help="85g 當沖標的（週一到五 08:30；加 --preview 立刻發預覽）")
     ap.add_argument("--morning", action="store_true", help="盤前快報：台指期夜盤、美股主要指數、類股龍頭與台股預估（08:00 發）")
     ap.add_argument("--preview", action="store_true", help="不管有沒有推過，把每日戰報、策略、高週轉三張卡片各發一次（測試排版用）")
@@ -1208,6 +1302,8 @@ def main():
         return turnover_alert(a.dry_run)
     if a.broker_alert:
         return broker_alert(a.dry_run, force=a.preview)
+    if a.active_alert:
+        return active_alert(a.dry_run, force=a.preview)
     if a.g85_alert:
         return g85_alert(a.dry_run, force=a.preview)
     if a.morning:

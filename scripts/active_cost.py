@@ -8,7 +8,7 @@
   不能查歷史的投信（富邦、凱基、台新、永豐、聯博）只能從網站開始抓持股那天起算，成本偏向近期價位
 價格：Yahoo Finance 日收盤（含分割、減資調整，和現在的股價同一基準）
 
-輸出 {"asof", "etfs": {代號: {"name", "issuer", "dated", "start", "rows": [[股票, 名稱, 股數, 平均成本, 建倉日, 建倉價, 權重, 5 日前股數, 20 日前股數]]}}}
+輸出 {"asof", "etfs": {代號: {"name", "issuer", "dated", "start", "rows": [[股票, 名稱, 股數, 平均成本, 建倉日, 建倉價, 權重, 5 日前股數, 20 日前股數, 前一天股數]], "closed": [[股票, 名稱, 前一天股數, 平均成本]]（最新一天出清的）}}}
 每日原始持股存在 --cache（GitHub Actions cache），再跑只補新的日子
 用法：python scripts/active_cost.py [--cache 目錄] [--yahoo 目錄] [--minutes 120] [代號 ...]
 """
@@ -101,8 +101,10 @@ def replay(snaps: dict[str, list], px: dict[str, list]) -> list:
     dates = sorted(snaps)
     pos: dict[str, list] = {}   # 股票 → [股數, 平均成本, 建倉日, 建倉價]
     hist: dict[str, dict[str, int]] = defaultdict(dict)
+    closed, names = [], {}
     for ds in dates:
         now = {r[0]: r[2] for r in snaps[ds]}
+        names.update({r[0]: r[1] for r in snaps[ds]})
         for c in set(pos) | set(now):
             sh = now.get(c, 0)
             hist[c][ds] = sh
@@ -116,6 +118,8 @@ def replay(snaps: dict[str, list], px: dict[str, list]) -> list:
                 continue
             if sh > st[0]:
                 st[1] = (st[1] * st[0] + p * (sh - st[0])) / sh
+            if sh <= 0 and ds == dates[-1]:
+                closed.append([c, names.get(c, c), st[0], round(st[1], 3)])  # 最新一天整個出清的部位
             st[0] = sh
             if sh <= 0:
                 pos.pop(c)
@@ -126,8 +130,8 @@ def replay(snaps: dict[str, list], px: dict[str, list]) -> list:
         st = pos.get(c)
         if not st or sh <= 0:
             continue
-        rows.append([c, name, sh, round(st[1], 3), st[2], round(st[3], 2), w, back(5, c), back(20, c)])
-    return rows
+        rows.append([c, name, sh, round(st[1], 3), st[2], round(st[3], 2), w, back(5, c), back(20, c), back(1, c)])
+    return rows, closed
 
 
 def main():
@@ -174,10 +178,10 @@ def main():
         # 台股部位太少的（海外主動式）不算
         if not snaps or len(snaps[max(snaps)]) < 5:
             continue
-        rows = replay(snaps, px)
+        rows, closed = replay(snaps, px)
         if rows:
             etfs[code] = {"name": name, "issuer": S.SOURCES[issuer][0], "dated": issuer in S.DATED_SOURCES,
-                          "start": min(snaps), "asof": max(snaps), "days": len(snaps), "rows": rows}
+                          "start": min(snaps), "asof": max(snaps), "days": len(snaps), "rows": rows, "closed": closed}
     write_json(ETF_DIR / "active_cost.json", {"updatedAt": datetime.now(S.TPE).isoformat(timespec="minutes"), "etfs": etfs})
     log(f"主動式 ETF 建倉成本：{len(etfs)} 檔、{sum(len(e['rows']) for e in etfs.values())} 個部位")
     return 0
