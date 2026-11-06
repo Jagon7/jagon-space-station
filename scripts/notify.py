@@ -1305,7 +1305,7 @@ def rebalance_alert(dry: bool, force: bool = False) -> int:
             url=f"{SITE}/etf-flow/?tab=predict", button="開啟換股預估")
     for d in docs:
         code = d["etf"]
-        title = f"{code} {REBAL_NAMES.get(code, '')}"
+        title = f"{code} {REBAL_NAMES.get(code, '')}" + (f"（{d['review']}定審）" if d.get("review") else "")
         if not d.get("ready", True):
             m.section(title, "資料補齊中")
             m.line("缺：" + "、".join(d.get("missing") or []), color=FLAT)

@@ -295,3 +295,63 @@ def _read_csv_map(path, conv):
                 except (ValueError, IndexError):
                     pass
     return out
+
+
+def may_extras(pub: "Public", b: dict, Y: int) -> dict:
+    """
+    00919 5 月定審需要的額外欄位（原表 6 月版「估」「毛利率估EPS」「股利頻率」「最近一次除息日」「配息」）：
+      payout       {代號: {年度: 現金股利 ÷ 全年 EPS ×100}}（配發率 %）
+      eps_annual   {代號: {年度: 全年 EPS}}
+      net_margin_avg 近 12 季單季稅後淨利率平均
+      shares_k     發行股數（千股）
+      freq         配息頻率：近兩年有第 1／3 季股利 → 每季；有上半年（Q2）→ 每半年；否則每年
+                   （原表用公開資訊觀測站公司基本資料的「盈餘分派頻率」，這裡由股利紀錄推得）
+      last_exdiv   最近一次（含已公告未來）除息日
+      quarterly_zero 季配息且今年第 1 季現金股利為 0
+    """
+    cum = pub.fin_cum()
+    basic = pub.basic()
+    b["shares_k"] = {c: (v.get("sh") or 0) / 1000 for c, v in basic.items() if v.get("sh")}
+    b["eps_annual"], b["payout"] = defaultdict(dict), defaultdict(dict)
+    for y in range(Y - 4, Y):
+        for c, v in cum.get(f"{y}Q4", {}).items():
+            if v.get("eps") is not None:
+                b["eps_annual"][c][y] = v["eps"]
+    for c, d in b["div"].items():
+        for y in range(Y - 4, Y):
+            cash = [x for (yy, _q), x in d.items() if yy == y]
+            e = b["eps_annual"].get(c, {}).get(y)
+            if cash and e and e > 0:
+                b["payout"][c][y] = sum(cash) / e * 100
+    # 單季稅後淨利率（data/fund/income：[名稱, 市場, 營收, 毛利, 營業利益, 稅前, 母公司淨利, EPS]，累計數）
+    rev_cum = {}
+    for p in (pub.d / "fund" / "income").glob("20*Q*.json"):
+        rev_cum[p.stem] = {c: v[2] for c, v in _read(p, {}).items() if v[2]}
+    ni_cum = {q: {c: v.get("ni") for c, v in doc.items()} for q, doc in cum.items()}
+    margins = defaultdict(list)
+    for y in range(Y - 3, Y):
+        for n in range(1, 5):
+            q, pq = f"{y}Q{n}", f"{y}Q{n - 1}"
+            for c, r in rev_cum.get(q, {}).items():
+                ni = (ni_cum.get(q) or {}).get(c)
+                if ni is None:
+                    continue
+                if n > 1:
+                    r0, n0 = rev_cum.get(pq, {}).get(c), (ni_cum.get(pq) or {}).get(c)
+                    if r0 is None or n0 is None:
+                        continue
+                    r, ni = r - r0, ni - n0
+                if r:
+                    margins[c].append(ni / r)
+    b["net_margin_avg"] = {c: sum(v) / len(v) for c, v in margins.items() if v}
+    b["fin_selfreport_eps"] = {}
+    b["freq"] = {}
+    for c in b["universe"]:
+        qs = {q for (y, q) in b["div"].get(c, {}) if y >= Y - 2}
+        b["freq"][c] = "每季" if ({"Q1", "Q3"} & qs) else ("每半年" if "Q2" in qs else "每年")
+    b["last_exdiv"] = {}
+    for c, evs in pub.exdiv_dates().items():
+        b["last_exdiv"][c] = max(e[0] for e in evs)
+    b["quarterly_zero"] = {c for c in b["universe"] if b["freq"].get(c) == "每季"
+                           and b["div"].get(c, {}).get((Y, "Q1")) == 0}
+    return b

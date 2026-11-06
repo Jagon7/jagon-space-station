@@ -376,11 +376,160 @@ def ci_(col):
     return column_index_from_string(col)
 
 
+def load_919_may(path: str):
+    """919 6 月（5 月定審）範本的原始資料 → bundle。"""
+    wb = CalamineWorkbook.from_path(path)
+    b = {"names": {}, "close": {}, "mcap": {}, "insider": {}, "tv6m_avg": {}, "tv1m_avg": {}, "tv6m_median": {},
+         "turnover1": {}, "ni": {}, "equity": {}, "eps": {}, "rev": {}, "div": {}, "etf": {}, "payout": {},
+         "eps_annual": {}, "net_margin_avg": {}, "shares_k": {}, "fin_selfreport_eps": {}, "freq": {},
+         "last_exdiv": {}, "quarterly_zero": set()}
+    px = _sheet(wb, "股價")
+    b["asof"] = str(px[1][1])[:10]
+    Y = int(b["asof"][:4])
+    b["universe"] = [_code(r[8]) for r in px[2:] if len(r) > 8 and r[8] not in ("", None)]
+    for r in px[2:]:
+        if r[0]:
+            k = _code(r[0])
+            b["names"][k] = _name(r[0])
+            b["close"][k] = _num(r[1])
+            b["mcap"][k] = _num(r[2])
+    for sh in ("FIF (2)", "FIF (1)"):            # FIF(1) 優先
+        for r in _sheet(wb, sh):
+            if r and r[0] and _num(r[1]) is not None:
+                b["insider"][_code(r[0])] = _num(r[1])
+    for r in _sheet(wb, "成交值")[2:]:
+        if r[0]:
+            k = _code(r[0])
+            b["tv6m_avg"][k] = _num(r[1])
+            d, tot = _num(r[3]), _num(r[4])
+            b["tv1m_avg"][k] = tot / d if (d and tot is not None) else None
+            b["tv6m_median"][k] = _num(r[126]) if len(r) > 126 else None
+    for r in _sheet(wb, "換手量")[2:]:
+        if r[0]:
+            b["turnover1"][_code(r[0])] = _num(r[3])
+    roe = _sheet(wb, "ROE")
+    qs = [_qkey(d) for d in roe[1][1:5]]
+    for r in roe[2:]:
+        if r[0]:
+            k = _code(r[0])
+            b["ni"][k] = {q: _num(v) for q, v in zip(qs, r[1:5]) if _num(v) is not None}
+            b["equity"][k] = {q: _num(v) for q, v in zip(qs, r[5:9]) if _num(v) is not None}
+    eps = _sheet(wb, "EPS")
+    eq = [_qkey(d) for d in eps[1][1:13]]
+    for r in eps[2:]:
+        if r[0]:
+            b["eps"][_code(r[0])] = {q: _num(v) for q, v in zip(eq, r[1:13]) if _num(v) is not None}
+    mr = _sheet(wb, "月營收估EPS")
+    months = [str(d)[:7] for d in mr[1][1:25]]
+    for r in mr[2:]:
+        if r[0]:
+            b["rev"][_code(r[0])] = {m: _num(v) for m, v in zip(months, r[1:25]) if _num(v) is not None}
+    for r in _sheet(wb, "估")[2:]:
+        if r[0]:
+            k = _code(r[0])
+            b["payout"][k] = {y: _num(v) for y, v in zip((Y - 1, Y - 2, Y - 3), r[2:5]) if _num(v) is not None}
+            if _num(r[5]) is not None:
+                b["eps_annual"][k] = {Y - 1: _num(r[5])}
+    for r in _sheet(wb, "毛利率估EPS")[2:]:
+        if r[0]:
+            k = _code(r[0])
+            m = [_num(x) for x in r[1:13] if _num(x) is not None]
+            if m:
+                b["net_margin_avg"][k] = sum(m) / len(m) / 100
+            b["shares_k"][k] = _num(r[13])
+    for r in _sheet(wb, "金融股累積自結")[1:]:
+        if r[0] and _num(r[5]) is not None:
+            b["fin_selfreport_eps"][str(r[0]).split(".")[0]] = _num(r[5])
+    dv = _sheet(wb, "現金股利_平攤")
+    slots = [(Y - 1, "Q1"), (Y - 2, "Q1"), (Y - 1, "Q2"), (Y - 2, "Q2"), (Y - 1, "Q3"), (Y - 2, "Q3"), (Y - 1, "Q4"),
+             (Y - 2, "Q4"), (Y, "Q1")]
+    for r in dv[2:]:
+        if r[0]:
+            b["div"][_code(r[0])] = {s: _num(v) for s, v in zip(slots, r[1:10]) if _num(v) is not None}
+    for r in _sheet(wb, "股利頻率")[1:]:
+        if len(r) > 12 and r[11]:
+            b["freq"][_code(r[11])] = r[12]
+    for r in _sheet(wb, "最近一次除息日")[2:]:
+        if r[0] and r[1] not in ("", None):
+            b["last_exdiv"][_code(r[0])] = str(r[1])[:10]
+    for r in _sheet(wb, "配息")[1:]:
+        if len(r) > 26 and r[26] not in ("", None) and str(r[26]).strip()[:1].isdigit():
+            b["quarterly_zero"].add(_code(r[26]))
+    w = _sheet(wb, "919原始權重")
+    b["etf"]["00919"] = {"weights": {_code(r[3]): _num(r[7]) for r in w[1:] if r[2] == "股票" and _num(r[7]) is not None},
+                         "aum": _num(_sheet(wb, "工作表1")[2][1])}
+    full = _sheet(wb, "919條件篩選(全版)")
+    cfg = {"year": Y, "eff_date": str(full[5][29])[:10], "exdiv_after": str(full[7][29])[:10]}
+    return b, cfg, wb
+
+
+def check_919_may(path: str):
+    from . import etf919
+    b, cfg, wb = load_919_may(path)
+    s = _sheet(wb, "919條件篩選")
+    excl = [_code(x) for x in ("5009 榮剛", "4766 南寶", "1102 亞泥")]   # 原表 AE 欄人工排除
+    # 原表 6 月：預擬規模 5750 億、股利率第一段寬 0.3%、重分配 6 輪
+    res = etf919.compute_may(b, {**cfg, "aum_plan": 575000000, "official": False, "exclude": excl, "band_first": 0.003})
+    bad = 0
+    full = _sheet(wb, "919條件篩選(全版)")
+    cnt = {"股利率": 0, "除息條件": 0, "ROE": 0}
+    tot = 0
+    for r in full[1:]:
+        if not r[0]:
+            continue
+        k = _code(r[0])
+        u = res["universe"].get(k)
+        if not u:
+            continue
+        tot += 1
+        for key, mine, t in (("股利率", u["yield"], _num(r[19])), ("除息條件", u["div_ok"], _num(r[26])),
+                             ("ROE", u["roe"], _num(r[12]))):
+            if t is None and mine in (None, 0.0):
+                continue
+            if t is None or mine is None or abs(mine - t) > 1e-9 * max(1, abs(t)):
+                cnt[key] += 1
+                if cnt[key] <= 5:
+                    print(f"  ✗ {k} {key}: 公開版={mine} 試算表={t}")
+    print(f"919條件篩選(全版)：{tot} 檔；不同 {cnt}")
+    bad += sum(cnt.values())
+    t_rank = [_code(r[33]) for r in s[1:] if len(r) > 33 and r[33] not in ("", None)]
+    mine = [x["code"] for x in res["ranked"]]
+    same = t_rank == mine[:len(t_rank)]
+    print(f"股利率排序：試算表 {len(t_rank)} 檔、公開版 {len(mine)} 檔，{'完全相同' if same else '不同'}")
+    if not same:
+        for i, (a, c) in enumerate(zip(mine, t_rank)):
+            if a != c:
+                print(f"   第 {i + 1} 名：公開版 {a}，試算表 {c}")
+                break
+        bad += 1
+    from openpyxl.utils import column_index_from_string as ci
+    t_add = {_code(r[ci("BU") - 1]) for r in s[1:] if len(r) >= ci("BU") and r[ci("BU") - 1]}
+    t_del = {_code(r[ci("BV") - 1]) for r in s[1:] if len(r) >= ci("BV") and r[ci("BV") - 1]}
+    print(f"納入：只在試算表 {sorted(t_add - set(res['add']))}，只在公開版 {sorted(set(res['add']) - t_add)}（共 {len(res['add'])} 檔）")
+    print(f"剔除：只在試算表 {sorted(t_del - set(res['del']))}，只在公開版 {sorted(set(res['del']) - t_del)}（共 {len(res['del'])} 檔）")
+    for x in res["notes"]:
+        print("   ", x)
+    bad += len(t_add ^ set(res["add"])) + len(t_del ^ set(res["del"]))
+    wsh = _sheet(wb, "權重")
+    tw = {_code(r[0]): _num(r[3]) for r in wsh[1:41] if r[0]}
+    nbw = 0
+    for k, v in tw.items():
+        m = res["weights"]["final"].get(k)
+        if m is None or abs(m - v) > 1e-9:
+            nbw += 1
+            if nbw <= 5:
+                print(f"  ✗ 權重 {k}: 公開版={m} 試算表={v}")
+    print(f"預估權重：{len(tw)} 檔，{nbw} 檔不同；合計 {res['weights']['sum']:.6f}")
+    return bad + nbw
+
+
 if __name__ == "__main__":
     which, path = sys.argv[1], sys.argv[2]
     if which == "919":
         sys.exit(1 if check_919(path) else 0)
     if which == "ftse":
         sys.exit(1 if check_ftse(path) else 0)
+    if which == "919may":
+        sys.exit(1 if check_919_may(path) else 0)
     if which == "929":
         sys.exit(1 if check_929(path) else 0)
