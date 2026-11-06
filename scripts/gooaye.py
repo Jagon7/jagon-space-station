@@ -2,11 +2,11 @@
 """
 股癌（Gooaye）每集重點 → LINE
 
-流程：抓 SoundOn RSS 最新一集 → 沒發過就下載音檔 → faster-whisper 語音轉文字 → Claude 整理重點與提到的個股
+流程：抓 SoundOn RSS 最新一集 → 沒發過就下載音檔 → faster-whisper 語音轉文字 → AI 整理重點與提到的個股（Claude 有額度就用，否則用免費的 GitHub Models）
      → 台股個股對照網站的融資維持率、主動 ETF DD → LINE 卡片；重點存在 data/gooaye/<集數>.json（逐字稿不存）
 發過的集數記在 data/notify/gooaye-sent.json
 用法：python scripts/gooaye.py [--preview]（不管有沒有發過，重做最新一集並發預覽、不記錄）[--dry-run]
-需要：pip install faster-whisper anthropic requests imageio-ffmpeg（或系統有 ffmpeg）；環境變數 ANTHROPIC_API_KEY
+需要：pip install faster-whisper anthropic requests imageio-ffmpeg（或系統有 ffmpeg）；環境變數 ANTHROPIC_API_KEY 或 GITHUB_TOKEN（Actions 內建，需 permissions: models: read）
 """
 from __future__ import annotations
 
@@ -35,6 +35,7 @@ FEED = "https://feeds.soundon.fm/podcasts/954689a5-3096-43a4-a80b-7810b219cef3.x
 APPLE = "https://podcasts.apple.com/tw/podcast/gooaye-%E8%82%A1%E7%99%8C/id1500839292"
 STATE = DATA / "notify" / "gooaye-sent.json"
 OUT = DATA / "gooaye"
+TX_CACHE = Path.home() / ".cache" / "gooaye"
 MODEL = os.environ.get("GOOAYE_MODEL", "claude-sonnet-5-5")
 WHISPER = os.environ.get("GOOAYE_WHISPER", "small")
 PROMPT_HINT = "以下是台股、美股投資節目《股癌》的繁體中文逐字稿：台積電、輝達、聯發科、融資、ETF、財報、法說會、本益比。"
@@ -105,18 +106,94 @@ ASK = """以下是投資 Podcast《股癌》{ep}（{date}）的語音辨識逐�
 {text}"""
 
 
-def summarize(ep: dict, text: str) -> dict:
-    import anthropic
-    client = anthropic.Anthropic()
-    resp = client.messages.create(model=MODEL, max_tokens=4000, system=SYSTEM,
-                                  messages=[{"role": "user", "content": ASK.format(ep=ep["ep"], date=ep["date"], text=text)}])
-    out = resp.content[0].text.strip()
+def parse_json(out: str) -> dict:
     for cand in (out, re.sub(r"```(?:json)?\s*|\s*```", "", out), (re.search(r"\{[\s\S]+\}", out) or [None])[0]):
         try:
             return json.loads(cand)
         except (TypeError, ValueError):
             continue
-    raise RuntimeError(f"Claude 回傳無法解析：{out[:300]}")
+    raise RuntimeError(f"AI 回傳無法解析：{out[:300]}")
+
+
+def claude(ep: dict, text: str) -> dict:
+    import anthropic
+    resp = anthropic.Anthropic().messages.create(model=MODEL, max_tokens=4000, system=SYSTEM,
+                                                 messages=[{"role": "user", "content": ASK.format(ep=ep["ep"], date=ep["date"], text=text)}])
+    return parse_json(resp.content[0].text.strip())
+
+
+GH_URL = "https://models.github.ai/inference/chat/completions"
+GH_MODELS = ["openai/gpt-4.1", "openai/gpt-4.1-mini"]
+CHUNK = 4500  # GitHub Models 免費額度每次請求約 8000 tokens，逐字稿切段
+PART = """以下是投資 Podcast《股癌》{ep} 逐字稿的第 {i}/{n} 段（語音辨識有錯字，請依上下文修正股票名稱與英文術語；業配廣告不要整理）。
+把這一段的重點整理成 JSON（繁體中文，沒有的欄位給空陣列）：
+{{"market": ["盤勢觀點"], "strategy": ["操作策略、部位、心態"], "stocks": [{{"name": "", "code": "台股代號或美股 ticker", "market": "台股或美股", "stance": "看多／偏多／中性／偏空／看空／僅提及", "why": "理由，保留數字"}}],
+ "themes": ["產業主題觀點"], "qa": ["聽眾問答：問題與回答"], "life": "生活閒聊一句話"}}
+
+逐字稿片段：
+{text}"""
+MERGE = """以下是投資 Podcast《股癌》{ep}（{date}）各段逐字稿整理出的重點（JSON 陣列，依節目順序）。請合併、去除重複，整理成最終版本，全部用繁體中文：
+{{
+  "headline": "一句話總結本集最重要的觀點（30 字內）",
+  "market": ["盤勢觀點，3～5 點，每點 40 字內，保留具體數字"],
+  "strategy": ["操作策略、部位與心態，2～4 點，每點 40 字內"],
+  "stocks": [{{"name": "", "code": "", "market": "台股或美股", "stance": "看多／偏多／中性／偏空／看空／僅提及", "why": "40 字內"}}],
+  "themes": ["產業或主題觀點，2～4 點，每點 40 字內"],
+  "qa": ["聽眾問答重點，每題一句，最多 4 題"],
+  "life": "開頭生活閒聊一句話（20 字內）"
+}}
+個股只留真的有討論的，同一檔合併，依討論份量排序，最多 10 檔，台股代號請填正確。
+
+各段重點：
+{parts}"""
+
+
+def gh_chat(prompt: str) -> dict:
+    tok = os.environ.get("GITHUB_TOKEN")
+    if not tok:
+        raise RuntimeError("沒有 GITHUB_TOKEN")
+    last = None
+    for model in GH_MODELS:
+        for attempt in range(3):
+            r = requests.post(GH_URL, timeout=180, headers={"Authorization": f"Bearer {tok}", "Accept": "application/vnd.github+json",
+                                                            "X-GitHub-Api-Version": "2022-11-28", "Content-Type": "application/json"},
+                              json={"model": model, "max_tokens": 3000, "temperature": 0.2, "response_format": {"type": "json_object"},
+                                    "messages": [{"role": "system", "content": SYSTEM}, {"role": "user", "content": prompt}]})
+            if r.status_code == 200:
+                return parse_json(r.json()["choices"][0]["message"]["content"])
+            last = f"{model} {r.status_code} {r.text[:200]}"
+            log("GitHub Models 失敗：", last)
+            if r.status_code == 429:
+                time.sleep(min(int(r.headers.get("retry-after", "30") or 30), 90))
+            elif r.status_code in (400, 401, 403, 404, 413):
+                break
+            else:
+                time.sleep(10)
+    raise RuntimeError(f"GitHub Models 都失敗：{last}")
+
+
+def github_models(ep: dict, text: str) -> dict:
+    """免費的 GitHub Models：逐字稿切段各自整理，再合併"""
+    chunks = [text[i:i + CHUNK] for i in range(0, len(text), CHUNK)]
+    parts = []
+    for i, c in enumerate(chunks, 1):
+        log(f"整理第 {i}/{len(chunks)} 段")
+        parts.append(gh_chat(PART.format(ep=ep["ep"], i=i, n=len(chunks), text=c)))
+    return gh_chat(MERGE.format(ep=ep["ep"], date=ep["date"], parts=json.dumps(parts, ensure_ascii=False)))
+
+
+def summarize(ep: dict, text: str) -> dict:
+    """優先用 Claude（有 ANTHROPIC_API_KEY 且有額度），失敗就改用免費的 GitHub Models"""
+    if os.environ.get("ANTHROPIC_API_KEY"):
+        try:
+            s = claude(ep, text)
+            s["by"] = "Claude"
+            return s
+        except Exception as e:  # noqa: BLE001
+            log("Claude 失敗，改用 GitHub Models：", str(e)[:200])
+    s = github_models(ep, text)
+    s["by"] = "GitHub Models"
+    return s
 
 
 def tw_context() -> tuple[dict, dict, dict]:
@@ -178,7 +255,7 @@ def compose(ep: dict, s: dict, preview: bool) -> Msg:
         m.section("聽眾 QA")
         for x in s["qa"]:
             m.line(f"・{x}")
-    m.note("AI 依節目語音轉文字後整理，可能有辨識錯誤；為主持人個人觀點，非投資建議。台股附上網站的推估融資維持率與主動 ETF 套牢狀況")
+    m.note(f"{s.get('by') or 'AI'} 依節目語音轉文字後整理，可能有辨識錯誤；為主持人個人觀點，非投資建議。台股附上網站的推估融資維持率與主動 ETF 套牢狀況")
     return m
 
 
@@ -199,10 +276,15 @@ def main():
     cache = OUT / f"{ep['ep']}.json"
     doc = json.loads(cache.read_text(encoding="utf-8")) if cache.exists() else None
     if not doc or doc.get("guid") != ep["guid"]:
-        if not os.environ.get("ANTHROPIC_API_KEY"):
-            log("沒有設定 ANTHROPIC_API_KEY，無法整理重點")
-            return 1
-        text = transcribe(ep["audio"])
+        # 逐字稿暫存在 Actions cache（不進 repo），AI 整理失敗重跑時不用再轉一次
+        tx = TX_CACHE / f"{ep['guid']}.txt"
+        if tx.exists():
+            text = tx.read_text(encoding="utf-8")
+            log(f"用暫存的逐字稿：{len(text)} 字")
+        else:
+            text = transcribe(ep["audio"])
+            TX_CACHE.mkdir(parents=True, exist_ok=True)
+            tx.write_text(text, encoding="utf-8")
         s = summarize(ep, text)
         doc = {**{k: ep[k] for k in ("guid", "ep", "title", "date", "time", "minutes", "link")}, "summary": s}
         OUT.mkdir(parents=True, exist_ok=True)
