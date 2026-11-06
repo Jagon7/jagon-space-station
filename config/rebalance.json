@@ -1,0 +1,27 @@
+{
+  "_說明": "ETF 換股預估參數（每次審核前更新日期與預擬規模）。manual 可以人工覆寫最終納入／剔除，例如 {\"add\": [\"2330\"], \"del\": [\"3231\"]}；留空就用程式規則。",
+  "00919": {
+    "year": 2026,
+    "aum_plan": 750000000,
+    "max_changes": 8,
+    "manual": {}
+  },
+  "ftse": {
+    "calc_date": "2026-11-23",
+    "prev_calc": "2026-08-24",
+    "listing_cutoff": "2026-10-22",
+    "liq_end": "2026-02",
+    "usd_twd": 32.954,
+    "aum_plan_56": 975000000,
+    "ibes_csv": "config/rebalance/ibes.csv",
+    "iw_csv": "config/rebalance/ftse_iw.csv"
+  },
+  "00929": {
+    "year": 2026,
+    "cutoff": "2026-12-09",
+    "prev_cutoff": "2025-12-09",
+    "prev2_cutoff": "2024-12-10",
+    "aum_plan": 175000000,
+    "manual": {}
+  }
+}
