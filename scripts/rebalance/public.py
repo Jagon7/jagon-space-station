@@ -127,7 +127,7 @@ class Public:
                     out[c][p.stem] = v[3]
         return out
 
-    def dividends(self) -> dict:
+    def dividends(self, cur_year: int | None = None) -> dict:
         """
         {代號: {(所屬年度, 'Q1'..'Q4'): 每股現金股利}}。
         同一期別常有兩則公告：除息（現金）和除權（股票，現金欄 0），要分開看；
@@ -140,11 +140,29 @@ class Public:
                 seen.add(k)
                 if (cash or exd) and (k not in cash_ann or (ann or "") >= cash_ann[k][1]):
                     cash_ann[k] = (cash or 0.0, ann or "")
+        # 興櫃時期的除權息公告（上市櫃前）：上市櫃公告沒有的期別才補
+        for p in sorted((self.raw / "div_rotc").glob("20*.json")):
+            for c, y, q, cash, _stock, exd, _exr, ann, *_ in _read(p, []):
+                k = (c, y, q)
+                if k in seen:
+                    continue
+                if (cash or exd) and (k not in cash_ann or (ann or "") >= cash_ann[k][1]):
+                    cash_ann[k] = (cash or 0.0, ann or "")
+        seen |= {(r[0], r[1], r[2]) for p in (self.raw / "div_rotc").glob("20*.json") for r in _read(p, [])}
         latest = {k: v for k, v in cash_ann.items()}
         for k in seen - set(latest):            # 只有配股、沒有現金
             latest[k] = (0.0, "")
+        # 董事會決議現金 0（決議該期不配息）：TEJ 只有「今年以前」的年度記 0，今年的還是空白
+        #   （原表：2382 廣達 2025 Q2＝0、2026 Q2 空白；1102 亞泥 2025 Q1～Q3＝0、2026 Q1～Q2 空白；3260 威剛 2025 Q2＝0）。
+        # 今年的 0 記進去會讓「現金股利_平攤」的 COUNTA 把年度股利拆成兩半（2382 近四季股利 15.6 → 7.8）
+        if cur_year is None:
+            cur_year = date.today().year
+
+        def keep(y, cash):
+            return bool(cash and cash > 0) or y < cur_year
         for c, y, q, cash, *_ in _read(self.raw / "div_board.json", []):
-            latest.setdefault((c, y, q), (cash, ""))
+            if keep(y, cash):
+                latest.setdefault((c, y, q), (cash, ""))
         # 上櫃：股利分派情形（董事會已決議、還沒有除息公告的期別才補；同期別多筆取董事會日最晚的）
         otc = {}
         for ent in _read(self.raw / "div_board_otc.json", {}).values():
@@ -153,7 +171,8 @@ class Public:
                 if k not in otc or str(board) >= otc[k][1]:
                     otc[k] = (cash, str(board))
         for k, (cash, _) in otc.items():
-            latest.setdefault(k, (cash, ""))
+            if keep(k[1], cash):
+                latest.setdefault(k, (cash, ""))
         out = defaultdict(dict)
         for (c, y, q), (cash, _) in latest.items():
             out[c][(y, q)] = cash
@@ -237,7 +256,7 @@ class Public:
             "asof": asof, "names": names, "universe": universe, "close": close, "mcap": mcap,
             "insider": self.latest_insider(), "tv6m_avg": tv6, "tv1m_avg": tv1, "tv6m_median": med6,
             "turnover1": turnover1, "ni": dict(ni), "equity": dict(equity), "eps": dict(eps),
-            "rev": dict(self.revenue()), "div": dict(self.dividends()),
+            "rev": dict(self.revenue()), "div": dict(self.dividends(a.year)),
             "etf": {e: self.etf(e) for e in etfs}, "windows": {"6m": [win6[0], win6[-1], len(win6)],
                                                                  "1m": [win1[0], win1[-1], len(win1)]},
         }

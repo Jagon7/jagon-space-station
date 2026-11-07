@@ -18,6 +18,7 @@ ETF 換股預估（0050／0051／0056／00919／00929）需要的公開資料，
                         來源：公開資訊觀測站 t163sb04／t163sb05（彙總報表）＋ OpenAPI 當季最新財報
                         （財報季每天都有公司新公布，每天重抓 OpenAPI 合併進去）
   div/<YYYY>.json        除權息公告（依股利所屬期間）：公開資訊觀測站 t108sb27
+  div_rotc/<YYYY>.json   同上，興櫃公司（上市櫃前的股利，00929 近 5 年股利用）
   div_board.json         董事會已決議、還沒除息的股利（上市）：OpenAPI t187ap45_L
   div_board_otc.json     董事會已決議的股利（上櫃，市值 ≥ 50 億＋00919／00929 成分股）：公開資訊觀測站「股利分派情形」
                          t05st09_2 逐家查，每家 3 天重查一次 {代號: {"t": 查詢日, "r": [[代號, 所屬年度, 季別, 現金, 進度, 董事會日, 期間原文]]}}
@@ -26,7 +27,7 @@ ETF 換股預估（0050／0051／0056／00919／00929）需要的公開資料，
 月營收沿用 fetch_fundamentals.py 的 data/fund/revenue，ETF 持股與規模沿用 fetch_etf.py 的 data/etf。
   daytrade/<日期>.json   當沖成交股數（證交所 TWTB4U、櫃買 intraday/stat）；沒有時沿用 data/strategy/daytrade.json
 
-用法：python scripts/fetch_rebalance.py [--minutes 25] [px basic insider foreign fin div div_board_otc pe]
+用法：python scripts/fetch_rebalance.py [--minutes 25] [px basic insider foreign fin div div_board_otc div_rotc pe]
 """
 from __future__ import annotations
 
@@ -528,6 +529,45 @@ def roc_date(s: str) -> str | None:
     return f"{int(m.group(1)) + 1911}-{int(m.group(2)):02d}-{int(m.group(3)):02d}"
 
 
+def _parse_t108sb27(page: str) -> list:
+    out = []
+    for t in tables(page):
+        for head, c in t:
+            if len(c) < 15 or not is_stock(c[0]):
+                continue
+            p = parse_period(c[2])
+            if not p:
+                continue
+            # 欄位：0 代號 1 名稱 2 股利所屬期間 3 基準日 4 盈餘轉增資配股 5 公積轉增資配股 6 除權交易日
+            #       7 盈餘分配現金股利 8 公積發放現金 9 特別股現金股利 10 除息交易日 11 發放日 … 16 公告日期
+            cash = (num(c[7]) or 0) + (num(c[8]) or 0)
+            stock = (num(c[4]) or 0) + (num(c[5]) or 0)
+            # [代號, 所屬年度, 所屬季別, 現金股利, 股票股利, 除息日, 除權日, 公告日, 股利所屬期間原文]
+            out.append([c[0], p[0], p[1], cash, stock, roc_date(c[10]), roc_date(c[6]), roc_date(c[16]), c[2]])
+    return out
+
+
+def div_rotc():
+    """
+    興櫃公司的除權息公告（div_rotc/<YYYY>.json，格式同 div/）。TEJ 的股利資料包含上市櫃前（興櫃時期）的年度，
+    00929「近5年股利變異係數」會用到（例：7711 永擎 2025/11 上市，原表有 2023～2025 三年股利）。
+    """
+    this = datetime.now(TPE).year
+    for y in range(this, this - DIV_YEARS, -1):
+        path = OUT / "div_rotc" / f"{y}.json"
+        if path.exists() and y < this - 1 or late() or "mops" in BLOCKED:
+            continue
+        page = mops("ajax_t108sb27", {"TYPEK": "rotc", "year": str(y - 1911), "qryType": "1"})
+        if page is None:
+            continue
+        doc = _parse_t108sb27(page)
+        if doc:
+            write_json(path, doc)
+            log(f"除權息公告（興櫃）{y}：{len(doc)} 筆")
+        else:
+            log(f"除權息公告（興櫃）{y}：沒有解析到資料，原始內容：{clean(page)[:300]}")
+
+
 _DIV_DONE: set[int] = set()   # 本次執行已更新的年度（避免重抓）
 
 
@@ -546,19 +586,7 @@ def div(recent_only: bool = False):
             if page is None:
                 ok = False
                 break
-            for t in tables(page):
-                for head, c in t:
-                    if len(c) < 15 or not is_stock(c[0]):
-                        continue
-                    p = parse_period(c[2])
-                    if not p:
-                        continue
-                    # 欄位：0 代號 1 名稱 2 股利所屬期間 3 基準日 4 盈餘轉增資配股 5 公積轉增資配股 6 除權交易日
-                    #       7 盈餘分配現金股利 8 公積發放現金 9 特別股現金股利 10 除息交易日 11 發放日 … 16 公告日期
-                    cash = (num(c[7]) or 0) + (num(c[8]) or 0)
-                    stock = (num(c[4]) or 0) + (num(c[5]) or 0)
-                    # [代號, 所屬年度, 所屬季別, 現金股利, 股票股利, 除息日, 除權日, 公告日, 股利所屬期間原文]
-                    doc.append([c[0], p[0], p[1], cash, stock, roc_date(c[10]), roc_date(c[6]), roc_date(c[16]), c[2]])
+            doc += _parse_t108sb27(page)
         if ok and doc:
             _DIV_DONE.add(y)
             write_json(path, doc)
@@ -791,7 +819,7 @@ JOBS = {
     "px_today": lambda: px(recent=5), "daytrade": daytrade, "foreign": foreign,
     "fin_today": lambda: fin(latest_only=True), "div_today": lambda: div(recent_only=True),
     "div_board_otc": div_board_otc,
-    "px": px, "fin": fin, "div": div, "pe": pe,
+    "px": px, "fin": fin, "div": div, "div_rotc": div_rotc, "pe": pe,
 }
 
 

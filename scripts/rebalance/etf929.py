@@ -77,7 +77,7 @@ def spread_year(q1, q2, q3, q4, current=False):
     return [a, b, c, d]
 
 
-def dividend_metrics(dv: dict, Y: int, p_now, p_prev, p_prev2):
+def dividend_metrics(dv: dict, Y: int, p_now, p_prev, p_prev2, list_year: int | None = None):
     """回傳 (本次股息殖利率, 平均股息殖利率, 近5年股利變異係數, 配息頻率)。dv: {(年度,'Q1'..'Q4'): 現金股利}"""
     g = lambda y, q: dv.get((y, q))  # noqa: E731
     yrs = [Y - i for i in range(6)]
@@ -103,17 +103,23 @@ def dividend_metrics(dv: dict, Y: int, p_now, p_prev, p_prev2):
     # AVERAGE 遇到 #N/A 會錯 → IFERROR 退到前兩個、再退到本次
     if any(is_na(x) for x in (BI, BJ, BK)):
         avg = mean([BI, BJ]) if not (is_na(BI) or is_na(BJ)) else BI
-    # 近 5 年完整年度股利（去年起往前 5 年），至少 3 年有資料
+    # 近 5 年完整年度股利（去年起往前 5 年）：原表 現金股利_OLD BV:BZ／CA／BN:BP
+    #   有資料的年度加總（季別空白當 0）；TEJ 對「有紀錄但沒配息」的年度給 0，公開資料沒有紀錄，
+    #   所以從「第一次出現股利紀錄」或「上市櫃」的年度（取早的）起，之後沒紀錄的年度都當 0 元；
+    #   至少 3 年才算，STDEV.P ÷ AVERAGE
+    first = min((yy for (yy, _q) in dv), default=None)
+    if list_year is not None:          # 上市櫃後沒配息的年度，TEJ 也是 0（例：2498 宏達電 2021～2024）
+        first = list_year if first is None else min(first, list_year)
     ann = []
     for y in range(Y - 1, Y - 6, -1):
         vals = [g(y, q) for q in ("Q1", "Q2", "Q3", "Q4")]
-        ann.append(NA if all(is_na(x) for x in vals) else sum(0 if is_na(x) else x for x in vals))
-    have = [x for x in ann if not is_na(x) and x >= 0]
-    if len(have) < 3:
+        if first is not None and y >= first:
+            ann.append(sum(0 if is_na(x) else x for x in vals))
+    if len(ann) < 3:
         cv = NA
     else:
-        m = sum(have) / len(have)
-        sd = math.sqrt(sum((x - m) ** 2 for x in have) / len(have))
+        m = sum(ann) / len(ann)
+        sd = math.sqrt(sum((x - m) ** 2 for x in ann) / len(ann))
         cv = sd / m if m else NA
     freq = sum(1 for x in (g(Y, "Q1"), g(Y, "Q2"), g(Y - 1, "Q3"), g(Y - 1, "Q4")) if not is_na(x) and x > 0)
     return BI, avg, cv, freq
@@ -155,7 +161,8 @@ def metrics(b: dict, c: dict) -> dict:
             continue
         insd = NA if ins is None else math.floor(ins + 1e-9) / 100   # 原表董監持股% 取到整數百分比（無條件捨去）
         ff = NA if ins is None else 1 - insd
-        bi, avg, cv, freq = dividend_metrics(b["div"].get(k, {}), Y, price, b["px_prev"].get(k), b["px_prev2"].get(k))
+        bi, avg, cv, freq = dividend_metrics(b["div"].get(k, {}), Y, price, b["px_prev"].get(k), b["px_prev2"].get(k),
+                                              (b.get("list_year") or {}).get(k))
         pe5, pe3 = b["pe5"].get(k, NA), b["pe3"].get(k, NA)
         out[k] = {"code": k, "name": b["names"].get(k, ""),
                   "ff_ok": 1 if (ins is not None and insd <= 0.9) else 0,
@@ -292,14 +299,21 @@ def extras(pub, b: dict, c: dict) -> dict:
     c = {**DEFAULT, **(c or {})}
     basic = pub.basic()
     b["alt"] = {k: v.get("alt", 0) for k, v in basic.items()}
+    b["list_year"] = {k: int(v["list"][:4]) for k, v in basic.items() if str(v.get("list", ""))[:4].isdigit()}
     b["universe929"] = sorted(k for k, v in basic.items() if v.get("ind") in INDUSTRIES and v["mk"] in ("TSE", "OTC")
                               and not v["n"].endswith("-創"))
     days = [d for d in pub.px_days() if d <= b["asof"]]
     a = date.fromisoformat(b["asof"])
 
     def window(months):
-        s = add_months(a, -months).isoformat()
-        return [d for d in days if d > s]
+        # TEJ「近12月總成交值」「近3個月平均成交值」：從 (月數−1) 個月前的 1 號起算
+        #   （資料日 2026-11-05 → 12 月：2025-12-01 起 224 天；3 月：2026-09-01 起），與原表逐檔一致；
+        # 「近1月總成交值」則是往回推一個月（2026-10-06 起）
+        if months == 1:
+            s = add_months(a, -1).isoformat()
+            return [d for d in days if d > s]
+        s = add_months(a.replace(day=1), -(months - 1)).isoformat()
+        return [d for d in days if d >= s]
     from collections import defaultdict
     acc = {12: defaultdict(float), 1: defaultdict(float), 3: defaultdict(float)}
     cnt3 = defaultdict(int)

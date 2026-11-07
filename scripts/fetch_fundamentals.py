@@ -131,33 +131,70 @@ def quarters_back(n: int) -> list[tuple[int, int]]:
 
 # ---------- 月營收 ----------
 
+def _revenue_page(mk: str, label: str, y: int, m: int, kind: int) -> dict | None:
+    """kind 0：國內公司；1：國外（KY）公司。抓不到回 None。"""
+    try:
+        page = fetch("GET", f"{OV}nas/t21/{mk}/t21sc03_{y - 1911}_{m}_{kind}.html")
+    except RuntimeError as e:
+        log(f"✗ 月營收 {y}-{m:02d} {mk}{'（國外）' if kind else ''}：{e}")
+        return None
+    doc = {}
+    # 每個產業一張表，表前有「產業別：xxx」
+    for ind, body in re.findall(r"產業別：([^<]+)<.*?<table[^>]*>(.*?)</table>\s*</td>", page, re.S):
+        for tr in re.findall(r"<tr[^>]*>(.*?)</tr>", body, re.S):
+            c = cells(tr)
+            # 代號 名稱 當月 上月 去年當月 …（中間的百分比欄有時少一格）… 當月累計 去年累計 累計增減% 備註
+            if len(c) >= 9 and re.fullmatch(r"\d{4}[A-Z]?", c[0]):
+                note = c[-1] if num(c[-1]) is None and c[-1] != "-" else ""
+                tail = c[:-1] if num(c[-1]) is None else c
+                doc[c[0]] = [c[1], ind.strip(), label, num(c[2]), num(c[4]), num(tail[-3]), num(tail[-2]), note]
+    time.sleep(1)
+    return doc
+
+
 def revenue():
+    # 國外（KY）公司在另一頁（t21sc03_…_1.html）；舊檔只有國內公司的，補抓一次國外頁併進去，補過的月份記在 revenue_ky_done.json
+    ky_path = OUT / "revenue_ky_done.json"   # 不放在 revenue/ 裡（build_fund 會讀 revenue/*.json）
+    ky_done = set(read_json(ky_path, []))
     for i, (y, m) in enumerate(months_back(REV_MONTHS)):
         path = OUT / "revenue" / f"{y}-{m:02d}.json"
-        if path.exists() and i >= 2 or late():
+        key = f"{y}-{m:02d}"
+        if late():
+            break
+        if path.exists() and i >= 2:
+            if key in ky_done:
+                continue
+            doc = read_json(path, {})
+            ok = True
+            for mk, label in MARKETS:
+                part = _revenue_page(mk, label, y, m, 1)
+                if part is None:
+                    ok = False
+                    continue
+                doc.update(part)
+            if ok:
+                write_json(path, doc)
+                ky_done.add(key)
+                write_json(ky_path, sorted(ky_done))
+                log(f"  月營收 {key}：補國外（KY）公司，共 {len(doc)} 家")
             continue
         doc = {}
+        ky_ok = True
         for mk, label in MARKETS:
-            try:
-                page = fetch("GET", f"{OV}nas/t21/{mk}/t21sc03_{y - 1911}_{m}_0.html")
-            except RuntimeError as e:
-                log(f"✗ 月營收 {y}-{m:02d} {mk}：{e}")
-                continue
-            # 每個產業一張表，表前有「產業別：xxx」
-            for ind, body in re.findall(r"產業別：([^<]+)<.*?<table[^>]*>(.*?)</table>\s*</td>", page, re.S):
-                for tr in re.findall(r"<tr[^>]*>(.*?)</tr>", body, re.S):
-                    c = cells(tr)
-                    # 代號 名稱 當月 上月 去年當月 …（中間的百分比欄有時少一格）… 當月累計 去年累計 累計增減% 備註
-                    if len(c) >= 9 and re.fullmatch(r"\d{4}[A-Z]?", c[0]):
-                        note = c[-1] if num(c[-1]) is None and c[-1] != "-" else ""
-                        tail = c[:-1] if num(c[-1]) is None else c
-                        doc[c[0]] = [c[1], ind.strip(), label, num(c[2]), num(c[4]), num(tail[-3]), num(tail[-2]), note]
-            time.sleep(1)
+            for kind in (0, 1):
+                part = _revenue_page(mk, label, y, m, kind)
+                if part is None:
+                    ky_ok = ky_ok and kind == 0
+                    continue
+                doc.update(part)
         if len(doc) > 500:
             write_json(path, doc)
-            log(f"  月營收 {y}-{m:02d}：{len(doc)} 家")
+            if ky_ok:
+                ky_done.add(key)
+                write_json(ky_path, sorted(ky_done))
+            log(f"  月營收 {key}：{len(doc)} 家")
         else:
-            log(f"  月營收 {y}-{m:02d}：只有 {len(doc)} 家，可能還沒公布")
+            log(f"  月營收 {key}：只有 {len(doc)} 家，可能還沒公布")
 
 
 # ---------- 綜合損益（季報） ----------
