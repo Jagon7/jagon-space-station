@@ -22,6 +22,16 @@
       "market": "上櫃"
     },
     {
+      "code": "4526",
+      "name": "東台",
+      "count": 1,
+      "condition": "連續三次及當日沖銷標準",
+      "period": "115/10/30～115/11/09",
+      "endDate": "2026-11-09",
+      "announceDate": "115/10/29",
+      "market": "上市"
+    },
+    {
       "code": "8291",
       "name": "尚茂",
       "count": 1,
@@ -32,6 +42,16 @@
       "market": "上櫃"
     },
     {
+      "code": "2466",
+      "name": "冠西電",
+      "count": 1,
+      "condition": "連續三次",
+      "period": "115/11/04～115/11/10",
+      "endDate": "2026-11-10",
+      "announceDate": "115/11/03",
+      "market": "上市"
+    },
+    {
       "code": "3374",
       "name": "精材",
       "count": 4,
@@ -40,6 +60,16 @@
       "endDate": "2026-11-10",
       "announceDate": "115/10/30",
       "market": "上櫃"
+    },
+    {
+      "code": "6213",
+      "name": "聯茂",
+      "count": 1,
+      "condition": "最近十個營業日已有六次",
+      "period": "115/11/05～115/11/11",
+      "endDate": "2026-11-11",
+      "announceDate": "115/11/04",
+      "market": "上市"
     },
     {
       "code": "8099",
@@ -60,6 +90,26 @@
       "endDate": "2026-11-11",
       "announceDate": "115/11/04",
       "market": "上櫃"
+    },
+    {
+      "code": "2360",
+      "name": "致茂",
+      "count": 1,
+      "condition": "連續三次",
+      "period": "115/11/09～115/11/13",
+      "endDate": "2026-11-13",
+      "announceDate": "115/11/06",
+      "market": "上市"
+    },
+    {
+      "code": "3532",
+      "name": "台勝科",
+      "count": 1,
+      "condition": "連續三次",
+      "period": "115/11/09～115/11/13",
+      "endDate": "2026-11-13",
+      "announceDate": "115/11/06",
+      "market": "上市"
     }
   ]
 }
