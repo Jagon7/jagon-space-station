@@ -1,0 +1,22 @@
+{
+ "guid": "4fc7e5b8-4d4d-4e4c-ae20-96c2e0f9af45",
+ "ep": "EP712",
+ "title": "EP712 | 🦌",
+ "date": "2026-11-07",
+ "time": "11:47",
+ "minutes": 55,
+ "link": "https://player.soundon.fm/p/954689a5-3096-43a4-a80b-7810b219cef3/episodes/4fc7e5b8-4d4d-4e4c-ae20-96c2e0f9af45",
+ "summary": {
+  "headline": "AI 整理沒有可用的額度，先列出本集提到的個股與原話片段",
+  "stocks": [
+   {
+    "name": "Netflix",
+    "code": "NFLX",
+    "market": "美股",
+    "stance": "提到 3 次",
+    "why": "「…悅,也好想多聽聽您分享育兒雞,那二,不知道您怎麼看Netflix這一檔股票呢?最後希望您可以送給吉拉在13號出生的木杰,以及她今天生日的媽媽…」"
+   }
+  ],
+  "by": "關鍵字比對"
+ }
+}
