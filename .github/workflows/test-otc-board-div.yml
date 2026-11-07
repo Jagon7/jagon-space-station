@@ -1,0 +1,48 @@
+name: Test OTC board dividends (temporary)
+
+# 暫時用：只在 rebalance-otc-board-div 分支推送時跑，驗證「股利分派情形」格式；合併前刪掉。不提交資料、不推播。
+on:
+  push:
+    branches: [rebalance-otc-board-div]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.11'
+      - run: pip install requests openpyxl
+      - name: Fetch 股利分派情形 (first 15 companies)
+        env:
+          JSS_DATA_DIR: ./data
+        run: |
+          python3 - <<'PY'
+          import sys; sys.path.insert(0, "scripts")
+          import fetch_rebalance as F, time
+          F.OTC_BOARD_PER_RUN = 15
+          F.DEADLINE[0] = time.time() + 600
+          F.div_board_otc()
+          PY
+      - name: Show parsed rows and what they add
+        env:
+          JSS_DATA_DIR: ./data
+        run: |
+          python3 - <<'PY'
+          import json, sys, glob
+          sys.path.insert(0, "scripts")
+          doc = json.load(open("data/rebalance/raw/div_board_otc.json", encoding="utf-8"))
+          ann = set()
+          for p in glob.glob("data/rebalance/raw/div/20*.json"):
+              for r in json.load(open(p, encoding="utf-8")):
+                  ann.add((r[0], r[1], r[2]))
+          for c, e in doc.items():
+              for r in e["r"]:
+                  tag = "已有除權息公告" if (r[0], r[1], r[2]) in ann else "★新補"
+                  print(c, r, tag)
+          PY
