@@ -635,7 +635,7 @@ def parse_t05st09_2(page: str, code: str, sample: bool = False) -> list | None:
             for row in head_rows:
                 if j < len(row) and (not parts or parts[-1] != row[j][1]):
                     parts.append(row[j][1])
-            heads.append("|".join(parts))
+            heads.append(re.sub(r"\s+", "", "|".join(parts)))   # 表頭文字中間有換行空白（「盈餘分配 之現金股利」）
 
         def col(*keys, avoid=()):
             for j, h in enumerate(heads):
