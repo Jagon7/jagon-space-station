@@ -7,7 +7,8 @@
   董監持股          → raw/insider（董事＋經理人＋大股東，依姓名去重）
   ROE新／EPS        → raw/fin（彙總報表＋OpenAPI 最新）或 data/fund/income
   月營收            → data/fund/revenue
-  現金股利_平攤     → raw/div（除權息公告，依股利所屬期間）＋ raw/div_board.json（董事會已決議）
+  現金股利_平攤     → raw/div（除權息公告，依股利所屬期間）＋ raw/div_board.json（上市董事會已決議）
+                      ＋ raw/div_board_otc.json（上櫃董事會已決議，股利分派情形）
   ETF 原始權重／AUM → data/etf/holdings
   換手量            → 成交股數 − 當沖股數（data/strategy/daytrade.json）
 """
@@ -125,6 +126,15 @@ class Public:
             latest[k] = (0.0, "")
         for c, y, q, cash, *_ in _read(self.raw / "div_board.json", []):
             latest.setdefault((c, y, q), (cash, ""))
+        # 上櫃：股利分派情形（董事會已決議、還沒有除息公告的期別才補；同期別多筆取董事會日最晚的）
+        otc = {}
+        for ent in _read(self.raw / "div_board_otc.json", {}).values():
+            for c, y, q, cash, _st, board, *_ in ent.get("r", []):
+                k = (c, y, q)
+                if k not in otc or str(board) >= otc[k][1]:
+                    otc[k] = (cash, str(board))
+        for k, (cash, _) in otc.items():
+            latest.setdefault(k, (cash, ""))
         out = defaultdict(dict)
         for (c, y, q), (cash, _) in latest.items():
             out[c][(y, q)] = cash

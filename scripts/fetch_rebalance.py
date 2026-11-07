@@ -19,12 +19,14 @@ ETF 換股預估（0050／0051／0056／00919／00929）需要的公開資料，
                         （財報季每天都有公司新公布，每天重抓 OpenAPI 合併進去）
   div/<YYYY>.json        除權息公告（依股利所屬期間）：公開資訊觀測站 t108sb27
   div_board.json         董事會已決議、還沒除息的股利（上市）：OpenAPI t187ap45_L
+  div_board_otc.json     董事會已決議的股利（上櫃，市值 ≥ 50 億＋00919／00929 成分股）：公開資訊觀測站「股利分派情形」
+                         t05st09_2 逐家查，每家 3 天重查一次 {代號: {"t": 查詢日, "r": [[代號, 所屬年度, 季別, 現金, 進度, 董事會日, 期間原文]]}}
   pe/<日期>.json         個股本益比（00929 五年平均本益比用）：證交所 BWIBBU_d、櫃買 peQryDate
 
 月營收沿用 fetch_fundamentals.py 的 data/fund/revenue，ETF 持股與規模沿用 fetch_etf.py 的 data/etf。
   daytrade/<日期>.json   當沖成交股數（證交所 TWTB4U、櫃買 intraday/stat）；沒有時沿用 data/strategy/daytrade.json
 
-用法：python scripts/fetch_rebalance.py [--minutes 25] [px basic insider foreign fin div pe]
+用法：python scripts/fetch_rebalance.py [--minutes 25] [px basic insider foreign fin div div_board_otc pe]
 """
 from __future__ import annotations
 
@@ -570,10 +572,157 @@ def div(recent_only: bool = False):
         cash = sum(num(x.get(k)) or 0 for k in ("股東配發-盈餘分配之現金股利(元/股)", "股東配發-法定盈餘公積發放之現金(元/股)",
                                                  "股東配發-資本公積發放之現金(元/股)"))
         board.append([c, p[0], p[1], cash, str(x.get("決議（擬議）進度", "")), str(x.get("董事會（擬議）股利分派日", ""))])
-    # 櫃買 OpenAPI mopsfin_t187ap39_O 停在 2021 年（出表日期 110 年），不能用；上櫃股利只用除權息公告
+    # 櫃買 OpenAPI mopsfin_t187ap39_O 停在 2021 年（出表日期 110 年），不能用；上櫃另由 div_board_otc() 逐家查
     if board:
         write_json(OUT / "div_board.json", board)
         log(f"董事會決議股利：{len(board)} 筆")
+
+
+# ---------------- 上櫃董事會決議股利（股利分派情形，逐家查） ----------------
+
+OTC_BOARD_MIN_CAP = 5e9     # 只查市值 ≥ 50 億的上櫃公司（00929 門檻；00919 市值前 300 大也都在內）
+OTC_BOARD_REFRESH = 3       # 每家幾天重查一次（董事會隨時可能決議）
+OTC_BOARD_PER_RUN = 100     # 每次最多查幾家（限速 3 秒／次，約 5 分鐘）
+OTC_BOARD_SAMPLES = 3       # 每次在 log 印出前幾家的表格欄位，方便核對網頁格式
+
+
+def _grid(table_html: str) -> list[list[tuple[str, str]]]:
+    """HTML 表格展開成格子（處理 rowspan／colspan），每格 (th|td, 文字)。"""
+    grid: list[list[tuple[str, str]]] = []
+    pending: dict[tuple[int, int], tuple[str, str]] = {}
+    for r, tr in enumerate(re.findall(r"<tr[^>]*>(.*?)</tr>", table_html, re.S | re.I)):
+        row: list[tuple[str, str]] = []
+        cells = re.findall(r"<(t[hd])([^>]*)>(.*?)</t[hd]>", tr, re.S | re.I)
+        it = iter(cells)
+        c = 0
+        while True:
+            while (r, c) in pending:
+                row.append(pending.pop((r, c)))
+                c += 1
+            nxt = next(it, None)
+            if nxt is None:
+                break
+            tag, attrs, body = nxt
+            cs = int((re.search(r'colspan\s*=\s*"?(\d+)', attrs, re.I) or [0, 1])[1])
+            rs = int((re.search(r'rowspan\s*=\s*"?(\d+)', attrs, re.I) or [0, 1])[1])
+            cell = (tag.lower(), clean(body))
+            for k in range(cs):
+                row.append(cell)
+                for dr in range(1, rs):
+                    pending[(r + dr, c + k)] = cell
+            c += cs
+        grid.append(row)
+    return grid
+
+
+def parse_t05st09_2(page: str, code: str, sample: bool = False) -> list | None:
+    """
+    股利分派情形 → [[代號, 所屬年度, 所屬季別, 現金股利, 決議進度, 董事會日, 股利所屬期間原文], ...]
+    欄位用表頭文字找（多層表頭展開後合併），找不到必要欄位回 None（格式變了，不要寫進資料）。
+    """
+    found_table = False
+    out = []
+    for t in re.findall(r"<table[^>]*>.*?</table>", page, re.S | re.I):
+        g = _grid(t)
+        head_rows = [row for row in g if row and all(tag == "th" for tag, _ in row)]
+        body_rows = [row for row in g if any(tag == "td" for tag, _ in row)]
+        if not head_rows or not body_rows:
+            continue
+        width = max(len(row) for row in head_rows)
+        heads = []
+        for j in range(width):
+            parts = []
+            for row in head_rows:
+                if j < len(row) and (not parts or parts[-1] != row[j][1]):
+                    parts.append(row[j][1])
+            heads.append(re.sub(r"\s+", "", "|".join(parts)))   # 表頭文字中間有換行空白（「盈餘分配 之現金股利」）
+
+        def col(*keys, avoid=()):
+            for j, h in enumerate(heads):
+                if all(k in h for k in keys) and not any(a in h for a in avoid):
+                    return j
+            return None
+
+        i_period = col("股利所屬", "期間")
+        if i_period is None:
+            i_period = col("股利所屬年")
+        i_status = col("決議", "進度")
+        i_board = col("董事會", "日")
+        i_cash = [j for j in (col("盈餘分配之現金股利"), col("法定盈餘公積", "現金"), col("資本公積", "現金"))
+                  if j is not None]
+        if sample:
+            log(f"  [樣本 {code}] 表頭：{heads}")
+            for row in body_rows[:2]:
+                log(f"  [樣本 {code}] 資料：{[v for _, v in row]}")
+        if i_period is None or not i_cash:
+            continue
+        found_table = True
+        for row in body_rows:
+            v = [x for _, x in row]
+            if len(v) <= max([i_period, *i_cash]):
+                continue
+            p = parse_period(v[i_period])
+            if not p:
+                continue
+            cash = sum(num(v[j]) or 0 for j in i_cash)
+            out.append([code, p[0], p[1], cash,
+                        v[i_status] if i_status is not None and i_status < len(v) else "",
+                        v[i_board] if i_board is not None and i_board < len(v) else "", v[i_period]])
+    if not found_table:
+        return [] if "查無" in page or "無符合" in page else None
+    return out
+
+
+def _otc_board_targets() -> list[str]:
+    """市值 ≥ 50 億的上櫃公司，加上 00919／00929 現有的上櫃成分股；市值大的先查。"""
+    basic = read_json(OUT / "basic.json", {}).get("d", {})
+    pxs = sorted((OUT / "px").glob("20*.json"))
+    px_last = read_json(pxs[-1], {}) if pxs else {}
+    held = set()
+    for etf in ("00919", "00929"):
+        snaps = read_json(DATA_DIR / "etf" / "holdings" / f"{etf}.json", {}).get("snapshots") or []
+        if snaps:
+            held |= {h[0] for h in snaps[-1].get("h", [])}
+    cap = {}
+    for c, b in basic.items():
+        if b.get("mk") != "OTC":
+            continue
+        close = (px_last.get(c) or [None])[0]
+        cap[c] = (close or 0) * (b.get("sh") or 0)
+    return sorted((c for c, v in cap.items() if v >= OTC_BOARD_MIN_CAP or c in held), key=lambda c: -cap[c])
+
+
+def div_board_otc():
+    path = OUT / "div_board_otc.json"
+    doc = read_json(path, {})
+    today = datetime.now(TPE).date()
+    roc = today.year - 1911
+    targets = _otc_board_targets()
+    stale = [c for c in targets
+             if (today - date.fromisoformat((doc.get(c) or {}).get("t", "2000-01-01"))).days >= OTC_BOARD_REFRESH]
+    log(f"上櫃股利分派情形：{len(targets)} 家要追蹤，{len(stale)} 家待更新")
+    n = bad = 0
+    for c in stale[:OTC_BOARD_PER_RUN]:
+        if late() or "mops" in BLOCKED:
+            break
+        page = mops("ajax_t05st09_2", {"TYPEK": "all", "isnew": "false", "queryName": "co_id", "inpuType": "co_id",
+                                         "co_id": c, "date1": str(roc - 1), "date2": str(roc), "qryType": "1"})
+        if page is None:
+            continue
+        rows = parse_t05st09_2(page, c, sample=n < OTC_BOARD_SAMPLES)
+        n += 1
+        if rows is None:
+            bad += 1
+            if bad <= OTC_BOARD_SAMPLES:
+                log(f"  {c} 找不到股利表，原始內容：{clean(page)[:600]}")
+            if bad >= 5 and bad == n:      # 前幾家全都解析不出來：格式不對，停止以免白打
+                log("  ✗ 股利分派情形格式無法解析，本次停止")
+                break
+            continue
+        doc[c] = {"t": today.isoformat(), "r": rows}
+    if n:
+        write_json(path, doc)
+    log(f"上櫃股利分派情形：查 {n} 家，解析失敗 {bad} 家，累計 {len(doc)} 家")
 
 
 # ---------------- 當沖股數（換手量 = 成交量 − 當沖） ----------------
@@ -640,6 +789,7 @@ JOBS = {
     "basic": basic, "insider": insider,
     "px_today": lambda: px(recent=5), "daytrade": daytrade, "foreign": foreign,
     "fin_today": lambda: fin(latest_only=True), "div_today": lambda: div(recent_only=True),
+    "div_board_otc": div_board_otc,
     "px": px, "fin": fin, "div": div, "pe": pe,
 }
 
