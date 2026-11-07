@@ -69,18 +69,31 @@ class Public:
             q = out.setdefault(p.stem, {})
             for c, v in doc.items():
                 q.setdefault(c, {}).update({k: x for k, x in v.items() if x is not None})
-        # OpenAPI 的單季數（ni_q／nip_q／eps_q）：彙總表的累計數還沒有時，用前一季累計 + 單季
+        # OpenAPI 的數字（存成 ni_q／nip_q／eps_q）其實是年初至今累計（2026Q3 實測：403 家中 381 家大於 Q2 累計），
+        # 彙總表的累計數還沒有時直接拿來用，不要再加前一季
         for qk in sorted(out):
-            y, n = int(qk[:4]), int(qk[-1])
-            prev = out.get(f"{y}Q{n - 1}", {}) if n > 1 else {}
             for c, v in out[qk].items():
                 for f in ("ni", "nip", "eps"):
                     if v.get(f) is None and v.get(f + "_q") is not None:
-                        if n == 1:
-                            v[f] = v[f + "_q"]
-                        elif prev.get(c, {}).get(f) is not None:
-                            v[f] = prev[c][f] + v[f + "_q"]
+                        v[f] = v[f + "_q"]
         return out
+
+    @staticmethod
+    def _share_basis(cur: dict, prev: dict) -> float:
+        """
+        股數基礎改變（面額變更、大額配股）時，本季累計 EPS 用新股數、前一季累計 EPS 還是舊股數，直接相減會變負數
+        （例：5904 寶雅 2026Q3 累計 2.7、Q2 累計 17.45）。用「累計淨利 ÷ 累計 EPS」推算兩季的股數，
+        相差超過 20% 就把前一季累計 EPS 換算成新股數基礎（TEJ 單季 EPS 也是這樣：5904 2026Q3 = 0.95）。
+        """
+        def shares(v):
+            ni = v.get("nip") if v.get("nip") is not None else v.get("ni")
+            eps = v.get("eps")
+            return ni / eps if ni and eps and abs(eps) >= 0.3 and ni * eps > 0 else None
+        a, b = shares(cur), shares(prev)
+        if not a or not b:
+            return 1.0
+        r = b / a
+        return r if (r < 0.8 or r > 1.25) else 1.0
 
     @staticmethod
     def single_quarter(cum: dict, field: str) -> dict:
@@ -95,8 +108,14 @@ class Public:
                 if n == 1:
                     out[c][q] = x
                 else:
-                    prev = cum.get(f"{y}Q{n - 1}", {}).get(c, {}).get(field)
-                    if prev is not None:
+                    pv = cum.get(f"{y}Q{n - 1}", {}).get(c, {})
+                    prev = pv.get(field)
+                    if prev is None:
+                        continue
+                    if field == "eps":
+                        prev *= Public._share_basis(v, pv)
+                        out[c][q] = round(x - prev, 2)
+                    else:
                         out[c][q] = x - prev
         return out
 

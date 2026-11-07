@@ -436,7 +436,8 @@ INC_KEYS_Q = {k + "_q": v for k, v in INC_KEYS.items()}
 def _openapi_fin() -> tuple[str, dict]:
     """
     OpenAPI 只有「最新一季」，但每天更新（財報季每天都有新公司）。
-    注意：OpenAPI 的綜合損益表是「單季」數字（公開資訊觀測站彙總表是年初至今累計），存成 ni_q／nip_q／eps_q。
+    OpenAPI 綜合損益表也是年初至今累計（2026Q3 實測 403 家中 381 家大於 Q2 累計）；沿用欄名 ni_q／nip_q／eps_q，
+    public.fin_cum 在彙總表還沒有該季時直接當累計數用。
     """
     doc, tag = {}, None
     inds = ("ci", "basi", "bd", "fh", "ins", "mim")
