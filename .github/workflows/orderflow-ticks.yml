@@ -1,0 +1,67 @@
+name: Order Flow Ticks
+
+# 訂單流研究：回補永豐歷史逐筆成交（只查行情、不下單），轉成 5 分鐘主動買賣 bar 與每日特徵。
+# 永豐每天有查詢流量上限，用完就停、隔天接著補；原始 bar 存 Actions cache，彙總特徵存 data/orderflow/features.json。
+on:
+  workflow_dispatch:
+    inputs:
+      days:
+        description: '回補幾個交易日'
+        default: '120'
+      top:
+        description: '成交金額前幾名'
+        default: '100'
+  schedule:
+    - cron: '30 6 * * 1-5'   # 14:30 台灣時間：補今天＋繼續回補
+
+permissions:
+  contents: write
+
+concurrency:
+  group: orderflow-ticks
+  cancel-in-progress: false
+
+jobs:
+  ticks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: main
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.11'
+      - run: pip install shioaji==1.7.9
+      - name: Restore tick bar cache
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.cache/jss-orderflow
+          key: orderflow-${{ github.run_id }}
+          restore-keys: orderflow-
+      - name: Backfill ticks
+        run: python3 -u scripts/orderflow_ticks.py --days ${{ inputs.days || '120' }} --top ${{ inputs.top || '100' }} --minutes 120
+        env:
+          SHIOAJI_API_KEY: ${{ secrets.SHIOAJI_API_KEY }}
+          SHIOAJI_SECRET_KEY: ${{ secrets.SHIOAJI_SECRET_KEY }}
+          JSS_DATA_DIR: ./data
+      - name: Save tick bar cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: ~/.cache/jss-orderflow
+          key: orderflow-${{ github.run_id }}
+      - name: Commit features
+        if: always()
+        run: |
+          rm -f shioaji.log
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add data/orderflow/ 2>/dev/null || exit 0
+          git diff --staged --quiet && exit 0
+          git commit -m "data: orderflow $(TZ=Asia/Taipei date +%Y-%m-%d)"
+          for i in 1 2 3 4 5; do
+            git push && exit 0
+            git pull --rebase -X theirs origin main || { git rebase --abort; git pull --no-rebase -X ours origin main; }
+          done
+          exit 1
