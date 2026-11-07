@@ -70,7 +70,8 @@ def to_bars(t) -> tuple[list, list | None]:
         tm = datetime.fromtimestamp(ts / 1e9, timezone.utc)  # 永豐的 ts 是台灣時間當成 UTC 的奈秒
         mins = tm.hour * 60 + tm.minute
         if mins >= 13 * 60 + 30:
-            auction = [(auction[0] if auction else 0) + vol, px]
+            if mins < 13 * 60 + 35:  # 13:30 收盤集合競價；14:00～14:30 盤後定價交易不算
+                auction = [(auction[0] if auction else 0) + vol, px]
             continue
         if mins < 9 * 60:
             continue

@@ -40,7 +40,10 @@ jobs:
           key: orderflow-${{ github.run_id }}
           restore-keys: orderflow-
       - name: Backfill ticks
-        run: python3 -u scripts/orderflow_ticks.py --days ${{ inputs.days || '120' }} --top ${{ inputs.top || '100' }} --minutes 120
+        # 永豐登入訊息會印出登入識別碼（身分證字號格式），公開的 Actions log 一律遮掉
+        run: |
+          set -o pipefail
+          python3 -u scripts/orderflow_ticks.py --days ${{ inputs.days || '120' }} --top ${{ inputs.top || '100' }} --minutes 120 2>&1 | sed -u -E 's/[A-Z][12][0-9]{8}/[已遮蔽]/g'
         env:
           SHIOAJI_API_KEY: ${{ secrets.SHIOAJI_API_KEY }}
           SHIOAJI_SECRET_KEY: ${{ secrets.SHIOAJI_SECRET_KEY }}
