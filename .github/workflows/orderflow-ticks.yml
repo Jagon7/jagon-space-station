@@ -12,7 +12,8 @@ on:
         description: '成交金額前幾名'
         default: '100'
   schedule:
-    - cron: '30 6 * * 1-5'   # 14:30 台灣時間：補今天＋繼續回補
+    - cron: '30 6 * * *'     # 14:30 台灣時間：補今天＋繼續回補（主要由 Cloudflare 觸發，這裡是備援；週末也跑，用掉每天的流量回補）
+    - cron: '40 12 * * *'    # 20:40 備援
 
 permissions:
   contents: write
