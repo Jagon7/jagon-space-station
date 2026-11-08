@@ -21,6 +21,7 @@ const PLAN = [
   ["11:30", [6], "margin-backfill.yml"],  // 週六：補融資成本（推估融資維持率）
   ["11:35", TUE_SAT, "fetch-etf.yml"],
   ["14:20", ALL, "fetch-intel.yml"],
+  ["14:30", ALL, "orderflow-ticks.yml"],   // 訂單流：補當天逐筆＋用每天的永豐流量繼續回補（週末也跑）
   ["15:45", WD, "fetch.yml"],            // 收盤行情
   ["16:00", [3, 6], "gooaye.yml"],       // 股癌新的一集（週三、週六下午上架）
   ["17:20", ALL, "fetch-intel.yml"],
@@ -30,6 +31,7 @@ const PLAN = [
   ["19:45", WD, "broker-evening.yml"],   // 重點分點大額進出，等到 20:00 才發
   ["20:25", WD, "broker-evening.yml"],   // 分點資料晚出來時的備援
   ["20:20", ALL, "fetch-intel.yml"],
+  ["20:40", ALL, "orderflow-ticks.yml"],   // 備援：14:30 沒跑成或流量還有剩
   ["21:00", [3, 6], "gooaye.yml"],
   ["21:20", WD, "fetch-etf.yml"],
   ["21:35", WD, "fetch.yml"],            // 融資融券（資料到齊後自動發每日戰報）
