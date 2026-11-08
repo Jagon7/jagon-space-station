@@ -29,6 +29,7 @@ from backtest_exdiv import yahoo  # noqa: E402
 from fetch_etf import DATA_DIR, ETF_DIR, ETF_LIST, log, read_json, write_json  # noqa: E402
 
 FIRST = date(2025, 4, 1)   # 最早的主動式 ETF（00980A～00985A）2025 年 5 月掛牌
+RETRY = 2                  # 缺口日子最多再補查幾次（暫時失敗的補回來，真的沒資料的也不會一直查）
 STOP_MISS = 20             # 往回抓連續這麼多個平日都沒資料，就當作已經到掛牌前
 
 
@@ -64,8 +65,29 @@ def fetch_hist(code, name, issuer, cache: Path, last: date, deadline: float) -> 
         miss = 0 if ds in snaps else miss + 1
         if miss >= STOP_MISS:
             break
+    # 補查缺口：掛牌後查過但沒拿到持股的平日（當時暫時失敗），每個日子最多再補查 RETRY 次
+    tries = doc.get("retry", {})
+    hol = set(read_json(DATA_DIR / "calendar.json", {}).get("holidays", []))
+    if snaps:
+        lo = min(snaps)
+        gaps = [ds for ds in sorted(asked) if lo < ds < (last - timedelta(days=7)).isoformat() and ds not in snaps
+                and ds not in hol and date.fromisoformat(ds).weekday() < 5 and tries.get(ds, 0) < RETRY]
+        filled = 0
+        for ds in gaps:
+            if time.time() > deadline:
+                break
+            tries[ds] = tries.get(ds, 0) + 1
+            try:
+                s = S.SOURCES[issuer][1](code, name, start=date.fromisoformat(ds))
+            except Exception:  # noqa: BLE001
+                s = None
+            if s and s["date"] == ds and len(s["holdings"]) >= 5:
+                snaps[ds] = [[x["code"], x["name"], x["shares"] or 0, x.get("weight")] for x in s["holdings"] if " " not in x["code"]]
+                filled += 1
+        if gaps:
+            log(f"  {code} 補查缺口 {len(gaps)} 天，補到 {filled} 天")
     snaps = {k: v for k, v in snaps.items() if k >= FIRST.isoformat()}
-    write_json(f, {"asked": sorted(asked), "snaps": dict(sorted(snaps.items()))})
+    write_json(f, {"asked": sorted(asked), "snaps": dict(sorted(snaps.items())), "retry": tries})
     return snaps
 
 
