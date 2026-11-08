@@ -425,8 +425,9 @@ def _trade_info_rows(entries):
 
 
 def _trade_info(url, fund_no, headers=None, start=None):
-    first = (start or datetime.now(TPE).date()) + timedelta(days=1)
-    for day in weekdays_back(10, first):  # Date 要剛好是 PCF 公告日，逐日往回試
+    # Date 要帶 PCF 公告日（持股基準日的下一個平日）；週五的持股要帶下週一，不能只加一天（會落到週六、往回變成週四）
+    first = announce_day(start or datetime.now(TPE).date())
+    for day in weekdays_back(10, first):  # 公告日還沒出來就逐日往回試
         r = post_json(url, {"Type": 1, "Keyword": "", "FundNo": fund_no, "Date": day.isoformat()}, headers=headers)
         e = find_key(r, "Entries")
         if isinstance(e, list):
