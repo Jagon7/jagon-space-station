@@ -2,26 +2,6 @@
   "date": "2026-11-09",
   "data": [
     {
-      "code": "4526",
-      "name": "東台",
-      "count": 1,
-      "condition": "連續三次及當日沖銷標準",
-      "period": "115/10/30～115/11/09",
-      "endDate": "2026-11-09",
-      "announceDate": "115/10/29",
-      "market": "上市"
-    },
-    {
-      "code": "8291",
-      "name": "尚茂",
-      "count": 1,
-      "condition": "連續3個營業日",
-      "period": "115/11/03~115/11/09",
-      "endDate": "2026-11-09",
-      "announceDate": "115/11/02",
-      "market": "上櫃"
-    },
-    {
       "code": "2466",
       "name": "冠西電",
       "count": 1,
@@ -98,7 +78,7 @@
       "condition": "連續三次",
       "period": "115/11/10～115/11/16",
       "endDate": "2026-11-16",
-      "announceDate": "*115/11/09",
+      "announceDate": "115/11/09",
       "market": "上市"
     },
     {
