@@ -14,9 +14,9 @@
       "limitTime": "--:--",
       "market": "上市",
       "instiForeign": -1936,
-      "instiTrust": 228,
+      "instiTrust": 520,
       "instiDealer": 316,
-      "instiTotal": -1390,
+      "instiTotal": -1098,
       "reason": ""
     },
     {
@@ -50,9 +50,9 @@
       "limitTime": "--:--",
       "market": "上市",
       "instiForeign": 609,
-      "instiTrust": 433,
+      "instiTrust": 709,
       "instiDealer": 212,
-      "instiTotal": 1255,
+      "instiTotal": 1531,
       "reason": ""
     },
     {
@@ -104,9 +104,9 @@
       "limitTime": "--:--",
       "market": "上市",
       "instiForeign": -1976,
-      "instiTrust": -182,
+      "instiTrust": -314,
       "instiDealer": 268,
-      "instiTotal": -1890,
+      "instiTotal": -2022,
       "reason": ""
     },
     {
@@ -141,8 +141,8 @@
       "market": "上櫃",
       "instiForeign": -1821,
       "instiTrust": 123,
-      "instiDealer": 260,
-      "instiTotal": -1437,
+      "instiDealer": 513,
+      "instiTotal": -1184,
       "reason": ""
     },
     {
@@ -176,9 +176,9 @@
       "limitTime": "--:--",
       "market": "上市",
       "instiForeign": 2856,
-      "instiTrust": -430,
+      "instiTrust": -468,
       "instiDealer": 337,
-      "instiTotal": 2763,
+      "instiTotal": 2725,
       "reason": ""
     },
     {
