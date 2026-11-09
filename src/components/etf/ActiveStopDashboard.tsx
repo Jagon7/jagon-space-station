@@ -8,7 +8,7 @@ import { Kpi, KpiRow, Note, Pills, SortTable, type Column } from "@/components/d
 type Row = { etf: string; etfName: string; code: string; name: string; lots: number; w: number | null; cost: number; first: string; firstPx: number;
   close: number; dd: number; stop: number; dist: number; c1?: number | null; below?: string | null; due?: string | null; c5: number | null; c20: number | null; val: number; dated: boolean };
 type Stock = { code: string; name: string; close: number; n: number; warn: number; stop: number; lots: number; riskLots: number; riskVal: number;
-  c5: number; etfs: [string, number][]; cost: number; dd: number; vol: number | null };
+  c5: number; etfs: [string, number, string?][]; cost: number; dd: number; vol: number | null };
 type Etf = { code: string; name: string; issuer: string; dated: boolean; start: string; asof: string; n: number };
 type Data = { updatedAt: string; date: string; stop: number; warn: number; grace?: number; count: { stop: number; warn: number; stocks: number };
   etfs: Etf[]; rows: Row[]; stocks: Stock[] };
@@ -46,7 +46,7 @@ export default function ActiveStopDashboard() {
     { key: "warn", label: "≤ -30% 的 ETF", align: "right", sort: (r) => r.warn * 100 + r.stop, render: (r) => num(`${r.warn} / ${r.n}`, r.stop ? "text-[#f05252]" : r.warn ? "text-[#f59e0b]" : "text-[#8b97ab]") },
     { key: "etfs", label: "各 ETF 的 DD", render: (r) => (
       <span className="flex flex-wrap gap-1 max-w-[340px]">
-        {r.etfs.map(([n, d]) => <span key={n} className={`rounded bg-[#1c2738] px-1.5 py-0.5 text-[10px] ${ddColor(d)}`}>{n} {d.toFixed(0)}%</span>)}
+        {r.etfs.map(([c, d, n]) => <span key={c} title={n} className={`rounded bg-[#1c2738] px-1.5 py-0.5 font-mono text-[10px] ${ddColor(d)}`}>{c} {d.toFixed(0)}%</span>)}
       </span>) },
     { key: "close", label: "收盤", align: "right", sort: (r) => r.close, render: (r) => num(r.close.toLocaleString()) },
     { key: "cost", label: "加權成本", align: "right", sort: (r) => r.cost, render: (r) => num(r.cost.toLocaleString(), "text-[#8b97ab]") },
@@ -59,7 +59,7 @@ export default function ActiveStopDashboard() {
   const pCols: Column<Row>[] = [
     { key: "name", label: "股票", render: (r) => (
       <span className="whitespace-nowrap">{star(r.code)}<span className="text-slate-200">{r.name}</span><span className="ml-1.5 font-mono text-xs text-[#8b97ab]">{r.code}</span></span>) },
-    { key: "etf", label: "ETF", render: (r) => <span className="whitespace-nowrap text-xs text-slate-300">{r.etfName}<span className="ml-1 font-mono text-[#7c8aa0]">{r.etf}</span>{!r.dated && <span className="ml-1 text-[10px] text-[#f59e0b]" title="這家投信查不到歷史持股，成本從開始抓資料那天起算">*</span>}</span> },
+    { key: "etf", label: "ETF", render: (r) => <span className="whitespace-nowrap text-xs"><span className="font-mono text-slate-200">{r.etf}</span><span className="ml-1 text-[#7c8aa0]">{r.etfName}</span>{!r.dated && <span className="ml-1 text-[10px] text-[#f59e0b]" title="這家投信查不到歷史持股，成本從開始抓資料那天起算">*</span>}</span> },
     { key: "dd", label: "DD", align: "right", sort: (r) => r.dd, render: (r) => ddCell(r.dd) },
     { key: "dist", label: "距 -40%", align: "right", sort: (r) => -r.dist, render: (r) => distCell(r.dist, r.stop) },
     { key: "below", label: "跌破 -40%", align: "right", sort: (r) => r.below ?? "9", render: (r) => num(r.below ? md(r.below) : "—", r.below ? "text-[#f05252]" : "text-[#8b97ab]") },

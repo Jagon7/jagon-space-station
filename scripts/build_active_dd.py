@@ -75,7 +75,7 @@ def compute(data_dir: Path) -> dict | None:
             a["lots"] += lots
             a["costSum"] += cost * sh
             a["c5"] += r["c5"] or 0
-            a["etfs"].append([r["etfName"], r["dd"]])
+            a["etfs"].append([code, r["dd"], r["etfName"]])  # [ETF 代號, DD, 名稱]
             if dd <= WARN:
                 a["warn"] += 1
                 a["riskLots"] += lots
