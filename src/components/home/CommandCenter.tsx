@@ -64,7 +64,13 @@ function ActivePanel({ a }: { a: NonNullable<Home["active"]> }) {
         <>
           <div className="text-[11px] text-[#8b97ab] mb-1.5">最新一天疑似停損賣出</div>
           <div className="flex flex-wrap gap-1.5 mb-3">
-            {a.sells.map((x) => <Chip key={x.code + x.etf} name={x.name} code={x.etf} right={`${x.out ? "出清" : `${x.c1.toLocaleString()} 張`} ${x.dd.toFixed(0)}%`} cls={ddColor(x.dd)} />)}
+            {a.sells.map((x) => (
+              <span key={x.code + x.etf} className="inline-flex items-center gap-1.5 rounded-md bg-[#141c2e] px-2 py-1 text-xs">
+                <span className="font-mono text-[#f59e0b]">{x.etf}</span>
+                <span className="text-slate-200">{x.name}</span><span className="font-mono text-[10px] text-[#7c8aa0]">{x.code}</span>
+                <span className={`font-mono ${ddColor(x.dd)}`}>{x.out ? "出清" : `${x.c1.toLocaleString()} 張`} {x.dd.toFixed(0)}%</span>
+              </span>
+            ))}
           </div>
         </>
       )}
