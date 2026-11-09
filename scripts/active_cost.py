@@ -178,6 +178,10 @@ def main():
     def run_issuer(items):
         out = {}
         for code, name, issuer, _ in items:
+            # 主要持有海外股票的（最新持股台股不到 5 檔）不列入停損監控，也不必查歷史（中信 ARK 等網站很慢）
+            hs = (read_json(ETF_DIR / "holdings" / f"{code}.json", {}).get("snapshots") or [{}])[-1].get("h") or []
+            if hs and sum(" " not in r[0] for r in hs) < 5:
+                continue
             snaps = fetch_hist(code, name, issuer, cache, last, deadline) if issuer in S.DATED_SOURCES else {}
             # 網站每天抓的持股也併進來（不能查歷史的投信只有這些）
             for s in read_json(ETF_DIR / "holdings" / f"{code}.json", {}).get("snapshots", []):
