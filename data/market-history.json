@@ -821,23 +821,23 @@
       "topSectors": [
         {
           "name": "半導體",
-          "count": 68
+          "count": 32
         },
         {
           "name": "電子零組件",
-          "count": 48
+          "count": 28
         },
         {
           "name": "光電",
-          "count": 22
+          "count": 14
         },
         {
           "name": "其他電子",
-          "count": 22
+          "count": 11
         },
         {
-          "name": "通信網路",
-          "count": 18
+          "name": "電腦週邊",
+          "count": 8
         }
       ]
     }

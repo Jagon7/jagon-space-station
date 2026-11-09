@@ -3,46 +3,36 @@
   "data": [
     {
       "name": "半導體",
-      "count": 68,
+      "count": 32,
       "momentum": "strong"
     },
     {
       "name": "電子零組件",
-      "count": 48,
+      "count": 28,
       "momentum": "strong"
     },
     {
       "name": "光電",
-      "count": 22,
+      "count": 14,
       "momentum": "strong"
     },
     {
       "name": "其他電子",
-      "count": 22,
-      "momentum": "strong"
-    },
-    {
-      "name": "通信網路",
-      "count": 18,
+      "count": 11,
       "momentum": "strong"
     },
     {
       "name": "電腦週邊",
-      "count": 16,
+      "count": 8,
       "momentum": "strong"
     },
     {
-      "name": "電機機械",
-      "count": 7,
-      "momentum": "strong"
-    },
-    {
-      "name": "生技醫療",
+      "name": "通信網路",
       "count": 6,
       "momentum": "strong"
     },
     {
-      "name": "化工",
+      "name": "電機機械",
       "count": 5,
       "momentum": "normal"
     },
@@ -50,6 +40,16 @@
       "name": "塑膠",
       "count": 3,
       "momentum": "normal"
+    },
+    {
+      "name": "生技醫療",
+      "count": 3,
+      "momentum": "normal"
+    },
+    {
+      "name": "化工",
+      "count": 2,
+      "momentum": "weak"
     }
   ]
 }
