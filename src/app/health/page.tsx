@@ -236,7 +236,13 @@ function buildRows() {
     push({ level: lv, item: `ETF ${doc.code}`, name: `${doc.name}（${doc.issuer}）`, date: snap?.date ?? null, lag: l, count: snap?.h.length ?? 0, weight: w && w > 0 ? w : null, note: notes.filter(Boolean).join("；") });
   }
 
-  return { rows, expected, latestPrice: priceDates.at(-1) ?? null };
+  // 每晚 23:10 的新鮮度檢查（scripts/freshness.py）：各資料源與通知是否已更新到應有的交易日，放在最前面
+  const fr = read<{ checkedAt: string; rows: { cat: string; name: string; latest: string | null; expected: string; lag: number | null; ok: boolean }[] }>("freshness.json");
+  const frRows: Row[] = (fr?.rows ?? []).map((r) => ({
+    level: r.ok ? "ok" : (r.lag ?? 9) <= 1 ? "warn" : "error", item: `新鮮度・${r.cat}`, name: r.name, date: r.latest, lag: r.lag,
+    count: null, note: r.ok ? `應有 ${r.expected}（${fr!.checkedAt.slice(5, 16).replace("T", " ")} 檢查）` : `應有 ${r.expected}，還沒更新`,
+  }));
+  return { rows: [...frRows, ...rows], expected, latestPrice: priceDates.at(-1) ?? null };
 }
 
 const SCHEDULE: [string, string][] = [
@@ -251,6 +257,9 @@ const SCHEDULE: [string, string][] = [
   ["週一到週五 08:00", "盤前快報：台指期夜盤、富台指、美股主要指數、類股龍頭與台股預估反應"],
   ["白天每 3 小時", "券商報告、法說會新聞；有新的券商報告就推播"],
   ["資料到齊後", "每日推播（行情、法人、融資券都是當天的才發；隔天 09:27 保底）"],
+  ["每天 14:30／20:40", "訂單流：永豐逐筆成交補當天＋回補歷史"],
+  ["平日 22:00", "主動 ETF 建倉成本重算＋停損／融資斷頭 LINE"],
+  ["每天 23:10", "資料新鮮度檢查：任何資料或通知沒更新到最新交易日就發 LINE"],
 ];
 
 export default function HealthPage() {
