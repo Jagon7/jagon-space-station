@@ -90,6 +90,26 @@
       "endDate": "2026-11-13",
       "announceDate": "115/11/06",
       "market": "上市"
+    },
+    {
+      "code": "3189",
+      "name": "景碩",
+      "count": 1,
+      "condition": "連續三次",
+      "period": "115/11/10～115/11/16",
+      "endDate": "2026-11-16",
+      "announceDate": "*115/11/09",
+      "market": "上市"
+    },
+    {
+      "code": "4542",
+      "name": "科嶠",
+      "count": 1,
+      "condition": "連續3個營業日",
+      "period": "115/11/10~115/11/16",
+      "endDate": "2026-11-16",
+      "announceDate": "115/11/09",
+      "market": "上櫃"
     }
   ]
 }
