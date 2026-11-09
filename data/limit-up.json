@@ -58,7 +58,7 @@
     {
       "code": "1815",
       "name": "富喬",
-      "sector": "其他",
+      "sector": "電子零組件",
       "change": 9.79,
       "volume": 69532,
       "tradeValue": 8802590500.0,
@@ -130,7 +130,7 @@
     {
       "code": "3105",
       "name": "穩懋",
-      "sector": "其他",
+      "sector": "半導體",
       "change": 9.98,
       "volume": 13913,
       "tradeValue": 6007114500.0,
@@ -274,7 +274,7 @@
     {
       "code": "6488",
       "name": "環球晶",
-      "sector": "其他",
+      "sector": "半導體",
       "change": 9.96,
       "volume": 6290,
       "tradeValue": 3447182000.0,
@@ -382,7 +382,7 @@
     {
       "code": "3081",
       "name": "聯亞",
-      "sector": "其他",
+      "sector": "通信網路",
       "change": 10.0,
       "volume": 998,
       "tradeValue": 1898375000.0,
@@ -418,7 +418,7 @@
     {
       "code": "8299",
       "name": "群聯",
-      "sector": "其他",
+      "sector": "半導體",
       "change": 10.0,
       "volume": 1117,
       "tradeValue": 1841805000.0,
@@ -490,7 +490,7 @@
     {
       "code": "6147",
       "name": "頎邦",
-      "sector": "其他",
+      "sector": "半導體",
       "change": 9.86,
       "volume": 10436,
       "tradeValue": 1574059500.0,
@@ -544,7 +544,7 @@
     {
       "code": "8358",
       "name": "金居",
-      "sector": "其他",
+      "sector": "電子零組件",
       "change": 9.9,
       "volume": 4651,
       "tradeValue": 1506416000.0,
@@ -562,7 +562,7 @@
     {
       "code": "5347",
       "name": "世界",
-      "sector": "其他",
+      "sector": "半導體",
       "change": 10.0,
       "volume": 10992,
       "tradeValue": 1412411500.0,
@@ -598,7 +598,7 @@
     {
       "code": "6187",
       "name": "萬潤",
-      "sector": "其他",
+      "sector": "半導體",
       "change": 9.95,
       "volume": 1418,
       "tradeValue": 1306969000.0,
@@ -670,7 +670,7 @@
     {
       "code": "6510",
       "name": "精測",
-      "sector": "其他",
+      "sector": "半導體",
       "change": 9.98,
       "volume": 465,
       "tradeValue": 1141985000.0,
@@ -706,7 +706,7 @@
     {
       "code": "3491",
       "name": "昇達科",
-      "sector": "其他",
+      "sector": "通信網路",
       "change": 9.68,
       "volume": 910,
       "tradeValue": 1055510000.0,
@@ -778,7 +778,7 @@
     {
       "code": "3264",
       "name": "欣銓",
-      "sector": "其他",
+      "sector": "半導體",
       "change": 9.73,
       "volume": 5212,
       "tradeValue": 914144500.0,
@@ -796,7 +796,7 @@
     {
       "code": "6182",
       "name": "合晶",
-      "sector": "其他",
+      "sector": "半導體",
       "change": 10.0,
       "volume": 12208,
       "tradeValue": 902158600.0,
@@ -850,7 +850,7 @@
     {
       "code": "4979",
       "name": "華星光",
-      "sector": "其他",
+      "sector": "通信網路",
       "change": 9.94,
       "volume": 2144,
       "tradeValue": 734308500.0,
@@ -868,7 +868,7 @@
     {
       "code": "1569",
       "name": "濱川",
-      "sector": "其他",
+      "sector": "電腦週邊",
       "change": 9.92,
       "volume": 8648,
       "tradeValue": 723706700.0,
@@ -922,7 +922,7 @@
     {
       "code": "5475",
       "name": "德宏",
-      "sector": "其他",
+      "sector": "電子零組件",
       "change": 9.73,
       "volume": 3319,
       "tradeValue": 609649000.0,
@@ -940,7 +940,7 @@
     {
       "code": "3691",
       "name": "碩禾",
-      "sector": "其他",
+      "sector": "光電",
       "change": 10.0,
       "volume": 3565,
       "tradeValue": 510394500.0,
@@ -994,7 +994,7 @@
     {
       "code": "4991",
       "name": "環宇-KY",
-      "sector": "其他",
+      "sector": "半導體",
       "change": 9.97,
       "volume": 1584,
       "tradeValue": 496814500.0,
@@ -1066,7 +1066,7 @@
     {
       "code": "1785",
       "name": "光洋科",
-      "sector": "其他",
+      "sector": "其他電子",
       "change": 9.87,
       "volume": 5532,
       "tradeValue": 429457200.0,
@@ -1102,7 +1102,7 @@
     {
       "code": "3498",
       "name": "陽程",
-      "sector": "其他",
+      "sector": "其他電子",
       "change": 9.87,
       "volume": 1995,
       "tradeValue": 410967000.0,
@@ -1228,7 +1228,7 @@
     {
       "code": "3147",
       "name": "大綜",
-      "sector": "其他",
+      "sector": "資訊服務",
       "change": 9.98,
       "volume": 1235,
       "tradeValue": 386839000.0,
@@ -1246,7 +1246,7 @@
     {
       "code": "6683",
       "name": "雍智科技",
-      "sector": "其他",
+      "sector": "半導體",
       "change": 9.97,
       "volume": 466,
       "tradeValue": 386048000.0,
@@ -1264,7 +1264,7 @@
     {
       "code": "5351",
       "name": "鈺創",
-      "sector": "其他",
+      "sector": "半導體",
       "change": 10.0,
       "volume": 4253,
       "tradeValue": 383920700.0,
@@ -1408,7 +1408,7 @@
     {
       "code": "6290",
       "name": "良維",
-      "sector": "其他",
+      "sector": "電子零組件",
       "change": 9.91,
       "volume": 1808,
       "tradeValue": 323482500.0,
@@ -1480,7 +1480,7 @@
     {
       "code": "3131",
       "name": "弘塑",
-      "sector": "其他",
+      "sector": "半導體",
       "change": 9.72,
       "volume": 198,
       "tradeValue": 307155000.0,
@@ -1498,7 +1498,7 @@
     {
       "code": "5536",
       "name": "聖暉*",
-      "sector": "其他",
+      "sector": "其他電子",
       "change": 9.91,
       "volume": 444,
       "tradeValue": 302996000.0,
@@ -1516,7 +1516,7 @@
     {
       "code": "3441",
       "name": "聯一光",
-      "sector": "其他",
+      "sector": "光電",
       "change": 10.0,
       "volume": 1907,
       "tradeValue": 299589000.0,
@@ -1606,7 +1606,7 @@
     {
       "code": "6217",
       "name": "中探針",
-      "sector": "其他",
+      "sector": "電子零組件",
       "change": 9.63,
       "volume": 2374,
       "tradeValue": 274682000.0,
@@ -1624,7 +1624,7 @@
     {
       "code": "6620",
       "name": "漢達",
-      "sector": "其他",
+      "sector": "生技醫療",
       "change": 9.57,
       "volume": 2367,
       "tradeValue": 263456000.0,
@@ -1660,7 +1660,7 @@
     {
       "code": "3211",
       "name": "順達",
-      "sector": "其他",
+      "sector": "電腦週邊",
       "change": 9.98,
       "volume": 1033,
       "tradeValue": 258109000.0,
@@ -1678,7 +1678,7 @@
     {
       "code": "3163",
       "name": "波若威",
-      "sector": "其他",
+      "sector": "通信網路",
       "change": 10.0,
       "volume": 598,
       "tradeValue": 258069500.0,
@@ -1714,7 +1714,7 @@
     {
       "code": "4903",
       "name": "聯光通",
-      "sector": "其他",
+      "sector": "通信網路",
       "change": 9.88,
       "volume": 5031,
       "tradeValue": 248020400.0,
@@ -1732,7 +1732,7 @@
     {
       "code": "4741",
       "name": "泓瀚",
-      "sector": "其他",
+      "sector": "化工",
       "change": 9.95,
       "volume": 3886,
       "tradeValue": 237371700.0,
@@ -1768,7 +1768,7 @@
     {
       "code": "8111",
       "name": "立碁",
-      "sector": "其他",
+      "sector": "光電",
       "change": 9.99,
       "volume": 3013,
       "tradeValue": 221377200.0,
@@ -1786,7 +1786,7 @@
     {
       "code": "3680",
       "name": "家登",
-      "sector": "其他",
+      "sector": "半導體",
       "change": 9.9,
       "volume": 486,
       "tradeValue": 201434000.0,
@@ -1822,7 +1822,7 @@
     {
       "code": "6640",
       "name": "均華",
-      "sector": "其他",
+      "sector": "半導體",
       "change": 9.92,
       "volume": 246,
       "tradeValue": 190128000.0,
@@ -1840,7 +1840,7 @@
     {
       "code": "6207",
       "name": "雷科",
-      "sector": "其他",
+      "sector": "電子零組件",
       "change": 9.51,
       "volume": 1904,
       "tradeValue": 189873000.0,
@@ -1912,7 +1912,7 @@
     {
       "code": "5013",
       "name": "強新",
-      "sector": "其他",
+      "sector": "鋼鐵",
       "change": 10.0,
       "volume": 2635,
       "tradeValue": 178173600.0,
@@ -1966,7 +1966,7 @@
     {
       "code": "3707",
       "name": "漢磊",
-      "sector": "其他",
+      "sector": "半導體",
       "change": 9.82,
       "volume": 3108,
       "tradeValue": 169648000.0,
@@ -1984,7 +1984,7 @@
     {
       "code": "8027",
       "name": "鈦昇",
-      "sector": "其他",
+      "sector": "電機機械",
       "change": 9.92,
       "volume": 1229,
       "tradeValue": 165006000.0,
@@ -2056,7 +2056,7 @@
     {
       "code": "6788",
       "name": "華景電",
-      "sector": "其他",
+      "sector": "半導體",
       "change": 9.97,
       "volume": 442,
       "tradeValue": 143207000.0,
@@ -2074,7 +2074,7 @@
     {
       "code": "5425",
       "name": "台半",
-      "sector": "其他",
+      "sector": "半導體",
       "change": 9.97,
       "volume": 1886,
       "tradeValue": 140642900.0,
@@ -2128,7 +2128,7 @@
     {
       "code": "3141",
       "name": "晶宏",
-      "sector": "其他",
+      "sector": "半導體",
       "change": 9.89,
       "volume": 1796,
       "tradeValue": 137201700.0,
@@ -2182,7 +2182,7 @@
     {
       "code": "3357",
       "name": "臺慶科",
-      "sector": "其他",
+      "sector": "電子零組件",
       "change": 10.0,
       "volume": 719,
       "tradeValue": 119651500.0,
@@ -2272,7 +2272,7 @@
     {
       "code": "4908",
       "name": "前鼎",
-      "sector": "其他",
+      "sector": "通信網路",
       "change": 9.72,
       "volume": 714,
       "tradeValue": 110569500.0,
@@ -2290,7 +2290,7 @@
     {
       "code": "4931",
       "name": "新盛力",
-      "sector": "其他",
+      "sector": "電腦週邊",
       "change": 9.72,
       "volume": 610,
       "tradeValue": 106551500.0,
@@ -2308,7 +2308,7 @@
     {
       "code": "6870",
       "name": "騰雲",
-      "sector": "其他",
+      "sector": "數位雲端",
       "change": 9.96,
       "volume": 271,
       "tradeValue": 104531500.0,
@@ -2326,7 +2326,7 @@
     {
       "code": "3693",
       "name": "營邦",
-      "sector": "其他",
+      "sector": "電腦週邊",
       "change": 9.94,
       "volume": 182,
       "tradeValue": 102648000.0,
@@ -2344,7 +2344,7 @@
     {
       "code": "6643",
       "name": "M31",
-      "sector": "其他",
+      "sector": "半導體",
       "change": 9.99,
       "volume": 259,
       "tradeValue": 97291500.0,
@@ -2362,7 +2362,7 @@
     {
       "code": "4971",
       "name": "IET-KY",
-      "sector": "其他",
+      "sector": "半導體",
       "change": 9.94,
       "volume": 274,
       "tradeValue": 95458000.0,
@@ -2398,7 +2398,7 @@
     {
       "code": "3362",
       "name": "先進光",
-      "sector": "其他",
+      "sector": "光電",
       "change": 10.0,
       "volume": 756,
       "tradeValue": 93316500.0,
@@ -2416,7 +2416,7 @@
     {
       "code": "4768",
       "name": "晶呈科技",
-      "sector": "其他",
+      "sector": "化工",
       "change": 9.84,
       "volume": 344,
       "tradeValue": 93112500.0,
@@ -2434,7 +2434,7 @@
     {
       "code": "5230",
       "name": "雷笛克光學",
-      "sector": "其他",
+      "sector": "光電",
       "change": 10.0,
       "volume": 3333,
       "tradeValue": 91676250.0,
@@ -2488,7 +2488,7 @@
     {
       "code": "3675",
       "name": "德微",
-      "sector": "其他",
+      "sector": "半導體",
       "change": 9.9,
       "volume": 401,
       "tradeValue": 89197500.0,
@@ -2524,7 +2524,7 @@
     {
       "code": "6693",
       "name": "廣閎科",
-      "sector": "其他",
+      "sector": "半導體",
       "change": 9.92,
       "volume": 667,
       "tradeValue": 86760000.0,
@@ -2542,7 +2542,7 @@
     {
       "code": "6548",
       "name": "長科*",
-      "sector": "其他",
+      "sector": "半導體",
       "change": 9.86,
       "volume": 1387,
       "tradeValue": 86418600.0,
@@ -2560,7 +2560,7 @@
     {
       "code": "4772",
       "name": "台特化",
-      "sector": "其他",
+      "sector": "化工",
       "change": 9.84,
       "volume": 411,
       "tradeValue": 85186500.0,
@@ -2596,7 +2596,7 @@
     {
       "code": "4147",
       "name": "中裕",
-      "sector": "其他",
+      "sector": "生技醫療",
       "change": 10.0,
       "volume": 1319,
       "tradeValue": 79059700.0,
@@ -2632,7 +2632,7 @@
     {
       "code": "5328",
       "name": "華容",
-      "sector": "其他",
+      "sector": "電子零組件",
       "change": 9.96,
       "volume": 1869,
       "tradeValue": 78607500.0,
@@ -2650,7 +2650,7 @@
     {
       "code": "3287",
       "name": "廣寰科",
-      "sector": "其他",
+      "sector": "電腦週邊",
       "change": 9.96,
       "volume": 912,
       "tradeValue": 73507200.0,
@@ -2794,7 +2794,7 @@
     {
       "code": "5498",
       "name": "凱崴",
-      "sector": "其他",
+      "sector": "電子零組件",
       "change": 9.92,
       "volume": 1425,
       "tradeValue": 61033100.0,
@@ -2866,7 +2866,7 @@
     {
       "code": "7717",
       "name": "萊德光電-KY",
-      "sector": "其他",
+      "sector": "通信網路",
       "change": 9.89,
       "volume": 167,
       "tradeValue": 58355000.0,
@@ -2884,7 +2884,7 @@
     {
       "code": "6234",
       "name": "高僑",
-      "sector": "其他",
+      "sector": "光電",
       "change": 9.94,
       "volume": 1302,
       "tradeValue": 57527250.0,
@@ -2902,7 +2902,7 @@
     {
       "code": "6532",
       "name": "瑞耘",
-      "sector": "其他",
+      "sector": "半導體",
       "change": 9.9,
       "volume": 612,
       "tradeValue": 57424000.0,
@@ -2920,7 +2920,7 @@
     {
       "code": "5202",
       "name": "力新",
-      "sector": "其他",
+      "sector": "資訊服務",
       "change": 9.84,
       "volume": 2848,
       "tradeValue": 56123300.0,
@@ -2992,7 +2992,7 @@
     {
       "code": "3236",
       "name": "千如",
-      "sector": "其他",
+      "sector": "電子零組件",
       "change": 9.97,
       "volume": 1297,
       "tradeValue": 51164200.0,
@@ -3010,7 +3010,7 @@
     {
       "code": "6175",
       "name": "立敦",
-      "sector": "其他",
+      "sector": "電子零組件",
       "change": 9.91,
       "volume": 839,
       "tradeValue": 48694700.0,
@@ -3046,7 +3046,7 @@
     {
       "code": "4174",
       "name": "浩鼎",
-      "sector": "其他",
+      "sector": "生技醫療",
       "change": 9.99,
       "volume": 882,
       "tradeValue": 46222300.0,
@@ -3100,7 +3100,7 @@
     {
       "code": "3354",
       "name": "律勝",
-      "sector": "其他",
+      "sector": "電子零組件",
       "change": 9.97,
       "volume": 1162,
       "tradeValue": 43828850.0,
@@ -3118,7 +3118,7 @@
     {
       "code": "6903",
       "name": "巨漢",
-      "sector": "其他",
+      "sector": "其他電子",
       "change": 10.0,
       "volume": 158,
       "tradeValue": 41816000.0,
@@ -3136,7 +3136,7 @@
     {
       "code": "4577",
       "name": "達航科技",
-      "sector": "其他",
+      "sector": "其他電子",
       "change": 9.62,
       "volume": 361,
       "tradeValue": 41154000.0,
@@ -3154,7 +3154,7 @@
     {
       "code": "5228",
       "name": "鈺鎧",
-      "sector": "其他",
+      "sector": "電子零組件",
       "change": 9.9,
       "volume": 880,
       "tradeValue": 39414450.0,
@@ -3190,7 +3190,7 @@
     {
       "code": "5443",
       "name": "均豪",
-      "sector": "其他",
+      "sector": "半導體",
       "change": 9.88,
       "volume": 460,
       "tradeValue": 37668900.0,
@@ -3262,7 +3262,7 @@
     {
       "code": "3219",
       "name": "倚強科",
-      "sector": "其他",
+      "sector": "其他電子",
       "change": 9.69,
       "volume": 294,
       "tradeValue": 30278500.0,
@@ -3280,7 +3280,7 @@
     {
       "code": "3587",
       "name": "閎康",
-      "sector": "其他",
+      "sector": "其他電子",
       "change": 9.97,
       "volume": 153,
       "tradeValue": 29184500.0,
@@ -3334,7 +3334,7 @@
     {
       "code": "6435",
       "name": "大中",
-      "sector": "其他",
+      "sector": "半導體",
       "change": 9.97,
       "volume": 147,
       "tradeValue": 27777500.0,
@@ -3370,7 +3370,7 @@
     {
       "code": "6708",
       "name": "天擎",
-      "sector": "其他",
+      "sector": "半導體",
       "change": 9.97,
       "volume": 348,
       "tradeValue": 25610500.0,
@@ -3388,7 +3388,7 @@
     {
       "code": "7828",
       "name": "創新服務",
-      "sector": "其他",
+      "sector": "半導體",
       "change": 10.0,
       "volume": 22,
       "tradeValue": 25410000.0,
@@ -3406,7 +3406,7 @@
     {
       "code": "6588",
       "name": "東典光電",
-      "sector": "其他",
+      "sector": "通信網路",
       "change": 9.96,
       "volume": 349,
       "tradeValue": 25339700.0,
@@ -3424,7 +3424,7 @@
     {
       "code": "8040",
       "name": "九暘",
-      "sector": "其他",
+      "sector": "半導體",
       "change": 9.97,
       "volume": 370,
       "tradeValue": 24809900.0,
@@ -3442,7 +3442,7 @@
     {
       "code": "6284",
       "name": "佳邦",
-      "sector": "其他",
+      "sector": "電子零組件",
       "change": 9.86,
       "volume": 357,
       "tradeValue": 21795200.0,
@@ -3460,7 +3460,7 @@
     {
       "code": "3558",
       "name": "神準",
-      "sector": "其他",
+      "sector": "通信網路",
       "change": 9.57,
       "volume": 188,
       "tradeValue": 19768000.0,
@@ -3478,7 +3478,7 @@
     {
       "code": "7704",
       "name": "明遠精密",
-      "sector": "其他",
+      "sector": "半導體",
       "change": 9.91,
       "volume": 265,
       "tradeValue": 19525600.0,
@@ -3496,7 +3496,7 @@
     {
       "code": "6530",
       "name": "創威",
-      "sector": "其他",
+      "sector": "通信網路",
       "change": 9.95,
       "volume": 271,
       "tradeValue": 19348500.0,
@@ -3514,7 +3514,7 @@
     {
       "code": "6651",
       "name": "全宇昕",
-      "sector": "其他",
+      "sector": "半導體",
       "change": 9.59,
       "volume": 161,
       "tradeValue": 18628500.0,
@@ -3532,7 +3532,7 @@
     {
       "code": "3402",
       "name": "漢科",
-      "sector": "其他",
+      "sector": "其他電子",
       "change": 9.71,
       "volume": 167,
       "tradeValue": 18400000.0,
@@ -3568,7 +3568,7 @@
     {
       "code": "3317",
       "name": "尼克森",
-      "sector": "其他",
+      "sector": "半導體",
       "change": 10.0,
       "volume": 354,
       "tradeValue": 17403400.0,
@@ -3604,7 +3604,7 @@
     {
       "code": "8089",
       "name": "康全電訊",
-      "sector": "其他",
+      "sector": "通信網路",
       "change": 9.88,
       "volume": 642,
       "tradeValue": 17275400.0,
@@ -3676,7 +3676,7 @@
     {
       "code": "3663",
       "name": "鑫科",
-      "sector": "其他",
+      "sector": "其他電子",
       "change": 9.94,
       "volume": 352,
       "tradeValue": 16608300.0,
@@ -3712,7 +3712,7 @@
     {
       "code": "4510",
       "name": "高鋒",
-      "sector": "其他",
+      "sector": "電機機械",
       "change": 9.96,
       "volume": 420,
       "tradeValue": 15677450.0,
@@ -3730,7 +3730,7 @@
     {
       "code": "3485",
       "name": "敘豐",
-      "sector": "其他",
+      "sector": "電子零組件",
       "change": 9.76,
       "volume": 85,
       "tradeValue": 14947000.0,
@@ -3766,7 +3766,7 @@
     {
       "code": "8088",
       "name": "品安",
-      "sector": "其他",
+      "sector": "半導體",
       "change": 9.94,
       "volume": 381,
       "tradeValue": 14648600.0,
@@ -3784,7 +3784,7 @@
     {
       "code": "8289",
       "name": "泰藝",
-      "sector": "其他",
+      "sector": "電子零組件",
       "change": 9.97,
       "volume": 369,
       "tradeValue": 14082150.0,
@@ -3802,7 +3802,7 @@
     {
       "code": "8074",
       "name": "鉅橡",
-      "sector": "其他",
+      "sector": "電子零組件",
       "change": 9.98,
       "volume": 288,
       "tradeValue": 12560250.0,
@@ -3820,7 +3820,7 @@
     {
       "code": "6751",
       "name": "智聯服務",
-      "sector": "其他",
+      "sector": "資訊服務",
       "change": 9.94,
       "volume": 145,
       "tradeValue": 11542000.0,
@@ -3838,7 +3838,7 @@
     {
       "code": "5474",
       "name": "聰泰",
-      "sector": "其他",
+      "sector": "電腦週邊",
       "change": 9.75,
       "volume": 80,
       "tradeValue": 10159000.0,
@@ -3856,7 +3856,7 @@
     {
       "code": "6735",
       "name": "美達科技",
-      "sector": "其他",
+      "sector": "其他電子",
       "change": 9.87,
       "volume": 182,
       "tradeValue": 9512800.0,
@@ -3874,7 +3874,7 @@
     {
       "code": "6156",
       "name": "松上",
-      "sector": "其他",
+      "sector": "電子零組件",
       "change": 9.77,
       "volume": 431,
       "tradeValue": 9057900.0,
@@ -3892,7 +3892,7 @@
     {
       "code": "6419",
       "name": "京晨科",
-      "sector": "其他",
+      "sector": "光電",
       "change": 9.91,
       "volume": 73,
       "tradeValue": 8848500.0,
@@ -3910,7 +3910,7 @@
     {
       "code": "6174",
       "name": "安碁",
-      "sector": "其他",
+      "sector": "電子零組件",
       "change": 9.96,
       "volume": 236,
       "tradeValue": 8843100.0,
@@ -3964,7 +3964,7 @@
     {
       "code": "4924",
       "name": "欣厚-KY",
-      "sector": "其他",
+      "sector": "綠能環保",
       "change": 9.88,
       "volume": 321,
       "tradeValue": 5940850.0,
@@ -3982,7 +3982,7 @@
     {
       "code": "3128",
       "name": "昇銳",
-      "sector": "其他",
+      "sector": "光電",
       "change": 9.88,
       "volume": 225,
       "tradeValue": 3980450.0,
@@ -4000,7 +4000,7 @@
     {
       "code": "6825",
       "name": "和暢科技",
-      "sector": "其他",
+      "sector": "電腦週邊",
       "change": 10.0,
       "volume": 156,
       "tradeValue": 3468050.0,
@@ -4018,7 +4018,7 @@
     {
       "code": "8171",
       "name": "天宇",
-      "sector": "其他",
+      "sector": "綠能環保",
       "change": 9.94,
       "volume": 193,
       "tradeValue": 3450750.0,
@@ -4036,7 +4036,7 @@
     {
       "code": "3285",
       "name": "微端",
-      "sector": "其他",
+      "sector": "其他電子",
       "change": 9.96,
       "volume": 63,
       "tradeValue": 2688750.0,
@@ -4072,7 +4072,7 @@
     {
       "code": "6465",
       "name": "威潤",
-      "sector": "其他",
+      "sector": "通信網路",
       "change": 9.9,
       "volume": 70,
       "tradeValue": 2390650.0,
@@ -4090,7 +4090,7 @@
     {
       "code": "2230",
       "name": "泰茂",
-      "sector": "其他",
+      "sector": "居家生活",
       "change": 9.97,
       "volume": 124,
       "tradeValue": 2249650.0,
@@ -4108,7 +4108,7 @@
     {
       "code": "5468",
       "name": "凱鈺",
-      "sector": "其他",
+      "sector": "半導體",
       "change": 9.84,
       "volume": 103,
       "tradeValue": 2065550.0,
@@ -4162,7 +4162,7 @@
     {
       "code": "3122",
       "name": "笙泉",
-      "sector": "其他",
+      "sector": "半導體",
       "change": 9.76,
       "volume": 64,
       "tradeValue": 1300300.0,
@@ -4180,7 +4180,7 @@
     {
       "code": "3625",
       "name": "西勝",
-      "sector": "其他",
+      "sector": "電腦週邊",
       "change": 9.68,
       "volume": 82,
       "tradeValue": 1249500.0,
@@ -4216,7 +4216,7 @@
     {
       "code": "3522",
       "name": "御嵿",
-      "sector": "其他",
+      "sector": "觀光餐旅",
       "change": 9.77,
       "volume": 62,
       "tradeValue": 645900.0,
@@ -4252,7 +4252,7 @@
     {
       "code": "8291",
       "name": "尚茂",
-      "sector": "其他",
+      "sector": "電子零組件",
       "change": 10.0,
       "volume": 18,
       "tradeValue": 420750.0,
