@@ -23,6 +23,36 @@ WARN = -30.0
 GRACE = 5
 
 
+def live_sells(data_dir: Path, etfs: dict, q: dict) -> tuple[list, str | None]:
+    """各檔主動 ETF 最新一份持股對前一份：減碼 ≥ 50 張或出清、而且 DD ≤ WARN 的部位；回傳 (清單, 所有 ETF 中最新的持股日)"""
+    out, latest = [], None
+    for code, e in etfs.items():
+        snaps = (_load(data_dir / "etf" / "holdings" / f"{code}.json", {}) or {}).get("snapshots") or []
+        if len(snaps) < 2:
+            continue
+        s0, s1 = snaps[-2], snaps[-1]
+        latest = max(latest or "", s1["date"])
+        h0 = {r[0]: (r[2] or 0, r[1]) for r in s0["h"] if " " not in r[0]}
+        h1 = {r[0]: r[2] or 0 for r in s1["h"] if " " not in r[0]}
+        cost = {x[0]: x[3] for x in e["rows"]}
+        cost.update({x[0]: x[3] for x in e.get("closed") or []})
+        en = e["name"].replace("主動", "")
+        # 整檔被贖回時所有持股會等比例減少：用各持股股數變化的中位數當基準，只算超出基準的減碼
+        ratios = sorted(h1.get(c, 0) / sh for c, (sh, _) in h0.items() if sh)
+        base = min(1.0, ratios[len(ratios) // 2]) if ratios else 1.0
+        for c, (sh0, name) in h0.items():
+            d = h1.get(c, 0) - sh0 * base
+            v, cs = q.get(c), cost.get(c)
+            if d > -50000 or not v or not v[5] or not cs:
+                continue
+            dd = (v[5] / cs - 1) * 100
+            if dd <= WARN:
+                out.append({"etf": code, "etfName": en, "code": c, "name": v[0] or name, "dd": round(dd, 1), "c1": round(d / 1000),
+                            "lots": round(h1.get(c, 0) / 1000), "out": c not in h1 or h1[c] == 0, "asof": s1["date"], "prev": s0["date"]})
+    # 只留最新持股日的（有些投信比較晚公布，還停在前一天的就不算「最新一天」）
+    return [x for x in out if x["asof"] == latest], latest
+
+
 def compute(data_dir: Path) -> dict | None:
     src = _load(data_dir / "etf" / "active_cost.json", {}) or {}
     etfs = src.get("etfs") or {}
@@ -99,8 +129,12 @@ def compute(data_dir: Path) -> dict | None:
     stocks.sort(key=lambda a: (-a["warn"], a["dd"]))
     meta = [{"code": c, "name": e["name"], "issuer": e["issuer"], "dated": e["dated"], "start": e["start"], "asof": e["asof"],
              "n": len(e["rows"])} for c, e in sorted(etfs.items())]
+    # 疑似停損改用每天 21:20 抓的最新持股（data/etf/holdings）比對前一份，不必等成本重算；成本用 active_cost 的平均成本
+    live, latest = live_sells(data_dir, etfs, q)
+    if latest:
+        sells = live
     sells.sort(key=lambda x: x["c1"])
-    asof = max(e["asof"] for e in etfs.values())
+    asof = max([e["asof"] for e in etfs.values()] + ([latest] if latest else []))
     return {"updatedAt": datetime.now(TPE).isoformat(timespec="minutes"), "date": last["date"], "asof": asof, "stop": STOP, "warn": WARN, "grace": GRACE,
             "count": {"stop": sum(r["dd"] <= STOP for r in rows), "warn": sum(STOP < r["dd"] <= WARN for r in rows),
                       "stocks": sum(a["warn"] > 0 for a in stocks)},

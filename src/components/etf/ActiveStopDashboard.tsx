@@ -12,7 +12,7 @@ type Stock = { code: string; name: string; close: number; n: number; warn: numbe
 type Etf = { code: string; name: string; issuer: string; dated: boolean; start: string; asof: string; n: number };
 type Data = { updatedAt: string; date: string; stop: number; warn: number; grace?: number; count: { stop: number; warn: number; stocks: number };
   etfs: Etf[]; rows: Row[]; stocks: Stock[]; asof?: string;
-  sells?: { etf: string; etfName: string; code: string; name: string; dd: number; c1: number; lots: number; out: boolean; asof: string }[] };
+  sells?: { etf: string; etfName: string; code: string; name: string; dd: number; c1: number; lots: number; out: boolean; asof: string; prev?: string }[] };
 type View = "stock" | "pos";
 
 const md = (d: string) => `${Number(d.slice(5, 7))}/${Number(d.slice(8, 10))}`;
@@ -94,9 +94,11 @@ export default function ActiveStopDashboard() {
           <section className="mb-6 rounded-xl border border-[#f05252]/25 bg-[#f05252]/[0.04] p-4">
             <div className="flex flex-wrap items-baseline gap-2 mb-2">
               <h3 className="text-sm font-semibold text-white">最新一天疑似停損賣出</h3>
-              <span className="text-[11px] text-[#8b97ab]">持股日 {data.asof ? md(data.asof) : "—"}・DD ≤ -30% 又減碼 ≥ 50 張或整個出清</span>
+              <span className="text-[11px] text-[#8b97ab]">
+                {data.asof ? md(data.asof) : "—"} 的持股{sells[0]?.prev ? `對比 ${md(sells[0].prev)}` : ""}・DD ≤ -30% 又減碼 ≥ 50 張或整個出清（扣除整檔贖回的等比例減少）
+              </span>
             </div>
-            {!sells.length ? <p className="text-xs text-[#7c8aa0]">最新一天沒有符合的部位</p> : (
+            {!sells.length ? <p className="text-xs text-[#7c8aa0]">{data.asof ? md(data.asof) : "最新一天"} 沒有疑似停損賣出的部位</p> : (
               <div className="grid gap-1.5 sm:grid-cols-2 lg:grid-cols-3">
                 {sells.map((x) => (
                   <div key={x.etf + x.code} className="flex items-center justify-between gap-2 rounded-md bg-[#0d1220] px-3 py-2 text-[13px]">
