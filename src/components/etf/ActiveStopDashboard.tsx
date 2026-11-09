@@ -11,7 +11,8 @@ type Stock = { code: string; name: string; close: number; n: number; warn: numbe
   c5: number; etfs: [string, number, string?][]; cost: number; dd: number; vol: number | null };
 type Etf = { code: string; name: string; issuer: string; dated: boolean; start: string; asof: string; n: number };
 type Data = { updatedAt: string; date: string; stop: number; warn: number; grace?: number; count: { stop: number; warn: number; stocks: number };
-  etfs: Etf[]; rows: Row[]; stocks: Stock[] };
+  etfs: Etf[]; rows: Row[]; stocks: Stock[]; asof?: string;
+  sells?: { etf: string; etfName: string; code: string; name: string; dd: number; c1: number; lots: number; out: boolean; asof: string }[] };
 type View = "stock" | "pos";
 
 const md = (d: string) => `${Number(d.slice(5, 7))}/${Number(d.slice(8, 10))}`;
@@ -86,6 +87,34 @@ export default function ActiveStopDashboard() {
         <Kpi label="受影響個股" value={data.count.stocks} unit="檔" color="text-white" sub="至少一檔 ETF 的 DD ≤ -30%" />
         <Kpi label="追蹤主動式 ETF" value={data.etfs.length} unit="檔" color="text-white" sub={`${data.rows.length} 個台股部位`} />
       </KpiRow>
+
+      {(() => {
+        const sells = (data.sells ?? []).filter((x) => x.asof === data.asof);
+        return (
+          <section className="mb-6 rounded-xl border border-[#f05252]/25 bg-[#f05252]/[0.04] p-4">
+            <div className="flex flex-wrap items-baseline gap-2 mb-2">
+              <h3 className="text-sm font-semibold text-white">最新一天疑似停損賣出</h3>
+              <span className="text-[11px] text-[#8b97ab]">持股日 {data.asof ? md(data.asof) : "—"}・DD ≤ -30% 又減碼 ≥ 50 張或整個出清</span>
+            </div>
+            {!sells.length ? <p className="text-xs text-[#7c8aa0]">最新一天沒有符合的部位</p> : (
+              <div className="grid gap-1.5 sm:grid-cols-2 lg:grid-cols-3">
+                {sells.map((x) => (
+                  <div key={x.etf + x.code} className="flex items-center justify-between gap-2 rounded-md bg-[#0d1220] px-3 py-2 text-[13px]">
+                    <span className="min-w-0 truncate">
+                      <span className="font-mono text-[#f59e0b]">{x.etf}</span>
+                      <span className="ml-2 text-slate-200">{x.name}</span><span className="ml-1 font-mono text-[11px] text-[#7c8aa0]">{x.code}</span>
+                    </span>
+                    <span className="shrink-0 font-mono text-xs">
+                      <span className="text-[#22c55e]">{x.out ? "出清" : `${x.c1.toLocaleString()} 張`}</span>
+                      <span className={`ml-2 ${ddColor(x.dd)}`}>{x.dd.toFixed(0)}%</span>
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+        );
+      })()}
 
       <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
         <Pills<View> value={view} onChange={setView} options={[{ value: "stock", label: "個股彙總" }, { value: "pos", label: "各 ETF 部位" }]} />
