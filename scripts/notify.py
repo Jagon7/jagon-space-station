@@ -112,6 +112,31 @@ def compose() -> Msg:
     sc = short.get("cols") or []
     srow = {r[0]: dict(zip(sc, r)) for r in short.get("rows", [])}
 
+    # 每日融資增減：全市場融資餘額（官方）、大盤融資維持率、個股融資增加／減少金額前五名
+    a = atm[-1] if atm else {}
+    mg = load("margin.json", {}) or {}
+    mk = mg.get("market") or {}
+    if a.get("mAmt") is not None or mk.get("tw"):
+        m.section("💰 融資增減")
+        if a.get("mAmt") is not None:
+            chg = a.get("mAmtChg")
+            m.kv("融資餘額（上市＋上櫃）", f"{a['mAmt']:,.0f} 億" + (f"（{chg:+,.1f} 億）" if chg is not None else ""), color=sign_tone(chg) if chg else None)
+        if a.get("mChg") is not None:
+            m.kv("融資張數增減", f"{a['mChg']:+,} 張")
+        ser = [r for r in mk.get("series", []) if r[1] is not None]
+        prev = ser[-2] if len(ser) > 1 else None
+        for label, v, pv in (("上市融資維持率", mk.get("tw"), prev[1] if prev else None), ("上櫃融資維持率", mk.get("otc"), prev[2] if prev else None)):
+            if v:
+                m.kv(label, f"{v}%" + (f"（{v - pv:+.1f}）" if pv else "") + ("⚠" if v < 140 else ""), color="#E5484D" if v < 140 else None)
+        mstk = [r for c, r in srow.items() if re.fullmatch(r"[1-9]\d{3}", c) and r.get("mAmt") is not None and r.get("mChg")]
+        for title, rows in (("融資增加最多", sorted([r for r in mstk if r["mAmt"] > 0], key=lambda r: -r["mAmt"])[:5]),
+                            ("融資減少最多", sorted([r for r in mstk if r["mAmt"] < 0], key=lambda r: r["mAmt"])[:5])):
+            if rows:
+                m.line(title, bold=True)
+                for r in rows:
+                    m.stock(r["name"], r["code"], f"{r['mChg']:+,} 張", wan(r["mAmt"]), color=sign_tone(r["mAmt"]),
+                            sub=f"融資 {r['mBal']:,} 張・維持率 {r['maint']:.0f}%" if r.get("maint") is not None else f"融資 {r['mBal']:,} 張")
+
     def margin_line(r: dict) -> str:
         parts = [f"融資 {r['mBal']:,} 張（{r['mChg']:+,}・{wan(r.get('mAmt'))}）"]
         if r.get("maint") is not None:
