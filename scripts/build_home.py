@@ -240,7 +240,7 @@ def build(data_dir: Path, public_dir: Path):
                   "top": [{"code": a["code"], "name": a["name"], "dd": a["dd"], "warn": a["warn"], "stop": a["stop"], "n": a["n"],
                            "worst": a["etfs"][0][1] if a.get("etfs") else None, "riskLots": a["riskLots"], "due": a.get("due")}
                           for a in ad.get("stocks", []) if a["warn"]][:6],
-                  "sells": [{"code": x["code"], "name": x["name"], "etf": x["etfName"], "dd": x["dd"], "c1": x["c1"], "out": x["out"]}
+                  "sells": [{"code": x["code"], "name": x["name"], "etf": x["etf"], "dd": x["dd"], "c1": x["c1"], "out": x["out"]}
                             for x in ad.get("sells", []) if x.get("asof") == ad.get("asof")][:6]}
 
     out = {"updatedAt": datetime.now(TPE).isoformat(timespec="minutes"), "pulse": pulse, "alerts": alerts,

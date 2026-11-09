@@ -976,13 +976,13 @@ def active_alert(dry: bool, force: bool = False) -> int:
         m.cols("減碼", "DD")
         for x in sells[:12]:
             m.stock(x["name"], x["code"], "出清" if x["out"] else f"{x['c1']:+,} 張", f"{x['dd']:.0f}%", color="#E5484D" if x["dd"] <= -40 else "#D97706",
-                    star=x["code"] in wl, sub=x["etfName"])
+                    star=x["code"] in wl, sub=f"{x['etf']} {x['etfName']}")
     if new:
         m.section("首次列入：DD 已到 -40%" if first else "新跌破 -40%", f"{len(new)} 個部位")
         m.cols("持股", "DD")
         for r in sorted(new, key=lambda r: r["dd"])[:12]:
             m.stock(r["name"], r["code"], f"{r['lots']:,} 張", f"{r['dd']:.0f}%", color="#E5484D", star=r["code"] in wl,
-                    sub=f"{r['etfName']}・成本 {r['cost']:,.1f}" + (f"・{md(r['below'])} 跌破、期限 {md(r['due'])}" if r.get("below") else ""))
+                    sub=f"{r['etf']} {r['etfName']}・成本 {r['cost']:,.1f}" + (f"・{md(r['below'])} 跌破、期限 {md(r['due'])}" if r.get("below") else ""))
         if len(new) > 12:
             m.note(f"另有 {len(new) - 12} 個部位，請看網頁")
     top = [a for a in ad["stocks"] if a["warn"]][:5]
