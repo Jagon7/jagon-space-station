@@ -1,0 +1,47 @@
+name: Data Freshness
+
+# 資料新鮮度檢查：每天 23:10（Cloudflare 觸發）把所有資料源的最新日期對照應有的交易日，
+# 結果寫 data/freshness.json（網站「資料健檢」頁），有落後就發 LINE（同一天同樣的項目只發一次）。
+on:
+  schedule:
+    - cron: '10 15 * * *'   # 23:10 台灣時間（備援）
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: freshness
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: main
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.11'
+      - run: pip install requests
+      - name: Check freshness and alert
+        run: TZ=Asia/Taipei python3 scripts/freshness.py --alert
+        env:
+          JSS_DATA_DIR: ./data
+          SITE_URL: ${{ secrets.SITE_URL || vars.SITE_URL }}
+          LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
+          LINE_USER_ID: ${{ secrets.LINE_USER_ID }}
+      - name: Commit
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add data/freshness.json data/notify/ 2>/dev/null || exit 0
+          git diff --staged --quiet && exit 0
+          git commit -m "data: freshness $(TZ=Asia/Taipei date +%Y-%m-%dT%H:%M)"
+          for i in 1 2 3 4 5; do
+            git push && exit 0
+            git pull --rebase -X theirs origin main || { git rebase --abort; git pull --no-rebase -X ours origin main; }
+          done
+          exit 1
