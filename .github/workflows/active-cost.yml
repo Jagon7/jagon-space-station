@@ -23,7 +23,7 @@ concurrency:
 jobs:
   cost:
     runs-on: ubuntu-latest
-    timeout-minutes: 300
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v7
         with:
@@ -39,7 +39,7 @@ jobs:
           key: active-raw-${{ github.run_id }}
           restore-keys: active-raw-
       - name: Rebuild active ETF cost
-        run: python3 -u scripts/active_cost.py --minutes 240
+        run: python3 -u scripts/active_cost.py --minutes 15  # 歷史已補完，每天只補新的一天；投信網站卡住時最多 15 分鐘就用現有資料算
         env:
           JSS_DATA_DIR: ./data
       - name: Send stop-loss alert
