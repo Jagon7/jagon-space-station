@@ -13,6 +13,7 @@ const PLAN = [
   ["07:10", TUE_SAT, "fetch-intel.yml"],
   ["07:55", WD, "morning.yml"],          // 盤前快報，程式等到 08:00 才發
   ["08:05", TUE_SAT, "fetch-etf.yml"],
+  ["08:45", TUE_SAT, "active-cost.yml"],   // 晚公布的投信持股早上補到後，再重算一次建倉成本
   ["08:25", WD, "g85-morning.yml"],      // 85g 當沖標的，等到 08:30 才發
   ["08:35", TUE_SAT, "fetch-intel.yml"],
   ["08:40", WD, "flow-live.yml"],        // 即時資金流，跑到 13:35
