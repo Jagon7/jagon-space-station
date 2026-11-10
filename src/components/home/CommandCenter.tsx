@@ -15,7 +15,7 @@ export type Home = {
   strategy: { asof: string | null; next: string | null; s1: { code: string; name: string; v: number }[]; s1n: number; s2: { code: string; name: string; v: number | null }[]; s2n: number; exits: number; exitAvg: number | null };
   turnover: { asof: string | null; next: string | null; list: { code: string; name: string; t: number; dt: number | null }[]; o2c: number | null; black: number | null; top: { code: string; name: string; t: number }[] };
   global: { date: string | null; idx: { name: string; chg: number }[]; groups: { name: string; sym: string; chg: number; react: { name: string; exp: number }[] }[] };
-  week?: { from: string; to: string; days: { d: string; wd: string; next: boolean; items: { cat: string; text: string; hi: boolean; href: string | null }[] }[] };
+  week?: { from: string; to: string; days: { d: string; wd: string; next: boolean; today?: boolean; items: { cat: string; text: string; hi: boolean; href: string | null }[] }[] };
   margin?: { date: string; tw: number | null; otc: number | null; twChg: number | null; otcChg: number | null; below: number; near: number; hot: number;
     low: { code: string; name: string; maint: number; dist: number; tag: string | null; below?: string | null; force?: string | null }[] } | null;
   active?: { date: string; asof: string; stop: number; warn: number; stocks: number; etfs: number;
@@ -99,7 +99,7 @@ function Week({ w }: { w: NonNullable<Home["week"]> }) {
     <div className="rounded-xl border border-[#243247] bg-[#0d1220] p-5">
       <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
         <div className="flex items-center gap-2">
-          <CalendarDays className="w-4 h-4 text-[#a78bfa]" /><h3 className="text-sm font-semibold text-white">下週重點大事</h3>
+          <CalendarDays className="w-4 h-4 text-[#a78bfa]" /><h3 className="text-sm font-semibold text-white">本週＋下週重點大事</h3>
           <span className="text-[11px] text-[#8b97ab]">{md(w.from)}～{md(w.to)}・台北時間</span>
         </div>
         <div className="flex flex-wrap gap-2 text-[10px]">
@@ -112,7 +112,7 @@ function Week({ w }: { w: NonNullable<Home["week"]> }) {
             <div key={d.d} className={`rounded-lg border p-3 ${d.items.some((i) => i.hi) ? "border-[#a78bfa]/30 bg-[#a78bfa]/[0.03]" : "border-[#1c2738]"}`}>
               <div className="flex items-baseline gap-2 mb-1.5">
                 <span className="font-mono text-sm font-semibold text-white">{md(d.d)}</span>
-                <span className="text-[11px] text-[#8b97ab]">週{d.wd}{!d.next && "・本週"}</span>
+                <span className={`text-[11px] ${d.today ? "text-[#f59e0b] font-semibold" : "text-[#8b97ab]"}`}>週{d.wd}{d.today ? "・今天" : !d.next && "・本週"}</span>
               </div>
               <ul className="space-y-1">
                 {d.items.map((i) => {
