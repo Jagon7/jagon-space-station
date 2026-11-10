@@ -51,7 +51,7 @@ def macro_zh(e: dict) -> str:
 
 
 def week_events(data_dir: Path, ex: dict, today: date) -> dict:
-    start = today + timedelta(days=1)
+    start = today  # 今天的事件也要列（例如今晚的美國 CPI），不能從明天才開始
     end = today + timedelta(days=7 - today.weekday() + 6)  # 下週日
     s, e = start.isoformat(), end.isoformat()
     days: dict[str, list] = {}
@@ -124,7 +124,7 @@ def week_events(data_dir: Path, ex: dict, today: date) -> dict:
     for d in sorted(days):
         items = sorted(days[d], key=lambda x: (not x["hi"], order.get(x["cat"], 9)))
         dd = date.fromisoformat(d)
-        out.append({"d": d, "wd": WD[dd.weekday()], "next": dd >= today + timedelta(days=7 - today.weekday()), "items": items})
+        out.append({"d": d, "wd": WD[dd.weekday()], "next": dd >= today + timedelta(days=7 - today.weekday()), "today": dd == today, "items": items})
     return {"from": s, "to": e, "days": out, "src": wk.get("updatedAt")}
 
 
