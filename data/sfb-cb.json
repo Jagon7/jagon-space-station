@@ -1,5 +1,5 @@
 {
-  "date": "2026-11-09",
+  "date": "2026-11-10",
   "data": [
     {
       "code": "2344",
@@ -2007,7 +2007,7 @@
       "code": "3147",
       "name": "大綜電腦系統",
       "market": "上櫃",
-      "status": "審查中",
+      "status": "生效",
       "cbType": "轉換公司債(無擔保)",
       "amount": 12.0,
       "currency": "台幣",
@@ -2091,6 +2091,32 @@
       "currency": "台幣",
       "filingDate": "2026-11-06",
       "effectiveDate": "2026-11-24",
+      "withdrawDate": null,
+      "underwriter": "元大證券"
+    },
+    {
+      "code": "2059.0",
+      "name": "川湖科技",
+      "market": "上市",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 90.0,
+      "currency": "台幣",
+      "filingDate": "2026-11-10",
+      "effectiveDate": "2026-11-25",
+      "withdrawDate": null,
+      "underwriter": "元大證券"
+    },
+    {
+      "code": "2059.0",
+      "name": "川湖科技",
+      "market": "上市",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 10.0,
+      "currency": "台幣",
+      "filingDate": "2026-11-10",
+      "effectiveDate": "2026-11-25",
       "withdrawDate": null,
       "underwriter": "元大證券"
     }
