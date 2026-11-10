@@ -90,6 +90,16 @@
       "endDate": "2026-11-16",
       "announceDate": "115/11/09",
       "market": "上櫃"
+    },
+    {
+      "code": "2455",
+      "name": "全新",
+      "count": 1,
+      "condition": "最近十個營業日已有六次",
+      "period": "115/11/11～115/11/17",
+      "endDate": "2026-11-17",
+      "announceDate": "*115/11/10",
+      "market": "上市"
     }
   ]
 }
