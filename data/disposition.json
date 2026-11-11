@@ -2,36 +2,6 @@
   "date": "2026-11-11",
   "data": [
     {
-      "code": "6213",
-      "name": "聯茂",
-      "count": 1,
-      "condition": "最近十個營業日已有六次",
-      "period": "115/11/05～115/11/11",
-      "endDate": "2026-11-11",
-      "announceDate": "115/11/04",
-      "market": "上市"
-    },
-    {
-      "code": "8099",
-      "name": "大世科",
-      "count": 2,
-      "condition": "連續3個營業日",
-      "period": "115/11/05~115/11/11",
-      "endDate": "2026-11-11",
-      "announceDate": "115/11/04",
-      "market": "上櫃"
-    },
-    {
-      "code": "8272",
-      "name": "全景軟體",
-      "count": 2,
-      "condition": "連續3個營業日",
-      "period": "115/11/05~115/11/11",
-      "endDate": "2026-11-11",
-      "announceDate": "115/11/04",
-      "market": "上櫃"
-    },
-    {
       "code": "2360",
       "name": "致茂",
       "count": 1,

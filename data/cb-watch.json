@@ -15,16 +15,16 @@
       "underwriter": "元大證券股份有限公司"
     },
     {
-      "code": "",
-      "name": "維田科技",
+      "code": "6570",
+      "name": "維田",
       "cbSeries": "第49次",
       "filingDate": "2026-08-03",
       "bookBuildDate": "2026-08-03",
       "listingDate": "2026-08-14",
       "amount": 2.5,
       "conversionPrice": null,
-      "closePrice": null,
-      "market": "",
+      "closePrice": 43.0,
+      "market": "上櫃",
       "underwriter": "統一綜合證券股份有限公司"
     },
     {
@@ -41,16 +41,16 @@
       "underwriter": "凱基證券股份有限公司"
     },
     {
-      "code": "",
-      "name": "廣穎電通",
+      "code": "4973",
+      "name": "廣穎",
       "cbSeries": "第51次",
       "filingDate": "2026-08-07",
       "bookBuildDate": "2026-08-07",
       "listingDate": "2026-08-21",
       "amount": 5.0,
       "conversionPrice": null,
-      "closePrice": null,
-      "market": "",
+      "closePrice": 119.5,
+      "market": "上櫃",
       "underwriter": "台新綜合證券股份有限公司"
     },
     {
@@ -67,68 +67,68 @@
       "underwriter": "宏遠證券股份有限公司"
     },
     {
-      "code": "",
-      "name": "金利食安科技",
+      "code": "7743",
+      "name": "金利食安",
       "cbSeries": "第53次",
       "filingDate": "2026-08-28",
       "bookBuildDate": "2026-08-28",
       "listingDate": "2026-09-11",
       "amount": 2.0,
       "conversionPrice": null,
-      "closePrice": null,
-      "market": "",
+      "closePrice": 20.7,
+      "market": "上櫃",
       "underwriter": "永豐金證券股份有限公司"
     },
     {
-      "code": "",
-      "name": "大甲永和機械工業",
+      "code": "2221",
+      "name": "大甲",
       "cbSeries": "第54次",
       "filingDate": "2026-08-31",
       "bookBuildDate": "2026-08-31",
       "listingDate": "2026-09-11",
       "amount": 5.0,
       "conversionPrice": null,
-      "closePrice": null,
-      "market": "",
+      "closePrice": 167.0,
+      "market": "上櫃",
       "underwriter": "統一綜合證券股份有限公司"
     },
     {
-      "code": "",
-      "name": "威剛科技",
+      "code": "3260",
+      "name": "威剛",
       "cbSeries": "第55次",
       "filingDate": "2026-09-07",
       "bookBuildDate": "2026-09-07",
       "listingDate": "2026-09-18",
       "amount": 30.0,
       "conversionPrice": null,
-      "closePrice": null,
-      "market": "",
+      "closePrice": 304.0,
+      "market": "上櫃",
       "underwriter": "群益金鼎證券股份有限公司"
     },
     {
-      "code": "",
-      "name": "晟田科技工業",
+      "code": "4541",
+      "name": "晟田",
       "cbSeries": "第57次",
       "filingDate": "2026-09-09",
       "bookBuildDate": "2026-09-09",
       "listingDate": "2026-09-18",
       "amount": 2.0,
       "conversionPrice": null,
-      "closePrice": null,
-      "market": "",
+      "closePrice": 50.5,
+      "market": "上櫃",
       "underwriter": "凱基證券股份有限公司"
     },
     {
-      "code": "1459",
-      "name": "聯發",
+      "code": "2756",
+      "name": "聯發國際",
       "cbSeries": "第58次",
       "filingDate": "2026-09-10",
       "bookBuildDate": "2026-09-10",
       "listingDate": "2026-09-25",
       "amount": 4.0,
       "conversionPrice": null,
-      "closePrice": 17.4,
-      "market": "上市",
+      "closePrice": 62.2,
+      "market": "上櫃",
       "underwriter": "統一綜合證券股份有限公司"
     },
     {
@@ -158,16 +158,16 @@
       "underwriter": "元大證券股份有限公司"
     },
     {
-      "code": "",
-      "name": "安碁科技",
+      "code": "6174",
+      "name": "安碁",
       "cbSeries": "第61次",
       "filingDate": "2026-09-16",
       "bookBuildDate": "2026-09-16",
       "listingDate": "2026-09-25",
       "amount": 3.0,
       "conversionPrice": null,
-      "closePrice": null,
-      "market": "",
+      "closePrice": 39.5,
+      "market": "上櫃",
       "underwriter": "兆豐證券股份有限公司"
     },
     {
@@ -210,16 +210,16 @@
       "underwriter": "台新綜合證券股份有限公司"
     },
     {
-      "code": "1710",
-      "name": "東聯",
+      "code": "7738",
+      "name": "東聯互動",
       "cbSeries": "第65次",
       "filingDate": "2026-10-02",
       "bookBuildDate": "2026-10-02",
       "listingDate": "2026-10-16",
       "amount": 5.0,
       "conversionPrice": null,
-      "closePrice": 16.0,
-      "market": "上市",
+      "closePrice": 159.5,
+      "market": "上櫃",
       "underwriter": "永豐金證券股份有限公司"
     },
     {
@@ -236,16 +236,16 @@
       "underwriter": "國泰綜合證券股份有限公司"
     },
     {
-      "code": "",
-      "name": "台燿科技",
+      "code": "6274",
+      "name": "台燿",
       "cbSeries": "第67次",
       "filingDate": "2026-10-14",
       "bookBuildDate": "2026-10-14",
       "listingDate": "2026-10-30",
       "amount": 100.0,
       "conversionPrice": null,
-      "closePrice": null,
-      "market": "",
+      "closePrice": 1060.0,
+      "market": "上櫃",
       "underwriter": "統一綜合證券股份有限公司"
     },
     {
@@ -275,16 +275,16 @@
       "underwriter": "凱基證券股份有限公司"
     },
     {
-      "code": "",
-      "name": "立誠光電",
+      "code": "6597",
+      "name": "立誠",
       "cbSeries": "第70次",
       "filingDate": "2026-10-27",
       "bookBuildDate": "2026-10-27",
       "listingDate": "2026-11-06",
       "amount": 4.5,
       "conversionPrice": null,
-      "closePrice": null,
-      "market": "",
+      "closePrice": 63.8,
+      "market": "上櫃",
       "underwriter": "福邦證券股份有限公司"
     },
     {
@@ -340,16 +340,16 @@
       "underwriter": "中國信託綜合證券股份有限公司"
     },
     {
-      "code": "",
-      "name": "映興電子",
+      "code": "3597",
+      "name": "映興",
       "cbSeries": "第75次",
       "filingDate": "2026-11-03",
       "bookBuildDate": "2026-11-03",
       "listingDate": "2026-11-13",
       "amount": 2.0,
       "conversionPrice": null,
-      "closePrice": null,
-      "market": "",
+      "closePrice": 41.15,
+      "market": "上櫃",
       "underwriter": "德信綜合證券股份有限公司"
     },
     {
@@ -366,16 +366,16 @@
       "underwriter": "凱基證券股份有限公司"
     },
     {
-      "code": "",
-      "name": "宜特科技",
+      "code": "3289",
+      "name": "宜特",
       "cbSeries": "第77次",
       "filingDate": "2026-11-03",
       "bookBuildDate": "2026-11-03",
       "listingDate": "2026-11-13",
       "amount": 12.0,
       "conversionPrice": null,
-      "closePrice": null,
-      "market": "",
+      "closePrice": 119.0,
+      "market": "上櫃",
       "underwriter": "台新綜合證券股份有限公司"
     },
     {
