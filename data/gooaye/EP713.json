@@ -1,0 +1,29 @@
+{
+ "guid": "5efa0892-4cb9-4f82-a1fc-21f0a49a2b9c",
+ "ep": "EP713",
+ "title": "EP713 | 🌲",
+ "date": "2026-11-11",
+ "time": "15:21",
+ "minutes": 52,
+ "link": "https://player.soundon.fm/p/954689a5-3096-43a4-a80b-7810b219cef3/episodes/5efa0892-4cb9-4f82-a1fc-21f0a49a2b9c",
+ "summary": {
+  "headline": "AI 整理沒有可用的額度，先列出本集提到的個股與原話片段",
+  "stocks": [
+   {
+    "name": "輝達",
+    "code": "NVDA",
+    "market": "美股",
+    "stance": "提到 2 次",
+    "why": "「…會這樣子那因為其實我們在台灣在看供應鏈都會知道說在輝達這邊有一位女主管也不一定是女主管就是他們有時候會派不一樣的人可是就大家會知道幾個大頭他…」"
+   },
+   {
+    "name": "AMD",
+    "code": "AMD",
+    "market": "美股",
+    "stance": "提到 2 次",
+    "why": "「…就對他自己的公司影響比較大一點然後意外的push到AMD的股價那但是對於整個server的supply chain來說我覺得還是以可能他bu…」"
+   }
+  ],
+  "by": "關鍵字比對"
+ }
+}
