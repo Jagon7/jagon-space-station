@@ -2,6 +2,7 @@
 "active": [
 "cds:DELL",
 "cds:INTC",
-"cds:NBIS"
+"cds:NBIS",
+"vixts:警戒"
 ]
 }
