@@ -1,5 +1,5 @@
 {
-  "date": "2026-11-10",
+  "date": "2026-11-11",
   "data": [
     {
       "code": "2344",
@@ -2095,27 +2095,27 @@
       "underwriter": "元大證券"
     },
     {
-      "code": "2059.0",
+      "code": "2059",
       "name": "川湖科技",
       "market": "上市",
       "status": "審查中",
       "cbType": "轉換公司債(無擔保)",
       "amount": 90.0,
       "currency": "台幣",
-      "filingDate": "2026-11-10",
+      "filingDate": "2026-11-09",
       "effectiveDate": "2026-11-25",
       "withdrawDate": null,
       "underwriter": "元大證券"
     },
     {
-      "code": "2059.0",
+      "code": "2059",
       "name": "川湖科技",
       "market": "上市",
       "status": "審查中",
       "cbType": "轉換公司債(無擔保)",
       "amount": 10.0,
       "currency": "台幣",
-      "filingDate": "2026-11-10",
+      "filingDate": "2026-11-09",
       "effectiveDate": "2026-11-25",
       "withdrawDate": null,
       "underwriter": "元大證券"
