@@ -1,34 +1,6 @@
 {
-  "date": "2026-11-11",
+  "date": "2026-11-12",
   "data": [
-    {
-      "date": "2026-09-24",
-      "limitUpCount": 24,
-      "marketMood": "中性",
-      "taiexChange": -0.28,
-      "topSectors": [
-        {
-          "name": "電子零組件",
-          "count": 3
-        },
-        {
-          "name": "半導體",
-          "count": 2
-        },
-        {
-          "name": "電腦週邊",
-          "count": 1
-        },
-        {
-          "name": "電機機械",
-          "count": 1
-        },
-        {
-          "name": "鋼鐵",
-          "count": 1
-        }
-      ]
-    },
     {
       "date": "2026-09-29",
       "limitUpCount": 46,
@@ -838,6 +810,34 @@
         {
           "name": "電機機械",
           "count": 7
+        }
+      ]
+    },
+    {
+      "date": "2026-11-12",
+      "limitUpCount": 65,
+      "marketMood": "強勢",
+      "taiexChange": -2.63,
+      "topSectors": [
+        {
+          "name": "電子零組件",
+          "count": 10
+        },
+        {
+          "name": "半導體",
+          "count": 9
+        },
+        {
+          "name": "資訊服務",
+          "count": 9
+        },
+        {
+          "name": "通信網路",
+          "count": 6
+        },
+        {
+          "name": "電腦週邊",
+          "count": 6
         }
       ]
     }
