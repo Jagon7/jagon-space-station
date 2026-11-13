@@ -69,13 +69,17 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
           npx --yes wrangler@3.114.0 pages project create "$CF_PROJECT" --production-branch=main 2>/dev/null || true
-          # Cloudflare API 偶爾回「Unknown internal error」：等一下重試，最多 3 次
-          for i in 1 2 3; do
+          # Cloudflare API 偶爾內部錯誤或短暫 503：等越來越久再重試（30 秒、1、2、4 分鐘，共約 8 分鐘）。
+          # 全部失敗也不讓 workflow 變紅叉（不寄錯誤信）：下一批資料提交會再部署，
+          # 每晚 23:10 的新鮮度檢查會確認網站有沒有更新，一整天都沒部署成功才用 LINE 通知。
+          for wait in 30 60 120 240 0; do
             npx --yes wrangler@3.114.0 pages deploy out --project-name="$CF_PROJECT" --branch=main --commit-dirty=true && exit 0
-            echo "Cloudflare 部署失敗（第 $i 次），$((i * 20)) 秒後重試"
-            sleep $((i * 20))
+            [ "$wait" = 0 ] && break
+            echo "Cloudflare 部署失敗，${wait} 秒後重試"
+            sleep "$wait"
           done
-          exit 1
+          echo "::warning::Cloudflare 部署重試多次仍失敗（Cloudflare 端暫時故障），等下一次資料更新再部署"
+          exit 0
 
       - uses: actions/upload-pages-artifact@v5
         if: steps.check.outputs.skip != 'true' && env.CF != 'true'
