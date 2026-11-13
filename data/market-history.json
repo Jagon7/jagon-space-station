@@ -1,34 +1,6 @@
 {
-  "date": "2026-11-12",
+  "date": "2026-11-13",
   "data": [
-    {
-      "date": "2026-09-29",
-      "limitUpCount": 46,
-      "marketMood": "偏強",
-      "taiexChange": -0.82,
-      "topSectors": [
-        {
-          "name": "半導體",
-          "count": 7
-        },
-        {
-          "name": "光電",
-          "count": 7
-        },
-        {
-          "name": "電子零組件",
-          "count": 5
-        },
-        {
-          "name": "其他電子",
-          "count": 4
-        },
-        {
-          "name": "電機機械",
-          "count": 3
-        }
-      ]
-    },
     {
       "date": "2026-09-30",
       "limitUpCount": 60,
@@ -838,6 +810,34 @@
         {
           "name": "電腦週邊",
           "count": 3
+        }
+      ]
+    },
+    {
+      "date": "2026-11-13",
+      "limitUpCount": 52,
+      "marketMood": "偏強",
+      "taiexChange": 1.35,
+      "topSectors": [
+        {
+          "name": "電子零組件",
+          "count": 10
+        },
+        {
+          "name": "資訊服務",
+          "count": 7
+        },
+        {
+          "name": "半導體",
+          "count": 7
+        },
+        {
+          "name": "光電",
+          "count": 6
+        },
+        {
+          "name": "數位雲端",
+          "count": 6
         }
       ]
     }
