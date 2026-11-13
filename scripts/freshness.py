@@ -93,9 +93,18 @@ def checks(now: datetime) -> tuple[str, list[dict]]:
         ("通知", "分點大額進出", (sent("broker-sent.json") or [None])[-1], "20:10"),
         ("通知", "主動 ETF 停損＋融資斷頭", (sent("active-sent.json") or [None])[-1], "22:50"),
     ]
+    # 網站本身：抓線上的 home.json，看最後一次成功部署是哪天（部署失敗不寄信，靠這裡抓連續失敗）
+    site = os.environ.get("SITE_URL", "").rstrip("/")
+    if site:
+        try:
+            import requests
+            up = requests.get(f"{site}/data/home.json", timeout=30).json().get("updatedAt", "")[:10] or None
+        except Exception:  # noqa: BLE001
+            up = None
+        items.append(("網站", "網站部署（Cloudflare）", up, "00:00"))
     rows = []
     for cat, name, latest, ready in items:
-        exp = expect(ready)
+        exp = now.date().isoformat() if cat == "網站" else expect(ready)  # 網站每天都會部署（週末也有情報更新）
         lag = None
         if latest:
             lag = sum(1 for d in tdays if latest < d <= exp)
