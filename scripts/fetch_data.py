@@ -81,7 +81,7 @@ def save(filename: str, data: dict):
 
 HAD_CRITICAL_FAILURE = False
 
-def save_guarded(filename: str, items: list) -> list:
+def save_guarded(filename: str, items: list, critical: bool = True) -> list:
     """
     寫入前比對舊檔：如果這次抓到空的、但舊檔案有資料，判定為抓取異常
     （來源改版/連線失敗等），保留舊資料不覆蓋，並標記本次執行失敗，
@@ -93,8 +93,9 @@ def save_guarded(filename: str, items: list) -> list:
         try:
             prev = json.loads(path.read_text(encoding="utf-8"))
             if prev.get("data"):
-                log(f"✗ {filename} 本次抓取為空但舊檔有 {len(prev['data'])} 筆，判定抓取異常，保留舊資料")
-                HAD_CRITICAL_FAILURE = True
+                log(f"{'✗' if critical else '⚠'} {filename} 本次抓取為空但舊檔有 {len(prev['data'])} 筆，判定抓取異常，保留舊資料")
+                if critical:
+                    HAD_CRITICAL_FAILURE = True
                 return prev["data"]
         except Exception:
             pass
@@ -1019,8 +1020,14 @@ def fetch_sfb_cb() -> list[dict]:
     log(f"  Excel: {excel_url}")
 
     try:
-        r = SESSION.get(excel_url, timeout=30)
-        r.raise_for_status()
+        # 帶上來源頁、拿到網頁（不是 Excel）就等一下再試
+        for attempt in range(3):
+            r = SESSION.get(excel_url, timeout=30, headers={"Referer": "https://www.sfb.gov.tw/ch/home.jsp?id=1016&parentpath=0,6,52"})
+            r.raise_for_status()
+            if not r.content.lstrip()[:15].lower().startswith((b"<!doctype", b"<html")):
+                break
+            log(f"  Excel 連結回傳網頁而不是檔案（第 {attempt + 1} 次），稍後重試")
+            time.sleep(10 * (attempt + 1))
         if excel_url.lower().endswith(".xls"):  # 舊版 Excel 格式，openpyxl 讀不了
             import xlrd
             sh = xlrd.open_workbook(file_contents=r.content).sheet_by_index(0)
@@ -1146,7 +1153,8 @@ def main():
     save("notice.json",        {"date": TODAY_AD, "data": notice})
     save("disposition.json",   {"date": TODAY_AD, "data": disposition})
     cb_issuances = save_guarded("cb-watch.json", cb_issuances)
-    sfb_cb       = save_guarded("sfb-cb.json",   sfb_cb)
+    # 金管會網站偶爾對 GitHub 的機器回網頁而不是 Excel；這份是輔助資料，抓不到就沿用舊的、不讓整個排程失敗
+    sfb_cb       = save_guarded("sfb-cb.json",   sfb_cb, critical=False)
     save("announcements.json", {"date": TODAY_AD, "data": announcements})
     save("sector-performance.json", {"date": TODAY_AD, "data": sector_perf})
     save("sector-stocks.json", {"date": TODAY_AD, "data": sector_stocks})
