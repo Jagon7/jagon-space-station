@@ -625,16 +625,89 @@ def fetch_disposition_stocks() -> list[dict]:
     return stocks
 
 # ── 漲停原因：Google News + Claude ────────────────────────────
-def _google_news_headlines(code: str, name: str) -> list[str]:
+def _google_news_headlines(code: str, name: str, with_date: bool = False) -> list:
     import xml.etree.ElementTree as ET, urllib.parse
+    from email.utils import parsedate_to_datetime
     q = urllib.parse.quote(f"{name} 漲停")
     url = f"https://news.google.com/rss/search?q={q}&hl=zh-TW&gl=TW&ceid=TW:zh-Hant"
     try:
         r = SESSION.get(url, timeout=8)
         root = ET.fromstring(r.content)
-        return [item.findtext("title", "") for item in root.findall(".//item")][:4]
-    except:
+        items = []
+        for item in root.findall(".//item")[:8]:
+            try:
+                ts = parsedate_to_datetime(item.findtext("pubDate", ""))
+            except (TypeError, ValueError):
+                ts = None
+            items.append((item.findtext("title", ""), ts))
+        return items if with_date else [t for t, _ in items][:4]
+    except Exception:
         return []
+
+
+# 不靠 AI 的漲停原因：新聞標題關鍵字 → 短句（依優先順序）
+REASON_RULES = [
+    (("公開收購", "併購", "收購", "合併"), "併購／公開收購"),
+    (("庫藏股",), "宣布買回庫藏股"),
+    (("每股賺", "EPS", "獲利創", "財報", "季報", "賺贏", "轉虧為盈", "獲利"), "財報亮眼"),
+    (("營收創", "營收年增", "營收月增", "營收大增", "月營收", "營收"), "營收成長"),
+    (("目標價", "調升評等", "外資喊", "法人看好", "買進評等"), "法人調升看法"),
+    (("法說",), "法說會題材"),
+    (("漲價", "報價上揚", "調漲"), "產品漲價"),
+    (("接單", "訂單", "大單", "拿下", "打入", "供應鏈"), "接單／打入供應鏈"),
+    (("CoWoS", "先進封裝"), "先進封裝題材"),
+    (("矽光子", "CPO"), "矽光子題材"),
+    (("低軌", "衛星"), "低軌衛星題材"),
+    (("機器人",), "機器人題材"),
+    (("軍工", "無人機", "國防"), "軍工／無人機題材"),
+    (("AI", "伺服器", "輝達", "NVIDIA"), "AI 題材"),
+    (("記憶體", "DRAM", "NAND", "HBM"), "記憶體題材"),
+    (("PCB", "載板", "CCL"), "PCB 題材"),
+    (("散熱", "液冷"), "散熱題材"),
+    (("重電", "電網", "儲能"), "重電／儲能題材"),
+    (("生技", "新藥", "臨床", "FDA", "授權"), "新藥／生技進展"),
+    (("減資", "現增", "增資"), "減資／增資題材"),
+    (("轉機", "轉盈"), "轉機題材"),
+    (("投信", "外資買", "法人買", "買超"), "法人買超"),
+]
+
+
+def _rule_reason(name: str, items: list) -> str:
+    """當天（台北時間 2 天內）的新聞標題：先找含股名的；命中關鍵字就用歸納的短句，否則用整理過的標題"""
+    now = datetime.datetime.now(datetime.timezone.utc)
+    fresh = [t for t, ts in items if not ts or (now - ts).total_seconds() < 2 * 86400]
+    fresh.sort(key=lambda t: name not in t)  # 含股名的排前面
+    for t in fresh:
+        head = re.sub(r"\s+-\s+[^-]+$", "", t)  # 去掉「 - 鉅亨網」來源
+        hits = [label for keys, label in REASON_RULES if any(k in head for k in keys)]
+        if hits:
+            return "、".join(dict.fromkeys(hits[:2]))
+        # 通用：「資安題材」「重電概念股」「光學族群」這類
+        m = re.search(r"([\u4e00-\u9fffA-Za-z]{2,6}?)(題材|概念股|概念|族群)", head)
+        if m and m.group(1) not in ("今日", "漲停", "強勢", "熱門", "這檔"):
+            return f"{m.group(1)}題材" if m.group(2) != "族群" else f"{m.group(1)}族群走強"
+    for t in fresh:
+        if name in t:
+            head = re.sub(r"\s+-\s+[^-]+$", "", t)
+            head = re.sub(r"^[〈【\[(（][^〉】\])）]{1,12}[〉】\])）]\s*", "", head)
+            head = re.sub(r"(攻|亮燈|強攻|直攻|衝上|鎖|爆量攻上)?漲停.*$", "", head)
+            core = re.sub(r"[（(]?\d{4,6}[)）]?|股價|今日|" + re.escape(name), "", head).strip("，,｜|！!*＊ ")
+            # 拿掉股名、代號後太短（例如「資通(2471)股價」）就不用，寧可留白
+            meaningful = re.search(r"受惠|宣布|獲得|獲選|啟動|推出|合作|簽約|切入|量產|通過|奪下|爭取", head)
+            return head.strip("，,｜| ")[:24] if meaningful and len(core) >= 8 and "這檔" not in head else ""
+    return ""
+
+
+def fetch_limit_up_reasons_rules(stocks: list[dict]) -> dict[str, str]:
+    log(f"漲停原因（新聞標題關鍵字，不用 AI）× {len(stocks)} 檔...")
+    out = {}
+    for s in stocks:
+        r = _rule_reason(s["name"].rstrip("*"), _google_news_headlines(s["code"], s["name"].rstrip("*"), with_date=True))
+        if r:
+            out[s["code"]] = r
+    log(f"  歸納出 {len(out)} 檔的原因")
+    return out
+
 
 def fetch_limit_up_reasons(stocks: list[dict]) -> dict[str, str]:
     """
@@ -1130,6 +1203,16 @@ def main():
     todo = [s for s in limit_stocks if s["code"] not in reasons]
     if todo:
         reasons.update(fetch_limit_up_reasons(todo))
+    # Claude 沒額度或失敗時，改用新聞標題關鍵字歸納（不需要 AI）
+    todo = [s for s in limit_stocks if s["code"] not in reasons]
+    if todo:
+        reasons.update(fetch_limit_up_reasons_rules(todo))
+    # 還是沒有的：同產業今天有 2 檔以上漲停 → 族群同步漲停
+    from collections import Counter
+    sec_n = Counter(s.get("sector") for s in limit_stocks if s.get("sector"))
+    for s in limit_stocks:
+        if s["code"] not in reasons and s.get("sector") not in ("其他", "") and sec_n.get(s.get("sector"), 0) >= 2:
+            reasons[s["code"]] = f"{s['sector']}族群同步漲停（{sec_n[s['sector']]} 檔）"
     for s in limit_stocks:
         if s["code"] in reasons:
             s["reason"] = reasons[s["code"]]
