@@ -2,26 +2,6 @@
   "date": "2026-11-13",
   "data": [
     {
-      "code": "2360",
-      "name": "致茂",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/11/09～115/11/13",
-      "endDate": "2026-11-13",
-      "announceDate": "115/11/06",
-      "market": "上市"
-    },
-    {
-      "code": "3532",
-      "name": "台勝科",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/11/09～115/11/13",
-      "endDate": "2026-11-13",
-      "announceDate": "115/11/06",
-      "market": "上市"
-    },
-    {
       "code": "3189",
       "name": "景碩",
       "count": 1,
