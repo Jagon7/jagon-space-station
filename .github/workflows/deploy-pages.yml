@@ -69,7 +69,13 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
           npx --yes wrangler@3.114.0 pages project create "$CF_PROJECT" --production-branch=main 2>/dev/null || true
-          npx --yes wrangler@3.114.0 pages deploy out --project-name="$CF_PROJECT" --branch=main --commit-dirty=true
+          # Cloudflare API 偶爾回「Unknown internal error」：等一下重試，最多 3 次
+          for i in 1 2 3; do
+            npx --yes wrangler@3.114.0 pages deploy out --project-name="$CF_PROJECT" --branch=main --commit-dirty=true && exit 0
+            echo "Cloudflare 部署失敗（第 $i 次），$((i * 20)) 秒後重試"
+            sleep $((i * 20))
+          done
+          exit 1
 
       - uses: actions/upload-pages-artifact@v5
         if: steps.check.outputs.skip != 'true' && env.CF != 'true'
