@@ -3,17 +3,22 @@
   "data": [
     {
       "name": "資訊服務",
-      "count": 2,
-      "momentum": "weak"
+      "count": 15,
+      "momentum": "strong"
     },
     {
       "name": "數位雲端",
-      "count": 2,
-      "momentum": "weak"
+      "count": 6,
+      "momentum": "strong"
     },
     {
       "name": "生技醫療",
-      "count": 1,
+      "count": 3,
+      "momentum": "normal"
+    },
+    {
+      "name": "其他電子",
+      "count": 2,
       "momentum": "weak"
     },
     {
@@ -28,6 +33,11 @@
     },
     {
       "name": "建材營造",
+      "count": 1,
+      "momentum": "weak"
+    },
+    {
+      "name": "電子零組件",
       "count": 1,
       "momentum": "weak"
     }

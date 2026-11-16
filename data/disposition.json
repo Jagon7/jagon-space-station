@@ -30,6 +30,26 @@
       "endDate": "2026-11-17",
       "announceDate": "115/11/10",
       "market": "上市"
+    },
+    {
+      "code": "2466",
+      "name": "冠西電",
+      "count": 1,
+      "condition": "連續三次",
+      "period": "115/11/17～115/11/23",
+      "endDate": "2026-11-23",
+      "announceDate": "*115/11/16",
+      "market": "上市"
+    },
+    {
+      "code": "6108",
+      "name": "競國",
+      "count": 1,
+      "condition": "連續三次",
+      "period": "115/11/17～115/11/23",
+      "endDate": "2026-11-23",
+      "announceDate": "*115/11/16",
+      "market": "上市"
     }
   ]
 }
