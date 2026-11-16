@@ -13,7 +13,8 @@ export type Home = {
   };
   alerts: { level: "red" | "amber" | "info"; text: string; href: string }[];
   strategy: { asof: string | null; next: string | null; s1: { code: string; name: string; v: number }[]; s1n: number; s2: { code: string; name: string; v: number | null }[]; s2n: number; exits: number; exitAvg: number | null };
-  turnover: { asof: string | null; next: string | null; list: { code: string; name: string; t: number; dt: number | null }[]; o2c: number | null; black: number | null; top: { code: string; name: string; t: number }[] };
+  turnover: { asof: string | null; next: string | null; list: { code: string; name: string; t: number; dt: number | null }[]; o2c: number | null; black: number | null; top: { code: string; name: string; t: number }[];
+    dtList?: { code: string; name: string; dt: number | null; ret: number | null; fade: boolean }[] };
   global: { date: string | null; idx: { name: string; chg: number }[]; groups: { name: string; sym: string; chg: number; react: { name: string; exp: number }[] }[] };
   week?: { from: string; to: string; days: { d: string; wd: string; next: boolean; today?: boolean; items: { cat: string; text: string; hi: boolean; href: string | null }[] }[] };
   margin?: { date: string; tw: number | null; otc: number | null; twChg: number | null; otcChg: number | null; below: number; near: number; hot: number;
@@ -254,7 +255,7 @@ export default function CommandCenter({ h }: { h: Home }) {
           {st.exits > 0 && <div className="text-xs text-[#f59e0b]">⏰ {md(st.next)} 開盤出場 {st.exits} 檔{st.exitAvg != null && <>，平均 <span className={`font-mono ${tone(st.exitAvg)}`}>{sg(st.exitAvg)}%</span></>}</div>}
         </Panel>
 
-        <Panel icon={RotateCw} title="高週轉＋漲停：開高走低觀察" href="/turnover" accent="#22c55e" sub={`${md(tv.next)} 觀察・依 ${md(tv.asof)} 收盤`}>
+        <Panel icon={RotateCw} title="高週轉＋漲停／高當沖比黑K：開高走低觀察" href="/turnover" accent="#22c55e" sub={`${md(tv.next)} 觀察・依 ${md(tv.asof)} 收盤`}>
           {tv.list.length ? (
             <div className="space-y-1.5 mb-3">
               {tv.list.map((x) => (
@@ -266,6 +267,10 @@ export default function CommandCenter({ h }: { h: Home }) {
             </div>
           ) : <div className="text-xs text-[#7c8aa0] mb-3">今天週轉率前 20 名沒有收漲停的股票</div>}
           {tv.o2c != null && <div className="text-[11px] text-[#8b97ab] mb-3">回測：隔天開→收平均 <span className={`font-mono ${tone(tv.o2c)}`}>{sg(tv.o2c)}%</span>，收黑機率 {tv.black?.toFixed(0)}%</div>}
+          {!!tv.dtList?.length && (<>
+            <div className="text-[11px] text-[#8b97ab] mb-1.5">高當沖比＋黑K</div>
+            <div className="flex flex-wrap gap-1.5 mb-3">{tv.dtList.map((x) => <Chip key={x.code} name={`${x.name}${x.fade ? "・開高走低" : ""}`} right={x.dt != null ? `${x.dt.toFixed(0)}%` : undefined} cls="text-[#f59e0b]" />)}</div>
+          </>)}
           <div className="text-[11px] text-[#8b97ab] mb-1.5">今日週轉率前 5</div>
           <div className="flex flex-wrap gap-1.5">{tv.top.map((x) => <Chip key={x.code} name={x.name} right={`${x.t.toFixed(1)}%`} cls="text-[#f59e0b]" />)}</div>
         </Panel>

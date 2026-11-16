@@ -13,6 +13,7 @@ type Data = {
   asof: string; next: string; updatedAt: string; from: string; costFull: number; costDisc: number;
   today: Row[]; count: number; stats: Stat[]; deciles: Stat[]; history: { date: string; next: string; picks: Pick[] }[];
   dtDeciles?: Stat[]; dtSplit?: Stat[]; corr?: number | null; corrDays?: number; alert?: Alert[]; dtReady?: boolean;
+  dtAlert?: (Alert & { open: number })[]; dtStats?: Stat[]; dtMin?: number;
 };
 type View = "today" | "backtest" | "history";
 
@@ -94,6 +95,28 @@ export default function TurnoverDashboard() {
             : <span className="text-xs text-[#7c8aa0]">今天沒有符合的股票。</span>}
         </section>
       )}
+      {view === "today" && (
+        <section className="mb-4 rounded-xl border border-[#243247] bg-[#0d1220] p-4">
+          <div className="text-sm text-white font-semibold mb-1">高當沖比＋黑K：{md(data.next)} 開高走低觀察名單</div>
+          <p className="text-xs text-[#8b97ab] mb-2">
+            成交 ≥ 1 億、當沖比 ≥ {data.dtMin ?? 60}%、今天收黑K（收盤 &lt; 開盤），排除隔天處置與暫停先賣後買；標「開高走低」的是今天仍收漲、回測隔天最弱的，排在前面。
+            {!data.dtReady && " 當沖資料約晚上 9 點後才公布，之前名單會是空的。"}
+          </p>
+          {data.dtAlert?.length
+            ? <div className="flex flex-wrap gap-2">{data.dtAlert.map((a) => (
+                <span key={a.code} className="rounded-md bg-[#141c2e] px-2.5 py-1 text-xs"><span className="text-slate-200">{a.name}</span><span className="ml-1 font-mono text-[#8b97ab]">{a.code}</span>
+                  {(a.ret ?? 0) >= 0 && <span className="ml-1.5 rounded bg-[#22c55e]/15 px-1 text-[10px] text-[#22c55e]">開高走低</span>}
+                  <span className="ml-2 font-mono text-[#f59e0b]">當沖 {a.dt?.toFixed(0)}%</span>
+                  <span className={`ml-1.5 font-mono ${tone(a.ret)}`}>{pct(a.ret)}</span>
+                  <span className="ml-1.5 font-mono text-[#8b97ab]">{a.valueYi.toFixed(0)} 億</span></span>))}</div>
+            : <span className="text-xs text-[#7c8aa0]">今天沒有符合的股票。</span>}
+          {!!data.dtStats?.length && (
+            <div className="mt-2 text-[11px] text-[#8b97ab]">回測（{data.dtStats[0].days} 天）：隔天開→收
+              {data.dtStats.map((s) => <span key={s.group} className="ml-2">{s.group.replace("　└ ", "")} <span className={`font-mono ${tone(s.o2c)}`}>{pct(s.o2c)}</span>・黑K {s.black}%</span>)}
+            </div>
+          )}
+        </section>
+      )}
       {view === "today" && (data.today.length
         ? <SortTable<Row> rows={data.today} columns={cToday} rowKey={(r) => r.code} initialSort={{ key: "turnover", desc: true }} rank limit={100} />
         : <Empty>沒有資料。</Empty>)}
@@ -119,6 +142,7 @@ export default function TurnoverDashboard() {
             </div>
           </section>
           <SortTable<Stat> rows={data.stats} columns={cStat} rowKey={(s) => s.group} />
+          {!!data.dtStats?.length && <SortTable<Stat> rows={data.dtStats} columns={cStat} rowKey={(s) => s.group} />}
           <SortTable<Stat> rows={data.deciles} columns={cStat} rowKey={(s) => s.group} />
           {!!data.dtDeciles?.length && (
             <section className="space-y-3">

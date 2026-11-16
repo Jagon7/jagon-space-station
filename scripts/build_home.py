@@ -206,6 +206,8 @@ def build(data_dir: Path, public_dir: Path):
     turnover = {"asof": tv.get("asof"), "next": tv.get("next"),
                 "list": [{"code": r["code"], "name": r["name"], "t": r["turnover"], "dt": r.get("dt")} for r in tv.get("alert", [])],
                 "o2c": ref and ref["o2c"], "black": ref and ref["black"],
+                "dtList": [{"code": r["code"], "name": r["name"], "dt": r.get("dt"), "ret": r.get("ret"), "fade": (r.get("ret") or 0) >= 0}
+                           for r in tv.get("dtAlert", [])],
                 "top": [{"code": r["code"], "name": r["name"], "t": r["turnover"]} for r in (tv.get("today") or [])[:5]]}
     groups = []
     for g in intl.get("groups", []):

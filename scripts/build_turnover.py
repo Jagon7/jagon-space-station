@@ -9,6 +9,8 @@
   漲停判斷：收盤價 ≥ 前一日收盤 ×1.1 依升降單位無條件捨去的價格
   排除：ETF 等非普通股、隔天處置中的股票（處置股當沖受限）
   alert：今天週轉率前 20 名（成交 ≥ 1 億）且收漲停的股票，排除隔天處置、今天暫停先賣後買的，給 LINE 推播用
+  dtAlert：高當沖比＋黑K：成交 ≥ 1 億、當沖比 ≥ 60%、今天收黑K（收盤 < 開盤），同樣排除隔天處置、暫停先賣後買；
+           今天仍收漲（開高走低）的排前面（回測隔天開→收最弱），其餘依成交金額；最多 DT_MAX 檔
 """
 from __future__ import annotations
 
@@ -22,6 +24,8 @@ from build_strategy import STOCK, TPE, _load, limit_up, next_trading_day
 COST_FULL = 0.435  # 當沖：證交稅 0.15%（當沖減半）＋手續費 0.1425%×2
 COST_DISC = 0.23   # 手續費 2.8 折：0.15% ＋ 0.1425%×0.28×2
 HIST_DAYS = 20
+DT_MIN = 60   # 高當沖比門檻（%）
+DT_MAX = 10
 
 
 def build(data_dir: Path, public_dir: Path):
@@ -128,6 +132,13 @@ def build(data_dir: Path, public_dir: Path):
                     add(f"當沖第 {k + 1} 組", r["nx"], d)
             for r in [r for r in rows[:20] if r["dt"] is not None]:
                 add("週轉前 20 名・當沖比 ≥ 50%" if r["dt"] >= 50 else "週轉前 20 名・當沖比 < 50%", r["nx"], d)
+            for r in rows:
+                if r["dt"] is not None and r["valueYi"] >= 1 and r["dt"] >= DT_MIN and r["close"] < r["open"]:
+                    add("高當沖比＋黑K", r["nx"], d)
+                    if (r["ret"] or 0) >= 0:
+                        add("　└ 今天仍收漲（開高走低）", r["nx"], d)
+                    else:
+                        add("　└ 今天收跌", r["nx"], d)
         liq = [r for r in rows if r["valueYi"] >= 1][:20]
         for r in liq:
             add("前 20 名（成交 ≥ 1 億）", r["nx"], d)
@@ -162,19 +173,24 @@ def build(data_dir: Path, public_dir: Path):
         r["disposed"] = disposed(r["code"], d0) or disposed(r["code"], nxt)
         r["noShort"] = r["code"] in nox
     alert = [r for r in [r for r in today if r["valueYi"] >= 1][:20] if r["limit"] and not r["disposed"] and not r["noShort"]]
+    dt_alert = sorted([r for r in today if r["dt"] is not None and r["valueYi"] >= 1 and r["dt"] >= DT_MIN and r["close"] < r["open"]
+                       and not r["disposed"] and not r["noShort"]], key=lambda r: ((r["ret"] or 0) < 0, -r["valueYi"]))[:DT_MAX]
     corr = [x for x in corr if x is not None]
     out = {
         "asof": d0, "next": nxt, "updatedAt": datetime.now(TPE).isoformat(timespec="minutes"),
         "from": days[0][0], "costFull": COST_FULL, "costDisc": COST_DISC,
         "today": today[:300], "count": len(today),
-        "stats": [stat(k) for k in order if not k.startswith(("第", "當沖第", "週轉前"))],
+        "stats": [stat(k) for k in order if not k.startswith(("第", "當沖第", "週轉前", "高當沖", "　└ 今天"))],
+        "dtStats": [stat(k) for k in ("高當沖比＋黑K", "　└ 今天仍收漲（開高走低）", "　└ 今天收跌") if k in groups],
+        "dtMin": DT_MIN,
         "deciles": [stat(f"第 {k} 組") for k in range(1, 11) if f"第 {k} 組" in groups],
         "dtDeciles": [stat(f"當沖第 {k} 組") for k in range(1, 11) if f"當沖第 {k} 組" in groups],
         "dtSplit": [stat(k) for k in ("週轉前 20 名・當沖比 ≥ 50%", "週轉前 20 名・當沖比 < 50%") if k in groups],
         "dtReady": dt_of(d0)[0] is not None,
         "corr": round(st.mean(corr), 2) if corr else None, "corrDays": len(corr),
         "alert": [{k: r[k] for k in ("code", "name", "mk", "close", "ret", "turnover", "dt", "valueYi")} for r in alert],
+        "dtAlert": [{k: r[k] for k in ("code", "name", "mk", "open", "close", "ret", "turnover", "dt", "valueYi")} for r in dt_alert],
         "history": list(reversed(hist[-HIST_DAYS:])),
     }
     (public_dir / "turnover.json").write_text(json.dumps(out, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
-    print(f"週轉率：{d0} 共 {len(today)} 檔，回測 {len(hist)} 天")
+    print(f"週轉率：{d0} 共 {len(today)} 檔，回測 {len(hist)} 天；高週轉漲停 {len(alert)} 檔、高當沖比黑K {len(dt_alert)} 檔")
