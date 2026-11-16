@@ -1,0 +1,83 @@
+name: Settlement Update
+
+# 結算策略每日更新（Cloudflare 排程 19:00 觸發，晚上 8 點前網頁要是當天的）：
+#   期交所大額交易人＋結算價 → 當沖（有公布就抓）→ 永豐 1 分 K 整日平均折溢價 → 提交 → 部署網站
+# 19:35／20:05 由 Data Freshness（only=結算）檢查網站上的 settlement.json 是不是當天：不是就重新部署，20:05 還不是才發 LINE。
+on:
+  schedule:
+    - cron: '5 11 * * 1-5'    # 19:05 台灣時間（備援；主要由 Cloudflare 19:00 觸發）
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: settlement
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: main
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.11'
+      - run: pip install shioaji==1.7.9 requests
+      - name: TAIFEX large traders and settlement prices
+        run: python3 -u scripts/fetch_settlement.py --days 10
+        continue-on-error: true
+        env:
+          JSS_DATA_DIR: ./data
+      - name: Day-trade volume (if already published)
+        run: |
+          python3 -u - <<'PY'
+          import json, sys
+          sys.path.insert(0, "scripts")
+          import fetch_strategy as fs
+          p = fs.OUT / "daytrade.json"
+          try:
+              known = json.loads(p.read_text(encoding="utf-8")).get("days", {})
+          except (OSError, ValueError):
+              known = {}
+          dt = fs.daytrade(known)
+          if dt:
+              p.write_text(json.dumps({"updatedAt": fs.datetime.now(fs.TPE).isoformat(timespec="minutes"), "days": dt}, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+              print("當沖：最新", max(d for d, v in dt.items() if v.get("tw") or v.get("tp")))
+          PY
+        continue-on-error: true
+        env:
+          JSS_DATA_DIR: ./data
+      - name: Full-day average basis (Shioaji 1-min bars, quotes only)
+        # 永豐登入訊息會印出登入識別碼（身分證字號格式），公開的 Actions log 一律遮掉
+        run: |
+          set -o pipefail
+          python3 -u scripts/settlement_basis.py 2>&1 | sed -u -E 's/[A-Z][12][0-9]{8}/[已遮蔽]/g'
+        continue-on-error: true
+        env:
+          SHIOAJI_API_KEY: ${{ secrets.SHIOAJI_API_KEY }}
+          SHIOAJI_SECRET_KEY: ${{ secrets.SHIOAJI_SECRET_KEY }}
+          JSS_DATA_DIR: ./data
+      - name: Commit
+        id: commit
+        run: |
+          rm -f shioaji.log
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add data/settlement/ data/strategy/daytrade.json 2>/dev/null || true
+          git diff --staged --quiet && exit 0
+          git commit -m "data: settlement $(TZ=Asia/Taipei date +%Y-%m-%d)"
+          for i in 1 2 3 4 5; do
+            git push && exit 0
+            git pull --rebase -X theirs origin main || { git rebase --abort; git pull --no-rebase -X ours origin main; }
+          done
+          exit 1
+      - name: Deploy site
+        # 不管有沒有新資料都重建一次，確保網頁上的結算表是最新的
+        run: gh workflow run deploy-pages.yml --ref main
+        env:
+          GH_TOKEN: ${{ github.token }}

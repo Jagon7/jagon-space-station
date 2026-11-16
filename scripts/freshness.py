@@ -103,6 +103,13 @@ def checks(now: datetime) -> tuple[str, list[dict]]:
         except Exception:  # noqa: BLE001
             up = None
         items.append(("網站", "網站部署（Cloudflare）", up, "00:00"))
+        try:
+            sj = requests.get(f"{site}/data/settlement.json", timeout=30).json()
+            # 收盤、期交所大額交易人、三大法人（自營商）都要到當天才算
+            sd = min([sj.get(k) for k in ("date", "ltDate", "instiDate")]) if all(sj.get(k) for k in ("date", "ltDate", "instiDate")) else None
+        except Exception:  # noqa: BLE001
+            sd = None
+        items.append(("結算", "結算策略網頁（每天 20:00 前）", sd, "19:30"))
     rows = []
     for cat, name, latest, ready in items:
         exp = now.date().isoformat() if cat == "網站" else expect(ready)  # 網站每天都會部署（週末也有情報更新）
@@ -118,12 +125,19 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--alert", action="store_true")
     ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("--only", default="", help="只檢查這個類別（例如 結算），不寫 freshness.json")
     a = ap.parse_args()
     now = datetime.now(TPE)
     day, rows = checks(now)
+    if a.only:
+        rows = [r for r in rows if r["cat"] == a.only]
     bad = [r for r in rows if not r["ok"]]
+    if os.environ.get("GITHUB_OUTPUT"):
+        with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as f:
+            f.write(f"stale={'true' if bad else 'false'}\n")
     doc = {"checkedAt": now.isoformat(timespec="minutes"), "tradingDay": day, "rows": rows}
-    (DATA / "freshness.json").write_text(json.dumps(doc, ensure_ascii=False, indent=1), encoding="utf-8")
+    if not a.only:
+        (DATA / "freshness.json").write_text(json.dumps(doc, ensure_ascii=False, indent=1), encoding="utf-8")
     for r in rows:
         print(("✅" if r["ok"] else "❌"), r["cat"], r["name"], r["latest"], "應有", r["expected"])
     if not a.alert or not bad:

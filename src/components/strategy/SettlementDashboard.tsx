@@ -9,7 +9,7 @@ type Row = { code: string; name: string; close: number; disp: boolean; black: bo
   turn: number; oi: number; oiBig: number; oiSmall: number; bVal: number; sVal: number; bShare: number | null; sShare: number | null;
   invX: number | null; oiX: number | null; bX: number | null; sX: number | null; basis: number | null; basisSrc: { day: number; settle: number };
   dir: [string, string, string]; same: boolean; ctrl: number; ctrlSh: number; ctrlX: number | null; amihud: number | null };
-type Data = { updatedAt: string; date: string; ltDate: string; month: string; start: string; settle: string; daysLeft: number; days: number;
+type Data = { updatedAt: string; date: string; ltDate: string; dtDate?: string | null; month: string; start: string; settle: string; daysLeft: number; days: number;
   basisDays: number; rows: Row[] };
 type Preset = "ctrlUp" | "ctrlDown" | "inv" | "oi";
 
@@ -90,6 +90,11 @@ export default function SettlementDashboard() {
         <Kpi label="整日平均折溢價" value={`${data.basisDays}/${data.days}`} unit="天" sub="缺的日子用期交所結算價估" />
       </KpiRow>
 
+      {data.dtDate && data.dtDate !== data.date && (
+        <div className="mb-4 rounded-lg border border-[#f59e0b]/30 bg-[#f59e0b]/[0.06] p-3 text-xs text-[#fcd34d]">
+          {md(data.date)} 的當沖資料證交所／櫃買約晚上 9 點後才公布，換手量暫用 {md(data.dtDate)} 的當沖比計算；公布後會自動更新。
+        </div>
+      )}
       <div className="mb-4 flex flex-wrap items-center gap-2">
         <Pills<Preset> value={preset} onChange={setPreset} options={[
           { value: "ctrlUp", label: "控盤倍數（往下控）" }, { value: "ctrlDown", label: "控盤倍數（往上拉）" },
