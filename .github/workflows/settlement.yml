@@ -1,11 +1,11 @@
 name: Settlement Update
 
-# 結算策略每日更新（Cloudflare 排程 19:00 觸發，晚上 8 點前網頁要是當天的）：
+# 結算策略每日更新（Cloudflare 排程 21:40 觸發，晚上 10 點前網頁要是當天的，含當天當沖比）：
 #   期交所大額交易人＋結算價 → 當沖（有公布就抓）→ 永豐 1 分 K 整日平均折溢價 → 提交 → 部署網站
-# 19:35／20:05 由 Data Freshness（only=結算）檢查網站上的 settlement.json 是不是當天：不是就重新部署，20:05 還不是才發 LINE。
+# 21:50／22:05 由 Data Freshness（only=結算）檢查網站上的 settlement.json 是不是當天：不是就再跑一次這個 workflow，22:05 還不是才發 LINE。
 on:
   schedule:
-    - cron: '5 11 * * 1-5'    # 19:05 台灣時間（備援；主要由 Cloudflare 19:00 觸發）
+    - cron: '45 13 * * 1-5'   # 21:45 台灣時間（備援；主要由 Cloudflare 21:40 觸發）
   workflow_dispatch:
 
 permissions:

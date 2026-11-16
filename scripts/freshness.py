@@ -105,11 +105,12 @@ def checks(now: datetime) -> tuple[str, list[dict]]:
         items.append(("網站", "網站部署（Cloudflare）", up, "00:00"))
         try:
             sj = requests.get(f"{site}/data/settlement.json", timeout=30).json()
-            # 收盤、期交所大額交易人、三大法人（自營商）都要到當天才算
-            sd = min([sj.get(k) for k in ("date", "ltDate", "instiDate")]) if all(sj.get(k) for k in ("date", "ltDate", "instiDate")) else None
+            # 收盤、期交所大額交易人、三大法人（自營商）、當沖都要到當天才算
+            ks = ("date", "ltDate", "instiDate", "dtDate")
+            sd = min(sj[k] for k in ks) if all(sj.get(k) for k in ks) else None
         except Exception:  # noqa: BLE001
             sd = None
-        items.append(("結算", "結算策略網頁（每天 20:00 前）", sd, "19:30"))
+        items.append(("結算", "結算策略網頁（每天 22:00 前）", sd, "21:48"))
     rows = []
     for cat, name, latest, ready in items:
         exp = now.date().isoformat() if cat == "網站" else expect(ready)  # 網站每天都會部署（週末也有情報更新）

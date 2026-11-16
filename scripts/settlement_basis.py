@@ -87,14 +87,14 @@ def run(api, data: Path, deadline: float, log=print) -> int:
         return 0
     log(f"折溢價：{month} 近月股期 {len(fut)} 個，期間 {start} ～ {end}")
 
-    # 每檔從本期還沒算過的最早一天查到 end（已算過的日子不重查；最近一天每次重算）
+    # 每檔從本期還沒算過的最早一天查到 end（已算過的日子不重查：end 只會是已收盤的日子，算過就是定案）
     n = 0
     for k, c in fut.items():
         if time.time() > deadline:
             log("折溢價：時間到，下次接著補")
             break
         stock = big[k]
-        have = [d for d in doc if start.isoformat() <= d < end.isoformat() and stock in doc[d]]
+        have = [d for d in doc if start.isoformat() <= d <= end.isoformat() and stock in doc[d]]
         s0 = start
         while s0 <= end and (s0.isoformat() in have or s0.weekday() >= 5 or s0.isoformat() in hol):
             s0 += timedelta(days=1)
