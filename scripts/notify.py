@@ -465,8 +465,8 @@ def turnover_alert(dry: bool, force: bool = False) -> int:
     md = lambda d: f"{int(d[5:7])}/{int(d[8:10])}"  # noqa: E731
     al = tv.get("alert") or []
     ref = next((s for s in tv.get("stats", []) if s["group"].strip().endswith("當天漲停")), None)
-    m = Msg(("【預覽】" if force else "") + "🔻 高週轉＋漲停", f"{md(nxt)} 開高走低觀察名單・{md(asof)} 收盤", accent="#16A34A", url=f"{SITE}/turnover/", button="開啟週轉率頁")
-    m.section("觀察名單", f"{len(al)} 檔")
+    m = Msg(("【預覽】" if force else "") + "🔻 高週轉＋漲停／高當沖比黑K", f"{md(nxt)} 開高走低觀察名單・{md(asof)} 收盤", accent="#16A34A", url=f"{SITE}/turnover/", button="開啟週轉率頁")
+    m.section("高週轉＋漲停", f"{len(al)} 檔")
     if al:
         m.cols("收盤", "週轉率")
     for r in al:
@@ -481,6 +481,23 @@ def turnover_alert(dry: bool, force: bool = False) -> int:
         m.kv("隔天收黑K機率", f"{ref['black']:.0f}%")
         m.kv("開盤空收盤補（全額成本）", f"{ref['shortNet']:+.2f}%", color=sign_tone(ref["shortNet"]))
         m.kv("手續費 2.8 折", f"{ref['shortNetDisc']:+.2f}%", color=sign_tone(ref["shortNetDisc"]))
+    dal = tv.get("dtAlert") or []
+    dref = (tv.get("dtStats") or [None])[0]
+    m.section("高當沖比＋黑K", f"{len(dal)} 檔")
+    if dal:
+        m.cols("收盤", "當沖比")
+    for r in dal:
+        fade = (r.get("ret") or 0) >= 0
+        m.stock(r["name"], r["code"], f"{r['close']:g}", f"{r['dt']:.0f}%", color="#D97706",
+                sub=f"{'開高走低・' if fade else ''}今天 {r['ret']:+.1f}%・成交 {r['valueYi']:g} 億" if r.get("ret") is not None else f"成交 {r['valueYi']:g} 億")
+    if not dal:
+        m.line(f"今天沒有當沖比 ≥ {tv.get('dtMin', 60)}% 又收黑K 的股票（成交 ≥ 1 億）", color=FLAT)
+    if dref:
+        fade_s = next((s for s in tv.get("dtStats", []) if "開高走低" in s["group"]), None)
+        m.kv("回測隔天開盤→收盤", f"{dref['o2c']:+.2f}%（黑K {dref['black']:.0f}%）", color=sign_tone(dref["o2c"]))
+        if fade_s:
+            m.kv("　其中今天仍收漲", f"{fade_s['o2c']:+.2f}%（黑K {fade_s['black']:.0f}%）", color=sign_tone(fade_s["o2c"]))
+        m.kv("開盤空收盤補（全額成本）", f"{dref['shortNet']:+.2f}%", color=sign_tone(dref["shortNet"]))
     m.note("已排除隔天處置、暫停先賣後買的股票。做法：開盤放空、收盤回補；開盤若沒開高或直接開低，優勢較小。")
     text = m.text()
     print(text)
@@ -490,7 +507,7 @@ def turnover_alert(dry: bool, force: bool = False) -> int:
     if late:
         print(f"已經過了 {md(nxt)} 開盤，不再推播")
     if not dry:
-        if al and not late and not send(m):
+        if (al or dal) and not late and not send(m):
             print("（沒有設定任何推播管道，只印出內容）")
         state["sent"] = sorted(set(state["sent"]) | {asof})[-60:]
         TURNOVER_STATE.parent.mkdir(parents=True, exist_ok=True)
