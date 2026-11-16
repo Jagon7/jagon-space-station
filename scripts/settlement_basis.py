@@ -1,9 +1,9 @@
 """
 結算策略：股票期貨每天的「整日平均折溢價」（永豐 Shioaji 1 分 K，只查行情）
 
-每天 09:00～13:25 之間，股期近月每一根有成交的 1 分 K：折溢價＝期貨收盤 ÷ 當下現貨價（現貨 1 分 K 收盤，沒成交沿用前一筆）− 1
+每天 09:05～13:24 之間，股期近月每一根有成交的 1 分 K：折溢價＝期貨收盤 ÷ 當下現貨價（現貨 1 分 K 收盤，沒成交沿用前一筆）− 1
 當天的折溢價＝這些分鐘的簡單平均（只用期貨有成交的分鐘，避免冷門股期用很久以前的舊價格）
-結果 data/settlement/basis_day.json {日期: {股票代號: [整日平均折溢價, 期貨有成交的分鐘數]}}；由 orderflow_ticks.py 登入後呼叫 run()
+結果 data/settlement/basis_day.json {"window": 區間, "days": {日期: {股票代號: [整日平均折溢價, 期貨有成交的分鐘數]}}}（區間改了就全部重算）；由 orderflow_ticks.py 登入後呼叫 run()
 1 分 K 一次查整段期間，流量很小
 """
 from __future__ import annotations
@@ -15,7 +15,8 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 TPE = timezone(timedelta(hours=8))
-T0, T1 = 9 * 60, 13 * 60 + 25  # 現貨連續交易時段（13:25 之後是收盤集合競價）
+T0, T1 = 9 * 60 + 5, 13 * 60 + 24  # 計算區間 09:05～13:24（避開開盤前幾分鐘與收盤前的集合競價）
+WINDOW = "09:05-13:24"
 
 
 def _bars(k) -> dict[str, dict[int, tuple[float, float]]]:
@@ -24,7 +25,7 @@ def _bars(k) -> dict[str, dict[int, tuple[float, float]]]:
     for ts, c, v in zip(k.ts, k.Close, k.Volume):
         tm = datetime.fromtimestamp(ts / 1e9, timezone.utc)
         m = tm.hour * 60 + tm.minute
-        if T0 <= m <= T1 and c:
+        if 9 * 60 <= m <= T1 and c:  # 09:00 起都留著，給 09:05 前的現貨價沿用
             out.setdefault(tm.date().isoformat(), {})[m] = (float(c), float(v or 0))
     return out
 
@@ -32,11 +33,11 @@ def _bars(k) -> dict[str, dict[int, tuple[float, float]]]:
 def day_basis(fut: dict[int, tuple[float, float]], stk: dict[int, tuple[float, float]]):
     """一天的整日平均折溢價：期貨有成交的分鐘 ÷ 當下現貨價（沿用前一筆）"""
     xs, last = [], None
-    for m in range(T0, T1 + 1):
+    for m in range(9 * 60, T1 + 1):
         if m in stk:
             last = stk[m][0]
         f = fut.get(m)
-        if f and f[1] > 0 and last:
+        if m >= T0 and f and f[1] > 0 and last:
             xs.append(f[0] / last - 1)
     return (round(sum(xs) / len(xs), 5), len(xs)) if xs else None
 
@@ -54,9 +55,10 @@ def run(api, data: Path, deadline: float, log=print) -> int:
     big = {k: v[0] for k, v in contracts.items() if v[1] == 2000}  # 契約代號 → 股票代號（只用 2,000 股的大型股期）
     path = data / "settlement" / "basis_day.json"
     try:
-        doc = json.loads(path.read_text(encoding="utf-8"))
+        raw = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, ValueError):
-        doc = {}
+        raw = {}
+    doc = raw.get("days", {}) if raw.get("window") == WINDOW else {}
 
     # 永豐的股期合約：類別代號（例如 CDF）＋交割月份（格式可能是 202611 或 2026/11，統一成純數字比對）
     fut = {}
@@ -111,6 +113,6 @@ def run(api, data: Path, deadline: float, log=print) -> int:
                 doc.setdefault(d, {})[stock] = list(r)
         n += 1
     doc = {d: v for d, v in sorted(doc.items()) if v}
-    path.write_text(json.dumps(doc, separators=(",", ":")), encoding="utf-8")
+    path.write_text(json.dumps({"window": WINDOW, "days": doc}, separators=(",", ":")), encoding="utf-8")
     log(f"折溢價：本次 {n} 檔；" + "、".join(f"{d[5:]} {len(v)}" for d, v in doc.items() if d >= start.isoformat()))
     return n
