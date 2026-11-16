@@ -44,17 +44,34 @@ def run(api, data: Path, deadline: float, log=print) -> int:
     except (OSError, ValueError):
         doc = {}
 
-    # 永豐的股期合約：類別代號（例如 CDF）＋交割月份
+    # 永豐的股期合約：類別代號（例如 CDF）＋交割月份（格式可能是 202611 或 2026/11，統一成純數字比對）
     fut = {}
+    sample = []
     try:
-        for cat in api.Contracts.Futures:
-            for c in cat:
-                code = getattr(c, "code", "")
-                if code.endswith(("R1", "R2")) or getattr(c, "delivery_month", "") != month:
+        root = api.Contracts.Futures
+        cats = list(root)
+        for cat in cats:
+            if isinstance(cat, str):
+                cat = root[cat]
+            try:
+                items = list(cat)
+            except TypeError:
+                items = [cat]
+            for c in items:
+                if isinstance(c, str):
+                    c = cat[c]
+                code = str(getattr(c, "code", "") or "")
+                dm = "".join(ch for ch in str(getattr(c, "delivery_month", "") or "") if ch.isdigit())
+                cg = str(getattr(c, "category", "") or "") or code[:3]
+                if len(sample) < 3:
+                    sample.append(f"{code}/{cg}/{getattr(c, 'delivery_month', '')}")
+                if code.endswith(("R1", "R2")) or dm != month:
                     continue
-                k = getattr(c, "category", "")[:-1] if getattr(c, "category", "").endswith("F") else ""
-                if k in big:
+                k = cg[:-1] if cg.endswith("F") else ""
+                if k in big and k not in fut:
                     fut[k] = c
+        if not fut:
+            log(f"折溢價：期貨合約範例 {sample}（共 {len(cats)} 類）")
     except Exception as e:  # noqa: BLE001
         log(f"折溢價：讀取期貨合約失敗 {e}")
         return 0
@@ -69,13 +86,15 @@ def run(api, data: Path, deadline: float, log=print) -> int:
     n = 0
     for d in days:
         ds = d.isoformat()
-        got = doc.setdefault(ds, {})
+        got = doc.get(ds, {})
         lt_f = data / "settlement" / "lt" / f"{ds}.json"
         oi = json.loads(lt_f.read_text(encoding="utf-8"))["rows"] if lt_f.exists() else {}
         todo = [k for k in fut if big[k] not in got and (not oi or (oi.get(k) or [0])[0] > 0)]
         for k in todo:
             if time.time() > deadline:
                 log("折溢價：時間到，下次接著補")
+                if got:
+                    doc[ds] = got
                 path.write_text(json.dumps(doc, separators=(",", ":")), encoding="utf-8")
                 return n
             stock = big[k]
@@ -89,6 +108,8 @@ def run(api, data: Path, deadline: float, log=print) -> int:
                 continue
             got[stock] = round(mf / ms - 1, 5) if mf and ms else None
             n += 1
+        if got:
+            doc[ds] = got
         log(f"折溢價：{ds} {sum(v is not None for v in got.values())} 檔")
     path.write_text(json.dumps(dict(sorted(doc.items())), separators=(",", ":")), encoding="utf-8")
     return n
