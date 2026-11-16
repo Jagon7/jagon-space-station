@@ -9,8 +9,8 @@
   漲停判斷：收盤價 ≥ 前一日收盤 ×1.1 依升降單位無條件捨去的價格
   排除：ETF 等非普通股、隔天處置中的股票（處置股當沖受限）
   alert：今天週轉率前 20 名（成交 ≥ 1 億）且收漲停的股票，排除隔天處置、今天暫停先賣後買的，給 LINE 推播用
-  dtAlert：高當沖比＋黑K：成交 ≥ 1 億、當沖比 ≥ 60%、今天收黑K（收盤 < 開盤），同樣排除隔天處置、暫停先賣後買；
-           今天仍收漲（開高走低）的排前面（回測隔天開→收最弱），其餘依成交金額；最多 DT_MAX 檔
+  dtAlert：高當沖比＋開高走低：成交 ≥ 1 億、當沖比 ≥ 60%、今天收黑K（收盤 < 開盤）但仍收漲（漲跌 ≥ 0），
+           同樣排除隔天處置、暫停先賣後買；依成交金額排序，最多 DT_MAX 檔（今天收跌的回測扣成本後約打平，不列入）
 """
 from __future__ import annotations
 
@@ -174,7 +174,7 @@ def build(data_dir: Path, public_dir: Path):
         r["noShort"] = r["code"] in nox
     alert = [r for r in [r for r in today if r["valueYi"] >= 1][:20] if r["limit"] and not r["disposed"] and not r["noShort"]]
     dt_alert = sorted([r for r in today if r["dt"] is not None and r["valueYi"] >= 1 and r["dt"] >= DT_MIN and r["close"] < r["open"]
-                       and not r["disposed"] and not r["noShort"]], key=lambda r: ((r["ret"] or 0) < 0, -r["valueYi"]))[:DT_MAX]
+                       and (r["ret"] or 0) >= 0 and not r["disposed"] and not r["noShort"]], key=lambda r: -r["valueYi"])[:DT_MAX]
     corr = [x for x in corr if x is not None]
     out = {
         "asof": d0, "next": nxt, "updatedAt": datetime.now(TPE).isoformat(timespec="minutes"),
@@ -193,4 +193,4 @@ def build(data_dir: Path, public_dir: Path):
         "history": list(reversed(hist[-HIST_DAYS:])),
     }
     (public_dir / "turnover.json").write_text(json.dumps(out, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
-    print(f"週轉率：{d0} 共 {len(today)} 檔，回測 {len(hist)} 天；高週轉漲停 {len(alert)} 檔、高當沖比黑K {len(dt_alert)} 檔")
+    print(f"週轉率：{d0} 共 {len(today)} 檔，回測 {len(hist)} 天；高週轉漲停 {len(alert)} 檔、高當沖比開高走低 {len(dt_alert)} 檔")

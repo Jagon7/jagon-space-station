@@ -97,15 +97,14 @@ export default function TurnoverDashboard() {
       )}
       {view === "today" && (
         <section className="mb-4 rounded-xl border border-[#243247] bg-[#0d1220] p-4">
-          <div className="text-sm text-white font-semibold mb-1">高當沖比＋黑K：{md(data.next)} 開高走低觀察名單</div>
+          <div className="text-sm text-white font-semibold mb-1">高當沖比＋開高走低：{md(data.next)} 觀察名單</div>
           <p className="text-xs text-[#8b97ab] mb-2">
-            成交 ≥ 1 億、當沖比 ≥ {data.dtMin ?? 60}%、今天收黑K（收盤 &lt; 開盤），排除隔天處置與暫停先賣後買；標「開高走低」的是今天仍收漲、回測隔天最弱的，排在前面。
+            成交 ≥ 1 億、當沖比 ≥ {data.dtMin ?? 60}%、今天收黑K（收盤 &lt; 開盤）但仍收漲，排除隔天處置與暫停先賣後買；依成交金額排序。今天收跌的高當沖黑K 回測扣成本後約打平，不列入。
             {!data.dtReady && " 當沖資料約晚上 9 點後才公布，之前名單會是空的。"}
           </p>
           {data.dtAlert?.length
             ? <div className="flex flex-wrap gap-2">{data.dtAlert.map((a) => (
                 <span key={a.code} className="rounded-md bg-[#141c2e] px-2.5 py-1 text-xs"><span className="text-slate-200">{a.name}</span><span className="ml-1 font-mono text-[#8b97ab]">{a.code}</span>
-                  {(a.ret ?? 0) >= 0 && <span className="ml-1.5 rounded bg-[#22c55e]/15 px-1 text-[10px] text-[#22c55e]">開高走低</span>}
                   <span className="ml-2 font-mono text-[#f59e0b]">當沖 {a.dt?.toFixed(0)}%</span>
                   <span className={`ml-1.5 font-mono ${tone(a.ret)}`}>{pct(a.ret)}</span>
                   <span className="ml-1.5 font-mono text-[#8b97ab]">{a.valueYi.toFixed(0)} 億</span></span>))}</div>
