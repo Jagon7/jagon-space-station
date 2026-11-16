@@ -40,6 +40,11 @@ jobs:
           path: ~/.cache/jss-orderflow
           key: orderflow-${{ github.run_id }}
           restore-keys: orderflow-
+      - name: Fetch settlement data (TAIFEX large traders, stock futures)
+        run: python3 -u scripts/fetch_settlement.py --days 30
+        continue-on-error: true
+        env:
+          JSS_DATA_DIR: ./data
       - name: Backfill ticks
         # 永豐登入訊息會印出登入識別碼（身分證字號格式），公開的 Actions log 一律遮掉
         run: |
@@ -61,7 +66,7 @@ jobs:
           rm -f shioaji.log
           git config user.name 'github-actions[bot]'
           git config user.email 'github-actions[bot]@users.noreply.github.com'
-          git add data/orderflow/ 2>/dev/null || exit 0
+          git add data/orderflow/ data/settlement/ 2>/dev/null || exit 0
           git diff --staged --quiet && exit 0
           git commit -m "data: orderflow $(TZ=Asia/Taipei date +%Y-%m-%d)"
           for i in 1 2 3 4 5; do

@@ -83,6 +83,7 @@ def checks(now: datetime) -> tuple[str, list[dict]]:
         ("籌碼", "個股融資融券", dm, "21:50"),
         ("籌碼", "官方融資金額（大盤維持率）", dmamt, "21:50"),
         ("籌碼", "分點買賣超", last_file("broker"), "20:30"),
+        ("籌碼", "結算策略（期交所大額交易人）", last_file("settlement/lt"), "18:30"),
         ("盤中", "即時資金流（收盤存檔）", last_file("flow"), "13:45"),
         ("訂單流", "逐筆訂單流特徵", max(of.get("days") or {"": 0}) or None, "15:00"),
         ("ETF", f"主動式 ETF 持股（{sum(d == act_latest for d in act_dates)}/{len(act)} 檔到 {act_latest or '—'}）", act_latest, "21:40"),
