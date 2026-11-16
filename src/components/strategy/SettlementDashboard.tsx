@@ -5,7 +5,7 @@ import { useStaticJson } from "@/lib/static-json";
 import { useWatchlist } from "@/lib/watchlist";
 import { Kpi, KpiRow, Note, Pills, SortTable, type Column } from "@/components/data-ui";
 
-type Row = { code: string; name: string; close: number; disp: boolean; black: boolean; dSh: number; dAmt: number; vol10: number; dtr: number;
+type Row = { code: string; name: string; close: number; disp: boolean; black: boolean; fin?: boolean; dSh: number; dAmt: number; vol10: number; dtr: number;
   turn: number; oi: number; oiBig: number; oiSmall: number; bVal: number; sVal: number; bShare: number | null; sShare: number | null;
   invX: number | null; oiX: number | null; bX: number | null; sX: number | null; basis: number | null; basisSrc: { day: number; settle: number };
   dir: [string, string, string]; same: boolean; ctrl: number; ctrlSh: number; ctrlX: number | null; amihud: number | null };
@@ -35,7 +35,8 @@ export default function SettlementDashboard() {
   const [same, setSame] = useState(false);
   const [hideBlack, setHideBlack] = useState(true);
   const [hideDisp, setHideDisp] = useState(false);
-  const rows = useMemo(() => (data?.rows ?? []).filter((r) => (!same || r.same) && (!hideBlack || !r.black) && (!hideDisp || !r.disp)), [data, same, hideBlack, hideDisp]);
+  const [hideFin, setHideFin] = useState(true);
+  const rows = useMemo(() => (data?.rows ?? []).filter((r) => (!same || r.same) && (!hideBlack || !r.black) && (!hideDisp || !r.disp) && (!hideFin || !r.fin)), [data, same, hideBlack, hideDisp, hideFin]);
   if (!data) return <div className="py-16 text-center text-sm text-[#8b97ab] font-mono">{error ? "資料載入失敗" : "載入中…"}</div>;
 
   const cols: Column<Row>[] = [
@@ -96,6 +97,7 @@ export default function SettlementDashboard() {
         {toggle(same, setSame, "只看同向")}
         {toggle(hideBlack, setHideBlack, "隱藏黑名單")}
         {toggle(hideDisp, setHideDisp, "隱藏處置股")}
+        {toggle(hideFin, setHideFin, "排除金融股")}
         <span className="text-xs text-[#7c8aa0]">{rows.length} 檔</span>
       </div>
 

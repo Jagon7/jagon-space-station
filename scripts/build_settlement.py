@@ -54,6 +54,8 @@ def build(data_dir: Path, public_dir: Path):
     basis = (_load(sdir / "basis_day.json", {}) or {}).get("days") or {}
     lt_by_day = {p.stem: (_load(p, {}) or {}).get("rows") or {} for p in lts if start.isoformat() <= p.stem <= last["date"]}
     black = set((_load(sdir / "blacklist.json", {}) or {}).get("codes") or [])  # 手動黑名單（Excel 的「黑名單」欄）
+    secs = (_load(data_dir / "sector-stocks.json", {}) or {}).get("data") or {}
+    fin = {x.get("code") for k, v in secs.items() if "金融" in k or "保險" in k for x in v}  # 金融保險類股（+ 28xx 代號保底）
     disp = {r.get("code") for r in ((_load(data_dir / "disposition.json", {}) or {}).get("data") or []) if isinstance(r, dict)}
 
     by_stock: dict[str, dict] = {}
@@ -112,7 +114,7 @@ def build(data_dir: Path, public_dir: Path):
         amihud = math.log(sum(am) / len(am)) if am and sum(am) > 0 else None
         dirs = ("溢" if (avg_b or 0) > 0 else "折", "多" if bval > sval else "空", "多" if amt > 0 else "空")
         out.append({
-            "code": stock, "name": v[0] or ks["name"], "close": px, "disp": stock in disp, "black": stock in black,
+            "code": stock, "name": v[0] or ks["name"], "close": px, "disp": stock in disp, "black": stock in black, "fin": stock in fin or stock.startswith("28"),
             "dSh": sh, "dAmt": round(amt, 2), "vol10": round(vol10), "dtr": round(dtr, 2), "turn": round(turn, 1),
             "oi": round(oi, 2), "oiBig": M, "oiSmall": N, "bVal": round(bval), "sVal": round(sval),
             "bShare": round(bshare, 4) if bshare is not None else None, "sShare": round(sshare, 4) if sshare is not None else None,
