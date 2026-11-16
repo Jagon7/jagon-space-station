@@ -87,6 +87,9 @@ def run(api, data: Path, deadline: float, log=print) -> int:
         return 0
     log(f"折溢價：{month} 近月股期 {len(fut)} 個，期間 {start} ～ {end}")
 
+    # 實際有開盤的日子（每日行情檔）：颱風假等臨時休市不在 calendar 裡，用這個跳過
+    trading = {p.stem for p in (data / "daily").glob("20*.json")}
+    known_last = max(trading) if trading else ""
     # 每檔從本期還沒算過的最早一天查到 end（已算過的日子不重查：end 只會是已收盤的日子，算過就是定案）
     n = 0
     for k, c in fut.items():
@@ -96,7 +99,8 @@ def run(api, data: Path, deadline: float, log=print) -> int:
         stock = big[k]
         have = [d for d in doc if start.isoformat() <= d <= end.isoformat() and stock in doc[d]]
         s0 = start
-        while s0 <= end and (s0.isoformat() in have or s0.weekday() >= 5 or s0.isoformat() in hol):
+        while s0 <= end and (s0.isoformat() in have or s0.weekday() >= 5 or s0.isoformat() in hol
+                             or (s0.isoformat() < known_last and s0.isoformat() not in trading)):
             s0 += timedelta(days=1)
         if s0 > end:
             continue
@@ -109,12 +113,12 @@ def run(api, data: Path, deadline: float, log=print) -> int:
         bf, bs = _bars(kf), _bars(ks)
         for d, sm in bs.items():
             r = day_basis(bf.get(d, {}), sm)
-            if r:
-                doc.setdefault(d, {})[stock] = list(r)
+            # 期貨整天沒成交記 [None, 0]：算過了、下次不重查（網頁那天改用期交所結算價估）
+            doc.setdefault(d, {})[stock] = list(r) if r else [None, 0]
         n += 1
     doc = {d: v for d, v in sorted(doc.items()) if v}
     path.write_text(json.dumps({"window": WINDOW, "days": doc}, separators=(",", ":")), encoding="utf-8")
-    log(f"折溢價：本次 {n} 檔；" + "、".join(f"{d[5:]} {len(v)}" for d, v in doc.items() if d >= start.isoformat()))
+    log(f"折溢價：本次 {n} 檔；" + "、".join(f"{d[5:]} {sum(x[0] is not None for x in v.values())}" for d, v in doc.items() if d >= start.isoformat()))
     return n
 
 
