@@ -92,7 +92,7 @@ export default function SettlementDashboard() {
 
       {data.dtDate && data.dtDate !== data.date && (
         <div className="mb-4 rounded-lg border border-[#f59e0b]/30 bg-[#f59e0b]/[0.06] p-3 text-xs text-[#fcd34d]">
-          {md(data.date)} 的當沖資料證交所／櫃買約晚上 9 點後才公布，換手量暫用 {md(data.dtDate)} 的當沖比計算；公布後會自動更新。
+          {md(data.date)} 的當沖資料還沒公布（證交所／櫃買約晚上 9 點多），換手量暫用 {md(data.dtDate)} 的當沖比計算；每天 22:00 前會更新成當天的。
         </div>
       )}
       <div className="mb-4 flex flex-wrap items-center gap-2">
