@@ -50,7 +50,9 @@ def build(data_dir: Path, public_dir: Path):
     pdays = [d for d in daily if start.isoformat() <= d["date"] <= last["date"]]
     insti = {d["date"]: _load(data_dir / "insti" / f"{d['date']}.json", {}) or {} for d in pdays}
     dt_all = (_load(data_dir / "strategy" / "daytrade.json", {}) or {}).get("days") or {}
-    dtd = dt_all.get(last["date"]) or {}
+    # 當沖比：證交所／櫃買約晚上 9 點才公布當天的，還沒有就用最近一個有資料的交易日（網頁會標示）
+    dt_date = next((d for d in sorted(dt_all, reverse=True) if d <= last["date"] and (dt_all[d].get("tw") or dt_all[d].get("tp"))), None)
+    dtd = dt_all.get(dt_date) or {}
     basis = (_load(sdir / "basis_day.json", {}) or {}).get("days") or {}
     lt_by_day = {p.stem: (_load(p, {}) or {}).get("rows") or {} for p in lts if start.isoformat() <= p.stem <= last["date"]}
     black = set((_load(sdir / "blacklist.json", {}) or {}).get("codes") or [])  # 手動黑名單（Excel 的「黑名單」欄）
@@ -77,7 +79,8 @@ def build(data_dir: Path, public_dir: Path):
         vols = [(d["q"].get(stock) or [0] * 8)[7] or 0 for d in daily[-10:]]
         vol10 = sum(vols) / len(vols)
         dts = (dtd.get("tw") or {}).get(stock) or (dtd.get("tp") or {}).get(stock)
-        dtr = dts / (v[7] * 1000) * 100 if dts and v[7] else 0.0
+        vd = (next((d for d in daily if d["date"] == dt_date), last)["q"].get(stock) or v) if dt_date else v  # 當沖股數要配同一天的成交量
+        dtr = min(100.0, dts / (vd[7] * 1000) * 100) if dts and vd[7] else 0.0
         turn = vol10 * (100 - dtr) / 100 * 0.27
         oi = M + N / 20
         bval = (b[3] * 2000 + s[3] * 100) * px
@@ -130,7 +133,8 @@ def build(data_dir: Path, public_dir: Path):
     while x < sday:
         x = date.fromordinal(x.toordinal() + 1)
         left += x.weekday() < 5 and x.isoformat() not in hol
-    doc = {"updatedAt": datetime.now(TPE).isoformat(timespec="minutes"), "date": last["date"], "ltDate": lts[-1].stem,
+    doc = {"updatedAt": datetime.now(TPE).isoformat(timespec="minutes"), "date": last["date"], "ltDate": lts[-1].stem, "dtDate": dt_date,
+           "instiDate": max([d["date"] for d in pdays if insti.get(d["date"])] or [None]) if pdays else None,
            "month": month, "start": start.isoformat(), "settle": sday.isoformat(), "daysLeft": left, "days": len(pdays),
            "basisDays": sum(1 for d in pdays if basis.get(d["date"])), "rows": out}
     (public_dir / "settlement.json").write_text(json.dumps(doc, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")

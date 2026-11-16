@@ -116,3 +116,32 @@ def run(api, data: Path, deadline: float, log=print) -> int:
     path.write_text(json.dumps({"window": WINDOW, "days": doc}, separators=(",", ":")), encoding="utf-8")
     log(f"折溢價：本次 {n} 檔；" + "、".join(f"{d[5:]} {len(v)}" for d, v in doc.items() if d >= start.isoformat()))
     return n
+
+
+def main() -> int:
+    """單獨執行（結算每日更新 workflow）：登入永豐（只查行情）→ 補本期整日平均折溢價"""
+    import os
+    data = Path(os.environ.get("JSS_DATA_DIR", Path(__file__).resolve().parent.parent / "data"))
+    log = lambda *a: print(f"[{datetime.now(TPE):%H:%M:%S}]", *a, flush=True)  # noqa: E731
+    if not os.environ.get("SHIOAJI_API_KEY"):
+        log("沒有永豐金鑰，略過折溢價（網頁會用期交所結算價估）")
+        return 0
+    import shioaji as sj
+    api = sj.Shioaji()
+    api.login(api_key=os.environ["SHIOAJI_API_KEY"], secret_key=os.environ["SHIOAJI_SECRET_KEY"], subscribe_trade=False)
+    for _ in range(120):
+        try:
+            if api.Contracts.Stocks["2330"] is not None:
+                break
+        except Exception:  # noqa: BLE001
+            pass
+        time.sleep(1)
+    run(api, data, time.time() + 15 * 60, log=log)
+    return 0
+
+
+if __name__ == "__main__":
+    import os as _os
+    rc = main()
+    sys.stdout.flush()
+    _os._exit(rc)

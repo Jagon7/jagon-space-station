@@ -28,9 +28,12 @@ const PLAN = [
   ["17:20", ALL, "fetch-intel.yml"],
   ["17:30", [3, 6], "gooaye.yml"],
   ["18:15", WD, "fetch.yml"],            // 三大法人、期貨
+  ["19:00", WD, "settlement.yml"],       // 結算策略：期交所＋自營＋折溢價 → 部署（晚上 8 點前要是當天的）
+  ["19:35", WD, "freshness.yml", { only: "結算", quiet: "true" }],  // 網站結算表不是當天 → 重新部署
   ["19:40", WD, "etf-evening.yml"],      // ETF 持股變化，等到 20:00 才發
   ["19:45", WD, "broker-evening.yml"],   // 重點分點大額進出，等到 20:00 才發
   ["20:25", WD, "broker-evening.yml"],   // 分點資料晚出來時的備援
+  ["20:05", WD, "freshness.yml", { only: "結算" }],  // 還不是當天 → 再部署一次＋LINE 通知
   ["20:20", ALL, "fetch-intel.yml"],
   ["20:40", ALL, "orderflow-ticks.yml"],   // 備援：14:30 沒跑成或流量還有剩
   ["21:00", [3, 6], "gooaye.yml"],
