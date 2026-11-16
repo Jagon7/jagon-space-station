@@ -102,6 +102,13 @@ jobs:
         env:
           JSS_DATA_DIR: ./data
 
+      - name: Fetch settlement data (TAIFEX large traders, stock futures)
+        if: always() && steps.fetch.conclusion != 'cancelled'
+        run: python3 scripts/fetch_settlement.py --days 10
+        continue-on-error: true
+        env:
+          JSS_DATA_DIR: ./data
+
       - name: Ex-dividend fade backtest (Saturdays)
         if: always() && steps.fetch.conclusion != 'cancelled' && (github.event.schedule == '13 2 * * 6' || inputs.weekly)
         continue-on-error: true

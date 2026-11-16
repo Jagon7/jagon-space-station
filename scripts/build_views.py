@@ -23,6 +23,7 @@ import build_exdiv  # noqa: E402
 import build_85g  # noqa: E402
 import build_margin  # noqa: E402
 import build_active_dd  # noqa: E402
+import build_settlement  # noqa: E402
 import build_home  # noqa: E402
 
 
@@ -248,4 +249,5 @@ if __name__ == "__main__":
     build_85g.build(DATA_DIR, ROOT / "public" / "data")
     build_margin.build(DATA_DIR, ROOT / "public" / "data")
     build_active_dd.build(DATA_DIR, ROOT / "public" / "data")
+    build_settlement.build(DATA_DIR, ROOT / "public" / "data")
     build_home.build(DATA_DIR, ROOT / "public" / "data")

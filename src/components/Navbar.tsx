@@ -51,6 +51,7 @@ const navItems: NavItem[] = [
       { label: "處置預警",      href: "/disposition" },
       { label: "三大法人",       href: "/institutional" },
       { label: "期貨選擇權",     href: "/futures" },
+      { label: "結算策略",       href: "/settlement" },
       { label: "大戶持股",       href: "/holders" },
       { label: "分點買賣超",     href: "/broker" },
       { label: "內部人持股異動", href: "/insider" },

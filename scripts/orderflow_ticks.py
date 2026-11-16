@@ -140,6 +140,13 @@ def main():
         u = api.usage()
         return u.bytes, u.limit_bytes, u.remaining_bytes
 
+    # 結算策略：股期近月 13:24 折溢價快照（只查 13:20～13:25，流量很少；最多 15 分鐘）
+    try:
+        import settlement_basis
+        settlement_basis.run(api, DATA, min(deadline, time.time() + 15 * 60), log=log)
+    except Exception as e:  # noqa: BLE001
+        log(f"折溢價快照失敗：{e}")
+
     used0, limit, remain = usage()
     log(f"永豐流量：已用 {used0 / 1e6:.0f} MB／上限 {limit / 1e6:.0f} MB，剩 {remain / 1e6:.0f} MB")
     codes = universe(a.top)
