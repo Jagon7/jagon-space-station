@@ -1373,6 +1373,84 @@ def rebalance_alert(dry: bool, force: bool = False) -> int:
     return 0
 
 
+SETTLE_STATE = ROOT / "data" / "notify" / "settlement-sent.json"
+
+
+def settlement_push_day(settle: date) -> date:
+    """結算前一週的週五（結算週週一往前 3 天）；遇休市往前找交易日"""
+    hol = _holidays()
+    d = settle - timedelta(days=settle.weekday() + 3)
+    while d.weekday() >= 5 or d.isoformat() in hol:
+        d -= timedelta(days=1)
+    return d
+
+
+def settlement_alert(dry: bool, force: bool = False) -> int:
+    """結算策略：每月結算前一週週五晚上推控盤倍數排行（排除黑名單、金融股）"""
+    sd = load("settlement.json", {}) or {}
+    if not sd.get("rows") or not sd.get("settle"):
+        print("沒有結算策略資料")
+        return 0
+    now = datetime.now(TPE_TZ)
+    today = now.date()
+    push = settlement_push_day(date.fromisoformat(sd["settle"]))
+    if not force and today != push:
+        print(f"今天不是推播日（{sd['month']} 結算 {sd['settle']}，推播日 {push}）")
+        return 0
+    if not force and sd.get("date") != today.isoformat():
+        print(f"結算資料還沒更新到今天（{sd.get('date')}）")
+        return 0
+    if not force and sd.get("dtDate") != sd.get("date") and now.hour * 60 + now.minute < 22 * 60:
+        print("當沖資料還沒到，等下一次（22:00 後就不等了）")
+        return 0
+    try:
+        state = json.loads(SETTLE_STATE.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        state = {"sent": []}
+    if sd["month"] in state["sent"] and not force:
+        print(f"{sd['month']} 的結算策略已推過")
+        return 0
+    md = lambda d: f"{int(d[5:7])}/{int(d[8:10])}"  # noqa: E731
+    rows = [r for r in sd["rows"] if not r.get("black") and not r.get("fin") and r.get("ctrlX") is not None]
+    down = sorted([r for r in rows if r["ctrlX"] < 0], key=lambda r: r["ctrlX"])[:10]
+    up = sorted([r for r in rows if r["ctrlX"] > 0], key=lambda r: -r["ctrlX"])[:5]
+    m = Msg(("【預覽】" if force else "") + "🎯 結算策略：控盤觀察", f"{sd['month'][:4]}/{sd['month'][4:]} 結算 {md(sd['settle'])}・依 {md(sd['date'])} 收盤",
+            accent="#7C3AED", url=f"{SITE}/settlement/", button="開啟結算策略")
+    m.kv("距結算", f"{sd['daysLeft']} 個交易日（本期 {md(sd['start'])} 起 {sd['days']} 天）")
+    if sd.get("dtDate") and sd["dtDate"] != sd["date"]:
+        m.kv("當沖比", f"暫用 {md(sd['dtDate'])}", color=FLAT)
+
+    def add(r):
+        tag = "／".join(r["dir"]) + ("・同向" if r.get("same") else "")
+        basis = f"・折溢價 {r['basis'] * 100:+.2f}%" if r.get("basis") is not None else ""
+        m.stock(r["name"], r["code"], f"{r['ctrlX']:+.2f}x", f"{r['ctrlSh']:+,} 張", color=sign_tone(r["ctrlX"]),
+                sub=f"{tag}{basis}・控盤 {r['ctrl']:+,.0f}M" + ("・處置中" if r.get("disp") else ""))
+
+    m.section("往下控（控盤倍數最負）", f"{len(down)} 檔")
+    if down:
+        m.cols("倍數", "控盤張數")
+    for r in down:
+        add(r)
+    if up:
+        m.section("往上拉（控盤倍數最正）", f"{len(up)} 檔")
+        m.cols("倍數", "控盤張數")
+        for r in up:
+            add(r)
+    m.note("控盤倍數＝（特法多空價值差＋自營買賣超金額）換算張數 ÷ 換手量；方向依序為 折溢價／特法未平倉／自營庫存，"
+           "同向＝（溢、空、多）或（折、多、空）。已排除黑名單與金融股。")
+    text = m.text()
+    print(text)
+    if force:
+        return 0 if dry else (send(m) and 0)
+    if not dry:
+        if not send(m):
+            print("（沒有設定任何推播管道，只印出內容）")
+        state["sent"] = sorted(set(state["sent"]) | {sd["month"]})[-24:]
+        SETTLE_STATE.parent.mkdir(parents=True, exist_ok=True)
+        SETTLE_STATE.write_text(json.dumps(state, ensure_ascii=False, indent=0), encoding="utf-8")
+    return 0
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry-run", action="store_true")
@@ -1382,6 +1460,7 @@ def main():
     ap.add_argument("--strategy-alert", action="store_true")
     ap.add_argument("--turnover-alert", action="store_true")
     ap.add_argument("--exdiv-alert", action="store_true", help="除權息黑K：明天除息的放空候選與明天要回補的部位")
+    ap.add_argument("--settlement-alert", action="store_true", help="結算策略：每月結算前一週週五晚上推控盤排行（加 --preview 立刻發預覽）")
     ap.add_argument("--risk-alert", action="store_true", help="市場風險警示：風險溫度偏高、指標達警戒／危險、VIX 暴漲、信用利差擴大、科技廠隱含 CDS 跳升")
     ap.add_argument("--etf-alert", action="store_true", help="每日 ETF 持股變化摘要（週一到五 20:00；加 --preview 立刻發預覽）")
     ap.add_argument("--rebalance-alert", action="store_true", help="ETF 換股預估（週一到五 19:00；加 --preview 立刻發預覽）")
@@ -1417,6 +1496,8 @@ def main():
         return exdiv_alert(a.dry_run, force=a.preview)
     if a.risk_alert:
         return risk_alert(a.dry_run, force=a.preview)
+    if a.settlement_alert:
+        return settlement_alert(a.dry_run, force=a.preview)
     if a.preview:
         msg = compose()
         msg.title = "【預覽】" + msg.title

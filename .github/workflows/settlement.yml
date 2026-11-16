@@ -62,13 +62,25 @@ jobs:
           SHIOAJI_API_KEY: ${{ secrets.SHIOAJI_API_KEY }}
           SHIOAJI_SECRET_KEY: ${{ secrets.SHIOAJI_SECRET_KEY }}
           JSS_DATA_DIR: ./data
+      - name: LINE push (Friday the week before settlement)
+        # 每月結算前一週的週五晚上推控盤排行；其他日子程式自己會略過。當沖還沒到會等 21:50 那次重跑，22:00 後就不等了
+        run: |
+          mkdir -p public/data
+          python3 -c "import sys; sys.path.insert(0, 'scripts'); from pathlib import Path; import build_settlement as b; b.build(Path('data'), Path('public/data'))"
+          TZ=Asia/Taipei python3 scripts/notify.py --settlement-alert
+        continue-on-error: true
+        env:
+          JSS_DATA_DIR: ./data
+          SITE_URL: ${{ secrets.SITE_URL || vars.SITE_URL }}
+          LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
+          LINE_USER_ID: ${{ secrets.LINE_USER_ID }}
       - name: Commit
         id: commit
         run: |
           rm -f shioaji.log
           git config user.name 'github-actions[bot]'
           git config user.email 'github-actions[bot]@users.noreply.github.com'
-          git add data/settlement/ data/strategy/daytrade.json 2>/dev/null || true
+          git add data/settlement/ data/strategy/daytrade.json data/notify/settlement-sent.json 2>/dev/null || true
           git diff --staged --quiet && exit 0
           git commit -m "data: settlement $(TZ=Asia/Taipei date +%Y-%m-%d)"
           for i in 1 2 3 4 5; do
