@@ -1,44 +1,58 @@
 """
-結算策略：股票期貨每天 13:24 的折溢價（永豐 Shioaji 歷史逐筆，只查行情）
+結算策略：股票期貨每天的「整日平均折溢價」（永豐 Shioaji 1 分 K，只查行情）
 
-對照 Excel「折溢價raw」：每天收盤前（約 13:24）股期近月與現貨的買賣報價，折溢價＝期貨 ÷ 現貨 − 1
-這裡用 13:20～13:24 最後一筆逐筆的委買委賣中價：(期貨買＋期貨賣) ÷ (現貨買＋現貨賣) − 1
-結果 data/settlement/basis.json {日期: {股票代號: 折溢價}}；由 orderflow_ticks.py 登入後呼叫 run()
+每天 09:00～13:25 之間，股期近月每一根有成交的 1 分 K：折溢價＝期貨收盤 ÷ 當下現貨價（現貨 1 分 K 收盤，沒成交沿用前一筆）− 1
+當天的折溢價＝這些分鐘的簡單平均（只用期貨有成交的分鐘，避免冷門股期用很久以前的舊價格）
+結果 data/settlement/basis_day.json {日期: {股票代號: [整日平均折溢價, 期貨有成交的分鐘數]}}；由 orderflow_ticks.py 登入後呼叫 run()
+1 分 K 一次查整段期間，流量很小
 """
 from __future__ import annotations
 
 import json
+import sys
 import time
-from datetime import date, datetime, timedelta, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 TPE = timezone(timedelta(hours=8))
+T0, T1 = 9 * 60, 13 * 60 + 25  # 現貨連續交易時段（13:25 之後是收盤集合競價）
 
 
-def _last_mid(t, cutoff_min: int = 13 * 60 + 24):
-    """逐筆裡 13:24 以前（含）最後一筆的委買委賣中價；沒有就用這段最後一筆"""
-    best = None
-    for ts, bp, ap in zip(t.ts, t.bid_price, t.ask_price):
+def _bars(k) -> dict[str, dict[int, tuple[float, float]]]:
+    """1 分 K → {日期: {分鐘: (收盤, 量)}}；永豐的 ts 是台灣時間當成 UTC 的奈秒"""
+    out: dict[str, dict[int, tuple[float, float]]] = {}
+    for ts, c, v in zip(k.ts, k.Close, k.Volume):
         tm = datetime.fromtimestamp(ts / 1e9, timezone.utc)
-        if bp and ap and bp > 0 and ap > 0:
-            if tm.hour * 60 + tm.minute <= cutoff_min or best is None:
-                best = (bp + ap) / 2
-    return best
+        m = tm.hour * 60 + tm.minute
+        if T0 <= m <= T1 and c:
+            out.setdefault(tm.date().isoformat(), {})[m] = (float(c), float(v or 0))
+    return out
+
+
+def day_basis(fut: dict[int, tuple[float, float]], stk: dict[int, tuple[float, float]]):
+    """一天的整日平均折溢價：期貨有成交的分鐘 ÷ 當下現貨價（沿用前一筆）"""
+    xs, last = [], None
+    for m in range(T0, T1 + 1):
+        if m in stk:
+            last = stk[m][0]
+        f = fut.get(m)
+        if f and f[1] > 0 and last:
+            xs.append(f[0] / last - 1)
+    return (round(sum(xs) / len(xs), 5), len(xs)) if xs else None
 
 
 def run(api, data: Path, deadline: float, log=print) -> int:
-    import shioaji as sj
-    sys_path = Path(__file__).resolve().parent
-    import sys
-    sys.path.insert(0, str(sys_path))
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
     import fetch_settlement as fs
 
     hol = fs.holidays()
-    today = datetime.now(TPE).date()
-    start, sday, month = fs.period(today if datetime.now(TPE).hour >= 14 else today - timedelta(days=1), hol)
+    now = datetime.now(TPE)
+    today = now.date()
+    start, sday, month = fs.period(today if now.hour >= 14 else today - timedelta(days=1), hol)
+    end = min(today if now.hour >= 14 else today - timedelta(days=1), sday)
     contracts = json.loads((data / "settlement" / "contracts.json").read_text(encoding="utf-8"))["contracts"]
     big = {k: v[0] for k, v in contracts.items() if v[1] == 2000}  # 契約代號 → 股票代號（只用 2,000 股的大型股期）
-    path = data / "settlement" / "basis.json"
+    path = data / "settlement" / "basis_day.json"
     try:
         doc = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, ValueError):
@@ -46,11 +60,9 @@ def run(api, data: Path, deadline: float, log=print) -> int:
 
     # 永豐的股期合約：類別代號（例如 CDF）＋交割月份（格式可能是 202611 或 2026/11，統一成純數字比對）
     fut = {}
-    sample = []
     try:
         root = api.Contracts.Futures
-        cats = list(root)
-        for cat in cats:
+        for cat in list(root):
             if isinstance(cat, str):
                 cat = root[cat]
             try:
@@ -63,53 +75,42 @@ def run(api, data: Path, deadline: float, log=print) -> int:
                 code = str(getattr(c, "code", "") or "")
                 dm = "".join(ch for ch in str(getattr(c, "delivery_month", "") or "") if ch.isdigit())
                 cg = str(getattr(c, "category", "") or "") or code[:3]
-                if len(sample) < 3:
-                    sample.append(f"{code}/{cg}/{getattr(c, 'delivery_month', '')}")
                 if code.endswith(("R1", "R2")) or dm != month:
                     continue
                 k = cg[:-1] if cg.endswith("F") else ""
                 if k in big and k not in fut:
                     fut[k] = c
-        if not fut:
-            log(f"折溢價：期貨合約範例 {sample}（共 {len(cats)} 類）")
     except Exception as e:  # noqa: BLE001
         log(f"折溢價：讀取期貨合約失敗 {e}")
         return 0
-    log(f"折溢價：{month} 近月股期 {len(fut)} 個（共 {len(big)} 個大型股期契約）")
+    log(f"折溢價：{month} 近月股期 {len(fut)} 個，期間 {start} ～ {end}")
 
-    d = start
-    days = []
-    while d <= min(today, sday):
-        if d.weekday() < 5 and d.isoformat() not in hol and (d < today or datetime.now(TPE).hour >= 14):
-            days.append(d)
-        d += timedelta(days=1)
+    # 每檔從本期還沒算過的最早一天查到 end（已算過的日子不重查；最近一天每次重算）
     n = 0
-    for d in days:
-        ds = d.isoformat()
-        got = doc.get(ds, {})
-        lt_f = data / "settlement" / "lt" / f"{ds}.json"
-        oi = json.loads(lt_f.read_text(encoding="utf-8"))["rows"] if lt_f.exists() else {}
-        todo = [k for k in fut if big[k] not in got and (not oi or (oi.get(k) or [0])[0] > 0)]
-        for k in todo:
-            if time.time() > deadline:
-                log("折溢價：時間到，下次接著補")
-                if got:
-                    doc[ds] = got
-                path.write_text(json.dumps(doc, separators=(",", ":")), encoding="utf-8")
-                return n
-            stock = big[k]
-            try:
-                rng = dict(date=ds, query_type=sj.TicksQueryType.RangeTime, time_start="13:20:00", time_end="13:25:00")
-                tf = api.ticks(contract=fut[k], **rng)
-                tsk = api.ticks(contract=api.Contracts.Stocks[stock], **rng)
-                mf, ms = _last_mid(tf), _last_mid(tsk)
-            except Exception as e:  # noqa: BLE001
-                log(f"折溢價：{ds} {k}/{stock} 失敗 {e}")
-                continue
-            got[stock] = round(mf / ms - 1, 5) if mf and ms else None
-            n += 1
-        if got:
-            doc[ds] = got
-        log(f"折溢價：{ds} {sum(v is not None for v in got.values())} 檔")
-    path.write_text(json.dumps(dict(sorted(doc.items())), separators=(",", ":")), encoding="utf-8")
+    for k, c in fut.items():
+        if time.time() > deadline:
+            log("折溢價：時間到，下次接著補")
+            break
+        stock = big[k]
+        have = [d for d in doc if start.isoformat() <= d < end.isoformat() and stock in doc[d]]
+        s0 = start
+        while s0 <= end and (s0.isoformat() in have or s0.weekday() >= 5 or s0.isoformat() in hol):
+            s0 += timedelta(days=1)
+        if s0 > end:
+            continue
+        try:
+            kf = api.kbars(contract=c, start=s0.isoformat(), end=end.isoformat())
+            ks = api.kbars(contract=api.Contracts.Stocks[stock], start=s0.isoformat(), end=end.isoformat())
+        except Exception as e:  # noqa: BLE001
+            log(f"折溢價：{k}/{stock} 失敗 {e}")
+            continue
+        bf, bs = _bars(kf), _bars(ks)
+        for d, sm in bs.items():
+            r = day_basis(bf.get(d, {}), sm)
+            if r:
+                doc.setdefault(d, {})[stock] = list(r)
+        n += 1
+    doc = {d: v for d, v in sorted(doc.items()) if v}
+    path.write_text(json.dumps(doc, separators=(",", ":")), encoding="utf-8")
+    log(f"折溢價：本次 {n} 檔；" + "、".join(f"{d[5:]} {len(v)}" for d, v in doc.items() if d >= start.isoformat()))
     return n
