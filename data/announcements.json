@@ -2,35 +2,1034 @@
   "date": "2026-11-16",
   "data": [
     {
-      "time": "17:47",
-      "date": "2026-11-15",
-      "code": "6994",
-      "name": "富威電力",
+      "time": "22:12",
+      "date": "2026-11-16",
+      "code": "6272",
+      "name": "驊陞",
       "type": "重大訊息",
       "important": false,
-      "content": "公告本公司董事長異動"
+      "content": "本公司部分資訊系統遭受駭客攻擊之說明"
+    },
+    {
+      "time": "20:40",
+      "date": "2026-11-16",
+      "code": "2383",
+      "name": "台光電",
+      "type": "重大訊息",
+      "important": false,
+      "content": "本公司受邀參加中信里昂證券線上法人說明會"
+    },
+    {
+      "time": "20:34",
+      "date": "2026-11-16",
+      "code": "2392",
+      "name": "正崴",
+      "type": "重大訊息",
+      "important": false,
+      "content": "更正本公司115年9月資金貸與資訊揭露明細表"
+    },
+    {
+      "time": "19:57",
+      "date": "2026-11-16",
+      "code": "2383",
+      "name": "台光電",
+      "type": "重大訊息",
+      "important": false,
+      "content": "澄清媒體報導"
+    },
+    {
+      "time": "19:53",
+      "date": "2026-11-16",
+      "code": "2308",
+      "name": "台達電",
+      "type": "重大訊息",
+      "important": false,
+      "content": "(補充公告)本公司代子公司Delta Electronics Int'l (Singapore) Pte. Ltd. 公告董事會決議擬增資DEM"
+    },
+    {
+      "time": "19:41",
+      "date": "2026-11-16",
+      "code": "1219",
+      "name": "福壽",
+      "type": "重大訊息",
+      "important": false,
+      "content": "本公司於民國115年11月13日傍晚接獲臺灣臺北地方法院 115年11月10日函暨檢附之民事起訴狀 (該院115年度審訴字第2503號)"
+    },
+    {
+      "time": "19:40",
+      "date": "2026-11-16",
+      "code": "1219",
+      "name": "福壽",
+      "type": "重大訊息",
+      "important": false,
+      "content": "本公司對中聯油脂股份有限公司(下稱中聯公司) 執行假扣押之說明"
+    },
+    {
+      "time": "19:16",
+      "date": "2026-11-16",
+      "code": "4540",
+      "name": "全球傳動",
+      "type": "重大訊息",
+      "important": false,
+      "content": "本公司及子公司收到返還貨款、賠償倉儲費之民事起訴狀。"
+    },
+    {
+      "time": "18:40",
+      "date": "2026-11-16",
+      "code": "2317",
+      "name": "鴻海",
+      "type": "重大訊息",
+      "important": false,
+      "content": "代重要子公司富士康工業互聯網股份有限公司公告臨時 股東會重要決議"
+    },
+    {
+      "time": "18:40",
+      "date": "2026-11-16",
+      "code": "2317",
+      "name": "鴻海",
+      "type": "重大訊息",
+      "important": false,
+      "content": "代重要子公司富士康工業互聯網股份有限公司公告召開 2026年第三季度業績說明會"
+    },
+    {
+      "time": "18:24",
+      "date": "2026-11-16",
+      "code": "5880",
+      "name": "合庫金",
+      "type": "重大訊息",
+      "important": false,
+      "content": "代子公司合作金庫票券金融股份有限公司公告 內部稽核主管異動"
+    },
+    {
+      "time": "18:18",
+      "date": "2026-11-16",
+      "code": "7711",
+      "name": "永擎",
+      "type": "重大訊息",
+      "important": false,
+      "content": "公告本公司國內第一次無擔保轉換公司債之轉換價格及溢價率"
+    },
+    {
+      "time": "18:17",
+      "date": "2026-11-16",
+      "code": "3189",
+      "name": "景碩",
+      "type": "重大訊息",
+      "important": false,
+      "content": "本公司將收買已發行之限制員工權利新股辦理註銷完成公告"
+    },
+    {
+      "time": "18:17",
+      "date": "2026-11-16",
+      "code": "3005",
+      "name": "神基",
+      "type": "重大訊息",
+      "important": false,
+      "content": "代子公司Hot Link Technology Ltd.公告董事會 決議股利分派情形"
+    },
+    {
+      "time": "18:17",
+      "date": "2026-11-16",
+      "code": "3189",
+      "name": "景碩",
+      "type": "重大訊息",
+      "important": false,
+      "content": "本公司訂購機器設備公告"
+    },
+    {
+      "time": "18:14",
+      "date": "2026-11-16",
+      "code": "6794",
+      "name": "向榮生技",
+      "type": "重大訊息",
+      "important": false,
+      "content": "公告本公司法人董事因轉讓持股超過選任時所持有之 公司股份數額二分之一當然解任"
+    },
+    {
+      "time": "18:14",
+      "date": "2026-11-16",
+      "code": "2323",
+      "name": "中環",
+      "type": "重大訊息",
+      "important": false,
+      "content": "公告本公司處分有價證券"
+    },
+    {
+      "time": "18:12",
+      "date": "2026-11-16",
+      "code": "4977",
+      "name": "眾達-KY",
+      "type": "重大訊息",
+      "important": false,
+      "content": "本公司115年第3季合併財務報告業經董事會決議通過"
+    },
+    {
+      "time": "18:08",
+      "date": "2026-11-16",
+      "code": "2385",
+      "name": "群光",
+      "type": "重大訊息",
+      "important": false,
+      "content": "更正本公司115年第三季合併財務報告iXBRL申報資訊之 大陸投資資訊-基本資訊"
+    },
+    {
+      "time": "17:57",
+      "date": "2026-11-16",
+      "code": "6695",
+      "name": "芯鼎",
+      "type": "重大訊息",
+      "important": false,
+      "content": "公告本公司發言人辭職案"
+    },
+    {
+      "time": "17:51",
+      "date": "2026-11-16",
+      "code": "2107",
+      "name": "厚生",
+      "type": "重大訊息",
+      "important": false,
+      "content": "董事會授權總投資額度內董事長核准 取得有價證券額度達三億元以上"
+    },
+    {
+      "time": "17:51",
+      "date": "2026-11-16",
+      "code": "6949",
+      "name": "沛爾生醫*-創",
+      "type": "重大訊息",
+      "important": false,
+      "content": "公告本公司「NKp30(ISOLATED NUCLEIC ACID MOLECULE COMPRISING NKp30 TRANSMEMBRANE DOMAIN AND CHIMERIC ANTIGEN RECEPTOR COMPRISING THE SAME)」多鏈CAR-T技術取得澳洲專利"
     },
     {
       "time": "17:47",
-      "date": "2026-11-15",
-      "code": "6994",
-      "name": "富威電力",
+      "date": "2026-11-16",
+      "code": "3711",
+      "name": "日月光投控",
       "type": "重大訊息",
       "important": false,
-      "content": "公告本公司自然人董事異動"
+      "content": "代子公司環旭電子(股)公司公告2026年第二次臨時股東會重 要決議事項"
     },
     {
-      "time": "17:47",
-      "date": "2026-11-15",
+      "time": "17:46",
+      "date": "2026-11-16",
       "code": "6994",
       "name": "富威電力",
       "type": "重大訊息",
       "important": false,
-      "content": "公告本公司永續發展委員會成員異動"
+      "content": "公告本公司獨立董事異動"
+    },
+    {
+      "time": "17:46",
+      "date": "2026-11-16",
+      "code": "6994",
+      "name": "富威電力",
+      "type": "重大訊息",
+      "important": false,
+      "content": "公告本公司獨立董事辭任功能性委員會職務"
+    },
+    {
+      "time": "17:43",
+      "date": "2026-11-16",
+      "code": "5215",
+      "name": "科嘉-KY",
+      "type": "重大訊息",
+      "important": false,
+      "content": "代子公司蘇州嘉吉/科德/嘉財/艾普來/百宏/嘉皇/嘉駿 公告一年內累積處分同一有價證券達實收資本額20%"
+    },
+    {
+      "time": "17:43",
+      "date": "2026-11-16",
+      "code": "5215",
+      "name": "科嘉-KY",
+      "type": "重大訊息",
+      "important": false,
+      "content": "代子公司蘇州嘉吉/科德/嘉財/艾普來/百宏/嘉皇/嘉駿 公告一年內累積取得同一有價證券達實收資本額20%"
+    },
+    {
+      "time": "17:39",
+      "date": "2026-11-16",
+      "code": "2491",
+      "name": "吉祥全",
+      "type": "重大訊息",
+      "important": false,
+      "content": "代子公司浩瀚動力(股)公司公告處分有價證券"
+    },
+    {
+      "time": "17:38",
+      "date": "2026-11-16",
+      "code": "2491",
+      "name": "吉祥全",
+      "type": "重大訊息",
+      "important": false,
+      "content": "代子公司浩瀚動力(股)公司處分有價證券"
+    },
+    {
+      "time": "17:35",
+      "date": "2026-11-16",
+      "code": "2884",
+      "name": "玉山金",
+      "type": "重大訊息",
+      "important": false,
+      "content": "公告本公司暨子公司115年10月自結盈餘"
+    },
+    {
+      "time": "17:34",
+      "date": "2026-11-16",
+      "code": "2883",
+      "name": "凱基金",
+      "type": "重大訊息",
+      "important": false,
+      "content": "公告本公司董事會通過115年第3季合併財務報告"
+    },
+    {
+      "time": "17:32",
+      "date": "2026-11-16",
+      "code": "2228",
+      "name": "劍麟",
+      "type": "重大訊息",
+      "important": false,
+      "content": "本公司受邀參加凱基證券舉辦之法人說明會"
+    },
+    {
+      "time": "17:29",
+      "date": "2026-11-16",
+      "code": "3028",
+      "name": "增你強",
+      "type": "重大訊息",
+      "important": false,
+      "content": "本公司受邀參加富邦證券舉辦之法人說明會"
+    },
+    {
+      "time": "17:27",
+      "date": "2026-11-16",
+      "code": "2474",
+      "name": "可成",
+      "type": "重大訊息",
+      "important": false,
+      "content": "公告本公司買回股份金額達新台幣三億元以上"
+    },
+    {
+      "time": "17:26",
+      "date": "2026-11-16",
+      "code": "2474",
+      "name": "可成",
+      "type": "重大訊息",
+      "important": false,
+      "content": "本公司受邀參加華南永昌證券舉辦之線上法&#12040;說明會"
+    },
+    {
+      "time": "17:22",
+      "date": "2026-11-16",
+      "code": "2236",
+      "name": "百達-KY",
+      "type": "重大訊息",
+      "important": false,
+      "content": "公告百達精密工業股份有限公司國內第三次無擔保(例：第一次有擔保)轉(交)換公司債(簡稱：百達三KY，代碼：22363)停止受理轉交換等相關事項。"
+    },
+    {
+      "time": "17:21",
+      "date": "2026-11-16",
+      "code": "8442",
+      "name": "威宏-KY",
+      "type": "重大訊息",
+      "important": false,
+      "content": "本公司受邀參加永豐金證券及臺灣證券交易所舉辦115年「臺灣璞玉指數」主題式業績發表會"
+    },
+    {
+      "time": "17:15",
+      "date": "2026-11-16",
+      "code": "2402",
+      "name": "毅嘉",
+      "type": "重大訊息",
+      "important": false,
+      "content": "本公司115年第三季合併自結損益與會計師核閱數差異說明"
+    },
+    {
+      "time": "17:15",
+      "date": "2026-11-16",
+      "code": "2467",
+      "name": "志聖",
+      "type": "重大訊息",
+      "important": false,
+      "content": "本公司受邀參加Macquarie舉辦之「Taiwan Conference 2026 」，會中就本公司115年第3季之財務報告相關資訊暨營運概況進行說明。"
+    },
+    {
+      "time": "17:08",
+      "date": "2026-11-16",
+      "code": "6416",
+      "name": "瑞祺電通",
+      "type": "重大訊息",
+      "important": false,
+      "content": "本公司受邀參加凱基證券舉辦之法人說明會"
+    },
+    {
+      "time": "17:07",
+      "date": "2026-11-16",
+      "code": "3704",
+      "name": "合勤控",
+      "type": "重大訊息",
+      "important": false,
+      "content": "代子公司無錫研勤信息科技有限公司公告股利配發基準日"
+    },
+    {
+      "time": "17:05",
+      "date": "2026-11-16",
+      "code": "3704",
+      "name": "合勤控",
+      "type": "重大訊息",
+      "important": false,
+      "content": "代子公司無錫研勤信息科技有限公司公告股東會決議分 派股利"
+    },
+    {
+      "time": "17:01",
+      "date": "2026-11-16",
+      "code": "3712",
+      "name": "永崴投控",
+      "type": "重大訊息",
+      "important": false,
+      "content": "更正本公司115年9月資金貸與資訊揭露明細表"
+    },
+    {
+      "time": "17:01",
+      "date": "2026-11-16",
+      "code": "1216",
+      "name": "統一",
+      "type": "重大訊息",
+      "important": false,
+      "content": "本公司受邀參加台新證券舉辦之投資人說明會"
+    },
+    {
+      "time": "16:56",
+      "date": "2026-11-16",
+      "code": "6257",
+      "name": "矽格",
+      "type": "重大訊息",
+      "important": false,
+      "content": "公告本公司取得廠務工程"
+    },
+    {
+      "time": "16:53",
+      "date": "2026-11-16",
+      "code": "6533",
+      "name": "晶心科",
+      "type": "重大訊息",
+      "important": false,
+      "content": "本公司受邀參加玉山證券舉辦之法人說明會"
+    },
+    {
+      "time": "16:50",
+      "date": "2026-11-16",
+      "code": "1337",
+      "name": "再生-KY",
+      "type": "重大訊息",
+      "important": false,
+      "content": "代子公司三斯達(福建)有限公司公告預售部分廠房 (更正115年11月13日公告)"
+    },
+    {
+      "time": "16:48",
+      "date": "2026-11-16",
+      "code": "6431",
+      "name": "光麗-KY",
+      "type": "重大訊息",
+      "important": false,
+      "content": "更正本公司115年第三季IFRSs iXBRL公告資訊及115年度 第三季合併財務報表之部分內容"
+    },
+    {
+      "time": "16:48",
+      "date": "2026-11-16",
+      "code": "3003",
+      "name": "健和興",
+      "type": "重大訊息",
+      "important": false,
+      "content": "公告更正本公司115年10月合併自結損益"
+    },
+    {
+      "time": "16:43",
+      "date": "2026-11-16",
+      "code": "6579",
+      "name": "研揚",
+      "type": "重大訊息",
+      "important": false,
+      "content": "本公司召開線上法人說明會"
+    },
+    {
+      "time": "16:32",
+      "date": "2026-11-16",
+      "code": "4583",
+      "name": "台灣精銳",
+      "type": "重大訊息",
+      "important": false,
+      "content": "公告本公司營業部副總經理異動"
+    },
+    {
+      "time": "16:30",
+      "date": "2026-11-16",
+      "code": "2882",
+      "name": "國泰金",
+      "type": "重大訊息",
+      "important": false,
+      "content": "公告本公司暨主要子公司115年10月自結合併稅後損益"
+    },
+    {
+      "time": "16:28",
+      "date": "2026-11-16",
+      "code": "1589",
+      "name": "永冠-KY",
+      "type": "重大訊息",
+      "important": false,
+      "content": "公告本公司及子公司英屬維京群島商永冠能源材料股份有限公司 台灣分公司與全數債權銀行之債務協商案，業獲全體債權銀行 同意通過"
+    },
+    {
+      "time": "16:25",
+      "date": "2026-11-16",
+      "code": "6947",
+      "name": "台鎔科技",
+      "type": "重大訊息",
+      "important": false,
+      "content": "公告本公司董事會核准子公司資本支出預算案"
+    },
+    {
+      "time": "16:25",
+      "date": "2026-11-16",
+      "code": "6947",
+      "name": "台鎔科技",
+      "type": "重大訊息",
+      "important": false,
+      "content": "代重要子公司日環股份有限公司公告董事會決議通過 資本支出預算案"
+    },
+    {
+      "time": "16:24",
+      "date": "2026-11-16",
+      "code": "6947",
+      "name": "台鎔科技",
+      "type": "重大訊息",
+      "important": false,
+      "content": "公告本公司董事會通過115年度第三季合併財務報告"
+    },
+    {
+      "time": "16:22",
+      "date": "2026-11-16",
+      "code": "3711",
+      "name": "日月光投控",
+      "type": "重大訊息",
+      "important": false,
+      "content": "代子公司日月光半導體製造(股)公司公告 向EO Technics Co.,ltd取得供營業用之機器設備"
+    },
+    {
+      "time": "16:22",
+      "date": "2026-11-16",
+      "code": "2601",
+      "name": "益航",
+      "type": "重大訊息",
+      "important": false,
+      "content": "更正本公司115年度第三季合併財務報告書申報資訊"
+    },
+    {
+      "time": "16:21",
+      "date": "2026-11-16",
+      "code": "1519",
+      "name": "華城",
+      "type": "重大訊息",
+      "important": false,
+      "content": "代子公司華城匯百貨(股)公司公告大直商場裝修工程發包事宜。"
+    },
+    {
+      "time": "16:10",
+      "date": "2026-11-16",
+      "code": "4977",
+      "name": "眾達-KY",
+      "type": "重大訊息",
+      "important": false,
+      "content": "更正:代子公司PCL TECHNOLOGIES TRADING, INC. 公告新增資金貸與金額達公開發行公司資金貸與及 背書保證處理準則第二十二條第一項第三款之公告標準"
+    },
+    {
+      "time": "16:09",
+      "date": "2026-11-16",
+      "code": "2884",
+      "name": "玉山金",
+      "type": "重大訊息",
+      "important": false,
+      "content": "公告本公司提報董事會115年第3季合併財務報告"
+    },
+    {
+      "time": "16:08",
+      "date": "2026-11-16",
+      "code": "6790",
+      "name": "永豐實",
+      "type": "重大訊息",
+      "important": false,
+      "content": "本公司受邀參加富邦證券線上法說會"
+    },
+    {
+      "time": "16:06",
+      "date": "2026-11-16",
+      "code": "1103",
+      "name": "嘉泥",
+      "type": "重大訊息",
+      "important": false,
+      "content": "公告本公司115年第3季合併財務報告"
+    },
+    {
+      "time": "16:05",
+      "date": "2026-11-16",
+      "code": "2338",
+      "name": "光罩",
+      "type": "重大訊息",
+      "important": false,
+      "content": "公告本公司之子公司資金貸與超限訂定之改善計畫執行 情形"
+    },
+    {
+      "time": "16:03",
+      "date": "2026-11-16",
+      "code": "2338",
+      "name": "光罩",
+      "type": "重大訊息",
+      "important": false,
+      "content": "代重要子公司美祿科技(股)公司公告董事長選任"
+    },
+    {
+      "time": "16:02",
+      "date": "2026-11-16",
+      "code": "2615",
+      "name": "萬海",
+      "type": "重大訊息",
+      "important": false,
+      "content": "本公司更正115年第三季IFRSs iXBRL財報報表資訊以及 財務報告公告說明事項。"
+    },
+    {
+      "time": "16:00",
+      "date": "2026-11-16",
+      "code": "6592",
+      "name": "和潤企業",
+      "type": "重大訊息",
+      "important": false,
+      "content": "公告本公司將受邀參加台新證券所舉辦之線上法人說明會"
+    },
+    {
+      "time": "16:00",
+      "date": "2026-11-16",
+      "code": "2881",
+      "name": "富邦金",
+      "type": "重大訊息",
+      "important": false,
+      "content": "公告本公司暨主要子公司115年10月合併自結損益"
+    },
+    {
+      "time": "15:59",
+      "date": "2026-11-16",
+      "code": "3443",
+      "name": "創意",
+      "type": "重大訊息",
+      "important": false,
+      "content": "因本公司有價證券於集中交易市場達公佈注意交易資訊標準， 故公佈相關財務業務等重大訊息，以利投資人區別瞭解。"
+    },
+    {
+      "time": "15:57",
+      "date": "2026-11-16",
+      "code": "2338",
+      "name": "光罩",
+      "type": "重大訊息",
+      "important": false,
+      "content": "代重要子公司美祿科技股份有限公司公告法人董事任期屆滿 續派名單"
+    },
+    {
+      "time": "15:55",
+      "date": "2026-11-16",
+      "code": "1802",
+      "name": "台玻",
+      "type": "重大訊息",
+      "important": false,
+      "content": "係因本公司有價證券於集中交易市場達公布注意交易資訊 標準，故公布相關財務業務等重大訊息，以利投資人區別瞭解"
+    },
+    {
+      "time": "15:55",
+      "date": "2026-11-16",
+      "code": "3661",
+      "name": "世芯-KY",
+      "type": "重大訊息",
+      "important": false,
+      "content": "係因本公司有價證券於集中交易市場達公布注意交易資訊 標準，故公布相關財務業務等重大訊息，以利投資人區別瞭解"
+    },
+    {
+      "time": "15:53",
+      "date": "2026-11-16",
+      "code": "2338",
+      "name": "光罩",
+      "type": "重大訊息",
+      "important": false,
+      "content": "本公司董事會決議捐贈財團法人台灣光罩慈善基金會 (捐贈期限展延及補充109/12/30公告)"
+    },
+    {
+      "time": "15:49",
+      "date": "2026-11-16",
+      "code": "2385",
+      "name": "群光",
+      "type": "重大訊息",
+      "important": false,
+      "content": "公告一年內累積取得(00981A)主動統一股票達新台幣三億元以上。"
+    },
+    {
+      "time": "15:45",
+      "date": "2026-11-16",
+      "code": "6830",
+      "name": "汎銓",
+      "type": "重大訊息",
+      "important": false,
+      "content": "公告更正本公司115年第三季合併財務報告iXBRL預收股 款之約當發行股數申報資訊"
+    },
+    {
+      "time": "15:44",
+      "date": "2026-11-16",
+      "code": "2338",
+      "name": "光罩",
+      "type": "重大訊息",
+      "important": false,
+      "content": "公告本公司董事長決定員工限制權利新股發行之增資基準日"
+    },
+    {
+      "time": "15:39",
+      "date": "2026-11-16",
+      "code": "6807",
+      "name": "峰源-KY",
+      "type": "重大訊息",
+      "important": false,
+      "content": "本公司公司設置永續長"
+    },
+    {
+      "time": "15:35",
+      "date": "2026-11-16",
+      "code": "2338",
+      "name": "光罩",
+      "type": "重大訊息",
+      "important": false,
+      "content": "依公開發行公司資金貸與及背書保證處理準則第25條第一項 第四款規定公告新增背書保證資訊"
+    },
+    {
+      "time": "15:33",
+      "date": "2026-11-16",
+      "code": "2939",
+      "name": "永邑-KY",
+      "type": "重大訊息",
+      "important": false,
+      "content": "代本公司之子公司英屬維京群島商永邑國際控股有限公司 台灣分公司公告說明線上商店平台委外服務廠商資安事件"
+    },
+    {
+      "time": "15:31",
+      "date": "2026-11-16",
+      "code": "1216",
+      "name": "統一",
+      "type": "重大訊息",
+      "important": false,
+      "content": "本公司受邀參加台新證券舉辦之線上法說會"
+    },
+    {
+      "time": "15:31",
+      "date": "2026-11-16",
+      "code": "3010",
+      "name": "華立",
+      "type": "重大訊息",
+      "important": false,
+      "content": "本公司受邀參加中國信託證券所舉辦之「2026年Q4法人說明會」"
+    },
+    {
+      "time": "15:29",
+      "date": "2026-11-16",
+      "code": "2338",
+      "name": "光罩",
+      "type": "重大訊息",
+      "important": false,
+      "content": "公告本公司董事會通過115年第三季合併財務報告"
+    },
+    {
+      "time": "15:13",
+      "date": "2026-11-16",
+      "code": "3044",
+      "name": "健鼎",
+      "type": "重大訊息",
+      "important": false,
+      "content": "健鼎受邀參加麥格理證券 2026 Taiwan Conference"
+    },
+    {
+      "time": "15:06",
+      "date": "2026-11-16",
+      "code": "4722",
+      "name": "國精化",
+      "type": "重大訊息",
+      "important": false,
+      "content": "本公司受邀參加永豐金證券及臺灣證券交易所舉辦115年「臺灣璞玉指數」主題式業績發表會"
+    },
+    {
+      "time": "15:04",
+      "date": "2026-11-16",
+      "code": "6669",
+      "name": "緯穎",
+      "type": "重大訊息",
+      "important": false,
+      "content": "公告本公司將於115年12月21日提前贖回第一次海外無擔保 可轉換公司債(ISIN:XS2853493117)"
+    },
+    {
+      "time": "15:02",
+      "date": "2026-11-16",
+      "code": "5243",
+      "name": "乙盛-KY",
+      "type": "重大訊息",
+      "important": false,
+      "content": "公告本公司受邀康和綜合證券舉辦之法人說明會"
+    },
+    {
+      "time": "14:58",
+      "date": "2026-11-16",
+      "code": "6994",
+      "name": "富威電力",
+      "type": "重大訊息",
+      "important": false,
+      "content": "公告本公司獨立董事辭任功能性委員會職務"
+    },
+    {
+      "time": "14:57",
+      "date": "2026-11-16",
+      "code": "6994",
+      "name": "富威電力",
+      "type": "重大訊息",
+      "important": false,
+      "content": "公告本公司獨立董事異動"
+    },
+    {
+      "time": "14:51",
+      "date": "2026-11-16",
+      "code": "4989",
+      "name": "榮科",
+      "type": "重大訊息",
+      "important": false,
+      "content": "更正-代子公司LCY TECHNOLOGY (THAILAND) CO., LTD.公告取得泰國建廠所需之土地"
+    },
+    {
+      "time": "14:46",
+      "date": "2026-11-16",
+      "code": "3034",
+      "name": "聯詠",
+      "type": "重大訊息",
+      "important": false,
+      "content": "本公司受邀參加由JP Morgan所舉辦\"JP Morgan APAC Technology, Innovation and Growth Conference\""
+    },
+    {
+      "time": "14:44",
+      "date": "2026-11-16",
+      "code": "3711",
+      "name": "日月光投控",
+      "type": "重大訊息",
+      "important": false,
+      "content": "代子公司矽品精密工業(股)公司公告取得廠務工程"
+    },
+    {
+      "time": "14:41",
+      "date": "2026-11-16",
+      "code": "2889",
+      "name": "國票金",
+      "type": "重大訊息",
+      "important": false,
+      "content": "代子公司國票證券投資顧問股份有限公司公告第十一屆董監 事名單"
+    },
+    {
+      "time": "14:30",
+      "date": "2026-11-16",
+      "code": "2342",
+      "name": "茂矽",
+      "type": "重大訊息",
+      "important": false,
+      "content": "公告本公司註銷收回限制員工權利新股辦理變更登記完成"
+    },
+    {
+      "time": "14:27",
+      "date": "2026-11-16",
+      "code": "1313",
+      "name": "聯成",
+      "type": "重大訊息",
+      "important": false,
+      "content": "本公司受邀參加凱基證券舉辦之線上法人說明會"
+    },
+    {
+      "time": "14:25",
+      "date": "2026-11-16",
+      "code": "1477",
+      "name": "聚陽",
+      "type": "重大訊息",
+      "important": false,
+      "content": "本公司受邀參加Morgan Stanley舉辦之「Twenty-Fifth Annual Asia Pacific Summit」"
+    },
+    {
+      "time": "14:20",
+      "date": "2026-11-16",
+      "code": "1464",
+      "name": "得力",
+      "type": "重大訊息",
+      "important": false,
+      "content": "公告本公司董事會決議買回庫藏股(更正預定買回之期間)"
+    },
+    {
+      "time": "14:17",
+      "date": "2026-11-16",
+      "code": "2002",
+      "name": "中鋼",
+      "type": "重大訊息",
+      "important": false,
+      "content": "代子公司鋼堡科技公司公告取得不動產使用權資產"
+    },
+    {
+      "time": "14:13",
+      "date": "2026-11-16",
+      "code": "9902",
+      "name": "台火",
+      "type": "重大訊息",
+      "important": false,
+      "content": "本公司受邀參加玉山證券舉辦之線上法人說明會"
+    },
+    {
+      "time": "14:12",
+      "date": "2026-11-16",
+      "code": "2495",
+      "name": "普安",
+      "type": "重大訊息",
+      "important": false,
+      "content": "公告本公司受邀參加元大證券舉辦之線上法人說明會"
+    },
+    {
+      "time": "14:04",
+      "date": "2026-11-16",
+      "code": "6189",
+      "name": "豐藝",
+      "type": "重大訊息",
+      "important": false,
+      "content": "公告本公司受邀參加群益金鼎證券舉辦2026年線上法說會"
+    },
+    {
+      "time": "14:02",
+      "date": "2026-11-16",
+      "code": "2455",
+      "name": "全新",
+      "type": "重大訊息",
+      "important": false,
+      "content": "本公司國內第二次無擔保轉換公司債行使債券贖回權，申請 轉換為普通股最後期限為115年11月19日，為確保本債券持有人 權益，特此催告。"
+    },
+    {
+      "time": "14:02",
+      "date": "2026-11-16",
+      "code": "2912",
+      "name": "統一超",
+      "type": "重大訊息",
+      "important": false,
+      "content": "本公司受邀參加麥格理證券於W Hotel Taipei舉辦之法人說明會"
+    },
+    {
+      "time": "13:52",
+      "date": "2026-11-16",
+      "code": "1608",
+      "name": "華榮",
+      "type": "重大訊息",
+      "important": false,
+      "content": "公告本公司115年11月18日召開法人說明會之相關訊息。"
+    },
+    {
+      "time": "13:41",
+      "date": "2026-11-16",
+      "code": "2890",
+      "name": "永豐金",
+      "type": "重大訊息",
+      "important": false,
+      "content": "永豐金控公告115年度現金增資收足股款暨增資基準日"
+    },
+    {
+      "time": "13:39",
+      "date": "2026-11-16",
+      "code": "2408",
+      "name": "南亞科",
+      "type": "重大訊息",
+      "important": false,
+      "content": "本公司受邀參加Macquarie Taiwan Conference 2026"
+    },
+    {
+      "time": "13:35",
+      "date": "2026-11-16",
+      "code": "1316",
+      "name": "上曜",
+      "type": "重大訊息",
+      "important": false,
+      "content": "公告本公司董事會通過115年第三季合併財務報告"
+    },
+    {
+      "time": "13:33",
+      "date": "2026-11-16",
+      "code": "1589",
+      "name": "永冠-KY",
+      "type": "重大訊息",
+      "important": false,
+      "content": "本公司未於規定期限內公告申報經會計師核閱之財務報告"
+    },
+    {
+      "time": "13:13",
+      "date": "2026-11-16",
+      "code": "2712",
+      "name": "遠雄來",
+      "type": "重大訊息",
+      "important": false,
+      "content": "公告本公司新任營運副總經理"
+    },
+    {
+      "time": "13:12",
+      "date": "2026-11-16",
+      "code": "2712",
+      "name": "遠雄來",
+      "type": "重大訊息",
+      "important": false,
+      "content": "公告本公司總經理異動"
+    },
+    {
+      "time": "12:19",
+      "date": "2026-11-16",
+      "code": "4977",
+      "name": "眾達-KY",
+      "type": "重大訊息",
+      "important": false,
+      "content": "公告本公司財會主管異動"
+    },
+    {
+      "time": "11:23",
+      "date": "2026-11-16",
+      "code": "3005",
+      "name": "神基",
+      "type": "重大訊息",
+      "important": false,
+      "content": "澄清115年11月13日經濟日報報導"
+    },
+    {
+      "time": "10:56",
+      "date": "2026-11-16",
+      "code": "6579",
+      "name": "研揚",
+      "type": "重大訊息",
+      "important": false,
+      "content": "澄清媒體有關本公司之報導"
+    },
+    {
+      "time": "09:55",
+      "date": "2026-11-16",
+      "code": "1907",
+      "name": "永豐餘",
+      "type": "重大訊息",
+      "important": false,
+      "content": "公告本公司115年7~9月關係人交易申報數調整"
+    },
+    {
+      "time": "09:20",
+      "date": "2026-11-16",
+      "code": "6415",
+      "name": "矽力*-KY",
+      "type": "重大訊息",
+      "important": false,
+      "content": "說明2026年11月14日媒體報導"
     },
     {
       "time": "07:00",
-      "date": "2026-11-15",
+      "date": "2026-11-16",
       "code": "2072",
       "name": "世紀能源",
       "type": "重大訊息",
