@@ -1,5 +1,5 @@
 {
-  "date": "2026-11-13",
+  "date": "2026-11-16",
   "data": [
     {
       "code": "2344",
@@ -2025,7 +2025,7 @@
       "amount": 5.0,
       "currency": "台幣",
       "filingDate": "2026-10-29",
-      "effectiveDate": "2026-11-16",
+      "effectiveDate": "2026-12-01",
       "withdrawDate": null,
       "underwriter": "元大證券"
     },
@@ -2038,7 +2038,7 @@
       "amount": 6.0,
       "currency": "台幣",
       "filingDate": "2026-10-29",
-      "effectiveDate": "2026-11-16",
+      "effectiveDate": "2026-12-01",
       "withdrawDate": null,
       "underwriter": "元大證券"
     },
@@ -2117,6 +2117,19 @@
       "currency": "台幣",
       "filingDate": "2026-11-09",
       "effectiveDate": "2026-11-25",
+      "withdrawDate": null,
+      "underwriter": "元大證券"
+    },
+    {
+      "code": "3443",
+      "name": "創意電子",
+      "market": "上市",
+      "status": "審查中",
+      "cbType": "轉換公司債(海外無擔保)",
+      "amount": 800.0,
+      "currency": "美元",
+      "filingDate": "2026-11-13",
+      "effectiveDate": "2026-12-01",
       "withdrawDate": null,
       "underwriter": "元大證券"
     }

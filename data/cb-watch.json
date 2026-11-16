@@ -1,5 +1,5 @@
 {
-  "date": "2026-11-13",
+  "date": "2026-11-16",
   "data": [
     {
       "code": "4973",
@@ -377,6 +377,19 @@
       "closePrice": 34.9,
       "market": "上市",
       "underwriter": "凱基證券股份有限公司"
+    },
+    {
+      "code": "3147",
+      "name": "大綜",
+      "cbSeries": "第81次",
+      "filingDate": "2026-11-16",
+      "bookBuildDate": "2026-11-16",
+      "listingDate": "2026-11-27",
+      "amount": 12.0,
+      "conversionPrice": null,
+      "closePrice": 313.0,
+      "market": "上櫃",
+      "underwriter": "富邦綜合證券股份有限公司"
     }
   ]
 }
