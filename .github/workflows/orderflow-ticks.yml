@@ -33,7 +33,7 @@ jobs:
       - uses: actions/setup-python@v7
         with:
           python-version: '3.11'
-      - run: pip install shioaji==1.7.9
+      - run: pip install shioaji==1.7.9 requests
       - name: Restore tick bar cache
         uses: actions/cache/restore@v4
         with:
