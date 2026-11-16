@@ -140,7 +140,7 @@ def main():
         u = api.usage()
         return u.bytes, u.limit_bytes, u.remaining_bytes
 
-    # 結算策略：股期近月 13:24 折溢價快照（只查 13:20～13:25，流量很少；最多 15 分鐘）
+    # 結算策略：股期近月整日平均折溢價（1 分 K，流量很少；最多 15 分鐘）
     try:
         import settlement_basis
         settlement_basis.run(api, DATA, min(deadline, time.time() + 15 * 60), log=log)

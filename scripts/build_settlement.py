@@ -9,7 +9,7 @@
   前十大特法 買／賣方未沖銷價值＝(大期口數 × 2000 ＋ 小期口數 × 100) × 收盤價
   自營商庫存倍數＝自營買賣超張數 ÷ 換手量
   未平倉倍數（市場）＝市場期貨未平倉合約 × 2 ÷ 換手量；特法多／空＝特法買／賣方價值 ÷ 1000 ÷ 收盤 ÷ 換手量
-  日平均折溢價：本期每天 13:24 股期近月 ÷ 現貨 − 1 的平均（永豐逐筆中價；沒有的日子用期交所結算價 ÷ 現貨收盤估）
+  平均折溢價：本期每天「整日平均折溢價」的平均（永豐 1 分 K：期貨有成交的每分鐘 ÷ 當下現貨 − 1 取平均；沒有的日子用期交所結算價 ÷ 現貨收盤估）
   方向：折溢價（溢／折）、期貨未平倉（特法多方價值 > 空方＝多）、自營商庫存（買超＝多）；
         同向＝（溢、空、多）或（折、多、空）→ 套利部位結算時會反向平倉
   控盤金額(M)＝ −（（特法空方價值 − 特法多方價值）÷ 10⁶ ＋ 自營買賣超金額）；控盤張數＝控盤金額 × 10⁶ ÷（收盤 × 1000）
@@ -51,7 +51,7 @@ def build(data_dir: Path, public_dir: Path):
     insti = {d["date"]: _load(data_dir / "insti" / f"{d['date']}.json", {}) or {} for d in pdays}
     dt_all = (_load(data_dir / "strategy" / "daytrade.json", {}) or {}).get("days") or {}
     dtd = dt_all.get(last["date"]) or {}
-    basis = _load(sdir / "basis.json", {}) or {}
+    basis = _load(sdir / "basis_day.json", {}) or {}
     lt_by_day = {p.stem: (_load(p, {}) or {}).get("rows") or {} for p in lts if start.isoformat() <= p.stem <= last["date"]}
     black = set((_load(sdir / "blacklist.json", {}) or {}).get("codes") or [])  # 手動黑名單（Excel 的「黑名單」欄）
     disp = {r.get("code") for r in ((_load(data_dir / "disposition.json", {}) or {}).get("data") or []) if isinstance(r, dict)}
@@ -83,10 +83,10 @@ def build(data_dir: Path, public_dir: Path):
         big_share = M / (M + N / 20) if M + N else 1
         bshare = (b[3] / M if M else None) if big_share > 0.5 else (s[3] / N if N else None)
         sshare = (b[4] / M if M else None) if big_share > 0.5 else (s[4] / N if N else None)
-        # 折溢價：永豐 13:24 快照為主，缺的日子用期交所結算價估
-        bs, src = [], {"snap": 0, "settle": 0}
+        # 折溢價：永豐 1 分 K 整日平均為主，缺的日子用期交所結算價估
+        bs, src = [], {"day": 0, "settle": 0}
         for d in pdays:
-            x = (basis.get(d["date"]) or {}).get(stock)
+            x = ((basis.get(d["date"]) or {}).get(stock) or [None])[0]
             if x is None:
                 fsp = (lt_by_day.get(d["date"], {}).get(kb) or [None] * 6)[5]
                 c0 = (d["q"].get(stock) or [0] * 6)[5]
@@ -94,7 +94,7 @@ def build(data_dir: Path, public_dir: Path):
                     x = fsp / c0 - 1
                     src["settle"] += 1
             else:
-                src["snap"] += 1
+                src["day"] += 1
             if x is not None:
                 bs.append(x)
         avg_b = sum(bs) / len(bs) if bs else None
@@ -133,4 +133,4 @@ def build(data_dir: Path, public_dir: Path):
            "basisDays": sum(1 for d in pdays if basis.get(d["date"])), "rows": out}
     (public_dir / "settlement.json").write_text(json.dumps(doc, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     print(f"結算策略：{month} 結算 {sday}（本期 {start} 起 {len(pdays)} 天），{len(out)} 檔股期標的，"
-          f"折溢價快照 {doc['basisDays']} 天")
+          f"整日平均折溢價 {doc['basisDays']} 天")

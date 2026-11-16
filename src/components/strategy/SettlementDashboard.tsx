@@ -7,7 +7,7 @@ import { Kpi, KpiRow, Note, Pills, SortTable, type Column } from "@/components/d
 
 type Row = { code: string; name: string; close: number; disp: boolean; black: boolean; dSh: number; dAmt: number; vol10: number; dtr: number;
   turn: number; oi: number; oiBig: number; oiSmall: number; bVal: number; sVal: number; bShare: number | null; sShare: number | null;
-  invX: number | null; oiX: number | null; bX: number | null; sX: number | null; basis: number | null; basisSrc: { snap: number; settle: number };
+  invX: number | null; oiX: number | null; bX: number | null; sX: number | null; basis: number | null; basisSrc: { day: number; settle: number };
   dir: [string, string, string]; same: boolean; ctrl: number; ctrlSh: number; ctrlX: number | null; amihud: number | null };
 type Data = { updatedAt: string; date: string; ltDate: string; month: string; start: string; settle: string; daysLeft: number; days: number;
   basisDays: number; rows: Row[] };
@@ -52,7 +52,7 @@ export default function SettlementDashboard() {
     { key: "same", label: "同向", sort: (r) => (r.same ? 1 : 0), render: (r) => (r.same ? <span className="text-[#4f8cff] font-semibold">v</span> : null) },
     { key: "dir", label: "折溢價／特法／自營", render: (r) => <span className="inline-flex gap-1">{r.dir.map((t, i) => <span key={i}>{tag(t)}</span>)}</span> },
     { key: "basis", label: "平均折溢價", align: "right", sort: (r) => r.basis, render: (r) => (
-      <span title={`永豐 13:24 快照 ${r.basisSrc.snap} 天、期交所結算價估 ${r.basisSrc.settle} 天`}>
+      <span title={`永豐 1 分 K 整日平均 ${r.basisSrc.day} 天、期交所結算價估 ${r.basisSrc.settle} 天`}>
         {num(r.basis == null ? "—" : `${sg(r.basis * 100, 2)}%`, tone(r.basis))}
         {r.basisSrc.settle > 0 && <span className="ml-0.5 text-[10px] text-[#7c8aa0]">*</span>}
       </span>) },
@@ -86,7 +86,7 @@ export default function SettlementDashboard() {
         <Kpi label={`${data.month.slice(0, 4)}/${data.month.slice(4)} 結算日`} value={md(data.settle)} sub={`本期 ${md(data.start)} 起`} />
         <Kpi label="距結算" value={data.daysLeft} unit="個交易日" color={data.daysLeft <= 1 ? "text-[#f59e0b]" : "text-white"} sub={`資料到 ${md(data.date)}`} />
         <Kpi label="本期已累積" value={data.days} unit="天" sub={`大額交易人 ${md(data.ltDate)}`} />
-        <Kpi label="折溢價 13:24 快照" value={`${data.basisDays}/${data.days}`} unit="天" sub="缺的日子用期交所結算價估" />
+        <Kpi label="整日平均折溢價" value={`${data.basisDays}/${data.days}`} unit="天" sub="缺的日子用期交所結算價估" />
       </KpiRow>
 
       <div className="mb-4 flex flex-wrap items-center gap-2">
@@ -109,7 +109,7 @@ export default function SettlementDashboard() {
         <Note>
           控盤金額＝ −（（特法空方價值 − 特法多方價值）＋ 自營買賣超金額）；控盤倍數＝控盤張數 ÷ 換手量，負值越大＝結算時越可能往下壓、正值越大＝往上拉。
           同向＝（溢價、特法空、自營多）或（折價、特法多、自營空）：套利部位與外資期貨方向一致，結算日反向平倉的力道最大。
-          平均折溢價＝本期每天 13:24 股期近月 ÷ 現貨 − 1 的平均（永豐逐筆委買委賣中價；標 * 的有部分日子用期交所結算價估）。
+          平均折溢價＝本期每天「整日平均折溢價」的平均：每天 09:00～13:25 股期近月有成交的每一分鐘，期貨價 ÷ 當下現貨價 − 1，取當天平均（永豐 1 分 K；標 * 的有部分日子用期交所結算價估）。
           黑名單維護在 data/settlement/blacklist.json。
         </Note>
       </div>
