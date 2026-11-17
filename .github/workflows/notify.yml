@@ -73,14 +73,26 @@ jobs:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
           LINE_USER_ID: ${{ secrets.LINE_USER_ID }}
+      - name: Day-trade journal, post-close review and LINE
+        # 記下明天三個當沖策略的推薦（開盤前都可更新）→ 有收盤行情的日子復盤 → 今天的復盤推 LINE（每天一次）
+        continue-on-error: true
+        run: |
+          python3 scripts/daytrade_lab.py record
+          python3 scripts/daytrade_lab.py review
+          python3 scripts/notify.py --daytrade-review
+        env:
+          TZ: Asia/Taipei
+          LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
+          LINE_USER_ID: ${{ secrets.LINE_USER_ID }}
       - name: Save insider alert state
         continue-on-error: true
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email 'github-actions[bot]@users.noreply.github.com'
           git add data/notify/
+          [ -e data/strategy/daytrade_journal.json ] && git add data/strategy/daytrade_journal.json
           git diff --staged --quiet && exit 0
-          git commit -m "notify: insider alert state"
+          git commit -m "notify: alert state"
           for i in 1 2 3 4 5; do
             git push && exit 0
             git pull --rebase -X theirs origin main || { git rebase --abort; git pull --no-rebase -X ours origin main; }
