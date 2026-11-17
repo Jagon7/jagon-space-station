@@ -494,7 +494,11 @@ def turnover_alert(dry: bool, force: bool = False) -> int:
     if fade_s:
         m.kv("回測隔天開盤→收盤", f"{fade_s['o2c']:+.2f}%（黑K {fade_s['black']:.0f}%）", color=sign_tone(fade_s["o2c"]))
         m.kv("開盤空收盤補（全額成本）", f"{fade_s['shortNet']:+.2f}%", color=sign_tone(fade_s["shortNet"]))
-    m.note("已排除隔天處置、暫停先賣後買的股票。做法：開盤放空、收盤回補；開盤若沒開高或直接開低，優勢較小。")
+    pr = tv.get("params") or {}
+    gm = [lab + ("開平盤以上" if p_["gapMin"] == 0 else f"開高 {p_['gapMin']:g}% 以上") for lab, p_ in (("高週轉＋漲停", pr.get("tvLimit") or {}), ("高當沖比", pr.get("dtFade") or {}))
+          if (p_.get("gapMin") if p_.get("gapMin") is not None else -99) > -99]
+    m.note("已排除隔天處置、暫停先賣後買的股票。做法：開盤放空、收盤回補" + ("；" + "、".join(gm) + "才做，開低不做" if gm else "；開盤若沒開高或直接開低，優勢較小")
+           + "。參數每週依回測自動檢討，收盤後會推當沖復盤。")
     text = m.text()
     print(text)
     if force:
@@ -1524,6 +1528,77 @@ def us_event_alert(dry: bool, force: bool = False) -> int:
     return 0
 
 
+DTREV_STATE = ROOT / "data" / "notify" / "daytrade-review-sent.json"
+
+
+def daytrade_review_alert(dry: bool, force: bool = False) -> int:
+    """當沖復盤（收盤行情到了就推）：今天推薦的標的開盤空、收盤補的結果，近 20 天實績，以及最近的參數調整"""
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    import daytrade_lab as lab
+    j = json.loads(lab.JOURNAL.read_text(encoding="utf-8")) if lab.JOURNAL.exists() else {}
+    days = [d for d in sorted(j) if j[d].get("result")]
+    if not days:
+        print("還沒有可以復盤的日子")
+        return 0
+    d = days[-1]
+    try:
+        state = json.loads(DTREV_STATE.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        state = {"sent": []}
+    if not force and (d in state["sent"] or d != datetime.now(TPE_TZ).date().isoformat()):
+        print(f"{d} 已推過或不是今天")
+        return 0
+    md = lambda x: f"{int(x[5:7])}/{int(x[8:10])}"  # noqa: E731
+    res = j[d]["result"]
+    m = Msg(("【預覽】" if force else "") + "📋 當沖復盤", f"{md(d)}（週{WEEK[date.fromisoformat(d).weekday()]}）・開盤空、收盤補・扣成本 {lab.COST}%",
+            accent="#0F766E", url=f"{SITE}/daytrade-review/", button="開啟當沖復盤")
+    tot = []
+    for k in ("g85", "tvLimit", "dtFade"):
+        rows = res.get(k)
+        if rows is None:
+            continue
+        trig = [r for r in rows if r.get("trig")]
+        avg = sum(r["net"] for r in trig) / len(trig) if trig else None
+        tot += [r["net"] for r in trig]
+        m.section(lab.NAMES[k], f"{len(trig)}/{len(rows)} 檔觸發" + (f"・平均 {avg:+.2f}%" if avg is not None else ""))
+        if rows:
+            m.cols("開盤跳空", "空單淨損益")
+        for r in rows:
+            if r.get("net") is None:
+                m.stock(r["name"], r["code"], "—", r.get("status", ""), color=FLAT)
+                continue
+            mark = "—" if not r["trig"] else ("✅" if r["net"] > 0 else "❌")
+            m.stock(r["name"], r["code"], f"{r['gap']:+.1f}%", f"{mark} {r['net']:+.2f}%" if r["trig"] else "未觸發",
+                    color=(sign_tone(-r["net"]) if r["trig"] else FLAT),
+                    sub=f"開 {r['open']:g}・高 {r['high']:g}（{r['mae']:+.1f}%）・收 {r['close']:g}")
+        if not rows:
+            m.line("沒有推薦標的", color=FLAT)
+        lv = lab.live_stats(j, k)
+        if lv["n"]:
+            m.kv(f"近 {lv['days']} 個交易日實績", f"{lv['n']} 筆・平均 {lv['avg']:+.2f}%・勝率 {lv['win']:.0f}%・累計 {lv['sum']:+.1f}%", color=sign_tone(-lv["avg"]))
+    if tot:
+        m.section("今天合計", f"{len(tot)} 筆・平均 {sum(tot) / len(tot):+.2f}%・{sum(1 for x in tot if x > 0)} 賺 {sum(1 for x in tot if x <= 0)} 賠")
+    P = lab.params()
+    recent = [h for h in P["history"] if h["date"] >= (date.fromisoformat(d) - timedelta(days=7)).isoformat()]
+    for h in recent:
+        diff = "、".join(f"{k} {h['from'].get(k)}→{v}" for k, v in h["to"].items() if h["from"].get(k) != v)
+        m.kv(f"🔧 {md(h['date'])} 調整 {lab.NAMES[h['strategy']]}", diff, color="#0F766E")
+    m.note("損益＝放空開盤價、收盤價回補（未計滑價）；85g 只有開盤落在設定區間才算觸發。參數每週六用近 120 個交易日回測檢討，"
+           "前後半段都比較好、整體至少多 0.1% 才調整。" + ("（這天是回補模擬，不是實際推播的名單）" if j[d].get("sim") else ""))
+    print(m.text())
+    if dry:
+        return 0
+    if force:
+        send(m)
+        return 0
+    if not send(m):
+        print("（沒有設定任何推播管道，只印出內容）")
+    state["sent"] = (state["sent"] + [d])[-60:]
+    DTREV_STATE.parent.mkdir(parents=True, exist_ok=True)
+    DTREV_STATE.write_text(json.dumps(state, ensure_ascii=False, indent=0), encoding="utf-8")
+    return 0
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry-run", action="store_true")
@@ -1533,6 +1608,7 @@ def main():
     ap.add_argument("--strategy-alert", action="store_true")
     ap.add_argument("--turnover-alert", action="store_true")
     ap.add_argument("--exdiv-alert", action="store_true", help="除權息黑K：明天除息的放空候選與明天要回補的部位")
+    ap.add_argument("--daytrade-review", action="store_true", help="當沖復盤：收盤後推今天推薦標的的結果（加 --preview 立刻發預覽）")
     ap.add_argument("--us-event-alert", action="store_true", help="隔天晚上有美國重大事件就推（每天傍晚；加 --preview 立刻發預覽）")
     ap.add_argument("--settlement-alert", action="store_true", help="結算策略：每月結算前一週週五晚上推控盤排行（加 --preview 立刻發預覽）")
     ap.add_argument("--risk-alert", action="store_true", help="市場風險警示：風險溫度偏高、指標達警戒／危險、VIX 暴漲、信用利差擴大、科技廠隱含 CDS 跳升")
@@ -1570,6 +1646,8 @@ def main():
         return exdiv_alert(a.dry_run, force=a.preview)
     if a.risk_alert:
         return risk_alert(a.dry_run, force=a.preview)
+    if a.daytrade_review:
+        return daytrade_review_alert(a.dry_run, force=a.preview)
     if a.us_event_alert:
         return us_event_alert(a.dry_run, force=a.preview)
     if a.settlement_alert:

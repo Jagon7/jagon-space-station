@@ -125,6 +125,14 @@ jobs:
         env:
           JSS_DATA_DIR: ./data
 
+      - name: Day-trade strategy tuning (Saturdays)
+        # 三個當沖策略用近 120 個交易日回測各組參數，明顯比較好才換（data/strategy/daytrade_params.json）
+        if: always() && steps.fetch.conclusion != 'cancelled' && (github.event.schedule == '13 2 * * 6' || inputs.weekly)
+        continue-on-error: true
+        run: python3 scripts/daytrade_lab.py tune
+        env:
+          JSS_DATA_DIR: ./data
+
       - name: Commit and push data
         if: always() && steps.fetch.conclusion != 'cancelled'
         run: |

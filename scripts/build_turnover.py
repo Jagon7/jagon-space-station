@@ -29,6 +29,11 @@ DT_MAX = 10
 
 
 def build(data_dir: Path, public_dir: Path):
+    # 名單參數由 daytrade_lab.py 每週用近 120 個交易日回測調整（data/strategy/daytrade_params.json）
+    pc = (_load(data_dir / "strategy" / "daytrade_params.json", {}) or {}).get("current") or {}
+    tvp, dfp = pc.get("tvLimit") or {}, pc.get("dtFade") or {}
+    tv_top, tv_val = int(tvp.get("top", 20)), float(tvp.get("minVal", 1.0))
+    dt_min, df_val, df_ret = float(dfp.get("dtMin", DT_MIN)), float(dfp.get("minVal", 1.0)), float(dfp.get("minRet", 0.0))
     shares = (_load(data_dir / "strategy" / "shares.json", {}) or {}).get("shares", {})
     if len(shares) < 1000:
         print("週轉率：發行股數資料不足，略過")
@@ -133,7 +138,7 @@ def build(data_dir: Path, public_dir: Path):
             for r in [r for r in rows[:20] if r["dt"] is not None]:
                 add("週轉前 20 名・當沖比 ≥ 50%" if r["dt"] >= 50 else "週轉前 20 名・當沖比 < 50%", r["nx"], d)
             for r in rows:
-                if r["dt"] is not None and r["valueYi"] >= 1 and r["dt"] >= DT_MIN and r["close"] < r["open"]:
+                if r["dt"] is not None and r["valueYi"] >= df_val and r["dt"] >= dt_min and r["close"] < r["open"]:
                     add("高當沖比＋黑K", r["nx"], d)
                     if (r["ret"] or 0) >= 0:
                         add("　└ 今天仍收漲（開高走低）", r["nx"], d)
@@ -172,9 +177,9 @@ def build(data_dir: Path, public_dir: Path):
     for r in today:
         r["disposed"] = disposed(r["code"], d0) or disposed(r["code"], nxt)
         r["noShort"] = r["code"] in nox
-    alert = [r for r in [r for r in today if r["valueYi"] >= 1][:20] if r["limit"] and not r["disposed"] and not r["noShort"]]
-    dt_alert = sorted([r for r in today if r["dt"] is not None and r["valueYi"] >= 1 and r["dt"] >= DT_MIN and r["close"] < r["open"]
-                       and (r["ret"] or 0) >= 0 and not r["disposed"] and not r["noShort"]], key=lambda r: -r["valueYi"])[:DT_MAX]
+    alert = [r for r in [r for r in today if r["valueYi"] >= tv_val][:tv_top] if r["limit"] and not r["disposed"] and not r["noShort"]]
+    dt_alert = sorted([r for r in today if r["dt"] is not None and r["valueYi"] >= df_val and r["dt"] >= dt_min and r["close"] < r["open"]
+                       and (r["ret"] or 0) >= df_ret and not r["disposed"] and not r["noShort"]], key=lambda r: -r["valueYi"])[:DT_MAX]
     corr = [x for x in corr if x is not None]
     out = {
         "asof": d0, "next": nxt, "updatedAt": datetime.now(TPE).isoformat(timespec="minutes"),
@@ -182,7 +187,8 @@ def build(data_dir: Path, public_dir: Path):
         "today": today[:300], "count": len(today),
         "stats": [stat(k) for k in order if not k.startswith(("第", "當沖第", "週轉前", "高當沖", "　└ 今天"))],
         "dtStats": [stat(k) for k in ("高當沖比＋黑K", "　└ 今天仍收漲（開高走低）", "　└ 今天收跌") if k in groups],
-        "dtMin": DT_MIN,
+        "dtMin": dt_min, "params": {"tvLimit": {"top": tv_top, "minVal": tv_val, "gapMin": float(tvp.get("gapMin", -99))},
+                   "dtFade": {"dtMin": dt_min, "minVal": df_val, "minRet": df_ret, "gapMin": float(dfp.get("gapMin", -99))}},
         "deciles": [stat(f"第 {k} 組") for k in range(1, 11) if f"第 {k} 組" in groups],
         "dtDeciles": [stat(f"當沖第 {k} 組") for k in range(1, 11) if f"當沖第 {k} 組" in groups],
         "dtSplit": [stat(k) for k in ("週轉前 20 名・當沖比 ≥ 50%", "週轉前 20 名・當沖比 < 50%") if k in groups],

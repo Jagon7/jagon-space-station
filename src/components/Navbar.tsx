@@ -22,6 +22,7 @@ const navItems: NavItem[] = [
       { label: "技術選股", href: "/screener" },
       { label: "十日波段策略", href: "/strategy" },
       { label: "高週轉率黑K", href: "/turnover" },
+      { label: "當沖復盤", href: "/daytrade-review" },
       { label: "除權息黑K", href: "/exdiv" },
       { label: "85g 當沖策略", href: "/85g" },
       { label: "即時資金流", href: "/flow" },

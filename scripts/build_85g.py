@@ -20,6 +20,10 @@ TOP, GAP_LO, GAP_HI, RUN5, LIMIT, COST = 100, 0.0, 4.0, 10.0, 9.5, 0.24
 
 
 def build(data_dir: Path, public_dir: Path):
+    # 參數由 daytrade_lab.py 每週用近 120 個交易日回測調整（data/strategy/daytrade_params.json）
+    global TOP, GAP_LO, GAP_HI, RUN5
+    pp = ((_load(data_dir / "strategy" / "daytrade_params.json", {}) or {}).get("current") or {}).get("g85") or {}
+    TOP, GAP_LO, GAP_HI, RUN5 = int(pp.get("top", TOP)), float(pp.get("gapLo", GAP_LO)), float(pp.get("gapHi", GAP_HI)), float(pp.get("run5", RUN5))
     days = []
     for f in sorted((data_dir / "daily").glob("20*.json"))[-66:]:
         doc = _load(f, {})
