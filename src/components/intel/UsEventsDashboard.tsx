@@ -37,8 +37,10 @@ export default function UsEventsDashboard() {
     o, all: s?.all.path[i] ?? null, beat: s?.beat.path[i] ?? null, miss: s?.miss.path[i] ?? null, one: picked ? picked.path[i] : null,
   }));
   const kinds = Object.keys(data.stats);
-  const beatLabel = INFL.has(kind) ? "高於預期（通膨升溫）" : "高於預期";
-  const missLabel = INFL.has(kind) ? "低於預期（通膨降溫）" : "低於預期";
+  const fomc = kind === "fomc";
+  const beatLabel = fomc ? "升息" : INFL.has(kind) ? "高於預期（通膨升溫）" : "高於預期";
+  const missLabel = fomc ? "降息" : INFL.has(kind) ? "低於預期（通膨降溫）" : "低於預期";
+  const inlineLabel = fomc ? "維持利率" : "符合預期";
 
   const cols: Column<Ev>[] = [
     { key: "t", label: "公布（台灣時間）", sort: (r) => r.t, render: (r) => (
@@ -46,8 +48,8 @@ export default function UsEventsDashboard() {
         {ymd(r.t)}（{wk(r.t)}）<span className="ml-1 font-mono text-xs text-[#8b97ab]">{hm(r.t)}</span>
       </button>) },
     { key: "period", label: "期間", render: (r) => <span className="text-xs text-[#8b97ab]">{r.period ?? ""}</span> },
-    { key: "act", label: "實際／預估", align: "right", render: (r) => (
-      <span className="font-mono text-xs" title={r.main ?? ""}><span className="text-slate-200">{r.actual ?? "—"}</span><span className="text-[#7c8aa0]"> / {r.forecast ?? "—"}</span></span>) },
+    { key: "act", label: fomc ? "利率／前次" : "實際／預估", align: "right", render: (r) => (
+      <span className="font-mono text-xs" title={r.main ?? ""}><span className="text-slate-200">{r.actual ?? "—"}</span><span className="text-[#7c8aa0]"> / {(fomc ? r.previous : r.forecast) ?? "—"}</span></span>) },
     { key: "surprise", label: "差異", align: "right", sort: (r) => r.surprise, render: (r) => num(r.surprise == null ? "—" : `${r.surprise > 0 ? "+" : ""}${+r.surprise.toFixed(3)}`,
       r.surprise == null || r.surprise === 0 ? "text-[#8b97ab]" : r.surprise > 0 ? "text-[#f59e0b]" : "text-[#4f8cff]") },
     { key: "pre60", label: "公布前 1 小時", align: "right", sort: (r) => r.pre60, render: (r) => num(pct(r.pre60), tone(r.pre60)) },
@@ -60,7 +62,7 @@ export default function UsEventsDashboard() {
     { key: "toClose", label: "到夜盤收盤", align: "right", sort: (r) => r.toClose, render: (r) => num(pct(r.toClose), tone(r.toClose)) },
     { key: "ref", label: "公布前價位", align: "right", sort: (r) => r.ref, render: (r) => num(r.ref.toLocaleString(), "text-[#8b97ab]") },
   ];
-  const aggRows = s ? [{ g: "全部", a: s.all }, { g: beatLabel, a: s.beat }, { g: missLabel, a: s.miss }, { g: "符合預期", a: s.inline }].filter((x) => x.a.n) : [];
+  const aggRows = s ? [{ g: "全部", a: s.all }, { g: beatLabel, a: s.beat }, { g: missLabel, a: s.miss }, { g: inlineLabel, a: s.inline }].filter((x) => x.a.n) : [];
 
   return (
     <div>
@@ -138,7 +140,7 @@ export default function UsEventsDashboard() {
         <Note>
           事件時間與實際值／預估值來自 TradingView 經濟行事曆；台指期夜盤 1 分 K：最近 30 個交易日用期交所每筆成交（成交量最大的月份），更早用永豐 TXFR1 近月連續（{data.nightFrom?.slice(0, 7).replace("-", "/")} 起，共 {data.nights} 晚）。
           漲跌都相對「公布前最後一根 1 分 K 的收盤」。美國夏令時間 8:30 公布＝台灣 20:30，冬令＝21:30；FOMC 利率決策在台灣凌晨 2 點或 3 點，同樣落在夜盤。
-          高於／低於預期依主指標：CPI 看核心 CPI 月增、PPI 看 PPI 月增、PCE 看核心 PCE 月增、非農看新增就業人數。
+          高於／低於預期依主指標：CPI 看核心 CPI 月增、PPI 看 PPI 月增、PCE 看核心 PCE 月增、非農看新增就業人數；FOMC 沒有預估值，改分升息／降息／維持。
         </Note>
       </div>
     </div>

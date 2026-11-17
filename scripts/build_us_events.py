@@ -75,6 +75,9 @@ def build(data_dir: Path, public_dir: Path):
         last = max(bars)
         act, fc = e.get("actual"), e.get("forecast")
         sur = round(act - fc, 4) if isinstance(act, (int, float)) and isinstance(fc, (int, float)) else None
+        prev = e.get("previous")
+        if e["key"] == "fomc" and isinstance(act, (int, float)) and isinstance(prev, (int, float)):
+            sur = round(act - prev, 4)  # 利率決策沒有預估值：改看升息（+）／降息（−）／維持（0）
         out_rows.append({
             "key": e["key"], "t": e["t"], "night": nd, "period": e.get("period"), "main": e.get("main"),
             "actual": act, "forecast": fc, "previous": e.get("previous"), "surprise": sur,
