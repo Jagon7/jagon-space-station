@@ -1,0 +1,63 @@
+name: TX Night Session
+
+# 台指期夜盤 1 分 K：期交所每筆成交（只留 30 個交易日，每天存下來）＋永豐 1 分 K 回補更早的（只查行情、不下單）
+# 每天 17:40（Cloudflare 觸發；期交所約 16:40 公布前一交易日的逐筆檔），存 data/futures/night/<YYYY-MM>.json
+on:
+  workflow_dispatch:
+    inputs:
+      since:
+        description: '永豐回補到哪天'
+        default: '2017-05-15'
+      minutes:
+        description: '永豐回補最多幾分鐘'
+        default: '20'
+  schedule:
+    - cron: '50 9 * * 1-5'   # 17:50 台灣時間（備援）
+
+permissions:
+  contents: write
+
+concurrency:
+  group: tx-night
+  cancel-in-progress: false
+
+jobs:
+  night:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: main
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.11'
+      - run: pip install shioaji==1.7.9 requests
+      - name: TAIFEX tick files (last 30 trading days)
+        run: python3 -u scripts/fetch_tx_night.py --taifex
+        continue-on-error: true
+        env:
+          JSS_DATA_DIR: ./data
+      - name: Shioaji 1-min bars backfill
+        # 永豐登入訊息會印出登入識別碼（身分證字號格式），公開的 Actions log 一律遮掉
+        run: |
+          set -o pipefail
+          python3 -u scripts/fetch_tx_night.py --shioaji --since ${{ inputs.since || '2017-05-15' }} --minutes ${{ inputs.minutes || '10' }} 2>&1 | sed -u -E 's/[A-Z][12][0-9]{8}/[已遮蔽]/g'
+        continue-on-error: true
+        env:
+          SHIOAJI_API_KEY: ${{ secrets.SHIOAJI_API_KEY }}
+          SHIOAJI_SECRET_KEY: ${{ secrets.SHIOAJI_SECRET_KEY }}
+          JSS_DATA_DIR: ./data
+      - name: Commit
+        run: |
+          rm -f shioaji.log
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add data/futures/night/ 2>/dev/null || exit 0
+          git diff --staged --quiet && exit 0
+          git commit -m "data: tx night $(TZ=Asia/Taipei date +%Y-%m-%d)"
+          for i in 1 2 3 4 5; do
+            git push && exit 0
+            git pull --rebase -X theirs origin main || { git rebase --abort; git pull --no-rebase -X ours origin main; }
+          done
+          exit 1
