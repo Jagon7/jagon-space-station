@@ -12,7 +12,7 @@ on:
         description: '永豐回補最多幾分鐘'
         default: '20'
   schedule:
-    - cron: '50 9 * * 1-5'   # 17:50 台灣時間（備援）
+    - cron: '50 9 * * *'     # 17:50 台灣時間（備援；每天跑，週日也要推週一晚上的事件）
 
 permissions:
   contents: write
@@ -43,6 +43,17 @@ jobs:
         continue-on-error: true
         env:
           JSS_DATA_DIR: ./data
+      - name: LINE push if a major US event is tomorrow night
+        run: |
+          mkdir -p public/data
+          python3 -c "import sys; sys.path.insert(0, 'scripts'); from pathlib import Path; import build_us_events as b; b.build(Path('data'), Path('public/data'))"
+          TZ=Asia/Taipei python3 scripts/notify.py --us-event-alert
+        continue-on-error: true
+        env:
+          JSS_DATA_DIR: ./data
+          SITE_URL: ${{ secrets.SITE_URL || vars.SITE_URL }}
+          LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
+          LINE_USER_ID: ${{ secrets.LINE_USER_ID }}
       - name: Shioaji 1-min bars backfill
         # 永豐登入訊息會印出登入識別碼（身分證字號格式），公開的 Actions log 一律遮掉
         run: |
@@ -58,7 +69,7 @@ jobs:
           rm -f shioaji.log
           git config user.name 'github-actions[bot]'
           git config user.email 'github-actions[bot]@users.noreply.github.com'
-          git add data/futures/night/ data/intel/us_events.json 2>/dev/null || exit 0
+          for f in data/futures/night data/intel/us_events.json data/notify/usevent-sent.json; do [ -e "$f" ] && git add "$f"; done; true
           git diff --staged --quiet && exit 0
           git commit -m "data: tx night $(TZ=Asia/Taipei date +%Y-%m-%d)"
           for i in 1 2 3 4 5; do
