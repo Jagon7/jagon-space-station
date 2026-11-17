@@ -1451,6 +1451,79 @@ def settlement_alert(dry: bool, force: bool = False) -> int:
     return 0
 
 
+USEV_STATE = ROOT / "data" / "notify" / "usevent-sent.json"
+
+
+def us_event_alert(dry: bool, force: bool = False) -> int:
+    """隔天晚上（夜盤）有美國重大事件 → 前一天傍晚推 LINE：時間、預估／前值、歷史上公布後台指期夜盤怎麼走"""
+    doc = load("us-events.json", {}) or {}
+    now = datetime.now(TPE_TZ)
+    tomorrow = (now.date() + timedelta(days=1)).isoformat()
+
+    def night_of(t: str) -> str:
+        x = datetime.fromisoformat(t)
+        return (x.date() if x.hour >= 15 else x.date() - timedelta(days=1)).isoformat()  # 凌晨的（FOMC）算前一天晚上的夜盤
+    ups = [u for u in doc.get("upcoming") or [] if night_of(u["t"]) == tomorrow or (force and night_of(u["t"]) >= now.date().isoformat())]
+    if force:
+        ups = ups[:3]
+    if not ups:
+        print(f"{tomorrow} 晚上沒有美國重大事件")
+        return 0
+    try:
+        state = json.loads(USEV_STATE.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        state = {"sent": []}
+    keys = [f"{u['key']}|{u['t']}" for u in ups]
+    if not force and all(k in state["sent"] for k in keys):
+        print("已推過")
+        return 0
+    kinds, stats = doc.get("kinds") or {}, doc.get("stats") or {}
+    md = lambda d: f"{int(d[5:7])}/{int(d[8:10])}"  # noqa: E731
+    wk = "一二三四五六日"
+    when = lambda t: f"{md(t)}（{wk[datetime.fromisoformat(t).weekday()]}）{t[11:16]}"  # noqa: E731
+    names = "、".join(dict.fromkeys(kinds.get(u["key"], u["key"]) for u in ups))
+    m = Msg(("【預覽】" if force else "") + f"🇺🇸 明晚美國重大事件：{names}", f"台指期夜盤 {md(tomorrow)} 晚上・歷史走勢參考",
+            accent="#B91C1C", url=f"{SITE}/us-events/", button="開啟美國事件夜盤")
+    infl = {"cpi", "ppi", "pce"}
+    for u in ups:
+        k = u["key"]
+        m.section(kinds.get(k, k), when(u["t"]))
+        if u.get("period"):
+            m.kv("數據期間", u["period"])
+        if k == "fomc":
+            if u.get("previous") is not None:
+                m.kv("目前利率", f"{u['previous']}%")
+        elif u.get("forecast") is not None or u.get("previous") is not None:
+            m.kv(u.get("main") or "預估／前值", f"預估 {u.get('forecast') if u.get('forecast') is not None else '—'}・前值 {u.get('previous') if u.get('previous') is not None else '—'}")
+        st_ = stats.get(k)
+        if st_:
+            a = st_["all"]
+            m.kv(f"歷史 {a['n']} 次・公布後 30 分平均波動", f"{a['abs30']:.2f}%" if a.get("abs30") is not None else "—")
+            hi, lo = ("升息", "降息") if k == "fomc" else (("高於預期（通膨升溫）", "低於預期（通膨降溫）") if k in infl else ("高於預期", "低於預期"))
+            for g, lab in (("beat", hi), ("miss", lo)):
+                b = st_.get(g) or {}
+                if b.get("n") and b.get("r60") is not None:
+                    m.kv(f"　{lab}（{b['n']} 次）60 分後", f"{b['r60']:+.2f}%・上漲 {b['up60']:.0f}%" if b.get("up60") is not None else f"{b['r60']:+.2f}%",
+                         color=sign_tone(b["r60"]))
+        last = next((e for e in doc.get("events") or [] if e["key"] == k), None)
+        if last:
+            m.kv(f"上次 {md(last['t'])}", f"實際 {last.get('actual')}／預估 {last.get('forecast')}・60 分後 {last['r60']:+.2f}%" if last.get("r60") is not None and k != "fomc"
+                 else (f"60 分後 {last['r60']:+.2f}%" if last.get("r60") is not None else "—"), color=sign_tone(last.get("r60")))
+    m.note("漲跌是台指期夜盤相對公布前一刻；2020/3 起統計。歷史平均不代表這次方向，公布前後波動放大，注意部位與停損。")
+    print(m.text())
+    if dry:
+        return 0
+    if force:
+        send(m)
+        return 0
+    if not send(m):
+        print("（沒有設定任何推播管道，只印出內容）")
+    state["sent"] = (state["sent"] + [k for k in keys if k not in state["sent"]])[-100:]
+    USEV_STATE.parent.mkdir(parents=True, exist_ok=True)
+    USEV_STATE.write_text(json.dumps(state, ensure_ascii=False, indent=0), encoding="utf-8")
+    return 0
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry-run", action="store_true")
@@ -1460,6 +1533,7 @@ def main():
     ap.add_argument("--strategy-alert", action="store_true")
     ap.add_argument("--turnover-alert", action="store_true")
     ap.add_argument("--exdiv-alert", action="store_true", help="除權息黑K：明天除息的放空候選與明天要回補的部位")
+    ap.add_argument("--us-event-alert", action="store_true", help="隔天晚上有美國重大事件就推（每天傍晚；加 --preview 立刻發預覽）")
     ap.add_argument("--settlement-alert", action="store_true", help="結算策略：每月結算前一週週五晚上推控盤排行（加 --preview 立刻發預覽）")
     ap.add_argument("--risk-alert", action="store_true", help="市場風險警示：風險溫度偏高、指標達警戒／危險、VIX 暴漲、信用利差擴大、科技廠隱含 CDS 跳升")
     ap.add_argument("--etf-alert", action="store_true", help="每日 ETF 持股變化摘要（週一到五 20:00；加 --preview 立刻發預覽）")
@@ -1496,6 +1570,8 @@ def main():
         return exdiv_alert(a.dry_run, force=a.preview)
     if a.risk_alert:
         return risk_alert(a.dry_run, force=a.preview)
+    if a.us_event_alert:
+        return us_event_alert(a.dry_run, force=a.preview)
     if a.settlement_alert:
         return settlement_alert(a.dry_run, force=a.preview)
     if a.preview:
