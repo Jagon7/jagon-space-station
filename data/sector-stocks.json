@@ -152,8 +152,8 @@
         "market": "上市",
         "changePercent": 1.19,
         "closePrice": 3840.0,
-        "volume": 15127,
-        "tradeValue": 58299485050.0
+        "volume": 15764,
+        "tradeValue": 60745252550.0
       },
       {
         "code": "3150",
@@ -179,8 +179,8 @@
         "market": "上市",
         "changePercent": 1.11,
         "closePrice": 456.0,
-        "volume": 4498,
-        "tradeValue": 2043643111.0
+        "volume": 4819,
+        "tradeValue": 2190019111.0
       },
       {
         "code": "2434",
@@ -305,8 +305,8 @@
         "market": "上市",
         "changePercent": 0.14,
         "closePrice": 717.0,
-        "volume": 3137,
-        "tradeValue": 2250591742.0
+        "volume": 4107,
+        "tradeValue": 2946081742.0
       },
       {
         "code": "3588",
@@ -323,8 +323,8 @@
         "market": "上市",
         "changePercent": 0.0,
         "closePrice": 212.0,
-        "volume": 5220,
-        "tradeValue": 1091960381.0
+        "volume": 5326,
+        "tradeValue": 1112206381.0
       },
       {
         "code": "2458",
@@ -728,8 +728,8 @@
         "market": "上市",
         "changePercent": -1.78,
         "closePrice": 3595.0,
-        "volume": 4788,
-        "tradeValue": 17485118305.0
+        "volume": 4815,
+        "tradeValue": 17582183305.0
       },
       {
         "code": "6732",
@@ -764,8 +764,8 @@
         "market": "上市",
         "changePercent": -2.03,
         "closePrice": 2170.0,
-        "volume": 59957,
-        "tradeValue": 131853117935.0
+        "volume": 61610,
+        "tradeValue": 135465361736.0
       },
       {
         "code": "6233",
@@ -1115,8 +1115,8 @@
         "market": "上市",
         "changePercent": -3.24,
         "closePrice": 329.0,
-        "volume": 51746,
-        "tradeValue": 16965992789.0
+        "volume": 51756,
+        "tradeValue": 16969596789.0
       },
       {
         "code": "8088",
@@ -1439,8 +1439,8 @@
         "market": "上市",
         "changePercent": -5.14,
         "closePrice": 3505.0,
-        "volume": 962,
-        "tradeValue": 3408127700.0
+        "volume": 1001,
+        "tradeValue": 3544822700.0
       },
       {
         "code": "4923",
@@ -1493,8 +1493,8 @@
         "market": "上市",
         "changePercent": -5.45,
         "closePrice": 520.0,
-        "volume": 29038,
-        "tradeValue": 15208419218.0
+        "volume": 29248,
+        "tradeValue": 15318403064.0
       },
       {
         "code": "3467",
@@ -1790,8 +1790,8 @@
         "market": "上市",
         "changePercent": -9.9,
         "closePrice": 355.0,
-        "volume": 4196,
-        "tradeValue": 1493301772.0
+        "volume": 6268,
+        "tradeValue": 2228861772.0
       },
       {
         "code": "6187",
@@ -1835,8 +1835,8 @@
         "market": "上市",
         "changePercent": -9.97,
         "closePrice": 542.0,
-        "volume": 13534,
-        "tradeValue": 7363770534.0
+        "volume": 13934,
+        "tradeValue": 7604570534.0
       },
       {
         "code": "3532",
@@ -1862,8 +1862,8 @@
         "market": "上市",
         "changePercent": -10.0,
         "closePrice": 6975.0,
-        "volume": 3602,
-        "tradeValue": 25259422610.0
+        "volume": 3612,
+        "tradeValue": 25336922610.0
       }
     ],
     "其他": [
@@ -4150,8 +4150,8 @@
         "market": "上市",
         "changePercent": -2.54,
         "closePrice": 94.0,
-        "volume": 408019,
-        "tradeValue": 38702783850.0
+        "volume": 408719,
+        "tradeValue": 38776983850.0
       },
       {
         "code": "00678",
@@ -4186,8 +4186,8 @@
         "market": "上市",
         "changePercent": -2.59,
         "closePrice": 97.9,
-        "volume": 19937,
-        "tradeValue": 1968340903.0
+        "volume": 20672,
+        "tradeValue": 2040297403.0
       },
       {
         "code": "00881",
@@ -4638,8 +4638,8 @@
         "market": "上市",
         "changePercent": 1.0,
         "closePrice": 70.5,
-        "volume": 48165,
-        "tradeValue": 3400125552.0
+        "volume": 48220,
+        "tradeValue": 3404344052.0
       },
       {
         "code": "1312",
@@ -4665,8 +4665,8 @@
         "market": "上市",
         "changePercent": 0.75,
         "closePrice": 67.5,
-        "volume": 48970,
-        "tradeValue": 3320378364.0
+        "volume": 48986,
+        "tradeValue": 3321557564.0
       },
       {
         "code": "1304",
@@ -4836,8 +4836,8 @@
         "market": "上市",
         "changePercent": -4.56,
         "closePrice": 261.5,
-        "volume": 118391,
-        "tradeValue": 31632656613.0
+        "volume": 122552,
+        "tradeValue": 32722883113.0
       }
     ],
     "電子零組件": [
@@ -6260,8 +6260,8 @@
         "market": "上市",
         "changePercent": -5.8,
         "closePrice": 1055.0,
-        "volume": 24365,
-        "tradeValue": 25746067640.0
+        "volume": 24440,
+        "tradeValue": 25825542640.0
       },
       {
         "code": "7788",
@@ -6359,8 +6359,8 @@
         "market": "上市",
         "changePercent": -6.44,
         "closePrice": 370.5,
-        "volume": 25413,
-        "tradeValue": 9479035384.0
+        "volume": 25563,
+        "tradeValue": 9534397884.0
       },
       {
         "code": "2467",
@@ -6494,8 +6494,8 @@
         "market": "上市",
         "changePercent": -8.75,
         "closePrice": 438.0,
-        "volume": 5957,
-        "tradeValue": 2667979222.0
+        "volume": 8170,
+        "tradeValue": 3637273222.0
       },
       {
         "code": "6924",
@@ -6719,8 +6719,8 @@
         "market": "上市",
         "changePercent": -10.0,
         "closePrice": 792.0,
-        "volume": 7833,
-        "tradeValue": 6276425081.0
+        "volume": 7883,
+        "tradeValue": 6316025081.0
       },
       {
         "code": "3605",
@@ -6730,1007 +6730,6 @@
         "closePrice": 103.5,
         "volume": 7140,
         "tradeValue": 751416133.0
-      }
-    ],
-    "電腦週邊": [
-      {
-        "code": "2397",
-        "name": "友通",
-        "market": "上市",
-        "changePercent": 2.32,
-        "closePrice": 57.3,
-        "volume": 368,
-        "tradeValue": 20789513.0
-      },
-      {
-        "code": "3594",
-        "name": "磐儀",
-        "market": "上櫃",
-        "changePercent": 2.14,
-        "closePrice": 40.55,
-        "volume": 465,
-        "tradeValue": 18455300.0
-      },
-      {
-        "code": "3712",
-        "name": "永崴投控",
-        "market": "上市",
-        "changePercent": 1.69,
-        "closePrice": 18.0,
-        "volume": 683,
-        "tradeValue": 12346892.0
-      },
-      {
-        "code": "3652",
-        "name": "精聯",
-        "market": "上市",
-        "changePercent": 1.29,
-        "closePrice": 31.3,
-        "volume": 125,
-        "tradeValue": 3956914.0
-      },
-      {
-        "code": "5223",
-        "name": "安力-KY",
-        "market": "上櫃",
-        "changePercent": 1.25,
-        "closePrice": 24.3,
-        "volume": 44,
-        "tradeValue": 1062950.0
-      },
-      {
-        "code": "8050",
-        "name": "廣積",
-        "market": "上櫃",
-        "changePercent": 1.21,
-        "closePrice": 50.1,
-        "volume": 1064,
-        "tradeValue": 52924400.0
-      },
-      {
-        "code": "3057",
-        "name": "喬鼎",
-        "market": "上市",
-        "changePercent": 1.2,
-        "closePrice": 12.6,
-        "volume": 88,
-        "tradeValue": 1095539.0
-      },
-      {
-        "code": "2324",
-        "name": "仁寶",
-        "market": "上市",
-        "changePercent": 1.07,
-        "closePrice": 28.4,
-        "volume": 41421,
-        "tradeValue": 1176440142.0
-      },
-      {
-        "code": "6150",
-        "name": "撼訊",
-        "market": "上櫃",
-        "changePercent": 1.01,
-        "closePrice": 80.1,
-        "volume": 6327,
-        "tradeValue": 513388700.0
-      },
-      {
-        "code": "6441",
-        "name": "廣錠",
-        "market": "上櫃",
-        "changePercent": 0.99,
-        "closePrice": 20.5,
-        "volume": 98,
-        "tradeValue": 2004350.0
-      },
-      {
-        "code": "6206",
-        "name": "飛捷",
-        "market": "上市",
-        "changePercent": 0.9,
-        "closePrice": 112.5,
-        "volume": 611,
-        "tradeValue": 69227970.0
-      },
-      {
-        "code": "6928",
-        "name": "攸泰科技",
-        "market": "上市",
-        "changePercent": 0.87,
-        "closePrice": 46.4,
-        "volume": 413,
-        "tradeValue": 19745886.0
-      },
-      {
-        "code": "6579",
-        "name": "研揚",
-        "market": "上市",
-        "changePercent": 0.76,
-        "closePrice": 133.0,
-        "volume": 223,
-        "tradeValue": 29931751.0
-      },
-      {
-        "code": "3088",
-        "name": "艾訊",
-        "market": "上櫃",
-        "changePercent": 0.49,
-        "closePrice": 103.5,
-        "volume": 386,
-        "tradeValue": 39750000.0
-      },
-      {
-        "code": "3022",
-        "name": "威強電",
-        "market": "上市",
-        "changePercent": 0.43,
-        "closePrice": 69.8,
-        "volume": 738,
-        "tradeValue": 51348108.0
-      },
-      {
-        "code": "9912",
-        "name": "偉聯",
-        "market": "上市",
-        "changePercent": 0.38,
-        "closePrice": 13.25,
-        "volume": 30,
-        "tradeValue": 407433.0
-      },
-      {
-        "code": "5258",
-        "name": "虹堡",
-        "market": "上市",
-        "changePercent": 0.27,
-        "closePrice": 37.8,
-        "volume": 251,
-        "tradeValue": 9518985.0
-      },
-      {
-        "code": "2353",
-        "name": "宏碁",
-        "market": "上市",
-        "changePercent": 0.17,
-        "closePrice": 29.15,
-        "volume": 16282,
-        "tradeValue": 474694187.0
-      },
-      {
-        "code": "6577",
-        "name": "勁豐",
-        "market": "上櫃",
-        "changePercent": 0.13,
-        "closePrice": 75.2,
-        "volume": 79,
-        "tradeValue": 5938100.0
-      },
-      {
-        "code": "3002",
-        "name": "歐格",
-        "market": "上市",
-        "changePercent": 0.0,
-        "closePrice": 16.35,
-        "volume": 239,
-        "tradeValue": 3959200.0
-      },
-      {
-        "code": "2380",
-        "name": "虹光",
-        "market": "上市",
-        "changePercent": 0.0,
-        "closePrice": 12.9,
-        "volume": 42,
-        "tradeValue": 548532.0
-      },
-      {
-        "code": "6228",
-        "name": "全譜",
-        "market": "上櫃",
-        "changePercent": 0.0,
-        "closePrice": 19.45,
-        "volume": 11,
-        "tradeValue": 214250.0
-      },
-      {
-        "code": "3479",
-        "name": "安勤",
-        "market": "上櫃",
-        "changePercent": -0.1,
-        "closePrice": 98.6,
-        "volume": 266,
-        "tradeValue": 26212900.0
-      },
-      {
-        "code": "2364",
-        "name": "倫飛",
-        "market": "上市",
-        "changePercent": -0.21,
-        "closePrice": 48.5,
-        "volume": 163,
-        "tradeValue": 7850285.0
-      },
-      {
-        "code": "6277",
-        "name": "宏正",
-        "market": "上市",
-        "changePercent": -0.29,
-        "closePrice": 69.3,
-        "volume": 600,
-        "tradeValue": 41508388.0
-      },
-      {
-        "code": "3494",
-        "name": "誠研",
-        "market": "上市",
-        "changePercent": -0.29,
-        "closePrice": 6.9,
-        "volume": 59,
-        "tradeValue": 412264.0
-      },
-      {
-        "code": "6414",
-        "name": "樺漢",
-        "market": "上市",
-        "changePercent": -0.31,
-        "closePrice": 319.5,
-        "volume": 832,
-        "tradeValue": 264984338.0
-      },
-      {
-        "code": "5490",
-        "name": "同亨",
-        "market": "上櫃",
-        "changePercent": -0.38,
-        "closePrice": 26.25,
-        "volume": 430,
-        "tradeValue": 11311450.0
-      },
-      {
-        "code": "3325",
-        "name": "旭品",
-        "market": "上櫃",
-        "changePercent": -0.42,
-        "closePrice": 11.8,
-        "volume": 76,
-        "tradeValue": 898300.0
-      },
-      {
-        "code": "6680",
-        "name": "鑫創電子",
-        "market": "上櫃",
-        "changePercent": -0.42,
-        "closePrice": 47.7,
-        "volume": 6,
-        "tradeValue": 296800.0
-      },
-      {
-        "code": "3213",
-        "name": "茂訊",
-        "market": "上櫃",
-        "changePercent": -0.43,
-        "closePrice": 114.5,
-        "volume": 226,
-        "tradeValue": 25913000.0
-      },
-      {
-        "code": "8410",
-        "name": "森田",
-        "market": "上櫃",
-        "changePercent": -0.45,
-        "closePrice": 22.15,
-        "volume": 50,
-        "tradeValue": 1093750.0
-      },
-      {
-        "code": "2356",
-        "name": "英業達",
-        "market": "上市",
-        "changePercent": -0.58,
-        "closePrice": 42.75,
-        "volume": 27927,
-        "tradeValue": 1196773550.0
-      },
-      {
-        "code": "5356",
-        "name": "協益",
-        "market": "上櫃",
-        "changePercent": -0.64,
-        "closePrice": 23.45,
-        "volume": 60,
-        "tradeValue": 1409150.0
-      },
-      {
-        "code": "2331",
-        "name": "精英",
-        "market": "上市",
-        "changePercent": -0.66,
-        "closePrice": 15.05,
-        "volume": 1089,
-        "tradeValue": 16494705.0
-      },
-      {
-        "code": "8114",
-        "name": "振樺電",
-        "market": "上市",
-        "changePercent": -0.67,
-        "closePrice": 149.0,
-        "volume": 231,
-        "tradeValue": 34503574.0
-      },
-      {
-        "code": "6166",
-        "name": "凌華",
-        "market": "上市",
-        "changePercent": -0.71,
-        "closePrice": 83.4,
-        "volume": 1256,
-        "tradeValue": 103967820.0
-      },
-      {
-        "code": "2432",
-        "name": "倚天酷碁-創",
-        "market": "上市",
-        "changePercent": -0.71,
-        "closePrice": 27.85,
-        "volume": 46,
-        "tradeValue": 1287450.0
-      },
-      {
-        "code": "6161",
-        "name": "捷波",
-        "market": "上櫃",
-        "changePercent": -0.74,
-        "closePrice": 46.8,
-        "volume": 17,
-        "tradeValue": 798550.0
-      },
-      {
-        "code": "5215",
-        "name": "科嘉-KY",
-        "market": "上市",
-        "changePercent": -0.75,
-        "closePrice": 32.95,
-        "volume": 45,
-        "tradeValue": 1498426.0
-      },
-      {
-        "code": "2382",
-        "name": "廣達",
-        "market": "上市",
-        "changePercent": -0.76,
-        "closePrice": 262.5,
-        "volume": 15316,
-        "tradeValue": 4025720612.0
-      },
-      {
-        "code": "3611",
-        "name": "鼎翰",
-        "market": "上櫃",
-        "changePercent": -0.84,
-        "closePrice": 177.5,
-        "volume": 25,
-        "tradeValue": 4444000.0
-      },
-      {
-        "code": "6128",
-        "name": "上福",
-        "market": "上市",
-        "changePercent": -0.86,
-        "closePrice": 17.35,
-        "volume": 36,
-        "tradeValue": 635258.0
-      },
-      {
-        "code": "2417",
-        "name": "圓剛",
-        "market": "上市",
-        "changePercent": -0.98,
-        "closePrice": 30.45,
-        "volume": 359,
-        "tradeValue": 10999818.0
-      },
-      {
-        "code": "2376",
-        "name": "技嘉",
-        "market": "上市",
-        "changePercent": -1.08,
-        "closePrice": 274.5,
-        "volume": 8345,
-        "tradeValue": 2295124581.0
-      },
-      {
-        "code": "2425",
-        "name": "承啟",
-        "market": "上市",
-        "changePercent": -1.09,
-        "closePrice": 27.3,
-        "volume": 760,
-        "tradeValue": 20656196.0
-      },
-      {
-        "code": "2377",
-        "name": "微星",
-        "market": "上市",
-        "changePercent": -1.13,
-        "closePrice": 131.0,
-        "volume": 6475,
-        "tradeValue": 853505337.0
-      },
-      {
-        "code": "8076",
-        "name": "伍豐",
-        "market": "上櫃",
-        "changePercent": -1.14,
-        "closePrice": 17.3,
-        "volume": 305,
-        "tradeValue": 5282300.0
-      },
-      {
-        "code": "2357",
-        "name": "華碩",
-        "market": "上市",
-        "changePercent": -1.2,
-        "closePrice": 826.0,
-        "volume": 4679,
-        "tradeValue": 3869153728.0
-      },
-      {
-        "code": "6235",
-        "name": "華孚",
-        "market": "上市",
-        "changePercent": -1.22,
-        "closePrice": 28.45,
-        "volume": 471,
-        "tradeValue": 13455119.0
-      },
-      {
-        "code": "5474",
-        "name": "聰泰",
-        "market": "上櫃",
-        "changePercent": -1.23,
-        "closePrice": 120.0,
-        "volume": 100,
-        "tradeValue": 11879000.0
-      },
-      {
-        "code": "3231",
-        "name": "緯創",
-        "market": "上市",
-        "changePercent": -1.26,
-        "closePrice": 157.0,
-        "volume": 40220,
-        "tradeValue": 6351532909.0
-      },
-      {
-        "code": "3577",
-        "name": "泓格",
-        "market": "上櫃",
-        "changePercent": -1.27,
-        "closePrice": 77.6,
-        "volume": 198,
-        "tradeValue": 15370600.0
-      },
-      {
-        "code": "3071",
-        "name": "協禧",
-        "market": "上櫃",
-        "changePercent": -1.32,
-        "closePrice": 18.65,
-        "volume": 101,
-        "tradeValue": 1881500.0
-      },
-      {
-        "code": "6160",
-        "name": "欣技",
-        "market": "上櫃",
-        "changePercent": -1.36,
-        "closePrice": 10.85,
-        "volume": 26,
-        "tradeValue": 290000.0
-      },
-      {
-        "code": "2362",
-        "name": "藍天",
-        "market": "上市",
-        "changePercent": -1.4,
-        "closePrice": 38.6,
-        "volume": 774,
-        "tradeValue": 30165293.0
-      },
-      {
-        "code": "6922",
-        "name": "宸曜",
-        "market": "上櫃",
-        "changePercent": -1.45,
-        "closePrice": 170.5,
-        "volume": 87,
-        "tradeValue": 14838000.0
-      },
-      {
-        "code": "2405",
-        "name": "輔信",
-        "market": "上市",
-        "changePercent": -1.48,
-        "closePrice": 13.35,
-        "volume": 817,
-        "tradeValue": 10949148.0
-      },
-      {
-        "code": "7710",
-        "name": "東擎科技",
-        "market": "上市",
-        "changePercent": -1.8,
-        "closePrice": 109.0,
-        "volume": 257,
-        "tradeValue": 27863409.0
-      },
-      {
-        "code": "3046",
-        "name": "建碁",
-        "market": "上市",
-        "changePercent": -1.82,
-        "closePrice": 48.65,
-        "volume": 206,
-        "tradeValue": 10148415.0
-      },
-      {
-        "code": "6188",
-        "name": "廣明",
-        "market": "上櫃",
-        "changePercent": -1.83,
-        "closePrice": 45.65,
-        "volume": 1153,
-        "tradeValue": 53110350.0
-      },
-      {
-        "code": "2495",
-        "name": "普安",
-        "market": "上市",
-        "changePercent": -1.85,
-        "closePrice": 26.6,
-        "volume": 1116,
-        "tradeValue": 29732356.0
-      },
-      {
-        "code": "3060",
-        "name": "銘異",
-        "market": "上市",
-        "changePercent": -2.0,
-        "closePrice": 24.5,
-        "volume": 1310,
-        "tradeValue": 32678932.0
-      },
-      {
-        "code": "8163",
-        "name": "達方",
-        "market": "上市",
-        "changePercent": -2.03,
-        "closePrice": 24.1,
-        "volume": 790,
-        "tradeValue": 19166006.0
-      },
-      {
-        "code": "4938",
-        "name": "和碩",
-        "market": "上市",
-        "changePercent": -2.22,
-        "closePrice": 83.8,
-        "volume": 12791,
-        "tradeValue": 1077035467.0
-      },
-      {
-        "code": "3540",
-        "name": "曜越",
-        "market": "上櫃",
-        "changePercent": -2.24,
-        "closePrice": 19.65,
-        "volume": 130,
-        "tradeValue": 2574600.0
-      },
-      {
-        "code": "6121",
-        "name": "新普",
-        "market": "上櫃",
-        "changePercent": -2.41,
-        "closePrice": 284.0,
-        "volume": 1977,
-        "tradeValue": 564279500.0
-      },
-      {
-        "code": "3272",
-        "name": "東碩",
-        "market": "上櫃",
-        "changePercent": -2.42,
-        "closePrice": 10.1,
-        "volume": 73,
-        "tradeValue": 753050.0
-      },
-      {
-        "code": "5438",
-        "name": "東友",
-        "market": "上櫃",
-        "changePercent": -2.5,
-        "closePrice": 15.6,
-        "volume": 150,
-        "tradeValue": 2358250.0
-      },
-      {
-        "code": "3323",
-        "name": "加百裕",
-        "market": "上櫃",
-        "changePercent": -2.59,
-        "closePrice": 22.6,
-        "volume": 335,
-        "tradeValue": 7626350.0
-      },
-      {
-        "code": "2352",
-        "name": "佳世達",
-        "market": "上市",
-        "changePercent": -2.62,
-        "closePrice": 26.05,
-        "volume": 9076,
-        "tradeValue": 238537202.0
-      },
-      {
-        "code": "2465",
-        "name": "麗臺",
-        "market": "上市",
-        "changePercent": -2.67,
-        "closePrice": 146.0,
-        "volume": 30884,
-        "tradeValue": 4679861435.0
-      },
-      {
-        "code": "3706",
-        "name": "神達",
-        "market": "上市",
-        "changePercent": -2.69,
-        "closePrice": 61.6,
-        "volume": 11446,
-        "tradeValue": 714773284.0
-      },
-      {
-        "code": "7711",
-        "name": "永擎",
-        "market": "上市",
-        "changePercent": -2.7,
-        "closePrice": 468.5,
-        "volume": 1470,
-        "tradeValue": 686002622.0
-      },
-      {
-        "code": "6570",
-        "name": "維田",
-        "market": "上櫃",
-        "changePercent": -2.74,
-        "closePrice": 40.85,
-        "volume": 37,
-        "tradeValue": 1502150.0
-      },
-      {
-        "code": "2395",
-        "name": "研華",
-        "market": "上市",
-        "changePercent": -2.76,
-        "closePrice": 564.0,
-        "volume": 2435,
-        "tradeValue": 1390307088.0
-      },
-      {
-        "code": "2301",
-        "name": "光寶科",
-        "market": "上市",
-        "changePercent": -2.82,
-        "closePrice": 207.0,
-        "volume": 16801,
-        "tradeValue": 3501159263.0
-      },
-      {
-        "code": "3005",
-        "name": "神基",
-        "market": "上市",
-        "changePercent": -2.9,
-        "closePrice": 100.5,
-        "volume": 3393,
-        "tradeValue": 344551035.0
-      },
-      {
-        "code": "2365",
-        "name": "昆盈",
-        "market": "上市",
-        "changePercent": -2.9,
-        "closePrice": 21.8,
-        "volume": 901,
-        "tradeValue": 19837941.0
-      },
-      {
-        "code": "3515",
-        "name": "華擎",
-        "market": "上市",
-        "changePercent": -2.95,
-        "closePrice": 181.0,
-        "volume": 427,
-        "tradeValue": 78013838.0
-      },
-      {
-        "code": "2399",
-        "name": "映泰",
-        "market": "上市",
-        "changePercent": -3.09,
-        "closePrice": 34.5,
-        "volume": 1821,
-        "tradeValue": 63625783.0
-      },
-      {
-        "code": "3709",
-        "name": "鑫聯大投控",
-        "market": "上櫃",
-        "changePercent": -3.1,
-        "closePrice": 56.2,
-        "volume": 424,
-        "tradeValue": 24126300.0
-      },
-      {
-        "code": "2387",
-        "name": "精元",
-        "market": "上市",
-        "changePercent": -3.11,
-        "closePrice": 28.0,
-        "volume": 524,
-        "tradeValue": 14811379.0
-      },
-      {
-        "code": "5289",
-        "name": "宜鼎",
-        "market": "上櫃",
-        "changePercent": -3.23,
-        "closePrice": 838.0,
-        "volume": 3176,
-        "tradeValue": 2625017000.0
-      },
-      {
-        "code": "4916",
-        "name": "事欣科",
-        "market": "上市",
-        "changePercent": -3.35,
-        "closePrice": 101.0,
-        "volume": 18697,
-        "tradeValue": 1905666806.0
-      },
-      {
-        "code": "8234",
-        "name": "新漢",
-        "market": "上櫃",
-        "changePercent": -3.52,
-        "closePrice": 46.6,
-        "volume": 418,
-        "tradeValue": 19556550.0
-      },
-      {
-        "code": "1569",
-        "name": "濱川",
-        "market": "上櫃",
-        "changePercent": -3.54,
-        "closePrice": 84.5,
-        "volume": 8243,
-        "tradeValue": 690801600.0
-      },
-      {
-        "code": "3013",
-        "name": "晟銘電",
-        "market": "上市",
-        "changePercent": -3.76,
-        "closePrice": 66.5,
-        "volume": 1239,
-        "tradeValue": 83291642.0
-      },
-      {
-        "code": "5465",
-        "name": "富驊",
-        "market": "上櫃",
-        "changePercent": -4.09,
-        "closePrice": 29.3,
-        "volume": 585,
-        "tradeValue": 17328650.0
-      },
-      {
-        "code": "3625",
-        "name": "西勝",
-        "market": "上櫃",
-        "changePercent": -4.12,
-        "closePrice": 16.3,
-        "volume": 49,
-        "tradeValue": 811350.0
-      },
-      {
-        "code": "3416",
-        "name": "融程電",
-        "market": "上市",
-        "changePercent": -4.18,
-        "closePrice": 137.5,
-        "volume": 376,
-        "tradeValue": 52204811.0
-      },
-      {
-        "code": "3483",
-        "name": "力致",
-        "market": "上櫃",
-        "changePercent": -4.19,
-        "closePrice": 61.7,
-        "volume": 629,
-        "tradeValue": 39285900.0
-      },
-      {
-        "code": "6669",
-        "name": "緯穎",
-        "market": "上市",
-        "changePercent": -4.29,
-        "closePrice": 1450.0,
-        "volume": 4335,
-        "tradeValue": 6307330070.0
-      },
-      {
-        "code": "6230",
-        "name": "尼得科超眾",
-        "market": "上市",
-        "changePercent": -4.55,
-        "closePrice": 81.8,
-        "volume": 60,
-        "tradeValue": 4976909.0
-      },
-      {
-        "code": "6591",
-        "name": "動力-KY",
-        "market": "上市",
-        "changePercent": -4.91,
-        "closePrice": 31.95,
-        "volume": 256,
-        "tradeValue": 8289830.0
-      },
-      {
-        "code": "4931",
-        "name": "新盛力",
-        "market": "上櫃",
-        "changePercent": -5.25,
-        "closePrice": 153.5,
-        "volume": 2332,
-        "tradeValue": 359176500.0
-      },
-      {
-        "code": "6117",
-        "name": "迎廣",
-        "market": "上市",
-        "changePercent": -5.45,
-        "closePrice": 57.2,
-        "volume": 241,
-        "tradeValue": 14154779.0
-      },
-      {
-        "code": "5386",
-        "name": "青雲",
-        "market": "上櫃",
-        "changePercent": -5.47,
-        "closePrice": 155.5,
-        "volume": 826,
-        "tradeValue": 129668500.0
-      },
-      {
-        "code": "6825",
-        "name": "和暢科技",
-        "market": "上櫃",
-        "changePercent": -5.61,
-        "closePrice": 18.5,
-        "volume": 73,
-        "tradeValue": 1383100.0
-      },
-      {
-        "code": "3211",
-        "name": "順達",
-        "market": "上櫃",
-        "changePercent": -6.32,
-        "closePrice": 215.0,
-        "volume": 3900,
-        "tradeValue": 835619000.0
-      },
-      {
-        "code": "8210",
-        "name": "勤誠",
-        "market": "上市",
-        "changePercent": -6.61,
-        "closePrice": 509.0,
-        "volume": 1933,
-        "tradeValue": 1001030219.0
-      },
-      {
-        "code": "5426",
-        "name": "振發",
-        "market": "上櫃",
-        "changePercent": -6.91,
-        "closePrice": 25.6,
-        "volume": 1737,
-        "tradeValue": 45408650.0
-      },
-      {
-        "code": "3349",
-        "name": "寶德",
-        "market": "上櫃",
-        "changePercent": -7.0,
-        "closePrice": 16.6,
-        "volume": 131,
-        "tradeValue": 2190600.0
-      },
-      {
-        "code": "6831",
-        "name": "邁科",
-        "market": "上市",
-        "changePercent": -7.22,
-        "closePrice": 270.0,
-        "volume": 456,
-        "tradeValue": 125878963.0
-      },
-      {
-        "code": "6933",
-        "name": "AMAX-KY",
-        "market": "上市",
-        "changePercent": -8.01,
-        "closePrice": 258.5,
-        "volume": 1522,
-        "tradeValue": 394913385.0
-      },
-      {
-        "code": "2305",
-        "name": "全友",
-        "market": "上市",
-        "changePercent": -8.31,
-        "closePrice": 34.2,
-        "volume": 4383,
-        "tradeValue": 153841140.0
-      },
-      {
-        "code": "3701",
-        "name": "大眾控",
-        "market": "上市",
-        "changePercent": -9.31,
-        "closePrice": 57.5,
-        "volume": 9033,
-        "tradeValue": 535882001.0
-      },
-      {
-        "code": "6276",
-        "name": "安鈦克",
-        "market": "上櫃",
-        "changePercent": -9.62,
-        "closePrice": 11.75,
-        "volume": 51,
-        "tradeValue": 617350.0
-      },
-      {
-        "code": "3017",
-        "name": "奇鋐",
-        "market": "上市",
-        "changePercent": -9.85,
-        "closePrice": 2470.0,
-        "volume": 4769,
-        "tradeValue": 12063184150.0
-      },
-      {
-        "code": "3693",
-        "name": "營邦",
-        "market": "上櫃",
-        "changePercent": -9.89,
-        "closePrice": 583.0,
-        "volume": 1547,
-        "tradeValue": 907750000.0
-      },
-      {
-        "code": "3287",
-        "name": "廣寰科",
-        "market": "上櫃",
-        "changePercent": -10.0,
-        "closePrice": 55.8,
-        "volume": 2106,
-        "tradeValue": 121004400.0
       }
     ],
     "其他電子": [
@@ -7767,8 +6766,8 @@
         "market": "上市",
         "changePercent": 1.67,
         "closePrice": 790.0,
-        "volume": 470,
-        "tradeValue": 375063971.0
+        "volume": 1032,
+        "tradeValue": 819043971.0
       },
       {
         "code": "6735",
@@ -7875,8 +6874,8 @@
         "market": "上市",
         "changePercent": 0.23,
         "closePrice": 219.0,
-        "volume": 54040,
-        "tradeValue": 11928371354.0
+        "volume": 58002,
+        "tradeValue": 12795399354.0
       },
       {
         "code": "6691",
@@ -8559,8 +7558,8 @@
         "market": "上市",
         "changePercent": -9.92,
         "closePrice": 1135.0,
-        "volume": 4931,
-        "tradeValue": 5682354930.0
+        "volume": 5056,
+        "tradeValue": 5824229930.0
       },
       {
         "code": "7728",
@@ -8588,6 +7587,1007 @@
         "closePrice": 927.0,
         "volume": 4056,
         "tradeValue": 3819144000.0
+      }
+    ],
+    "電腦週邊": [
+      {
+        "code": "2397",
+        "name": "友通",
+        "market": "上市",
+        "changePercent": 2.32,
+        "closePrice": 57.3,
+        "volume": 368,
+        "tradeValue": 20789513.0
+      },
+      {
+        "code": "3594",
+        "name": "磐儀",
+        "market": "上櫃",
+        "changePercent": 2.14,
+        "closePrice": 40.55,
+        "volume": 465,
+        "tradeValue": 18455300.0
+      },
+      {
+        "code": "3712",
+        "name": "永崴投控",
+        "market": "上市",
+        "changePercent": 1.69,
+        "closePrice": 18.0,
+        "volume": 683,
+        "tradeValue": 12346892.0
+      },
+      {
+        "code": "3652",
+        "name": "精聯",
+        "market": "上市",
+        "changePercent": 1.29,
+        "closePrice": 31.3,
+        "volume": 125,
+        "tradeValue": 3956914.0
+      },
+      {
+        "code": "5223",
+        "name": "安力-KY",
+        "market": "上櫃",
+        "changePercent": 1.25,
+        "closePrice": 24.3,
+        "volume": 44,
+        "tradeValue": 1062950.0
+      },
+      {
+        "code": "8050",
+        "name": "廣積",
+        "market": "上櫃",
+        "changePercent": 1.21,
+        "closePrice": 50.1,
+        "volume": 1064,
+        "tradeValue": 52924400.0
+      },
+      {
+        "code": "3057",
+        "name": "喬鼎",
+        "market": "上市",
+        "changePercent": 1.2,
+        "closePrice": 12.6,
+        "volume": 88,
+        "tradeValue": 1095539.0
+      },
+      {
+        "code": "2324",
+        "name": "仁寶",
+        "market": "上市",
+        "changePercent": 1.07,
+        "closePrice": 28.4,
+        "volume": 41421,
+        "tradeValue": 1176440142.0
+      },
+      {
+        "code": "6150",
+        "name": "撼訊",
+        "market": "上櫃",
+        "changePercent": 1.01,
+        "closePrice": 80.1,
+        "volume": 6327,
+        "tradeValue": 513388700.0
+      },
+      {
+        "code": "6441",
+        "name": "廣錠",
+        "market": "上櫃",
+        "changePercent": 0.99,
+        "closePrice": 20.5,
+        "volume": 98,
+        "tradeValue": 2004350.0
+      },
+      {
+        "code": "6206",
+        "name": "飛捷",
+        "market": "上市",
+        "changePercent": 0.9,
+        "closePrice": 112.5,
+        "volume": 611,
+        "tradeValue": 69227970.0
+      },
+      {
+        "code": "6928",
+        "name": "攸泰科技",
+        "market": "上市",
+        "changePercent": 0.87,
+        "closePrice": 46.4,
+        "volume": 413,
+        "tradeValue": 19745886.0
+      },
+      {
+        "code": "6579",
+        "name": "研揚",
+        "market": "上市",
+        "changePercent": 0.76,
+        "closePrice": 133.0,
+        "volume": 223,
+        "tradeValue": 29931751.0
+      },
+      {
+        "code": "3088",
+        "name": "艾訊",
+        "market": "上櫃",
+        "changePercent": 0.49,
+        "closePrice": 103.5,
+        "volume": 386,
+        "tradeValue": 39750000.0
+      },
+      {
+        "code": "3022",
+        "name": "威強電",
+        "market": "上市",
+        "changePercent": 0.43,
+        "closePrice": 69.8,
+        "volume": 738,
+        "tradeValue": 51348108.0
+      },
+      {
+        "code": "9912",
+        "name": "偉聯",
+        "market": "上市",
+        "changePercent": 0.38,
+        "closePrice": 13.25,
+        "volume": 30,
+        "tradeValue": 407433.0
+      },
+      {
+        "code": "5258",
+        "name": "虹堡",
+        "market": "上市",
+        "changePercent": 0.27,
+        "closePrice": 37.8,
+        "volume": 251,
+        "tradeValue": 9518985.0
+      },
+      {
+        "code": "2353",
+        "name": "宏碁",
+        "market": "上市",
+        "changePercent": 0.17,
+        "closePrice": 29.15,
+        "volume": 16282,
+        "tradeValue": 474694187.0
+      },
+      {
+        "code": "6577",
+        "name": "勁豐",
+        "market": "上櫃",
+        "changePercent": 0.13,
+        "closePrice": 75.2,
+        "volume": 79,
+        "tradeValue": 5938100.0
+      },
+      {
+        "code": "3002",
+        "name": "歐格",
+        "market": "上市",
+        "changePercent": 0.0,
+        "closePrice": 16.35,
+        "volume": 239,
+        "tradeValue": 3959200.0
+      },
+      {
+        "code": "2380",
+        "name": "虹光",
+        "market": "上市",
+        "changePercent": 0.0,
+        "closePrice": 12.9,
+        "volume": 42,
+        "tradeValue": 548532.0
+      },
+      {
+        "code": "6228",
+        "name": "全譜",
+        "market": "上櫃",
+        "changePercent": 0.0,
+        "closePrice": 19.45,
+        "volume": 11,
+        "tradeValue": 214250.0
+      },
+      {
+        "code": "3479",
+        "name": "安勤",
+        "market": "上櫃",
+        "changePercent": -0.1,
+        "closePrice": 98.6,
+        "volume": 266,
+        "tradeValue": 26212900.0
+      },
+      {
+        "code": "2364",
+        "name": "倫飛",
+        "market": "上市",
+        "changePercent": -0.21,
+        "closePrice": 48.5,
+        "volume": 163,
+        "tradeValue": 7850285.0
+      },
+      {
+        "code": "6277",
+        "name": "宏正",
+        "market": "上市",
+        "changePercent": -0.29,
+        "closePrice": 69.3,
+        "volume": 600,
+        "tradeValue": 41508388.0
+      },
+      {
+        "code": "3494",
+        "name": "誠研",
+        "market": "上市",
+        "changePercent": -0.29,
+        "closePrice": 6.9,
+        "volume": 59,
+        "tradeValue": 412264.0
+      },
+      {
+        "code": "6414",
+        "name": "樺漢",
+        "market": "上市",
+        "changePercent": -0.31,
+        "closePrice": 319.5,
+        "volume": 832,
+        "tradeValue": 264984338.0
+      },
+      {
+        "code": "5490",
+        "name": "同亨",
+        "market": "上櫃",
+        "changePercent": -0.38,
+        "closePrice": 26.25,
+        "volume": 430,
+        "tradeValue": 11311450.0
+      },
+      {
+        "code": "3325",
+        "name": "旭品",
+        "market": "上櫃",
+        "changePercent": -0.42,
+        "closePrice": 11.8,
+        "volume": 76,
+        "tradeValue": 898300.0
+      },
+      {
+        "code": "6680",
+        "name": "鑫創電子",
+        "market": "上櫃",
+        "changePercent": -0.42,
+        "closePrice": 47.7,
+        "volume": 6,
+        "tradeValue": 296800.0
+      },
+      {
+        "code": "3213",
+        "name": "茂訊",
+        "market": "上櫃",
+        "changePercent": -0.43,
+        "closePrice": 114.5,
+        "volume": 226,
+        "tradeValue": 25913000.0
+      },
+      {
+        "code": "8410",
+        "name": "森田",
+        "market": "上櫃",
+        "changePercent": -0.45,
+        "closePrice": 22.15,
+        "volume": 50,
+        "tradeValue": 1093750.0
+      },
+      {
+        "code": "2356",
+        "name": "英業達",
+        "market": "上市",
+        "changePercent": -0.58,
+        "closePrice": 42.75,
+        "volume": 27927,
+        "tradeValue": 1196773550.0
+      },
+      {
+        "code": "5356",
+        "name": "協益",
+        "market": "上櫃",
+        "changePercent": -0.64,
+        "closePrice": 23.45,
+        "volume": 60,
+        "tradeValue": 1409150.0
+      },
+      {
+        "code": "2331",
+        "name": "精英",
+        "market": "上市",
+        "changePercent": -0.66,
+        "closePrice": 15.05,
+        "volume": 1089,
+        "tradeValue": 16494705.0
+      },
+      {
+        "code": "8114",
+        "name": "振樺電",
+        "market": "上市",
+        "changePercent": -0.67,
+        "closePrice": 149.0,
+        "volume": 231,
+        "tradeValue": 34503574.0
+      },
+      {
+        "code": "6166",
+        "name": "凌華",
+        "market": "上市",
+        "changePercent": -0.71,
+        "closePrice": 83.4,
+        "volume": 1256,
+        "tradeValue": 103967820.0
+      },
+      {
+        "code": "2432",
+        "name": "倚天酷碁-創",
+        "market": "上市",
+        "changePercent": -0.71,
+        "closePrice": 27.85,
+        "volume": 46,
+        "tradeValue": 1287450.0
+      },
+      {
+        "code": "6161",
+        "name": "捷波",
+        "market": "上櫃",
+        "changePercent": -0.74,
+        "closePrice": 46.8,
+        "volume": 17,
+        "tradeValue": 798550.0
+      },
+      {
+        "code": "5215",
+        "name": "科嘉-KY",
+        "market": "上市",
+        "changePercent": -0.75,
+        "closePrice": 32.95,
+        "volume": 45,
+        "tradeValue": 1498426.0
+      },
+      {
+        "code": "2382",
+        "name": "廣達",
+        "market": "上市",
+        "changePercent": -0.76,
+        "closePrice": 262.5,
+        "volume": 15316,
+        "tradeValue": 4025720612.0
+      },
+      {
+        "code": "3611",
+        "name": "鼎翰",
+        "market": "上櫃",
+        "changePercent": -0.84,
+        "closePrice": 177.5,
+        "volume": 25,
+        "tradeValue": 4444000.0
+      },
+      {
+        "code": "6128",
+        "name": "上福",
+        "market": "上市",
+        "changePercent": -0.86,
+        "closePrice": 17.35,
+        "volume": 36,
+        "tradeValue": 635258.0
+      },
+      {
+        "code": "2417",
+        "name": "圓剛",
+        "market": "上市",
+        "changePercent": -0.98,
+        "closePrice": 30.45,
+        "volume": 359,
+        "tradeValue": 10999818.0
+      },
+      {
+        "code": "2376",
+        "name": "技嘉",
+        "market": "上市",
+        "changePercent": -1.08,
+        "closePrice": 274.5,
+        "volume": 8345,
+        "tradeValue": 2295124581.0
+      },
+      {
+        "code": "2425",
+        "name": "承啟",
+        "market": "上市",
+        "changePercent": -1.09,
+        "closePrice": 27.3,
+        "volume": 760,
+        "tradeValue": 20656196.0
+      },
+      {
+        "code": "2377",
+        "name": "微星",
+        "market": "上市",
+        "changePercent": -1.13,
+        "closePrice": 131.0,
+        "volume": 6628,
+        "tradeValue": 871788837.0
+      },
+      {
+        "code": "8076",
+        "name": "伍豐",
+        "market": "上櫃",
+        "changePercent": -1.14,
+        "closePrice": 17.3,
+        "volume": 305,
+        "tradeValue": 5282300.0
+      },
+      {
+        "code": "2357",
+        "name": "華碩",
+        "market": "上市",
+        "changePercent": -1.2,
+        "closePrice": 826.0,
+        "volume": 4679,
+        "tradeValue": 3869153728.0
+      },
+      {
+        "code": "6235",
+        "name": "華孚",
+        "market": "上市",
+        "changePercent": -1.22,
+        "closePrice": 28.45,
+        "volume": 471,
+        "tradeValue": 13455119.0
+      },
+      {
+        "code": "5474",
+        "name": "聰泰",
+        "market": "上櫃",
+        "changePercent": -1.23,
+        "closePrice": 120.0,
+        "volume": 100,
+        "tradeValue": 11879000.0
+      },
+      {
+        "code": "3231",
+        "name": "緯創",
+        "market": "上市",
+        "changePercent": -1.26,
+        "closePrice": 157.0,
+        "volume": 41107,
+        "tradeValue": 6490391909.0
+      },
+      {
+        "code": "3577",
+        "name": "泓格",
+        "market": "上櫃",
+        "changePercent": -1.27,
+        "closePrice": 77.6,
+        "volume": 198,
+        "tradeValue": 15370600.0
+      },
+      {
+        "code": "3071",
+        "name": "協禧",
+        "market": "上櫃",
+        "changePercent": -1.32,
+        "closePrice": 18.65,
+        "volume": 101,
+        "tradeValue": 1881500.0
+      },
+      {
+        "code": "6160",
+        "name": "欣技",
+        "market": "上櫃",
+        "changePercent": -1.36,
+        "closePrice": 10.85,
+        "volume": 26,
+        "tradeValue": 290000.0
+      },
+      {
+        "code": "2362",
+        "name": "藍天",
+        "market": "上市",
+        "changePercent": -1.4,
+        "closePrice": 38.6,
+        "volume": 774,
+        "tradeValue": 30165293.0
+      },
+      {
+        "code": "6922",
+        "name": "宸曜",
+        "market": "上櫃",
+        "changePercent": -1.45,
+        "closePrice": 170.5,
+        "volume": 87,
+        "tradeValue": 14838000.0
+      },
+      {
+        "code": "2405",
+        "name": "輔信",
+        "market": "上市",
+        "changePercent": -1.48,
+        "closePrice": 13.35,
+        "volume": 817,
+        "tradeValue": 10949148.0
+      },
+      {
+        "code": "7710",
+        "name": "東擎科技",
+        "market": "上市",
+        "changePercent": -1.8,
+        "closePrice": 109.0,
+        "volume": 257,
+        "tradeValue": 27863409.0
+      },
+      {
+        "code": "3046",
+        "name": "建碁",
+        "market": "上市",
+        "changePercent": -1.82,
+        "closePrice": 48.65,
+        "volume": 206,
+        "tradeValue": 10148415.0
+      },
+      {
+        "code": "6188",
+        "name": "廣明",
+        "market": "上櫃",
+        "changePercent": -1.83,
+        "closePrice": 45.65,
+        "volume": 1153,
+        "tradeValue": 53110350.0
+      },
+      {
+        "code": "2495",
+        "name": "普安",
+        "market": "上市",
+        "changePercent": -1.85,
+        "closePrice": 26.6,
+        "volume": 1116,
+        "tradeValue": 29732356.0
+      },
+      {
+        "code": "3060",
+        "name": "銘異",
+        "market": "上市",
+        "changePercent": -2.0,
+        "closePrice": 24.5,
+        "volume": 1310,
+        "tradeValue": 32678932.0
+      },
+      {
+        "code": "8163",
+        "name": "達方",
+        "market": "上市",
+        "changePercent": -2.03,
+        "closePrice": 24.1,
+        "volume": 790,
+        "tradeValue": 19166006.0
+      },
+      {
+        "code": "4938",
+        "name": "和碩",
+        "market": "上市",
+        "changePercent": -2.22,
+        "closePrice": 83.8,
+        "volume": 13258,
+        "tradeValue": 1116356317.0
+      },
+      {
+        "code": "3540",
+        "name": "曜越",
+        "market": "上櫃",
+        "changePercent": -2.24,
+        "closePrice": 19.65,
+        "volume": 130,
+        "tradeValue": 2574600.0
+      },
+      {
+        "code": "6121",
+        "name": "新普",
+        "market": "上櫃",
+        "changePercent": -2.41,
+        "closePrice": 284.0,
+        "volume": 1977,
+        "tradeValue": 564279500.0
+      },
+      {
+        "code": "3272",
+        "name": "東碩",
+        "market": "上櫃",
+        "changePercent": -2.42,
+        "closePrice": 10.1,
+        "volume": 73,
+        "tradeValue": 753050.0
+      },
+      {
+        "code": "5438",
+        "name": "東友",
+        "market": "上櫃",
+        "changePercent": -2.5,
+        "closePrice": 15.6,
+        "volume": 150,
+        "tradeValue": 2358250.0
+      },
+      {
+        "code": "3323",
+        "name": "加百裕",
+        "market": "上櫃",
+        "changePercent": -2.59,
+        "closePrice": 22.6,
+        "volume": 335,
+        "tradeValue": 7626350.0
+      },
+      {
+        "code": "2352",
+        "name": "佳世達",
+        "market": "上市",
+        "changePercent": -2.62,
+        "closePrice": 26.05,
+        "volume": 9076,
+        "tradeValue": 238537202.0
+      },
+      {
+        "code": "2465",
+        "name": "麗臺",
+        "market": "上市",
+        "changePercent": -2.67,
+        "closePrice": 146.0,
+        "volume": 30884,
+        "tradeValue": 4679861435.0
+      },
+      {
+        "code": "3706",
+        "name": "神達",
+        "market": "上市",
+        "changePercent": -2.69,
+        "closePrice": 61.6,
+        "volume": 11446,
+        "tradeValue": 714773284.0
+      },
+      {
+        "code": "7711",
+        "name": "永擎",
+        "market": "上市",
+        "changePercent": -2.7,
+        "closePrice": 468.5,
+        "volume": 1470,
+        "tradeValue": 686002622.0
+      },
+      {
+        "code": "6570",
+        "name": "維田",
+        "market": "上櫃",
+        "changePercent": -2.74,
+        "closePrice": 40.85,
+        "volume": 37,
+        "tradeValue": 1502150.0
+      },
+      {
+        "code": "2395",
+        "name": "研華",
+        "market": "上市",
+        "changePercent": -2.76,
+        "closePrice": 564.0,
+        "volume": 2511,
+        "tradeValue": 1433171088.0
+      },
+      {
+        "code": "2301",
+        "name": "光寶科",
+        "market": "上市",
+        "changePercent": -2.82,
+        "closePrice": 207.0,
+        "volume": 20933,
+        "tradeValue": 4356483263.0
+      },
+      {
+        "code": "3005",
+        "name": "神基",
+        "market": "上市",
+        "changePercent": -2.9,
+        "closePrice": 100.5,
+        "volume": 3393,
+        "tradeValue": 344551035.0
+      },
+      {
+        "code": "2365",
+        "name": "昆盈",
+        "market": "上市",
+        "changePercent": -2.9,
+        "closePrice": 21.8,
+        "volume": 901,
+        "tradeValue": 19837941.0
+      },
+      {
+        "code": "3515",
+        "name": "華擎",
+        "market": "上市",
+        "changePercent": -2.95,
+        "closePrice": 181.0,
+        "volume": 427,
+        "tradeValue": 78013838.0
+      },
+      {
+        "code": "2399",
+        "name": "映泰",
+        "market": "上市",
+        "changePercent": -3.09,
+        "closePrice": 34.5,
+        "volume": 1821,
+        "tradeValue": 63625783.0
+      },
+      {
+        "code": "3709",
+        "name": "鑫聯大投控",
+        "market": "上櫃",
+        "changePercent": -3.1,
+        "closePrice": 56.2,
+        "volume": 424,
+        "tradeValue": 24126300.0
+      },
+      {
+        "code": "2387",
+        "name": "精元",
+        "market": "上市",
+        "changePercent": -3.11,
+        "closePrice": 28.0,
+        "volume": 524,
+        "tradeValue": 14811379.0
+      },
+      {
+        "code": "5289",
+        "name": "宜鼎",
+        "market": "上櫃",
+        "changePercent": -3.23,
+        "closePrice": 838.0,
+        "volume": 3176,
+        "tradeValue": 2625017000.0
+      },
+      {
+        "code": "4916",
+        "name": "事欣科",
+        "market": "上市",
+        "changePercent": -3.35,
+        "closePrice": 101.0,
+        "volume": 18697,
+        "tradeValue": 1905666806.0
+      },
+      {
+        "code": "8234",
+        "name": "新漢",
+        "market": "上櫃",
+        "changePercent": -3.52,
+        "closePrice": 46.6,
+        "volume": 418,
+        "tradeValue": 19556550.0
+      },
+      {
+        "code": "1569",
+        "name": "濱川",
+        "market": "上櫃",
+        "changePercent": -3.54,
+        "closePrice": 84.5,
+        "volume": 8243,
+        "tradeValue": 690801600.0
+      },
+      {
+        "code": "3013",
+        "name": "晟銘電",
+        "market": "上市",
+        "changePercent": -3.76,
+        "closePrice": 66.5,
+        "volume": 1239,
+        "tradeValue": 83291642.0
+      },
+      {
+        "code": "5465",
+        "name": "富驊",
+        "market": "上櫃",
+        "changePercent": -4.09,
+        "closePrice": 29.3,
+        "volume": 585,
+        "tradeValue": 17328650.0
+      },
+      {
+        "code": "3625",
+        "name": "西勝",
+        "market": "上櫃",
+        "changePercent": -4.12,
+        "closePrice": 16.3,
+        "volume": 49,
+        "tradeValue": 811350.0
+      },
+      {
+        "code": "3416",
+        "name": "融程電",
+        "market": "上市",
+        "changePercent": -4.18,
+        "closePrice": 137.5,
+        "volume": 376,
+        "tradeValue": 52204811.0
+      },
+      {
+        "code": "3483",
+        "name": "力致",
+        "market": "上櫃",
+        "changePercent": -4.19,
+        "closePrice": 61.7,
+        "volume": 629,
+        "tradeValue": 39285900.0
+      },
+      {
+        "code": "6669",
+        "name": "緯穎",
+        "market": "上市",
+        "changePercent": -4.29,
+        "closePrice": 1450.0,
+        "volume": 4335,
+        "tradeValue": 6307330070.0
+      },
+      {
+        "code": "6230",
+        "name": "尼得科超眾",
+        "market": "上市",
+        "changePercent": -4.55,
+        "closePrice": 81.8,
+        "volume": 60,
+        "tradeValue": 4976909.0
+      },
+      {
+        "code": "6591",
+        "name": "動力-KY",
+        "market": "上市",
+        "changePercent": -4.91,
+        "closePrice": 31.95,
+        "volume": 256,
+        "tradeValue": 8289830.0
+      },
+      {
+        "code": "4931",
+        "name": "新盛力",
+        "market": "上櫃",
+        "changePercent": -5.25,
+        "closePrice": 153.5,
+        "volume": 2332,
+        "tradeValue": 359176500.0
+      },
+      {
+        "code": "6117",
+        "name": "迎廣",
+        "market": "上市",
+        "changePercent": -5.45,
+        "closePrice": 57.2,
+        "volume": 241,
+        "tradeValue": 14154779.0
+      },
+      {
+        "code": "5386",
+        "name": "青雲",
+        "market": "上櫃",
+        "changePercent": -5.47,
+        "closePrice": 155.5,
+        "volume": 826,
+        "tradeValue": 129668500.0
+      },
+      {
+        "code": "6825",
+        "name": "和暢科技",
+        "market": "上櫃",
+        "changePercent": -5.61,
+        "closePrice": 18.5,
+        "volume": 73,
+        "tradeValue": 1383100.0
+      },
+      {
+        "code": "3211",
+        "name": "順達",
+        "market": "上櫃",
+        "changePercent": -6.32,
+        "closePrice": 215.0,
+        "volume": 3900,
+        "tradeValue": 835619000.0
+      },
+      {
+        "code": "8210",
+        "name": "勤誠",
+        "market": "上市",
+        "changePercent": -6.61,
+        "closePrice": 509.0,
+        "volume": 1933,
+        "tradeValue": 1001030219.0
+      },
+      {
+        "code": "5426",
+        "name": "振發",
+        "market": "上櫃",
+        "changePercent": -6.91,
+        "closePrice": 25.6,
+        "volume": 1737,
+        "tradeValue": 45408650.0
+      },
+      {
+        "code": "3349",
+        "name": "寶德",
+        "market": "上櫃",
+        "changePercent": -7.0,
+        "closePrice": 16.6,
+        "volume": 131,
+        "tradeValue": 2190600.0
+      },
+      {
+        "code": "6831",
+        "name": "邁科",
+        "market": "上市",
+        "changePercent": -7.22,
+        "closePrice": 270.0,
+        "volume": 456,
+        "tradeValue": 125878963.0
+      },
+      {
+        "code": "6933",
+        "name": "AMAX-KY",
+        "market": "上市",
+        "changePercent": -8.01,
+        "closePrice": 258.5,
+        "volume": 1522,
+        "tradeValue": 394913385.0
+      },
+      {
+        "code": "2305",
+        "name": "全友",
+        "market": "上市",
+        "changePercent": -8.31,
+        "closePrice": 34.2,
+        "volume": 4383,
+        "tradeValue": 153841140.0
+      },
+      {
+        "code": "3701",
+        "name": "大眾控",
+        "market": "上市",
+        "changePercent": -9.31,
+        "closePrice": 57.5,
+        "volume": 9033,
+        "tradeValue": 535882001.0
+      },
+      {
+        "code": "6276",
+        "name": "安鈦克",
+        "market": "上櫃",
+        "changePercent": -9.62,
+        "closePrice": 11.75,
+        "volume": 51,
+        "tradeValue": 617350.0
+      },
+      {
+        "code": "3017",
+        "name": "奇鋐",
+        "market": "上市",
+        "changePercent": -9.85,
+        "closePrice": 2470.0,
+        "volume": 4855,
+        "tradeValue": 12275604150.0
+      },
+      {
+        "code": "3693",
+        "name": "營邦",
+        "market": "上櫃",
+        "changePercent": -9.89,
+        "closePrice": 583.0,
+        "volume": 1547,
+        "tradeValue": 907750000.0
+      },
+      {
+        "code": "3287",
+        "name": "廣寰科",
+        "market": "上櫃",
+        "changePercent": -10.0,
+        "closePrice": 55.8,
+        "volume": 2106,
+        "tradeValue": 121004400.0
       }
     ],
     "光電": [
@@ -10122,8 +10122,8 @@
         "market": "上市",
         "changePercent": -1.16,
         "closePrice": 127.5,
-        "volume": 7429,
-        "tradeValue": 947407012.0
+        "volume": 7583,
+        "tradeValue": 967080512.0
       },
       {
         "code": "6792",
@@ -10149,8 +10149,8 @@
         "market": "上市",
         "changePercent": -1.37,
         "closePrice": 14.45,
-        "volume": 177,
-        "tradeValue": 2571662.0
+        "volume": 185,
+        "tradeValue": 2677262.0
       },
       {
         "code": "6561",
@@ -10329,8 +10329,8 @@
         "market": "上市",
         "changePercent": -3.62,
         "closePrice": 1330.0,
-        "volume": 5629,
-        "tradeValue": 7435487045.0
+        "volume": 5714,
+        "tradeValue": 7547989535.0
       },
       {
         "code": "3564",
@@ -10538,8 +10538,8 @@
         "market": "上市",
         "changePercent": 0.91,
         "closePrice": 77.5,
-        "volume": 60651,
-        "tradeValue": 4740214524.0
+        "volume": 61151,
+        "tradeValue": 4778714524.0
       },
       {
         "code": "2882",
@@ -10745,8 +10745,8 @@
         "market": "上市",
         "changePercent": -0.99,
         "closePrice": 150.5,
-        "volume": 34931,
-        "tradeValue": 5286908201.0
+        "volume": 36919,
+        "tradeValue": 5582544801.0
       },
       {
         "code": "2885",
@@ -10826,8 +10826,8 @@
         "market": "上市",
         "changePercent": -2.0,
         "closePrice": 41.75,
-        "volume": 29476,
-        "tradeValue": 1234724783.0
+        "volume": 30404,
+        "tradeValue": 1274007023.0
       },
       {
         "code": "6016",
@@ -10862,8 +10862,8 @@
         "market": "上市",
         "changePercent": -3.42,
         "closePrice": 46.65,
-        "volume": 45379,
-        "tradeValue": 2150685775.0
+        "volume": 45479,
+        "tradeValue": 2155995775.0
       },
       {
         "code": "6021",
@@ -12684,8 +12684,8 @@
         "market": "上市",
         "changePercent": -0.95,
         "closePrice": 1045.0,
-        "volume": 809,
-        "tradeValue": 845062350.0
+        "volume": 1449,
+        "tradeValue": 1513862350.0
       },
       {
         "code": "4571",
@@ -13125,8 +13125,8 @@
         "market": "上市",
         "changePercent": -5.96,
         "closePrice": 615.0,
-        "volume": 1986,
-        "tradeValue": 1231292485.0
+        "volume": 2256,
+        "tradeValue": 1391444563.0
       },
       {
         "code": "8027",
@@ -13262,8 +13262,8 @@
         "market": "上市",
         "changePercent": 1.48,
         "closePrice": 48.1,
-        "volume": 32851,
-        "tradeValue": 1567452725.0
+        "volume": 32855,
+        "tradeValue": 1567623525.0
       },
       {
         "code": "2601",
@@ -13523,8 +13523,8 @@
         "market": "上市",
         "changePercent": -2.74,
         "closePrice": 106.5,
-        "volume": 14771,
-        "tradeValue": 1596751233.0
+        "volume": 15349,
+        "tradeValue": 1658308233.0
       },
       {
         "code": "5608",
@@ -13579,8 +13579,8 @@
         "market": "上市",
         "changePercent": 0.0,
         "closePrice": 89.6,
-        "volume": 20984,
-        "tradeValue": 1887788585.0
+        "volume": 21116,
+        "tradeValue": 1898440985.0
       },
       {
         "code": "9918",
@@ -17250,6 +17250,341 @@
         "tradeValue": 63032659.0
       }
     ],
+    "居家生活": [
+      {
+        "code": "6616",
+        "name": "特昇-KY",
+        "market": "上櫃",
+        "changePercent": 4.41,
+        "closePrice": 8.28,
+        "volume": 5,
+        "tradeValue": 40930.0
+      },
+      {
+        "code": "8482",
+        "name": "商億-KY",
+        "market": "上市",
+        "changePercent": 2.83,
+        "closePrice": 47.3,
+        "volume": 19,
+        "tradeValue": 906309.0
+      },
+      {
+        "code": "6629",
+        "name": "泰金-KY",
+        "market": "上櫃",
+        "changePercent": 2.47,
+        "closePrice": 99.4,
+        "volume": 31,
+        "tradeValue": 3043700.0
+      },
+      {
+        "code": "8464",
+        "name": "億豐",
+        "market": "上市",
+        "changePercent": 2.05,
+        "closePrice": 372.5,
+        "volume": 1313,
+        "tradeValue": 490033704.0
+      },
+      {
+        "code": "5904",
+        "name": "寶雅*",
+        "market": "上櫃",
+        "changePercent": 1.36,
+        "closePrice": 74.8,
+        "volume": 4330,
+        "tradeValue": 320871600.0
+      },
+      {
+        "code": "8066",
+        "name": "來思達",
+        "market": "上櫃",
+        "changePercent": 0.71,
+        "closePrice": 14.1,
+        "volume": 12,
+        "tradeValue": 169350.0
+      },
+      {
+        "code": "6671",
+        "name": "三能-KY",
+        "market": "上市",
+        "changePercent": 0.44,
+        "closePrice": 22.8,
+        "volume": 13,
+        "tradeValue": 298954.0
+      },
+      {
+        "code": "7794",
+        "name": "宏碁智新",
+        "market": "上櫃",
+        "changePercent": 0.0,
+        "closePrice": 26.55,
+        "volume": 8,
+        "tradeValue": 212400.0
+      },
+      {
+        "code": "3067",
+        "name": "全域",
+        "market": "上櫃",
+        "changePercent": 0.0,
+        "closePrice": 16.5,
+        "volume": 2,
+        "tradeValue": 33000.0
+      },
+      {
+        "code": "7867",
+        "name": "特力屋",
+        "market": "上市",
+        "changePercent": -0.11,
+        "closePrice": 43.9,
+        "volume": 127,
+        "tradeValue": 5572938.0
+      },
+      {
+        "code": "6728",
+        "name": "上洋",
+        "market": "上櫃",
+        "changePercent": -0.21,
+        "closePrice": 94.0,
+        "volume": 6,
+        "tradeValue": 562700.0
+      },
+      {
+        "code": "6754",
+        "name": "匯僑設計",
+        "market": "上市",
+        "changePercent": -0.26,
+        "closePrice": 39.0,
+        "volume": 13,
+        "tradeValue": 542820.0
+      },
+      {
+        "code": "9934",
+        "name": "成霖",
+        "market": "上市",
+        "changePercent": -0.32,
+        "closePrice": 9.27,
+        "volume": 434,
+        "tradeValue": 4043371.0
+      },
+      {
+        "code": "6195",
+        "name": "詩肯",
+        "market": "上櫃",
+        "changePercent": -0.36,
+        "closePrice": 27.5,
+        "volume": 29,
+        "tradeValue": 818700.0
+      },
+      {
+        "code": "6968",
+        "name": "萬達寵物",
+        "market": "上櫃",
+        "changePercent": -0.39,
+        "closePrice": 38.5,
+        "volume": 43,
+        "tradeValue": 1649600.0
+      },
+      {
+        "code": "2941",
+        "name": "米斯特",
+        "market": "上櫃",
+        "changePercent": -0.4,
+        "closePrice": 24.9,
+        "volume": 9,
+        "tradeValue": 221200.0
+      },
+      {
+        "code": "5902",
+        "name": "德記",
+        "market": "上櫃",
+        "changePercent": -0.45,
+        "closePrice": 32.9,
+        "volume": 4,
+        "tradeValue": 132300.0
+      },
+      {
+        "code": "9935",
+        "name": "慶豐富",
+        "market": "上市",
+        "changePercent": -0.49,
+        "closePrice": 20.15,
+        "volume": 333,
+        "tradeValue": 6711564.0
+      },
+      {
+        "code": "5903",
+        "name": "全家",
+        "market": "上櫃",
+        "changePercent": -0.54,
+        "closePrice": 184.0,
+        "volume": 28,
+        "tradeValue": 5147000.0
+      },
+      {
+        "code": "2938",
+        "name": "床的世界",
+        "market": "上櫃",
+        "changePercent": -0.6,
+        "closePrice": 16.5,
+        "volume": 10,
+        "tradeValue": 165100.0
+      },
+      {
+        "code": "3557",
+        "name": "嘉威",
+        "market": "上市",
+        "changePercent": -0.68,
+        "closePrice": 21.75,
+        "volume": 24,
+        "tradeValue": 545057.0
+      },
+      {
+        "code": "4702",
+        "name": "中美實",
+        "market": "上櫃",
+        "changePercent": -0.7,
+        "closePrice": 9.9,
+        "volume": 152,
+        "tradeValue": 1509960.0
+      },
+      {
+        "code": "9911",
+        "name": "櫻花",
+        "market": "上市",
+        "changePercent": -0.78,
+        "closePrice": 76.3,
+        "volume": 469,
+        "tradeValue": 36094737.0
+      },
+      {
+        "code": "2924",
+        "name": "宏太-KY",
+        "market": "上櫃",
+        "changePercent": -0.84,
+        "closePrice": 17.7,
+        "volume": 1,
+        "tradeValue": 17700.0
+      },
+      {
+        "code": "2062",
+        "name": "橋椿",
+        "market": "上市",
+        "changePercent": -0.9,
+        "closePrice": 16.45,
+        "volume": 162,
+        "tradeValue": 2692632.0
+      },
+      {
+        "code": "8433",
+        "name": "弘帆",
+        "market": "上櫃",
+        "changePercent": -1.03,
+        "closePrice": 48.05,
+        "volume": 40,
+        "tradeValue": 1932400.0
+      },
+      {
+        "code": "2937",
+        "name": "集雅社",
+        "market": "上櫃",
+        "changePercent": -1.14,
+        "closePrice": 43.35,
+        "volume": 10,
+        "tradeValue": 431200.0
+      },
+      {
+        "code": "7782",
+        "name": "光速火箭",
+        "market": "上櫃",
+        "changePercent": -1.15,
+        "closePrice": 21.5,
+        "volume": 8,
+        "tradeValue": 174350.0
+      },
+      {
+        "code": "9924",
+        "name": "福興",
+        "market": "上市",
+        "changePercent": -1.32,
+        "closePrice": 37.3,
+        "volume": 171,
+        "tradeValue": 6425679.0
+      },
+      {
+        "code": "8941",
+        "name": "關中",
+        "market": "上櫃",
+        "changePercent": -1.49,
+        "closePrice": 43.05,
+        "volume": 9,
+        "tradeValue": 386950.0
+      },
+      {
+        "code": "2916",
+        "name": "滿心",
+        "market": "上櫃",
+        "changePercent": -2.0,
+        "closePrice": 36.8,
+        "volume": 113,
+        "tradeValue": 4174150.0
+      },
+      {
+        "code": "2947",
+        "name": "振宇五金",
+        "market": "上櫃",
+        "changePercent": -2.01,
+        "closePrice": 53.5,
+        "volume": 5,
+        "tradeValue": 266800.0
+      },
+      {
+        "code": "2948",
+        "name": "寶陞",
+        "market": "上櫃",
+        "changePercent": -2.6,
+        "closePrice": 35.55,
+        "volume": 6,
+        "tradeValue": 208450.0
+      },
+      {
+        "code": "3171",
+        "name": "炎洲流通",
+        "market": "上櫃",
+        "changePercent": -2.61,
+        "closePrice": 52.2,
+        "volume": 13,
+        "tradeValue": 677300.0
+      },
+      {
+        "code": "2230",
+        "name": "泰茂",
+        "market": "上櫃",
+        "changePercent": -3.38,
+        "closePrice": 17.15,
+        "volume": 72,
+        "tradeValue": 1239200.0
+      },
+      {
+        "code": "4609",
+        "name": "唐鋒",
+        "market": "上櫃",
+        "changePercent": -5.31,
+        "closePrice": 4.1,
+        "volume": 9,
+        "tradeValue": 38270.0
+      },
+      {
+        "code": "6807",
+        "name": "峰源-KY",
+        "market": "上市",
+        "changePercent": -6.32,
+        "closePrice": 34.1,
+        "volume": 110,
+        "tradeValue": 3924790.0
+      }
+    ],
     "貿易百貨": [
       {
         "code": "2911",
@@ -17810,341 +18145,6 @@
         "closePrice": 37.95,
         "volume": 301,
         "tradeValue": 11779772.0
-      }
-    ],
-    "居家生活": [
-      {
-        "code": "6616",
-        "name": "特昇-KY",
-        "market": "上櫃",
-        "changePercent": 4.41,
-        "closePrice": 8.28,
-        "volume": 5,
-        "tradeValue": 40930.0
-      },
-      {
-        "code": "8482",
-        "name": "商億-KY",
-        "market": "上市",
-        "changePercent": 2.83,
-        "closePrice": 47.3,
-        "volume": 19,
-        "tradeValue": 906309.0
-      },
-      {
-        "code": "6629",
-        "name": "泰金-KY",
-        "market": "上櫃",
-        "changePercent": 2.47,
-        "closePrice": 99.4,
-        "volume": 31,
-        "tradeValue": 3043700.0
-      },
-      {
-        "code": "8464",
-        "name": "億豐",
-        "market": "上市",
-        "changePercent": 2.05,
-        "closePrice": 372.5,
-        "volume": 752,
-        "tradeValue": 279752184.0
-      },
-      {
-        "code": "5904",
-        "name": "寶雅*",
-        "market": "上櫃",
-        "changePercent": 1.36,
-        "closePrice": 74.8,
-        "volume": 4330,
-        "tradeValue": 320871600.0
-      },
-      {
-        "code": "8066",
-        "name": "來思達",
-        "market": "上櫃",
-        "changePercent": 0.71,
-        "closePrice": 14.1,
-        "volume": 12,
-        "tradeValue": 169350.0
-      },
-      {
-        "code": "6671",
-        "name": "三能-KY",
-        "market": "上市",
-        "changePercent": 0.44,
-        "closePrice": 22.8,
-        "volume": 13,
-        "tradeValue": 298954.0
-      },
-      {
-        "code": "7794",
-        "name": "宏碁智新",
-        "market": "上櫃",
-        "changePercent": 0.0,
-        "closePrice": 26.55,
-        "volume": 8,
-        "tradeValue": 212400.0
-      },
-      {
-        "code": "3067",
-        "name": "全域",
-        "market": "上櫃",
-        "changePercent": 0.0,
-        "closePrice": 16.5,
-        "volume": 2,
-        "tradeValue": 33000.0
-      },
-      {
-        "code": "7867",
-        "name": "特力屋",
-        "market": "上市",
-        "changePercent": -0.11,
-        "closePrice": 43.9,
-        "volume": 127,
-        "tradeValue": 5572938.0
-      },
-      {
-        "code": "6728",
-        "name": "上洋",
-        "market": "上櫃",
-        "changePercent": -0.21,
-        "closePrice": 94.0,
-        "volume": 6,
-        "tradeValue": 562700.0
-      },
-      {
-        "code": "6754",
-        "name": "匯僑設計",
-        "market": "上市",
-        "changePercent": -0.26,
-        "closePrice": 39.0,
-        "volume": 13,
-        "tradeValue": 542820.0
-      },
-      {
-        "code": "9934",
-        "name": "成霖",
-        "market": "上市",
-        "changePercent": -0.32,
-        "closePrice": 9.27,
-        "volume": 434,
-        "tradeValue": 4043371.0
-      },
-      {
-        "code": "6195",
-        "name": "詩肯",
-        "market": "上櫃",
-        "changePercent": -0.36,
-        "closePrice": 27.5,
-        "volume": 29,
-        "tradeValue": 818700.0
-      },
-      {
-        "code": "6968",
-        "name": "萬達寵物",
-        "market": "上櫃",
-        "changePercent": -0.39,
-        "closePrice": 38.5,
-        "volume": 43,
-        "tradeValue": 1649600.0
-      },
-      {
-        "code": "2941",
-        "name": "米斯特",
-        "market": "上櫃",
-        "changePercent": -0.4,
-        "closePrice": 24.9,
-        "volume": 9,
-        "tradeValue": 221200.0
-      },
-      {
-        "code": "5902",
-        "name": "德記",
-        "market": "上櫃",
-        "changePercent": -0.45,
-        "closePrice": 32.9,
-        "volume": 4,
-        "tradeValue": 132300.0
-      },
-      {
-        "code": "9935",
-        "name": "慶豐富",
-        "market": "上市",
-        "changePercent": -0.49,
-        "closePrice": 20.15,
-        "volume": 333,
-        "tradeValue": 6711564.0
-      },
-      {
-        "code": "5903",
-        "name": "全家",
-        "market": "上櫃",
-        "changePercent": -0.54,
-        "closePrice": 184.0,
-        "volume": 28,
-        "tradeValue": 5147000.0
-      },
-      {
-        "code": "2938",
-        "name": "床的世界",
-        "market": "上櫃",
-        "changePercent": -0.6,
-        "closePrice": 16.5,
-        "volume": 10,
-        "tradeValue": 165100.0
-      },
-      {
-        "code": "3557",
-        "name": "嘉威",
-        "market": "上市",
-        "changePercent": -0.68,
-        "closePrice": 21.75,
-        "volume": 24,
-        "tradeValue": 545057.0
-      },
-      {
-        "code": "4702",
-        "name": "中美實",
-        "market": "上櫃",
-        "changePercent": -0.7,
-        "closePrice": 9.9,
-        "volume": 152,
-        "tradeValue": 1509960.0
-      },
-      {
-        "code": "9911",
-        "name": "櫻花",
-        "market": "上市",
-        "changePercent": -0.78,
-        "closePrice": 76.3,
-        "volume": 469,
-        "tradeValue": 36094737.0
-      },
-      {
-        "code": "2924",
-        "name": "宏太-KY",
-        "market": "上櫃",
-        "changePercent": -0.84,
-        "closePrice": 17.7,
-        "volume": 1,
-        "tradeValue": 17700.0
-      },
-      {
-        "code": "2062",
-        "name": "橋椿",
-        "market": "上市",
-        "changePercent": -0.9,
-        "closePrice": 16.45,
-        "volume": 162,
-        "tradeValue": 2692632.0
-      },
-      {
-        "code": "8433",
-        "name": "弘帆",
-        "market": "上櫃",
-        "changePercent": -1.03,
-        "closePrice": 48.05,
-        "volume": 40,
-        "tradeValue": 1932400.0
-      },
-      {
-        "code": "2937",
-        "name": "集雅社",
-        "market": "上櫃",
-        "changePercent": -1.14,
-        "closePrice": 43.35,
-        "volume": 10,
-        "tradeValue": 431200.0
-      },
-      {
-        "code": "7782",
-        "name": "光速火箭",
-        "market": "上櫃",
-        "changePercent": -1.15,
-        "closePrice": 21.5,
-        "volume": 8,
-        "tradeValue": 174350.0
-      },
-      {
-        "code": "9924",
-        "name": "福興",
-        "market": "上市",
-        "changePercent": -1.32,
-        "closePrice": 37.3,
-        "volume": 171,
-        "tradeValue": 6425679.0
-      },
-      {
-        "code": "8941",
-        "name": "關中",
-        "market": "上櫃",
-        "changePercent": -1.49,
-        "closePrice": 43.05,
-        "volume": 9,
-        "tradeValue": 386950.0
-      },
-      {
-        "code": "2916",
-        "name": "滿心",
-        "market": "上櫃",
-        "changePercent": -2.0,
-        "closePrice": 36.8,
-        "volume": 113,
-        "tradeValue": 4174150.0
-      },
-      {
-        "code": "2947",
-        "name": "振宇五金",
-        "market": "上櫃",
-        "changePercent": -2.01,
-        "closePrice": 53.5,
-        "volume": 5,
-        "tradeValue": 266800.0
-      },
-      {
-        "code": "2948",
-        "name": "寶陞",
-        "market": "上櫃",
-        "changePercent": -2.6,
-        "closePrice": 35.55,
-        "volume": 6,
-        "tradeValue": 208450.0
-      },
-      {
-        "code": "3171",
-        "name": "炎洲流通",
-        "market": "上櫃",
-        "changePercent": -2.61,
-        "closePrice": 52.2,
-        "volume": 13,
-        "tradeValue": 677300.0
-      },
-      {
-        "code": "2230",
-        "name": "泰茂",
-        "market": "上櫃",
-        "changePercent": -3.38,
-        "closePrice": 17.15,
-        "volume": 72,
-        "tradeValue": 1239200.0
-      },
-      {
-        "code": "4609",
-        "name": "唐鋒",
-        "market": "上櫃",
-        "changePercent": -5.31,
-        "closePrice": 4.1,
-        "volume": 9,
-        "tradeValue": 38270.0
-      },
-      {
-        "code": "6807",
-        "name": "峰源-KY",
-        "market": "上市",
-        "changePercent": -6.32,
-        "closePrice": 34.1,
-        "volume": 110,
-        "tradeValue": 3924790.0
       }
     ],
     "橡膠": [

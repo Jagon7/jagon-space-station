@@ -13,10 +13,10 @@
       "openPrice": 52.4,
       "limitTime": "--:--",
       "market": "上市",
-      "instiForeign": 1064,
-      "instiTrust": -1,
-      "instiDealer": -123,
-      "instiTotal": 941,
+      "instiForeign": 24772,
+      "instiTrust": -642,
+      "instiDealer": -147,
+      "instiTotal": 23983,
       "reason": "財報亮眼"
     },
     {
@@ -85,10 +85,10 @@
       "openPrice": 36.25,
       "limitTime": "--:--",
       "market": "上市",
-      "instiForeign": -2572,
+      "instiForeign": 337,
       "instiTrust": 0,
-      "instiDealer": -6,
-      "instiTotal": -2577,
+      "instiDealer": 27,
+      "instiTotal": 364,
       "reason": "通信網路族群同步漲停（2 檔）"
     },
     {
@@ -121,11 +121,11 @@
       "openPrice": 29.5,
       "limitTime": "--:--",
       "market": "上市",
-      "instiForeign": 135,
+      "instiForeign": 323,
       "instiTrust": 0,
-      "instiDealer": -8,
-      "instiTotal": 127,
-      "reason": ""
+      "instiDealer": 15,
+      "instiTotal": 338,
+      "reason": "AI 題材"
     },
     {
       "code": "6794",
@@ -139,10 +139,10 @@
       "openPrice": 68.9,
       "limitTime": "--:--",
       "market": "上市",
-      "instiForeign": 32,
+      "instiForeign": 9,
       "instiTrust": 0,
-      "instiDealer": 1,
-      "instiTotal": 33,
+      "instiDealer": 0,
+      "instiTotal": 9,
       "reason": "生技醫療族群同步漲停（3 檔）"
     },
     {
@@ -175,10 +175,10 @@
       "openPrice": 21.85,
       "limitTime": "--:--",
       "market": "上市",
-      "instiForeign": -6,
+      "instiForeign": 36,
       "instiTrust": 0,
-      "instiDealer": 0,
-      "instiTotal": -6,
+      "instiDealer": -2,
+      "instiTotal": 34,
       "reason": ""
     },
     {
@@ -193,10 +193,10 @@
       "openPrice": 5.11,
       "limitTime": "--:--",
       "market": "上市",
-      "instiForeign": 37,
+      "instiForeign": 136,
       "instiTrust": 0,
-      "instiDealer": 1,
-      "instiTotal": 38,
+      "instiDealer": 2,
+      "instiTotal": 138,
       "reason": ""
     }
   ]
