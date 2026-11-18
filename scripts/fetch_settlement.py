@@ -144,7 +144,8 @@ def main():
         f = OUT / "lt" / f"{d.isoformat()}.json"
         if f.exists() and d < today - timedelta(days=1):
             continue
-        start, sday, month = period(d, hol)
+        # 結算日當天收盤後，到期月份已經結算、期交所報表只剩下個月：一律看「隔天」所屬的那一期
+        start, sday, month = period(d + timedelta(days=1), hol)
         try:
             doc = fetch_day(d, month)
         except RuntimeError as e:
@@ -155,7 +156,7 @@ def main():
             got += 1
             log(f"{d}：{len(doc)} 個契約（結算月 {month}）")
         time.sleep(3)
-    start, sday, month = period(today, hol)
+    start, sday, month = period(today + timedelta(days=1), hol)
     log(f"本期 {start} ～ {sday}（{month}），本次新增 {got} 天")
     return 0
 

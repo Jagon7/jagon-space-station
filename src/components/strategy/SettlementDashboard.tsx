@@ -90,6 +90,11 @@ export default function SettlementDashboard() {
         <Kpi label="整日平均折溢價" value={`${data.basisDays}/${data.days}`} unit="天" sub="缺的日子用期交所結算價估" />
       </KpiRow>
 
+      {data.days === 0 && (
+        <div className="mb-4 rounded-lg border border-[#4f8cff]/30 bg-[#4f8cff]/[0.06] p-3 text-xs text-[#93c5fd]">
+          上一期已在 {md(data.date)} 結算，新的一期（{data.month.slice(0, 4)}/{data.month.slice(4)} 結算）從 {md(data.start)} 開始累積自營商買賣超與折溢價；目前只有前十大特法的次月未平倉。
+        </div>
+      )}
       {data.dtDate && data.dtDate !== data.date && (
         <div className="mb-4 rounded-lg border border-[#f59e0b]/30 bg-[#f59e0b]/[0.06] p-3 text-xs text-[#fcd34d]">
           {md(data.date)} 的當沖資料還沒公布（證交所／櫃買約晚上 9 點多），換手量暫用 {md(data.dtDate)} 的當沖比計算；每天 22:00 前會更新成當天的。
