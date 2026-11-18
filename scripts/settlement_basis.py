@@ -49,7 +49,8 @@ def run(api, data: Path, deadline: float, log=print) -> int:
     hol = fs.holidays()
     now = datetime.now(TPE)
     today = now.date()
-    start, sday, month = fs.period(today if now.hour >= 14 else today - timedelta(days=1), hol)
+    # 跟 build_settlement 一樣：最後一個已收盤交易日的「隔天」屬於哪一期（結算日收盤後就換下一期）
+    start, sday, month = fs.period((today if now.hour >= 14 else today - timedelta(days=1)) + timedelta(days=1), hol)
     end = min(today if now.hour >= 14 else today - timedelta(days=1), sday)
     contracts = json.loads((data / "settlement" / "contracts.json").read_text(encoding="utf-8"))["contracts"]
     big = {k: v[0] for k, v in contracts.items() if v[1] == 2000}  # 契約代號 → 股票代號（只用 2,000 股的大型股期）

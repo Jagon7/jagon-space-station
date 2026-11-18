@@ -20,7 +20,7 @@ from __future__ import annotations
 
 import json
 import math
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from pathlib import Path
 
 from build_strategy import TPE, _load
@@ -42,7 +42,8 @@ def build(data_dir: Path, public_dir: Path):
     hol = fs.holidays()
     last = daily[-1]
     q = last["q"]
-    start, sday, month = fs.period(date.fromisoformat(last["date"]), hol)
+    # 結算日收盤後就換下一期（到期月份已結算）：用最新交易日的「隔天」決定是哪一期；結算日當晚本期天數是 0
+    start, sday, month = fs.period(date.fromisoformat(last["date"]) + timedelta(days=1), hol)
     lt = _load(lts[-1], {}) or {}
     if lt.get("month") != month:  # 最新的大額交易人資料要是本期（即將結算月份）
         lt = next(((_load(p, {}) or {}) for p in reversed(lts) if (_load(p, {}) or {}).get("month") == month), {})
@@ -134,7 +135,7 @@ def build(data_dir: Path, public_dir: Path):
         x = date.fromordinal(x.toordinal() + 1)
         left += x.weekday() < 5 and x.isoformat() not in hol
     doc = {"updatedAt": datetime.now(TPE).isoformat(timespec="minutes"), "date": last["date"], "ltDate": lts[-1].stem, "dtDate": dt_date,
-           "instiDate": max([d["date"] for d in pdays if insti.get(d["date"])] or [None]) if pdays else None,
+           "instiDate": next((d["date"] for d in reversed(daily) if (_load(data_dir / "insti" / f"{d['date']}.json", {}) or {})), None),
            "month": month, "start": start.isoformat(), "settle": sday.isoformat(), "daysLeft": left, "days": len(pdays),
            "basisDays": sum(1 for d in pdays if basis.get(d["date"])), "rows": out}
     (public_dir / "settlement.json").write_text(json.dumps(doc, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
