@@ -455,6 +455,9 @@ def turnover_alert(dry: bool, force: bool = False) -> int:
     if not force and not tv.get("dtReady") and now.date().isoformat() == asof and now.hour < 21:
         print("當沖資料還沒到（要用來排除暫停先賣後買的股票），晚點再發")
         return 0
+    if not force and now.date().isoformat() != nxt:
+        print(f"高週轉＋漲停／高當沖比名單在 {nxt} 早上 08:30 跟 85g 一起發")
+        return 0
     try:
         state = json.loads(TURNOVER_STATE.read_text(encoding="utf-8"))
     except (OSError, ValueError):
