@@ -6,7 +6,7 @@
   g85     85g 開高走低：前一天成交金額前 TOP 名、前一天漲停或前 5 日漲 ≥ RUN5%，隔天開高 GAP_LO～GAP_HI% 才做
   tvLimit 高週轉＋漲停：週轉率前 TOP 名（成交 ≥ MINVAL 億）且收漲停
   dtFade  高當沖比＋開高走低：成交 ≥ MINVAL 億、當沖比 ≥ DT_MIN%、收黑K、漲跌 ≥ MIN_RET%
-  （都排除隔天處置、暫停先賣後買；開盤跌停放不了空不算；gapMin＝隔天開盤至少要開高多少才做，−99＝不限）
+  （都排除隔天處置、暫停先賣後買；開盤跌停放不了空不算；gapMin／gapMax＝隔天開盤跳空要在這個範圍才做，−99／99＝不限）
 
 data/strategy/daytrade_params.json  目前參數＋調整紀錄（build_85g／build_turnover 讀這裡）
 data/strategy/daytrade_journal.json 每天推薦的標的（推播前記下）與隔天實際結果
@@ -38,13 +38,13 @@ TUNE_DAYS = 120
 NAMES = {"g85": "85g 開高走低", "tvLimit": "高週轉＋漲停", "dtFade": "高當沖比＋開高走低"}
 DEFAULT = {
     "g85": {"top": 100, "gapLo": 0.0, "gapHi": 4.0, "run5": 10.0},
-    "tvLimit": {"top": 20, "minVal": 1.0, "gapMin": -99.0},
-    "dtFade": {"dtMin": 60.0, "minVal": 1.0, "minRet": 0.0, "gapMin": -99.0},
+    "tvLimit": {"top": 20, "minVal": 1.0, "gapMin": -99.0, "gapMax": 99.0},
+    "dtFade": {"dtMin": 60.0, "minVal": 1.0, "minRet": 0.0, "gapMin": -99.0, "gapMax": 99.0},
 }
 GRID = {
     "g85": {"top": [50, 100], "gapLo": [0.0, 0.5, 1.0], "gapHi": [3.0, 4.0, 5.0, 6.0], "run5": [8.0, 10.0, 15.0]},
-    "tvLimit": {"top": [10, 20, 30], "minVal": [1.0, 3.0, 5.0], "gapMin": [-99.0, 0.0]},
-    "dtFade": {"dtMin": [50.0, 55.0, 60.0, 65.0, 70.0], "minVal": [1.0, 3.0], "minRet": [-2.0, 0.0, 2.0], "gapMin": [-99.0, 0.0]},
+    "tvLimit": {"top": [10, 20, 30], "minVal": [1.0, 3.0, 5.0], "gapMin": [-99.0, 0.0], "gapMax": [3.0, 5.0, 99.0]},
+    "dtFade": {"dtMin": [50.0, 55.0, 60.0, 65.0, 70.0], "minVal": [1.0, 3.0], "minRet": [-2.0, 0.0, 2.0], "gapMin": [-99.0, 0.0], "gapMax": [3.0, 5.0, 99.0]},
 }
 MIN_N = {"g85": 80, "tvLimit": 80, "dtFade": 80}  # 新參數至少要有這麼多筆，而且有訊號的天數不能少於原本的一半（避免名單變太稀）
 MIN_GAIN = 0.10  # 新參數的平均淨報酬至少要好 0.10 個百分點才換
@@ -66,7 +66,7 @@ def triggered(strat: str, p: dict, gap: float) -> bool:
         return False
     if strat == "g85":
         return p["gapLo"] <= gap < p["gapHi"]
-    return gap >= p.get("gapMin", -99.0)
+    return p.get("gapMin", -99.0) <= gap < p.get("gapMax", 99.0)
 
 
 # ---------------- 訊號（回測用；跟 build_85g／build_turnover 同一套規則） ----------------

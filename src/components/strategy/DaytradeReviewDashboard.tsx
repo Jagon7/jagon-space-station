@@ -20,8 +20,8 @@ const pct = (v: number | null | undefined, d = 2) => (v == null ? "—" : `${v >
 // 空單損益：賺＝紅（台股慣例紅賺）
 const tone = (v: number | null | undefined) => (v == null || v === 0 ? "text-[#8b97ab]" : v > 0 ? "text-[#f05252]" : "text-[#22c55e]");
 const md = (d: string) => `${Number(d.slice(5, 7))}/${Number(d.slice(8, 10))}`;
-const PNAME: Record<string, string> = { top: "前幾名", gapLo: "開高下限%", gapHi: "開高上限%", run5: "5 日漲幅%", minVal: "成交≥億", dtMin: "當沖比≥%", minRet: "當天漲跌≥%", gapMin: "隔天開盤≥%" };
-const pv = (k: string, v: number) => (k === "gapMin" && v <= -99 ? "不限" : String(v));
+const PNAME: Record<string, string> = { top: "前幾名", gapLo: "開高下限%", gapHi: "開高上限%", run5: "5 日漲幅%", minVal: "成交≥億", dtMin: "當沖比≥%", minRet: "當天漲跌≥%", gapMin: "隔天開盤≥%", gapMax: "開高上限%" };
+const pv = (k: string, v: number) => ((k === "gapMin" && v <= -99) || (k === "gapMax" && v >= 99) || v == null ? "不限" : String(v));
 
 export default function DaytradeReviewDashboard() {
   const { data, error } = useStaticJson<Data>("daytrade-review.json");
@@ -113,7 +113,7 @@ export default function DaytradeReviewDashboard() {
       <div className="mt-6">
         <Note>
           每天推播前把三個當沖策略的推薦名單記下來，收盤後用實際開盤、收盤價復盤：放空開盤價、收盤價回補，扣成本後的損益（未計滑價與漲跌停排隊）。
-          85g 要開盤落在設定的開高區間才算觸發；其他兩個策略看「隔天開盤至少開高多少」，開跌停放不了空的不算。
+          85g 要開盤落在設定的開高區間才算觸發；其他兩個策略看隔天開盤跳空有沒有在設定的範圍（最少開高多少、開高超過多少就不做），開跌停放不了空的不算。
           每週六用近 120 個交易日重新回測各組參數：樣本夠、有訊號的天數不少於原本一半、前後半段都賺而且都比目前參數好、整體平均淨報酬至少多 0.1 個百分點，才換新參數，並記在調整紀錄。
           標「回補模擬」的日子是上線前用當時規則重建的名單，不是實際推播過的。
         </Note>

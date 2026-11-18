@@ -498,9 +498,13 @@ def turnover_alert(dry: bool, force: bool = False) -> int:
         m.kv("回測隔天開盤→收盤", f"{fade_s['o2c']:+.2f}%（黑K {fade_s['black']:.0f}%）", color=sign_tone(fade_s["o2c"]))
         m.kv("開盤空收盤補（全額成本）", f"{fade_s['shortNet']:+.2f}%", color=sign_tone(fade_s["shortNet"]))
     pr = tv.get("params") or {}
-    gm = [lab + ("開平盤以上" if p_["gapMin"] == 0 else f"開高 {p_['gapMin']:g}% 以上") for lab, p_ in (("高週轉＋漲停", pr.get("tvLimit") or {}), ("高當沖比", pr.get("dtFade") or {}))
-          if (p_.get("gapMin") if p_.get("gapMin") is not None else -99) > -99]
-    m.note("已排除隔天處置、暫停先賣後買的股票。做法：開盤放空、收盤回補" + ("；" + "、".join(gm) + "才做，開低不做" if gm else "；開盤若沒開高或直接開低，優勢較小")
+    def cond(p_):
+        lo_, hi_ = p_.get("gapMin", -99), p_.get("gapMax", 99)
+        a = [] if lo_ <= -99 else ["開平盤以上" if lo_ == 0 else f"開高 {lo_:g}% 以上"]
+        b = [] if hi_ >= 99 else [f"開高超過 {hi_:g}% 不做"]
+        return "、".join(a + b)
+    gm = [f"{lab}：{cond(p_)}" for lab, p_ in (("高週轉＋漲停", pr.get("tvLimit") or {}), ("高當沖比", pr.get("dtFade") or {})) if cond(p_)]
+    m.note("已排除隔天處置、暫停先賣後買的股票。做法：開盤放空、收盤回補；開跌停不做" + ("。進場條件（" + "；".join(gm) + "）" if gm else "")
            + "。參數每週依回測自動檢討，收盤後會推當沖復盤。")
     text = m.text()
     print(text)
