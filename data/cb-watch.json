@@ -390,6 +390,19 @@
       "closePrice": 283.0,
       "market": "上櫃",
       "underwriter": "富邦綜合證券股份有限公司"
+    },
+    {
+      "code": "3033",
+      "name": "威健",
+      "cbSeries": "第82次",
+      "filingDate": "2026-11-19",
+      "bookBuildDate": "2026-11-19",
+      "listingDate": "2026-12-04",
+      "amount": 40.0,
+      "conversionPrice": null,
+      "closePrice": 37.0,
+      "market": "上市",
+      "underwriter": "華南永昌綜合證券股份有限公司"
     }
   ]
 }
