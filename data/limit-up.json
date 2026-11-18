@@ -14,9 +14,9 @@
       "limitTime": "--:--",
       "market": "上市",
       "instiForeign": -125,
-      "instiTrust": 250,
+      "instiTrust": 309,
       "instiDealer": 112,
-      "instiTotal": 237,
+      "instiTotal": 296,
       "reason": "半導體族群同步漲停（2 檔）"
     },
     {
@@ -87,8 +87,8 @@
       "market": "上櫃",
       "instiForeign": -214,
       "instiTrust": 11,
-      "instiDealer": 143,
-      "instiTotal": -59,
+      "instiDealer": 186,
+      "instiTotal": -16,
       "reason": "半導體族群同步漲停（7 檔）"
     },
     {
@@ -104,9 +104,9 @@
       "limitTime": "--:--",
       "market": "上市",
       "instiForeign": -3201,
-      "instiTrust": 352,
+      "instiTrust": 290,
       "instiDealer": 69,
-      "instiTotal": -2780,
+      "instiTotal": -2842,
       "reason": "通信網路族群同步漲停（5 檔）"
     },
     {
@@ -267,8 +267,8 @@
       "market": "上櫃",
       "instiForeign": -1,
       "instiTrust": 7,
-      "instiDealer": -18,
-      "instiTotal": -12,
+      "instiDealer": -22,
+      "instiTotal": -16,
       "reason": "半導體族群同步漲停（7 檔）"
     },
     {
@@ -339,8 +339,8 @@
       "market": "上櫃",
       "instiForeign": 26,
       "instiTrust": 0,
-      "instiDealer": 6,
-      "instiTotal": 32,
+      "instiDealer": -6,
+      "instiTotal": 20,
       "reason": "半導體族群同步漲停（7 檔）"
     },
     {

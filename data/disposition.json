@@ -90,6 +90,16 @@
       "endDate": "2026-11-26",
       "announceDate": "115/11/17",
       "market": "上櫃"
+    },
+    {
+      "code": "3491",
+      "name": "昇達科",
+      "count": 2,
+      "condition": "連續5個營業日及沖銷標準",
+      "period": "115/11/19~115/11/27",
+      "endDate": "2026-11-27",
+      "announceDate": "115/11/18",
+      "market": "上櫃"
     }
   ]
 }
