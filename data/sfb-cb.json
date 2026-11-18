@@ -1,5 +1,5 @@
 {
-  "date": "2026-11-17",
+  "date": "2026-11-18",
   "data": [
     {
       "code": "2344",
@@ -2130,6 +2130,32 @@
       "currency": "美元",
       "filingDate": "2026-11-13",
       "effectiveDate": "2026-12-01",
+      "withdrawDate": null,
+      "underwriter": "元大證券"
+    },
+    {
+      "code": "6196",
+      "name": "帆宣系統科技",
+      "market": "上市",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 40.0,
+      "currency": "台幣",
+      "filingDate": "2026-11-17",
+      "effectiveDate": "2026-12-03",
+      "withdrawDate": null,
+      "underwriter": "富邦證券"
+    },
+    {
+      "code": "6231",
+      "name": "系微",
+      "market": "上櫃",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 3.5,
+      "currency": "台幣",
+      "filingDate": "2026-11-17",
+      "effectiveDate": "2026-12-03",
       "withdrawDate": null,
       "underwriter": "元大證券"
     }
