@@ -55,9 +55,15 @@ def main():
         if isinstance(c, str):
             c = tse[c]
         items.append(c)
-    main_c = next((c for c in items if getattr(c, "code", "") == "001"), None)
-    secs = [c for c in items if c is not main_c]
-    log(f"指數：加權 {'有' if main_c else '沒有'}，其他 {len(secs)} 個（例：{[getattr(c, 'name', '') for c in secs[:5]]}）")
+    nm = lambda c: str(getattr(c, "name", "") or "")  # noqa: E731
+    main_c = next((c for c in items if nm(c) in ("發行量加權股價指數", "加權指數", "臺灣加權指數")), None) \
+        or next((c for c in items if getattr(c, "code", "") in ("001", "t00", "TSE001", "IX0001")), None)
+    # 類股：「xx類指數」，排除報酬、反向、槓桿、未含等衍生指數
+    secs = [c for c in items if c is not main_c and nm(c).endswith("類指數")
+            and not any(w in nm(c) for w in ("報酬", "反向", "槓桿", "未含", "日報酬"))]
+    log(f"指數：加權 {(getattr(main_c, 'code', ''), nm(main_c)) if main_c else '沒有'}，類股 {len(secs)} 個")
+    if not main_c:
+        log("名稱含「加權」的：" + str([(getattr(c, 'code', ''), nm(c)) for c in items if "加權" in nm(c)][:10]))
     if not main_c:
         return 0
     OUT.mkdir(parents=True, exist_ok=True)
