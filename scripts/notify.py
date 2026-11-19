@@ -455,7 +455,8 @@ def turnover_alert(dry: bool, force: bool = False) -> int:
     if not force and not tv.get("dtReady") and now.date().isoformat() == asof and now.hour < 21:
         print("當沖資料還沒到（要用來排除暫停先賣後買的股票），晚點再發")
         return 0
-    if not force and now.date().isoformat() != nxt:
+    if not force and (now.date().isoformat() != nxt or not (8 * 60 + 20 <= now.hour * 60 + now.minute < 9 * 60)):
+        # 只在當天早上 08:20～09:00 發（跟 85g 一起）；半夜日期已經換成隔天也不能發
         print(f"高週轉＋漲停／高當沖比名單在 {nxt} 早上 08:30 跟 85g 一起發")
         return 0
     try:
