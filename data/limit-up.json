@@ -13,10 +13,10 @@
       "openPrice": 43.8,
       "limitTime": "--:--",
       "market": "上櫃",
-      "instiForeign": 8,
-      "instiTrust": 0,
-      "instiDealer": -53,
-      "instiTotal": -45,
+      "instiForeign": 63,
+      "instiTrust": -1,
+      "instiDealer": 0,
+      "instiTotal": 63,
       "reason": ""
     },
     {
@@ -49,10 +49,10 @@
       "openPrice": 21.65,
       "limitTime": "--:--",
       "market": "上櫃",
-      "instiForeign": -24,
+      "instiForeign": 24,
       "instiTrust": 0,
       "instiDealer": 0,
-      "instiTotal": -24,
+      "instiTotal": 24,
       "reason": ""
     }
   ]
