@@ -2,6 +2,7 @@
 """建置網站前產生前端用的靜態 JSON（public/data/），只用標準函式庫。"""
 import json
 import os
+import re
 import shutil
 import sys
 from pathlib import Path
@@ -121,6 +122,18 @@ def _short_name(doc: dict, known: dict) -> str:
     return n
 
 
+def _dedupe_insider(rows: list) -> list:
+    """同一人同時申報多個身分（例如法人董事又是大股東）會出現兩列一樣的數字，加總時只算一次。
+    判斷：買賣與月底持股完全相同，且姓名一個是另一個的開頭（申報表的大股東欄位常被截斷）"""
+    out = []
+    for r in rows:
+        nm = re.sub(r"\s+", "", str(r[1]))
+        if any(r[2:7] == o[2:7] and (nm.startswith(on) or on.startswith(nm)) for o, on in out):
+            continue
+        out.append((r, nm))
+    return [r for r, _ in out]
+
+
 def build_insider():
     """內部人持股異動 → public/data/insider/
     index.json：近期公告（事前申報轉讓、最新月異動）與歷史案例；<代號>.json：單一公司月別明細＋股價。
@@ -163,9 +176,10 @@ def build_insider():
             rows = [[_nice_role(r[0])] + r[1:] for r in rows]
             a = avg.get(ym)
             months[ym] = {"avg": a, "rows": rows}
-            b, s = sum(r[2] for r in rows), sum(r[4] for r in rows)
+            uniq = _dedupe_insider(rows)
+            b, s = sum(r[2] for r in uniq), sum(r[4] for r in uniq)
             if b or s:
-                stats.append((ym, b, s, a, rows))
+                stats.append((ym, b, s, a, uniq))
         if not stats:
             continue
         names[code] = name
