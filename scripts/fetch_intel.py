@@ -14,7 +14,7 @@
   data/intel/confnews.json  {"items": [{id, date, code, name, title, kind, points, body, url}]}
   data/intel/us.json        {"updatedAt", "series": {代號: [[日期, 收盤], ...]}}
   data/intel/week.json      未來兩週國際行事曆：重要經濟數據與央行會議（TradingView economic-calendar）、
-                            大型美股財報（Nasdaq earnings calendar），給首頁「下週重點大事」
+                            大型美股財報（Nasdaq earnings calendar）、大型美股 IPO（Nasdaq IPO calendar），給首頁「下週重點大事」
 用法：python scripts/fetch_intel.py [--pages 30] [--backfill-days 0]
 """
 from __future__ import annotations
@@ -84,6 +84,7 @@ def save(path: Path, obj):
 
 
 MACRO_COUNTRIES = "US,CN,JP,EU,TW"
+IPO_MIN = 1e9        # 美股 IPO：募資 ≥ 10 億美元才列
 EARN_MIN_CAP = 1e11  # 美股財報：市值 ≥ 1000 億美元，或是國際類股頁追蹤的公司
 
 
@@ -122,7 +123,29 @@ def fetch_week(days: int = 14) -> dict:
                                  "time": {"time-pre-market": "盤前", "time-after-hours": "盤後"}.get(x.get("time"), "")})
             time.sleep(0.5)
         d += timedelta(days=1)
-    return {"macro": macro, "earnings": earn}
+    # 美股大型 IPO（Nasdaq IPO 行事曆：募資 ≥ 10 億美元），例如 Anthropic（ANT）
+    ipos = []
+    for ym in sorted({today.strftime("%Y-%m"), end.strftime("%Y-%m")}):
+        out = subprocess.run(["curl", "-s", "-m", "30", "-A", "Mozilla/5.0", "-H", "Accept: application/json",
+                              f"https://api.nasdaq.com/api/ipo/calendar?date={ym}"], capture_output=True, text=True).stdout
+        try:
+            dd = json.loads(out).get("data") or {}
+        except ValueError:
+            continue
+        rows = [(r, "upcoming") for r in ((dd.get("upcoming") or {}).get("upcomingTable") or {}).get("rows") or []]
+        rows += [(r, "priced") for r in (dd.get("priced") or {}).get("rows") or []]
+        for r, st_ in rows:
+            try:
+                amt = float(str(r.get("dollarValueOfSharesOffered") or "0").replace("$", "").replace(",", ""))
+                dt = datetime.strptime(r.get("expectedPriceDate") or r.get("pricedDate") or "", "%m/%d/%Y").date()
+            except ValueError:
+                continue
+            if amt >= IPO_MIN and today - timedelta(days=3) <= dt <= end:
+                ipos.append({"date": dt.isoformat(), "sym": r.get("proposedTickerSymbol"), "name": r.get("companyName"), "amount": amt,
+                             "price": r.get("proposedSharePrice"), "exch": r.get("proposedExchange"), "status": st_})
+        time.sleep(0.5)
+    ipos = list({(x["sym"], x["date"]): x for x in ipos}.values())
+    return {"macro": macro, "earnings": earn, "ipos": ipos}
 
 
 def text_of(content: str) -> str:
