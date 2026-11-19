@@ -91,6 +91,12 @@ def week_events(data_dir: Path, ex: dict, today: date) -> dict:
         # 美股盤後公布＝台股隔天反應
         add(x["date"], "財報", f"{x['sym']} {nm}" + (f"（{x['time']}）" if x["time"] else ""), x["sym"] in US_TECH and x["cap"] >= 3e11, "/global")
 
+    for x in wk.get("ipos", []):
+        nm = re.sub(r",? (Inc\.?|PBC|Corporation|Corp\.?|Holdings|plc|N\.V\.|AG|Ltd\.?)\b.*", "", x.get("name") or x.get("sym") or "").strip()
+        amt = x.get("amount") or 0
+        px = f"，每股 ${x['price']}" if x.get("price") else ""
+        add(x["date"], "IPO", f"{x.get('sym') or ''} {nm} 美股 IPO（募資約 {amt / 1e8:,.0f} 億美元{px}）", amt >= 1e10, "/global")
+
     sh = (_load(data_dir / "strategy" / "shares.json", {}) or {}).get("shares", {})
     daily = sorted((data_dir / "daily").glob("20*.json"))
     q = (_load(daily[-1], {}) or {}).get("q", {}) if daily else {}
@@ -119,7 +125,7 @@ def week_events(data_dir: Path, ex: dict, today: date) -> dict:
         if r.get("effective") != r.get("announce"):
             add(r["effective"], "ETF", f"{nm} 調整生效" + (f"（{tag}）" if tag else ""), r.get("provider") == "MSCI", "/etf-flow")
 
-    order = {"休市": 0, "結算": 1, "總經": 2, "財報": 3, "法說": 4, "ETF": 5, "除息": 6, "營收": 7}
+    order = {"休市": 0, "結算": 1, "總經": 2, "IPO": 3, "財報": 3, "法說": 4, "ETF": 5, "除息": 6, "營收": 7}
     out = []
     for d in sorted(days):
         items = sorted(days[d], key=lambda x: (not x["hi"], order.get(x["cat"], 9)))

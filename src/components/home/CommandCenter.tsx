@@ -93,7 +93,7 @@ function ActivePanel({ a }: { a: NonNullable<Home["active"]> }) {
   );
 }
 
-const CAT: Record<string, string> = { 休市: "#f05252", 結算: "#f59e0b", 總經: "#a78bfa", 財報: "#06b6d4", 法說: "#4f8cff", ETF: "#22c55e", 除息: "#f97316", 營收: "#8b97ab" };
+const CAT: Record<string, string> = { 休市: "#f05252", 結算: "#f59e0b", 總經: "#a78bfa", 財報: "#06b6d4", IPO: "#ec4899", 法說: "#4f8cff", ETF: "#22c55e", 除息: "#f97316", 營收: "#8b97ab" };
 
 function Week({ w }: { w: NonNullable<Home["week"]> }) {
   return (
