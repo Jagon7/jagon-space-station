@@ -64,12 +64,21 @@ jobs:
           SHIOAJI_API_KEY: ${{ secrets.SHIOAJI_API_KEY }}
           SHIOAJI_SECRET_KEY: ${{ secrets.SHIOAJI_SECRET_KEY }}
           JSS_DATA_DIR: ./data
+      - name: TX day session 1-min (TAIFEX ticks + Shioaji backfill)
+        run: |
+          set -o pipefail
+          python3 -u scripts/fetch_tx_day.py --taifex --shioaji --minutes ${{ inputs.minutes || '10' }} 2>&1 | sed -u -E 's/[A-Z][12][0-9]{8}/[已遮蔽]/g'
+        continue-on-error: true
+        env:
+          SHIOAJI_API_KEY: ${{ secrets.SHIOAJI_API_KEY }}
+          SHIOAJI_SECRET_KEY: ${{ secrets.SHIOAJI_SECRET_KEY }}
+          JSS_DATA_DIR: ./data
       - name: Commit
         run: |
           rm -f shioaji.log
           git config user.name 'github-actions[bot]'
           git config user.email 'github-actions[bot]@users.noreply.github.com'
-          for f in data/futures/night data/intel/us_events.json data/notify/usevent-sent.json; do [ -e "$f" ] && git add "$f"; done; true
+          for f in data/futures/night data/futures/day data/intel/us_events.json data/notify/usevent-sent.json; do [ -e "$f" ] && git add "$f"; done; true
           git diff --staged --quiet && exit 0
           git commit -m "data: tx night $(TZ=Asia/Taipei date +%Y-%m-%d)"
           for i in 1 2 3 4 5; do
