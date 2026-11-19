@@ -2,42 +2,12 @@
   "date": "2026-11-19",
   "data": [
     {
-      "name": "半導體",
-      "count": 5,
-      "momentum": "normal"
-    },
-    {
-      "name": "電子零組件",
-      "count": 3,
-      "momentum": "normal"
-    },
-    {
-      "name": "通信網路",
-      "count": 2,
-      "momentum": "weak"
-    },
-    {
-      "name": "其他電子",
-      "count": 2,
-      "momentum": "weak"
-    },
-    {
-      "name": "電腦週邊",
-      "count": 1,
-      "momentum": "weak"
-    },
-    {
       "name": "建材營造",
       "count": 1,
       "momentum": "weak"
     },
     {
-      "name": "化工",
-      "count": 1,
-      "momentum": "weak"
-    },
-    {
-      "name": "紡織纖維",
+      "name": "綠能環保",
       "count": 1,
       "momentum": "weak"
     }
