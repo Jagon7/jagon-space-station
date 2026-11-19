@@ -128,9 +128,12 @@ def _dedupe_insider(rows: list) -> list:
     out = []
     for r in rows:
         nm = re.sub(r"\s+", "", str(r[1]))
-        if any(r[2:7] == o[2:7] and (nm.startswith(on) or on.startswith(nm)) for o, on in out):
+        dup = next((o for o, on in out if r[2:7] == o[2:7] and (nm.startswith(on) or on.startswith(nm))), None)
+        if dup is not None:
+            if str(r[0]) not in str(dup[0]):
+                dup[0] = f"{dup[0]}／{r[0]}"  # 合併身分，例如「董事／大股東」
             continue
-        out.append((r, nm))
+        out.append((list(r), nm))
     return [r for r, _ in out]
 
 
@@ -175,8 +178,8 @@ def build_insider():
         for ym, rows in sorted(doc.get("m", {}).items()):
             rows = [[_nice_role(r[0])] + r[1:] for r in rows]
             a = avg.get(ym)
-            months[ym] = {"avg": a, "rows": rows}
-            uniq = _dedupe_insider(rows)
+            uniq = _dedupe_insider(rows)  # 網頁明細也用去重後的（同一人多身分只列一次）
+            months[ym] = {"avg": a, "rows": uniq}
             b, s = sum(r[2] for r in uniq), sum(r[4] for r in uniq)
             if b or s:
                 stats.append((ym, b, s, a, uniq))
