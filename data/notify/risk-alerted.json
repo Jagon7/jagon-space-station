@@ -1,7 +1,7 @@
 {
 "active": [
 "cds:NBIS",
-"cds:SMCI",
+"dxy:警戒",
 "temp:偏高",
 "vix:警戒",
 "vixts:危險",
