@@ -26,7 +26,8 @@ SYMS = [
 
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
-    for s in SYMS:
+    syms = ["^TWII", "^GSPC", "^VIX", "^SOX", "HYG", "LQD", "^N225", "^KS11"] if "--quick" in sys.argv else SYMS
+    for s in syms:
         try:
             r = requests.get(f"https://query1.finance.yahoo.com/v8/finance/chart/{s}", timeout=60, headers={"User-Agent": "Mozilla/5.0"},
                              params={"period1": 1104537600, "period2": int(time.time()) + 86400, "interval": "1d"})
