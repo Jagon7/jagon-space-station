@@ -40,7 +40,7 @@ def intraday(mode: str, dry: bool, rows: list, ma200s: float) -> int:
     today = now.date().isoformat()
     tw = json.loads((DATA / "research" / "yahoo" / "_TWII.json").read_text(encoding="utf-8"))["d"]
     hist = [r for r in tw if r[0] < today][-59:]  # 不含今天的前 59 天
-    if now.weekday() >= 5 and not dry:
+    if now.weekday() >= 5 and not dry and "--test" not in sys.argv:
         return 0
     px, day_hi, _ = live_twii()
     prev = hist[-1][4]  # 昨收用自己存的日線（Yahoo 即時資料的前收有時不對）
@@ -52,19 +52,20 @@ def intraday(mode: str, dry: bool, rows: list, ma200s: float) -> int:
     voff = (1 - vx[-1] / max(vx)) * 100
     ok = dd <= -12 and up and voff >= 10 and vx[-1] >= 22
     print(f"{mode}：加權 {px:,.0f}（昨收 {prev:,.0f}，{(px / prev - 1) * 100:+.2f}%）距 60 日高 {dd:.1f}%、VIX {vx[-1]:.1f} 回落 {voff:.0f}% → 訊號 B {'成立' if ok else '不成立'}")
-    if not ok and not dry:
+    test = "--test" in sys.argv  # 測試推播：不管訊號成不成立都發一則【測試】，不記錄已發送
+    if not ok and not dry and not test:
         return 0
     try:
         state = json.loads(STATE.read_text(encoding="utf-8"))
     except (OSError, ValueError):
         state = {"sent": []}
     key = f"{today}-B-{mode}"
-    if key in state["sent"] and not dry:
+    if key in state["sent"] and not dry and not test:
         return 0
     from line_flex import Msg
     import notify
     pre = mode == "preclose"
-    m = Msg(("【測試】" if dry else "") + ("🟢 抄底訊號 B 盤中成立（收盤前可進場）" if pre else "🟢 抄底訊號 B 收盤確認"),
+    m = Msg(("【測試】" if dry or test else "") + ("🟢 抄底訊號 B 盤中成立（收盤前可進場）" if pre else "🟢 抄底訊號 B 收盤確認"),
             f"{now:%m/%d %H:%M}・加權 {px:,.0f}（{(px / prev - 1) * 100:+.2f}%）", accent="#16A34A", url=f"{notify.SITE}/bottom/", button="開啟抄底雷達")
     m.kv("距 60 日高點", f"{dd:.1f}%")
     m.kv("今天", "收紅" if up else "收黑")
@@ -72,10 +73,14 @@ def intraday(mode: str, dry: bool, rows: list, ma200s: float) -> int:
     m.kv("年線", f"{'仍向上' if ma200s > 0 else '已向下（2008 型，訊號容易失效）'}（{ma200s:+.1f}%）")
     m.line("回測：20 天後平均 +2.2%／+5.5%（2005-17／2018-26），勝率 67%／71%；進場後平均再跌 4～5%" + ("" if not pre else "。13:30 收盤若翻黑就不成立"))
     m.note("建議：分批（先 1/3）、停損設在今天低點下方；工具以價平買權風險最小。只供參考，不構成投資建議。")
+    if test:
+        m.note(f"⚠️ 這是測試推播，訊號實際上{'成立' if ok else '沒有成立'}；正式推播只會在訊號成立時發出")
     print(m.text())
     if dry:
         return 0
     notify.send(m)
+    if test:
+        return 0
     state["sent"] = (state["sent"] + [key])[-80:]
     STATE.parent.mkdir(parents=True, exist_ok=True)
     STATE.write_text(json.dumps(state, ensure_ascii=False, indent=0), encoding="utf-8")
