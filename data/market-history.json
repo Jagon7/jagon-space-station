@@ -1,34 +1,6 @@
 {
-  "date": "2026-11-19",
+  "date": "2026-11-20",
   "data": [
-    {
-      "date": "2026-10-07",
-      "limitUpCount": 35,
-      "marketMood": "中性",
-      "taiexChange": -0.03,
-      "topSectors": [
-        {
-          "name": "電子零組件",
-          "count": 9
-        },
-        {
-          "name": "半導體",
-          "count": 5
-        },
-        {
-          "name": "通信網路",
-          "count": 3
-        },
-        {
-          "name": "綠能環保",
-          "count": 3
-        },
-        {
-          "name": "塑膠",
-          "count": 1
-        }
-      ]
-    },
     {
       "date": "2026-10-08",
       "limitUpCount": 41,
@@ -822,6 +794,26 @@
         {
           "name": "建材營造",
           "count": 1
+        },
+        {
+          "name": "綠能環保",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "date": "2026-11-20",
+      "limitUpCount": 6,
+      "marketMood": "弱勢",
+      "taiexChange": -6.23,
+      "topSectors": [
+        {
+          "name": "資訊服務",
+          "count": 2
+        },
+        {
+          "name": "數位雲端",
+          "count": 2
         },
         {
           "name": "綠能環保",

@@ -1,19 +1,6 @@
 {
-  "date": "2026-11-19",
+  "date": "2026-11-20",
   "data": [
-    {
-      "code": "4973",
-      "name": "廣穎",
-      "cbSeries": "第51次",
-      "filingDate": "2026-08-07",
-      "bookBuildDate": "2026-08-07",
-      "listingDate": "2026-08-21",
-      "amount": 5.0,
-      "conversionPrice": null,
-      "closePrice": 101.0,
-      "market": "上櫃",
-      "underwriter": "台新綜合證券股份有限公司"
-    },
     {
       "code": "7631",
       "name": "聚賢研發-創",
