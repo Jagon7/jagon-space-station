@@ -43,26 +43,41 @@ def third_wed(y, m):
     return d + timedelta(days=(2 - d.weekday()) % 7 + 14)
 
 
+def _download(a: date, b: date) -> str:
+    for i in range(4):
+        try:
+            r = requests.post("https://www.taifex.com.tw/cht/3/optDataDown", headers={"User-Agent": "Mozilla/5.0"}, timeout=90,
+                              data={"down_type": "1", "commodity_id": "TXO", "queryStartDate": a.strftime("%Y/%m/%d"), "queryEndDate": b.strftime("%Y/%m/%d")})
+            if r.status_code == 200 and len(r.content) > 1000:
+                return r.content.decode("big5", errors="ignore")
+        except requests.RequestException:
+            pass
+        time.sleep(10 * (i + 1))
+    return ""
+
+
 def txo(d0: date, d1: date) -> list:
+    """期交所 TXO 日行情；一次抓 31 天太大會逾時，切成每 8 天一段（各自快取）"""
     CACHE.mkdir(parents=True, exist_ok=True)
     f = CACHE / f"{d0}.csv"
     if f.exists() and f.stat().st_size > 1000:
         raw = f.read_text(encoding="utf-8")
     else:
-        raw = ""
-        for i in range(4):
-            try:
-                r = requests.post("https://www.taifex.com.tw/cht/3/optDataDown", headers={"User-Agent": "Mozilla/5.0"}, timeout=120,
-                                  data={"down_type": "1", "commodity_id": "TXO", "queryStartDate": d0.strftime("%Y/%m/%d"), "queryEndDate": d1.strftime("%Y/%m/%d")})
-                if r.status_code == 200 and len(r.content) > 1000:
-                    raw = r.content.decode("big5", errors="ignore")
-                    break
-            except requests.RequestException:
-                pass
-            time.sleep(15 * (i + 1))
-        if raw:
-            f.write_text(raw, encoding="utf-8")
-        time.sleep(8)  # 期交所連續下載太快會回錯誤
+        parts = []
+        a = d0
+        while a <= d1:
+            b = min(a + timedelta(days=7), d1)
+            pf = CACHE / f"part_{a}_{b}.csv"
+            if pf.exists() and pf.stat().st_size > 1000:
+                txt = pf.read_text(encoding="utf-8")
+            else:
+                txt = _download(a, b)
+                if txt:
+                    pf.write_text(txt, encoding="utf-8")
+                time.sleep(4)
+            parts.append(txt)
+            a = b + timedelta(days=1)
+        raw = "\n".join(parts)
     out = []
     for row in csv.reader(io.StringIO(raw)):
         if len(row) < 18 or row[4].strip() != "買權" or row[17].strip() != "一般":
@@ -105,7 +120,9 @@ def main():
                 continue
             s0 = tclose[d]
             d0 = date.fromisoformat(d)
+            t0 = time.time()
             opts = txo(d0, d0 + timedelta(days=31))
+            print(f"  {name} {d}：選擇權 {len(opts)} 筆（{time.time() - t0:.0f} 秒）", flush=True)
             # 到期月份：第三個星期三距訊號日 ≥ 14 天的最近月份
             exps = sorted({o[1] for o in opts})
             mon = next((m for m in exps if (third_wed(int(m[:4]), int(m[4:])) - d0).days >= 14), None)
