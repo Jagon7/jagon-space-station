@@ -189,6 +189,31 @@ def main():
             out["episodes"].append({"date": r["date"], "dd": round(r["dd"], 1), "ma200s": round(r["ma200s"], 1), "path": path,
                                     "lowIn": low_k - i, "lowPct": round((tw[low_k]["close"] / r["close"] - 1) * 100, 1),
                                     "r20": round(r.get("r20", 0), 1), "r60": round((tw[min(len(tw) - 1, i + 60)]["close"] / r["close"] - 1) * 100, 1)})
+    # 歷次回檔深度：收盤從波段高點跌 ≥ 10%、之後從低點反彈 ≥ 10% 才算一波（zigzag）
+    out["swings"] = {}
+    for s in MARKETS:
+        rr = yd(s)
+        ds, cs = [r[0] for r in rr], [r[4] for r in rr]
+        eps, mode, hi_i, lo_i = [], "up", 0, 0
+        for i in range(1, len(cs)):
+            if mode == "up":
+                if cs[i] > cs[hi_i]:
+                    hi_i = i
+                elif cs[i] <= cs[hi_i] * 0.9:
+                    mode, lo_i = "down", i
+            else:
+                if cs[i] < cs[lo_i]:
+                    lo_i = i
+                elif cs[i] >= cs[lo_i] * 1.1:
+                    eps.append((hi_i, lo_i))
+                    mode, hi_i = "up", i
+        out["swings"][s] = {
+            "list": [{"peak": ds[h], "trough": ds[l], "drop": round((cs[l] / cs[h] - 1) * 100, 1), "days": l - h,
+                      "r20": round((cs[min(l + 20, len(cs) - 1)] / cs[l] - 1) * 100, 1), "r60": round((cs[min(l + 60, len(cs) - 1)] / cs[l] - 1) * 100, 1)} for h, l in eps],
+            "current": {"peak": ds[hi_i], "low": ds[lo_i], "drop": round((cs[lo_i] / cs[hi_i] - 1) * 100, 1), "days": lo_i - hi_i,
+                        "now": round((cs[-1] / cs[hi_i] - 1) * 100, 1)} if mode == "down" else None,
+            "dd60": round(data[s][-1]["dd"], 1),
+        }
     (DATA / "research" / "bottom_multi.json").write_text(json.dumps(out, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     # 印出重點
     print("各訊號：全市場合併（建模／驗證）")

@@ -11,6 +11,7 @@ const PLAN = [
   ["04:15", TUE_SAT, "fetch-intel.yml"],
   ["05:45", TUE_SAT, "fetch-intel.yml"],
   ["07:10", TUE_SAT, "fetch-intel.yml"],
+  ["07:40", WD, "bottom-watch.yml", { mode: "morning" }],   // 抄底訊號 A（美股收盤後就確定）
   ["07:55", WD, "morning.yml"],          // 盤前快報，程式等到 08:00 才發
   ["08:05", TUE_SAT, "fetch-etf.yml"],
   ["08:45", TUE_SAT, "active-cost.yml"],   // 晚公布的投信持股早上補到後，再重算一次建倉成本
@@ -22,6 +23,8 @@ const PLAN = [
   ["11:20", ALL, "fetch-intel.yml"],
   ["11:30", [6], "margin-backfill.yml"],  // 週六：補融資成本（推估融資維持率）
   ["11:35", TUE_SAT, "fetch-etf.yml"],
+  ["13:20", WD, "bottom-watch.yml", { mode: "preclose" }],  // 抄底訊號 B 盤中預告（收盤前可進場）
+  ["13:40", WD, "bottom-watch.yml", { mode: "close" }],     // 抄底訊號 B 收盤確認
   ["14:20", ALL, "fetch-intel.yml"],
   ["14:30", ALL, "orderflow-ticks.yml"],   // 訂單流：補當天逐筆＋用每天的永豐流量繼續回補（週末也跑）
   ["15:45", WD, "fetch.yml"],            // 收盤行情

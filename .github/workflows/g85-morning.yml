@@ -51,12 +51,6 @@ jobs:
         env:
           LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
           LINE_USER_ID: ${{ secrets.LINE_USER_ID }}
-      - name: Bottom-fishing signal A (deep drawdown + strong US close overnight)
-        run: TZ=Asia/Taipei python3 scripts/bottom_watch.py morning
-        continue-on-error: true
-        env:
-          LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
-          LINE_USER_ID: ${{ secrets.LINE_USER_ID }}
       - name: Save sent state
         run: |
           git config user.name 'github-actions[bot]'
