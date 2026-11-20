@@ -52,7 +52,7 @@ def txo(d0: date, d1: date) -> list:
         raw = ""
         for i in range(4):
             try:
-                r = requests.post("https://www.taifex.com.tw/cht/3/optDataDown", headers={"User-Agent": "Mozilla/5.0"}, timeout=120,
+                r = requests.post("https://www.taifex.com.tw/cht/3/optDataDown", headers={"User-Agent": "Mozilla/5.0"}, timeout=60,
                                   data={"down_type": "1", "commodity_id": "TXO", "queryStartDate": d0.strftime("%Y/%m/%d"), "queryEndDate": d1.strftime("%Y/%m/%d")})
                 if r.status_code == 200 and len(r.content) > 1000:
                     raw = r.content.decode("big5", errors="ignore")
