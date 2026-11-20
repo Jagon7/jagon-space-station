@@ -26,6 +26,7 @@ import build_margin  # noqa: E402
 import build_active_dd  # noqa: E402
 import build_settlement  # noqa: E402
 import build_us_events  # noqa: E402
+import build_bottom  # noqa: E402
 import build_daytrade_review  # noqa: E402
 import build_home  # noqa: E402
 
@@ -271,4 +272,5 @@ if __name__ == "__main__":
     build_settlement.build(DATA_DIR, ROOT / "public" / "data")
     build_us_events.build(DATA_DIR, ROOT / "public" / "data")
     build_daytrade_review.build(DATA_DIR, ROOT / "public" / "data")
+    build_bottom.build(DATA_DIR, ROOT / "public" / "data")
     build_home.build(DATA_DIR, ROOT / "public" / "data")

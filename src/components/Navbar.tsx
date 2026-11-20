@@ -15,6 +15,7 @@ const navItems: NavItem[] = [
       { label: "氣氛評估", href: "/atmosphere" },
       { label: "國際類股連動", href: "/global" },
       { label: "美國事件夜盤", href: "/us-events" },
+      { label: "抄底雷達", href: "/bottom" },
       { label: "市場風險監控", href: "/risk" },
       { label: "漲停訊號", href: "/limit-up" },
       { label: "隔日追蹤", href: "/next-day" },

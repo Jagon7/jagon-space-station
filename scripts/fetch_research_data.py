@@ -26,7 +26,7 @@ SYMS = [
 
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
-    syms = ["^TWII", "^GSPC", "^VIX", "^SOX", "HYG", "LQD", "^N225", "^KS11"] if "--quick" in sys.argv else SYMS
+    syms = ["^TWII", "^GSPC", "^IXIC", "^VIX", "^SOX", "HYG", "LQD", "^N225", "^KS11"] if "--quick" in sys.argv else SYMS
     for s in syms:
         try:
             r = requests.get(f"https://query1.finance.yahoo.com/v8/finance/chart/{s}", timeout=60, headers={"User-Agent": "Mozilla/5.0"},
@@ -34,12 +34,26 @@ def main():
             res = r.json()["chart"]["result"][0]
             q = res["indicators"]["quote"][0]
             rows = []
+            meta = res.get("meta") or {}
             for i, t in enumerate(res["timestamp"]):
                 c = q["close"][i]
+                end = ((meta.get("currentTradingPeriod") or {}).get("regular") or {}).get("end") or 0
+                closed = (meta.get("regularMarketTime") or 0) >= end > 0  # 收盤後才補，盤中的即時價不能當收盤
+                if c is None and closed and i == len(res["timestamp"]) - 1 and meta.get("regularMarketPrice"):
+                    # Yahoo 最新一天的日線收盤常是空的：用即時報價欄位補（收盤後就是當天收盤）
+                    c = meta["regularMarketPrice"]
+                    q["high"][i] = q["high"][i] or meta.get("regularMarketDayHigh")
+                    q["low"][i] = q["low"][i] or meta.get("regularMarketDayLow")
                 if c is None:
                     continue
                 d = datetime.fromtimestamp(t + (res.get("meta", {}).get("gmtoffset") or 0), timezone.utc).date().isoformat()
                 rows.append([d, q["open"][i], q["high"][i], q["low"][i], c, q["volume"][i]])
+            end = ((meta.get("currentTradingPeriod") or {}).get("regular") or {}).get("end") or 0
+            start = ((meta.get("currentTradingPeriod") or {}).get("regular") or {}).get("start") or 0
+            if rows and start and (meta.get("regularMarketTime") or 0) < end and time.time() >= start:
+                live = datetime.fromtimestamp((meta.get("regularMarketTime") or 0) + (meta.get("gmtoffset") or 0), timezone.utc).date().isoformat()
+                if rows[-1][0] == live:
+                    rows.pop()  # 還在盤中：最後一筆是即時價，不是收盤
             (OUT / f"{s.replace('^', '_')}.json").write_text(json.dumps({"sym": s, "d": rows}, separators=(",", ":")), encoding="utf-8")
             print(s, len(rows), rows[0][0], rows[-1][0], flush=True)
         except Exception as e:  # noqa: BLE001
