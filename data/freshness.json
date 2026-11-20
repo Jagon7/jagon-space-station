@@ -1,5 +1,5 @@
 {
- "checkedAt": "2026-11-20T23:10+08:00",
+ "checkedAt": "2026-11-21T06:13+08:00",
  "tradingDay": "2026-11-20",
  "rows": [
   {
@@ -158,8 +158,8 @@
   {
    "cat": "網站",
    "name": "網站部署（Cloudflare）",
-   "latest": "2026-11-20",
-   "expected": "2026-11-20",
+   "latest": "2026-11-21",
+   "expected": "2026-11-21",
    "ready": "00:00",
    "lag": 0,
    "ok": true
