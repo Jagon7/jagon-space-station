@@ -803,20 +803,28 @@
     },
     {
       "date": "2026-11-20",
-      "limitUpCount": 6,
-      "marketMood": "弱勢",
+      "limitUpCount": 10,
+      "marketMood": "偏弱",
       "taiexChange": -6.23,
       "topSectors": [
         {
           "name": "資訊服務",
-          "count": 2
+          "count": 3
         },
         {
           "name": "數位雲端",
-          "count": 2
+          "count": 3
         },
         {
-          "name": "綠能環保",
+          "name": "半導體",
+          "count": 1
+        },
+        {
+          "name": "電子零組件",
+          "count": 1
+        },
+        {
+          "name": "其他電子",
           "count": 1
         }
       ]
