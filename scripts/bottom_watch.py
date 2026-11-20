@@ -65,7 +65,10 @@ def intraday(mode: str, dry: bool, rows: list, ma200s: float) -> int:
     from line_flex import Msg
     import notify
     pre = mode == "preclose"
-    m = Msg(("【測試】" if dry or test else "") + ("🟢 抄底訊號 B 盤中成立（收盤前可進場）" if pre else "🟢 抄底訊號 B 收盤確認"),
+    head = ("🟢 抄底訊號 B 盤中成立（收盤前可進場）" if pre else "🟢 抄底訊號 B 收盤確認")
+    if (dry or test) and not ok:
+        head = "抄底訊號 B 卡片樣式（⚠️ 訊號實際未成立）"
+    m = Msg(("【測試】" if dry or test else "") + head,
             f"{now:%m/%d %H:%M}・加權 {px:,.0f}（{(px / prev - 1) * 100:+.2f}%）", accent="#16A34A", url=f"{notify.SITE}/bottom/", button="開啟抄底雷達")
     m.kv("距 60 日高點", f"{dd:.1f}%")
     m.kv("今天", "收紅" if up else "收黑")
