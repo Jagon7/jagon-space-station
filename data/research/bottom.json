@@ -1059,18 +1059,7 @@
     "n": 0
    },
    "test": {
-    "n": 2,
-    "r5": 1.26,
-    "r10": 0.12,
-    "r20": 6.06,
-    "win20": 100,
-    "mae20": -5.71,
-    "worstMae": -10.01,
-    "newLow": 100,
-    "dates": [
-     "2022-10-13",
-     "2025-04-07"
-    ]
+    "n": 0
    }
   },
   "FEDCUT": {
@@ -1519,12 +1508,12 @@
   "keyRev": false,
   "aboveMa5": false,
   "lowerTail": 0.15,
-  "vix": 30.8,
+  "vix": 31.03,
   "vixOff": 0.0,
   "credit20": 0.42,
   "spx1": -2.02,
   "soxDD": -33.88,
-  "margin": 156.2,
+  "margin": null,
   "fedCut30": false
  }
 }
