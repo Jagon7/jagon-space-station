@@ -1,0 +1,21 @@
+{
+"2026-11-20": {
+"branch": "D",
+"plan": null,
+"orh": 37673,
+"orl": 36913,
+"open": 37550,
+"prevClose": 38649,
+"p915": 37035,
+"atr": 1471,
+"orATR": 0.517,
+"gapATR": -0.747,
+"filled": false,
+"params": {
+"narrow": 0.34,
+"cGap": 0.0,
+"dPlan": null
+},
+"basis": "價差 +159 點，比昨天平均 +0.00% → 正常"
+}
+}

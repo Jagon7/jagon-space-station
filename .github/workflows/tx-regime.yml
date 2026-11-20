@@ -47,7 +47,7 @@ jobs:
           rm -f shioaji.log
           git config user.name 'github-actions[bot]'
           git config user.email 'github-actions[bot]@users.noreply.github.com'
-          [ -e data/notify/tx-regime-sent.json ] && git add data/notify/tx-regime-sent.json
+          for f in data/notify/tx-regime-sent.json data/futures/regime_journal.json; do [ -e "$f" ] && git add "$f"; done; true
           git diff --staged --quiet && exit 0
           git commit -m "notify: tx regime signal sent"
           for i in 1 2 3 4 5; do
