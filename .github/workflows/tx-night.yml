@@ -82,12 +82,22 @@ jobs:
           SHIOAJI_API_KEY: ${{ secrets.SHIOAJI_API_KEY }}
           SHIOAJI_SECRET_KEY: ${{ secrets.SHIOAJI_SECRET_KEY }}
           JSS_DATA_DIR: ./data
+      - name: TX regime post-close review (LINE) and Saturday tuning
+        run: |
+          TZ=Asia/Taipei python3 scripts/tx_regime_review.py review
+          [ "$(TZ=Asia/Taipei date +%u)" = 6 ] && TZ=Asia/Taipei python3 scripts/tx_regime_review.py tune; true
+        continue-on-error: true
+        env:
+          JSS_DATA_DIR: ./data
+          SITE_URL: ${{ secrets.SITE_URL || vars.SITE_URL }}
+          LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
+          LINE_USER_ID: ${{ secrets.LINE_USER_ID }}
       - name: Commit
         run: |
           rm -f shioaji.log
           git config user.name 'github-actions[bot]'
           git config user.email 'github-actions[bot]@users.noreply.github.com'
-          for f in data/futures/night data/futures/day data/market/index1m data/intel/us_events.json data/notify/usevent-sent.json; do [ -e "$f" ] && git add "$f"; done; true
+          for f in data/futures/night data/futures/day data/market/index1m data/futures/regime_journal.json data/futures/regime_params.json data/futures/regime_rows.json data/futures/regime_research.json data/notify/tx-regime-review-sent.json data/intel/us_events.json data/notify/usevent-sent.json; do [ -e "$f" ] && git add "$f"; done; true
           git diff --staged --quiet && exit 0
           git commit -m "data: tx night $(TZ=Asia/Taipei date +%Y-%m-%d)"
           for i in 1 2 3 4 5; do

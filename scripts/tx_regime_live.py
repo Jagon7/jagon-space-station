@@ -27,6 +27,7 @@ ROOT = Path(__file__).resolve().parent.parent
 DATA = Path(os.environ.get("JSS_DATA_DIR", ROOT / "data"))
 TPE = timezone(timedelta(hours=8))
 OR_M, NARROW = 30, 0.34
+JOURNAL = DATA / "futures" / "regime_journal.json"
 STATE = DATA / "notify" / "tx-regime-sent.json"
 
 
@@ -111,18 +112,19 @@ def main():
     w = orh - orl
     filled = any(b[2] <= prev_close <= b[1] for b in orb)
     gap = op - prev_close
+    import tx_regime_review as trr
+    P = trr.params()["current"]
+    NARROW_ = P["narrow"]
+    br, plan = trr.decide({"gapFilled30": filled, "orATR": w / atr, "gapATR": gap / atr}, P)
     if filled:
         br, plan = "A", "MR"
         why = f"前 30 分鐘回補了跳空（碰到昨收 {prev_close:,.0f}）"
-    elif w <= NARROW * atr:
-        br, plan = "B", "MR"
-        why = f"沒回補，但開盤區間很窄（{w:,.0f} 點 ≤ 平均振幅 {atr:,.0f} 的 34%）→ 不要追突破"
-    elif gap > 0:
-        br, plan = "C", "BO"
+    elif br == "B":
+        why = f"沒回補，但開盤區間很窄（{w:,.0f} 點 ≤ 平均振幅 {atr:,.0f} 的 {NARROW_ * 100:.0f}%）→ 不要追突破"
+    elif br == "C":
         why = f"開高 {gap:+,.0f} 點沒回補、區間不窄（{w:,.0f} 點）"
     else:
-        br, plan = "D", None
-        why = f"開低 {gap:+,.0f} 點沒回補、區間不窄（{w:,.0f} 點）→ 回測沒有方向"
+        why = f"{'開低' if gap <= 0 else '開高不多'} {gap:+,.0f} 點沒回補、區間不窄（{w:,.0f} 點）" + ("→ 回測沒有方向" if plan is None else f"→ 依回測做 {plan}")
 
     # 參考：價差偏離（09:15 期貨 − 加權，相對前一天全天平均）
     dev_txt = None
@@ -152,7 +154,7 @@ def main():
 
     from line_flex import Msg
     import notify
-    title = {"A": "均值回歸（MR）", "B": "均值回歸（MR）・不追突破", "C": "突破（BO）", "D": "今天不做"}[br]
+    title = {"MR": "均值回歸（MR）" + ("・不追突破" if br == "B" else ""), "BO": "突破（BO）", None: "今天不做"}[plan]
     m = Msg(("【測試】" if a.dry_run else "") + f"📈 台指期今日型態：{title}", f"{now:%m/%d} 09:15 判斷・分支 {br}", accent="#DC2626" if plan == "BO" else "#2563EB" if plan else "#64748B",
             url=f"{notify.SITE}/", button="開啟網站")
     m.line(why)
@@ -178,6 +180,13 @@ def main():
         return 0
     if not notify.send(m):
         log("沒有推播管道")
+    try:
+        j = json.loads(JOURNAL.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        j = {}
+    j[today] = {"branch": br, "plan": plan, "orh": orh, "orl": orl, "open": op, "prevClose": prev_close, "p915": p915, "atr": round(atr, 1),
+                "orATR": round(w / atr, 3), "gapATR": round(gap / atr, 3), "filled": filled, "params": P, "basis": dev_txt}
+    JOURNAL.write_text(json.dumps(j, ensure_ascii=False, indent=0), encoding="utf-8")
     state["sent"] = (state["sent"] + [today])[-60:]
     STATE.parent.mkdir(parents=True, exist_ok=True)
     STATE.write_text(json.dumps(state, ensure_ascii=False, indent=0), encoding="utf-8")
