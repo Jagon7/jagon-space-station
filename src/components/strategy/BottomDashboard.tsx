@@ -13,7 +13,8 @@ type IS = { avg: number; med: number; win: number; worst: number } | null;
 type Inst = { fut: IS; futM: IS; futCall: number; futStop: IS; atm: IS; otm: IS; sf: IS; sfM: IS; n: number };
 type Data = { split: string; markets: Record<string, string>; signals: Record<string, string>; table: Record<string, Record<string, { train: S; test: S; dates: string[] }>>;
   pooled: Record<string, { train: S; test: S }>; cross: Record<string, { train: S; test: S }>; now: Record<string, Now>; episodes: Ep[];
-  instruments: Record<string, Record<string, Inst>>; instDates: Record<string, string[]> };
+  instruments: Record<string, Record<string, Inst>>; instDates: Record<string, string[]>;
+  swings?: Record<string, { list: { peak: string; trough: string; drop: number; days: number; r20: number; r60: number }[]; current: { peak: string; low: string; drop: number; days: number; now: number } | null; dd60: number }> };
 
 const pct = (v: number | null | undefined, d = 1) => (v == null ? "—" : `${v > 0 ? "+" : ""}${v.toFixed(d)}%`);
 const tone = (v: number | null | undefined) => (v == null || v === 0 ? "text-[#8b97ab]" : v > 0 ? "text-[#f05252]" : "text-[#22c55e]");
@@ -40,6 +41,7 @@ export default function BottomDashboard() {
   const [sigInst, setSigInst] = useState("深跌＋VIX 回落＋止跌");
   const [hold, setHold] = useState<"5" | "10" | "20">("20");
   const [epSel, setEpSel] = useState<"all" | "up" | "down">("all");
+  const [swMk, setSwMk] = useState("^TWII");
   const eps = useMemo(() => (data?.episodes ?? []).filter((e) => epSel === "all" || (epSel === "up" ? e.ma200s > 0 : e.ma200s <= 0)), [data, epSel]);
   if (!data) return <div className="py-16 text-center text-sm text-[#8b97ab] font-mono">{error ? "資料載入失敗" : "載入中…"}</div>;
   const tw = data.now["^TWII"];
@@ -88,6 +90,38 @@ export default function BottomDashboard() {
             </tr>); })}</tbody>
         </table>
       </section>
+
+      {data.swings?.[swMk] && (() => {
+        const sw = data.swings![swMk];
+        const drops = sw.list.map((x) => x.drop).sort((a, b) => a - b);
+        const med = drops.length ? drops[Math.floor(drops.length / 2)] : 0;
+        const B = [[-12, -10], [-15, -12], [-20, -15], [-25, -20], [-30, -25], [-40, -30], [-100, -40]];
+        const maxN = Math.max(1, ...B.map(([lo, hi]) => drops.filter((d) => d > lo && d <= hi).length));
+        const nowDrop = Math.min(sw.current?.now ?? 0, sw.dd60);
+        return (
+          <section className="mb-6 rounded-xl border border-[#243247] bg-[#0d1220] p-4">
+            <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+              <div className="text-sm font-semibold text-white">過去回檔跌到多深才止跌反彈（收盤從波段高點跌 ≥ 10%、之後反彈 ≥ 10% 算一波）</div>
+              <Pills<string> value={swMk} onChange={setSwMk} options={MK.filter((s) => data.swings![s]).map((s) => ({ value: s, label: data.markets[s] }))} />
+            </div>
+            <div className="mb-3 text-xs text-slate-300">
+              2005 年起 {sw.list.length} 波，止跌時跌幅中位數 <span className="font-mono text-[#f59e0b]">{med.toFixed(1)}%</span>、最深 <span className="font-mono">{drops[0]?.toFixed(1)}%</span>；
+              這一波{sw.current ? `從 ${sw.current.peak} 高點已跌 ${sw.current.now.toFixed(1)}%（${sw.current.days} 天）` : "目前不在 10% 以上的回檔中"}，距 60 日高點 {sw.dd60.toFixed(1)}%。
+            </div>
+            <div className="space-y-1">{B.map(([lo, hi]) => { const n = drops.filter((d) => d > lo && d <= hi).length; const here = nowDrop > lo && nowDrop <= hi; return (
+              <div key={lo} className="grid grid-cols-[5.5rem_1fr_2.5rem] items-center gap-2 text-xs">
+                <span className={`font-mono ${here ? "text-white font-semibold" : "text-[#8b97ab]"}`}>{-hi}～{lo <= -100 ? "" : -lo}%{here ? " ◀ 現在" : ""}</span>
+                <div className="h-3 rounded-sm bg-[#141c2e]"><div className={`h-3 rounded-sm ${here ? "bg-white" : "bg-[#4f8cff]/70"}`} style={{ width: `${(n / maxN) * 100}%` }} /></div>
+                <span className="font-mono text-right text-slate-300">{n} 次</span>
+              </div>); })}</div>
+            <div className="mt-3 max-h-56 overflow-y-auto">{[...sw.list].reverse().map((x) => (
+              <div key={x.peak} className="flex flex-wrap justify-between gap-2 border-b border-[#243247]/40 py-1 font-mono text-[11px] text-[#8b97ab]">
+                <span className="text-slate-300">{x.peak} → {x.trough}</span>
+                <span>跌 <span className="text-[#22c55e]">{x.drop.toFixed(1)}%</span>（{x.days} 天）・之後 20 天 <span className={tone(x.r20)}>{pct(x.r20)}</span>、60 天 <span className={tone(x.r60)}>{pct(x.r60)}</span></span>
+              </div>))}</div>
+          </section>
+        );
+      })()}
 
       <section className="mb-6 rounded-xl border border-[#243247] bg-[#0d1220] p-4 overflow-x-auto">
         <div className="mb-2 flex flex-wrap items-center justify-between gap-2">

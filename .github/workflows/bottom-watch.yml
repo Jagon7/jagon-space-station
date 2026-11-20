@@ -1,0 +1,52 @@
+name: Bottom Watch
+
+# 抄底訊號即時通知（scripts/bottom_watch.py）：
+#   morning  07:40 訊號 A（深跌＋前一晚美股大漲）— 美股 05:00 收盤後就確定，今天收盤前可進場
+#   preclose 13:20 訊號 B 盤中預告（深跌＋收紅＋VIX 回落）— 收盤前還來得及
+#   close    13:40 訊號 B 收盤確認
+# 由 Cloudflare 排程觸發；同一訊號同一天只推一次。傍晚 17:40 的每日狀態在 tx-night.yml
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'morning／preclose／close／evening'
+        default: 'morning'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: bottom-watch
+  cancel-in-progress: false
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: main
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.11'
+      - run: pip install requests
+      - name: Check signal and push LINE
+        run: TZ=Asia/Taipei python3 scripts/bottom_watch.py ${{ inputs.mode }}
+        env:
+          JSS_DATA_DIR: ./data
+          SITE_URL: ${{ secrets.SITE_URL || vars.SITE_URL }}
+          LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
+          LINE_USER_ID: ${{ secrets.LINE_USER_ID }}
+      - name: Save sent state
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          [ -e data/notify/bottom-sent.json ] && git add data/notify/bottom-sent.json
+          git diff --staged --quiet && exit 0
+          git commit -m "notify: bottom watch"
+          for i in 1 2 3 4 5; do
+            git push && exit 0
+            git pull --rebase -X theirs origin main || { git rebase --abort; git pull --no-rebase -X ours origin main; }
+          done
+          exit 1

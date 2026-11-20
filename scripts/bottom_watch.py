@@ -26,6 +26,62 @@ TPE = timezone(timedelta(hours=8))
 STATE = DATA / "notify" / "bottom-sent.json"
 
 
+def live_twii():
+    """Yahoo 即時加權指數：(現價, 今天最高, 昨收)"""
+    import requests
+    r = requests.get("https://query1.finance.yahoo.com/v8/finance/chart/%5ETWII", params={"range": "1d", "interval": "1m"},
+                     headers={"User-Agent": "Mozilla/5.0"}, timeout=30).json()["chart"]["result"][0]["meta"]
+    return r["regularMarketPrice"], r.get("regularMarketDayHigh"), r.get("chartPreviousClose") or r.get("previousClose")
+
+
+def intraday(mode: str, dry: bool, rows: list, ma200s: float) -> int:
+    """訊號 B 盤中預告（13:20，收盤前還來得及進場）與收盤確認（13:40）"""
+    now = datetime.now(TPE)
+    today = now.date().isoformat()
+    tw = json.loads((DATA / "research" / "yahoo" / "_TWII.json").read_text(encoding="utf-8"))["d"]
+    hist = [r for r in tw if r[0] < today][-59:]  # 不含今天的前 59 天
+    if now.weekday() >= 5 and not dry:
+        return 0
+    px, day_hi, _ = live_twii()
+    prev = hist[-1][4]  # 昨收用自己存的日線（Yahoo 即時資料的前收有時不對）
+    hi60 = max([r[2] for r in hist] + [day_hi or px])
+    dd = (px / hi60 - 1) * 100
+    up = px > prev
+    vix = json.loads((DATA / "research" / "yahoo" / "_VIX.json").read_text(encoding="utf-8"))["d"]
+    vx = [r[4] for r in vix if r[0] < today][-10:]
+    voff = (1 - vx[-1] / max(vx)) * 100
+    ok = dd <= -12 and up and voff >= 10 and vx[-1] >= 22
+    print(f"{mode}：加權 {px:,.0f}（昨收 {prev:,.0f}，{(px / prev - 1) * 100:+.2f}%）距 60 日高 {dd:.1f}%、VIX {vx[-1]:.1f} 回落 {voff:.0f}% → 訊號 B {'成立' if ok else '不成立'}")
+    if not ok and not dry:
+        return 0
+    try:
+        state = json.loads(STATE.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        state = {"sent": []}
+    key = f"{today}-B-{mode}"
+    if key in state["sent"] and not dry:
+        return 0
+    from line_flex import Msg
+    import notify
+    pre = mode == "preclose"
+    m = Msg(("【測試】" if dry else "") + ("🟢 抄底訊號 B 盤中成立（收盤前可進場）" if pre else "🟢 抄底訊號 B 收盤確認"),
+            f"{now:%m/%d %H:%M}・加權 {px:,.0f}（{(px / prev - 1) * 100:+.2f}%）", accent="#16A34A", url=f"{notify.SITE}/bottom/", button="開啟抄底雷達")
+    m.kv("距 60 日高點", f"{dd:.1f}%")
+    m.kv("今天", "收紅" if up else "收黑")
+    m.kv("VIX", f"{vx[-1]:.1f}（比 10 日高點回落 {voff:.0f}%）")
+    m.kv("年線", f"{'仍向上' if ma200s > 0 else '已向下（2008 型，訊號容易失效）'}（{ma200s:+.1f}%）")
+    m.line("回測：20 天後平均 +2.2%／+5.5%（2005-17／2018-26），勝率 67%／71%；進場後平均再跌 4～5%" + ("" if not pre else "。13:30 收盤若翻黑就不成立"))
+    m.note("建議：分批（先 1/3）、停損設在今天低點下方；工具以價平買權風險最小。只供參考，不構成投資建議。")
+    print(m.text())
+    if dry:
+        return 0
+    notify.send(m)
+    state["sent"] = (state["sent"] + [key])[-80:]
+    STATE.parent.mkdir(parents=True, exist_ok=True)
+    STATE.write_text(json.dumps(state, ensure_ascii=False, indent=0), encoding="utf-8")
+    return 0
+
+
 def main():
     mode = sys.argv[1] if len(sys.argv) > 1 else "evening"
     dry = "--dry-run" in sys.argv
@@ -39,6 +95,8 @@ def main():
     r = rows[-1]
     now = datetime.now(TPE)
     today = now.date().isoformat()
+    if mode in ("preclose", "close"):
+        return intraday(mode, dry, rows, ma200s)
     if mode == "morning":
         # 早上：用昨天收盤的跌幅＋昨晚美股
         if r["date"] >= today:
@@ -72,7 +130,7 @@ def main():
     from line_flex import Msg, sign_tone
     import notify
     fired = [s for s in sigs if s[2]]
-    title = "🟢 抄底訊號出現" if fired else "🔴 還沒有抄底訊號"
+    title = ("🟢 抄底訊號 A 成立（今天收盤前可進場）" if mode == "morning" else "🟢 抄底訊號出現") if fired else "🔴 還沒有抄底訊號"
     m = Msg(("【測試】" if dry else "") + title, f"{r['date'][5:7]}/{r['date'][8:10]} 收盤・加權距 60 日高點 {r['dd']:.1f}%",
             accent="#16A34A" if fired else "#DC2626", url=f"{notify.SITE}/", button="開啟網站")
     for code, txt, ok in sigs:
