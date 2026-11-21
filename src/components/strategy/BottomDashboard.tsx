@@ -14,6 +14,11 @@ type Inst = { fut: IS; futM: IS; futCall: number; futStop: IS; atm: IS; otm: IS;
 type Data = { split: string; markets: Record<string, string>; signals: Record<string, string>; table: Record<string, Record<string, { train: S; test: S; dates: string[] }>>;
   pooled: Record<string, { train: S; test: S }>; cross: Record<string, { train: S; test: S }>; now: Record<string, Now>; episodes: Ep[];
   instruments: Record<string, Record<string, Inst>>; instDates: Record<string, string[]>;
+  stocks?: { episodes: { peak: string; trough: string; drop: number }[];
+    features: Record<string, { label: string; r20?: { avg: number; pos: number; n: number; lo: number; hi: number }; l20?: { avg: number; pos: number; n: number }; r60?: { avg: number; pos: number; n: number }; ctrl?: { avg: number; pos: number; n: number } }>;
+    sectors: Record<string, { n: number; excess20: number; pos: number; eps: number }>; ssf: Record<string, { n: number; r20: number; r60: number; win20: number }>;
+    repeat: [string, string, string, boolean, number][];
+    now?: { date: string; cut: { drop: number; marginUse: number }; list: { code: string; name: string; mk: string; sector: string; ssf: boolean; close: number; drop: number; marginUse: number; value: number; goodSector: boolean }[] } } | null;
   swings?: Record<string, { list: { peak: string; trough: string; drop: number; days: number; r20: number; r60: number }[]; current: { peak: string; low: string; drop: number; days: number; now: number } | null; dd60: number }> };
 
 const pct = (v: number | null | undefined, d = 1) => (v == null ? "—" : `${v > 0 ? "+" : ""}${v.toFixed(d)}%`);
@@ -186,6 +191,52 @@ export default function BottomDashboard() {
           價平買權最多只賠權利金（約指數 3%）、不會被追繳；價外買權平均被少數大賺撐高、中位數接近 0。個股期為台積電、聯發科、鴻海、台達電、廣達、聯電、日月光、大立光、長榮平均。
         </p>
       </section>
+
+      {data.stocks && (() => {
+        const sk = data.stocks!;
+        const F = ["marginUse", "drop", "last5", "mcap", "trust10", "dealer10", "fgn10", "fgnHold", "marginChg", "px", "trustPost5", "fgnPost5"];
+        return (
+          <section className="mb-6 rounded-xl border border-[#243247] bg-[#0d1220] p-4 overflow-x-auto">
+            <div className="text-sm font-semibold text-white mb-1">抄底選股：大跌低點後哪些股票反彈最強（上市股，{sk.features.drop?.r20?.n ?? sk.episodes.length} 次 ≥ 15% 回檔，2012 起）</div>
+            <p className="mb-3 text-[11px] text-[#7c8aa0]">每一波把股票依特徵分五組，看「最高 1/5 − 最低 1/5」的 20 天反彈差；（x/9）＝幾波方向一致。「控制跌幅後」＝在跌幅相近的股票裡再比較，排除「跌越深彈越多」的影響。</p>
+            <table className="w-full text-sm">
+              <thead><tr className="border-b border-[#243247] text-[11px] text-[#8b97ab]">
+                {["特徵（低點當時可知）", "最高 1/5 − 最低 1/5（20 天）", "低點後 5 天才進場（15 天）", "60 天", "控制跌幅後"].map((h, i) => <th key={h} className={`px-3 py-2 font-normal ${i ? "text-right" : "text-left"}`}>{h}</th>)}
+              </tr></thead>
+              <tbody>{F.map((k) => { const f = sk.features[k]; if (!f) return null; const c = (x?: { avg: number; pos: number; n: number }) => x ? <span className={`font-mono text-xs ${tone(x.avg)}`}>{pct(x.avg)}<span className="text-[#7c8aa0]">（{x.pos}/{x.n}）</span></span> : <span className="text-[#7c8aa0]">—</span>; return (
+                <tr key={k} className="border-b border-[#243247]/60 last:border-0">
+                  <td className="px-3 py-2 text-xs text-slate-200">{f.label}</td>
+                  <td className="px-3 py-2 text-right">{c(f.r20)}</td><td className="px-3 py-2 text-right">{c(f.l20)}</td><td className="px-3 py-2 text-right">{c(f.r60)}</td><td className="px-3 py-2 text-right">{c(f.ctrl)}</td>
+                </tr>); })}</tbody>
+            </table>
+            <div className="mt-4 grid gap-4 lg:grid-cols-2">
+              <div>
+                <div className="text-xs font-semibold text-white mb-1">產業：反彈 20 天超額報酬（贏大盤的波數）</div>
+                <div className="space-y-0.5">{Object.entries(sk.sectors).sort((a, b) => b[1].excess20 - a[1].excess20).map(([s, v]) => (
+                  <div key={s} className="flex justify-between font-mono text-[11px]"><span className="font-sans text-slate-300">{s}</span><span className={tone(v.excess20)}>{pct(v.excess20)}<span className="text-[#7c8aa0]">（{v.pos}/{v.eps}）</span></span></div>))}</div>
+              </div>
+              <div>
+                <div className="text-xs font-semibold text-white mb-1">反彈常勝軍（各波反彈前 10% 出現 ≥ 3 次）</div>
+                <div className="flex flex-wrap gap-1.5">{sk.repeat.map((r) => (
+                  <span key={r[0]} className="rounded bg-[#141c2e] px-2 py-0.5 text-[11px]"><span className="text-slate-200">{r[1]}</span><span className="ml-1 font-mono text-[#7c8aa0]">{r[0]}</span><span className="ml-1 text-[#f59e0b]">×{r[4]}</span>{r[3] && <span className="ml-1 text-[#4f8cff]">期</span>}</span>))}</div>
+                <div className="mt-3 text-xs font-semibold text-white mb-1">有沒有個股期貨</div>
+                {Object.entries(sk.ssf).map(([k, v]) => <div key={k} className="flex justify-between font-mono text-[11px]"><span className="font-sans text-slate-300">{k}（{v.n}）</span><span>20 天 {pct(v.r20)}・60 天 {pct(v.r60)}・勝率 {v.win20}%</span></div>)}
+              </div>
+            </div>
+            {sk.now && (
+              <div className="mt-4">
+                <div className="text-xs font-semibold text-white mb-1">現在符合「跌深＋融資使用率高」的股票（{sk.now.date}：近 60 天跌 ≥ {-sk.now.cut.drop}%、融資 ÷ 股本 ≥ {sk.now.cut.marginUse}%；強勢產業、有個股期排前面）</div>
+                <div className="grid gap-x-4 sm:grid-cols-2 lg:grid-cols-3">{sk.now.list.slice(0, 30).map((x) => (
+                  <div key={x.code} className="flex justify-between border-b border-[#243247]/40 py-1 text-[11px]">
+                    <span><span className="text-slate-200">{x.name}</span><span className="ml-1 font-mono text-[#7c8aa0]">{x.code}</span>{x.ssf && <span className="ml-1 text-[#4f8cff]">期</span>}<span className="ml-1 text-[#7c8aa0]">{x.sector}</span></span>
+                    <span className="font-mono"><span className="text-[#22c55e]">{pct(x.drop, 0)}</span><span className="text-[#f59e0b]"> 融 {x.marginUse.toFixed(1)}%</span></span>
+                  </div>))}</div>
+                <p className="mt-2 text-[11px] text-[#7c8aa0]">這是「選什麼」不是「什麼時候」：要等抄底訊號 A／B 出現再進場。高融資、跌深的股票反彈最猛，但如果大盤沒止跌，也會跌得最兇（融資斷頭賣壓）。</p>
+              </div>
+            )}
+          </section>
+        );
+      })()}
 
       <section className="mb-6 rounded-xl border border-[#243247] bg-[#0d1220] p-4">
         <div className="mb-2 flex flex-wrap items-center justify-between gap-2">

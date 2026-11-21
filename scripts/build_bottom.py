@@ -33,6 +33,7 @@ def build(data_dir: Path, public_dir: Path):
         return
     di = (_load(data_dir / "research" / "dip_instruments.json", {}) or {}).get("signals") or {}
     inst = {name: {str(n): _inst(ts, n) for n in (5, 10, 20)} for name, ts in di.items()}
-    doc = {**m, "instruments": inst, "instDates": {k: [t["date"] for t in v] for k, v in di.items()}}
+    doc = {**m, "instruments": inst, "instDates": {k: [t["date"] for t in v] for k, v in di.items()},
+           "stocks": _load(data_dir / "research" / "rebound_stocks.json", {}) or None}
     (public_dir / "bottom.json").write_text(json.dumps(doc, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     print(f"抄底雷達：{len(m.get('markets', {}))} 個市場、{len(m.get('episodes', []))} 次台股大跌")

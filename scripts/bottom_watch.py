@@ -96,6 +96,8 @@ def main():
     subprocess.run([sys.executable, str(Path(__file__).resolve().parent / "fetch_research_data.py"), "--quick"], check=False, capture_output=True)
     subprocess.run([sys.executable, str(Path(__file__).resolve().parent / "research_bottom.py")], check=False, capture_output=True)
     subprocess.run([sys.executable, str(Path(__file__).resolve().parent / "research_bottom_multi.py")], check=False, capture_output=True)  # 網頁「抄底雷達」
+    if mode == "evening":
+        subprocess.run([sys.executable, str(Path(__file__).resolve().parent / "research_rebound_stocks.py")], check=False, capture_output=True)  # 抄底選股候選
     rows = json.loads((DATA / "research" / "bottom_rows.json").read_text(encoding="utf-8"))
     tw = json.loads((DATA / "research" / "yahoo" / "_TWII.json").read_text(encoding="utf-8"))["d"]
     c = [r[4] for r in tw]
