@@ -126,6 +126,9 @@ def main():
             sh_c = fv[1] or shares.get(c)  # 用當時的發行股數（證交所 MI_QFIIS）；沒有才用目前股數
             r["fgnHold"] = fv[0]
             r["marginUse"] = mt * 1000 / sh_c * 100 if mt is not None and sh_c else None
+            r["marginUseP"] = mp * 1000 / sh_c * 100 if mp is not None and sh_c else None  # 高點時的融資使用率
+            r["marginCut"] = (mp - mt) * 1000 / sh_c * 100 if mp is not None and mt is not None and sh_c else None  # 高點→低點砍掉多少（股本 %）
+            r["marginCutVol"] = (mp - mt) * 1000 / vol10 * 100 if mp is not None and mt is not None and vol10 else None  # 砍掉的融資 ÷ 低點前 10 天成交量
             r["mcap"] = px * sh_c / 1e8 if sh_c else None
             r.update(lines_at(c, T))
             allrows.append(r)
