@@ -114,6 +114,18 @@ def main():
             if spreads:
                 res[tgt] = {"avg": round(st.mean(s[1] for s in spreads), 2), "pos": sum(1 for s in spreads if s[1] > 0), "n": len(spreads),
                             "lo": round(st.mean(s[2] for s in spreads), 2), "hi": round(st.mean(s[3] for s in spreads), 2), "by": spreads}
+        # 控制跌幅：每一波先依個股跌幅分三組，組內再依特徵分高低兩半比較（排除「跌越深彈越多」的影響）
+        diffs = []
+        for T in sorted({r["ep"] for r in allrows}):
+            rs = sorted([r for r in allrows if r["ep"] == T and r.get(k) is not None and r.get("r20") is not None], key=lambda r: r["drop"])
+            n3 = len(rs) // 3
+            for g in (rs[:n3], rs[n3:2 * n3], rs[2 * n3:]):
+                g = sorted(g, key=lambda r: r[k])
+                h = len(g) // 2
+                if h >= 10:
+                    diffs.append(st.mean(r["r20"] for r in g[h:]) - st.mean(r["r20"] for r in g[:h]))
+        if diffs and k not in ("drop", "relDrop", "beta"):
+            res["ctrl"] = {"avg": round(st.mean(diffs), 2), "pos": sum(1 for x in diffs if x > 0), "n": len(diffs)}
         out["features"][k] = res
     # 產業
     by = {}
@@ -146,6 +158,31 @@ def main():
         for r in rs[:max(1, len(rs) // 10)]:
             cnt.setdefault(r["code"], [r["name"], r["sector"], r["ssf"], 0])[3] += 1
     out["repeat"] = sorted([[c, *v] for c, v in cnt.items() if v[3] >= 3], key=lambda x: -x[4])[:30]
+    # 現在的候選：近 60 個交易日從高點跌最深、融資使用率最高（兩者都在前 1/3），成交 ≥ 5000 萬；上櫃也列（研究只用上市驗證）
+    days = sorted(p.stem for p in (DATA / "daily").glob("20*.json"))[-60:]
+    dq = {d: (json.loads((DATA / "daily" / f"{d}.json").read_text(encoding="utf-8")) or {}) for d in days}
+    last = dq[days[-1]]
+    cands = []
+    for c, v in (last.get("q") or {}).items():
+        if not (len(c) == 4 and c.isdigit() and c[0] != "0") or not v[5] or (v[8] or 0) < 5e7 or not shares.get(c):
+            continue
+        hi = max(((dq[d].get("q") or {}).get(c) or [0] * 6)[5] or 0 for d in days)
+        mg = ((last.get("m") or {}).get(c) or [None])[0]
+        if not hi or mg is None:
+            continue
+        cands.append({"code": c, "name": v[0], "mk": "上櫃" if v[1] else "上市", "sector": sec.get(c, "其他"), "ssf": c in ssf, "close": v[5],
+                      "drop": round((v[5] / hi - 1) * 100, 1), "marginUse": round(mg * 1000 / shares[c] * 100, 2), "value": round(v[8] / 1e8, 1)})
+    if cands:
+        d3 = sorted(x["drop"] for x in cands)[len(cands) // 3]
+        m3 = sorted(x["marginUse"] for x in cands)[len(cands) * 2 // 3]
+        pick = [x for x in cands if x["drop"] <= d3 and x["marginUse"] >= m3]
+        good = {k for k, v in out["sectors"].items() if v["excess20"] > 0 and v["pos"] >= v["eps"] * 0.6}
+        for x in pick:
+            x["goodSector"] = x["sector"] in good
+        out["now"] = {"date": days[-1], "cut": {"drop": d3, "marginUse": m3},
+                      "list": sorted(pick, key=lambda x: (not x["goodSector"], not x["ssf"], x["drop"]))[:60]}
+        print(f"\n現在候選（{days[-1]}，跌幅 ≤ {d3}%、融資使用率 ≥ {m3}%）：{len(pick)} 檔，例如",
+              "、".join(f"{x['name']}{x['code']}（{x['drop']}%／{x['marginUse']}%）" for x in out["now"]["list"][:12]))
     (DATA / "research" / "rebound_stocks.json").write_text(json.dumps(out, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     print("\n特徵：最高 1/5 − 最低 1/5 的反彈差（R20 低點起 20 天／L20 T+5 起 15 天／R60）；後面是各波方向一致的次數")
     for k, v in out["features"].items():
