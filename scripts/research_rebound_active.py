@@ -156,7 +156,7 @@ def main():
         rows9 = [r for r in load(dump, []) if r.get("r20") is not None] if dump.exists() else []
     if rows9:
         eps9 = sorted({r["ep"] for r in rows9})
-        med = {T: {k: st.median(r[k] for r in rows9 if r["ep"] == T and r.get(k) is not None) for k in ("marginUse", "marginChg", "trust10")} for T in eps9}
+        med = {T: {k: st.median(r[k] for r in rows9 if r["ep"] == T and r.get(k) is not None) for k in ("marginUse", "marginChg", "trust10", "marginUseP")} for T in eps9}
         print("\n■ 長期驗證：2012 起 9 次低點，跌幅相近的股票裡比較 20 天反彈（各波中位數切高低）")
         out["long"] = {}
         for lab, f in (("融資多＋沒砍", lambda r: r["marginUse"] >= med[r["ep"]]["marginUse"] and r["marginChg"] >= med[r["ep"]]["marginChg"]),
@@ -179,6 +179,39 @@ def main():
             o = {"avg": round(st.mean(x[1] for x in per), 2), "pos": sum(x[1] > 0 for x in per), "n": len(per), "by": per}
             out["long"][lab] = o
             print(f"  {lab:14s} {o['avg']:+.1f}%（{o['pos']}/{o['n']} 波為正）")
+    # 融資「減少很多」（不看剩多少）：五等分、原本融資多的股票裡砍多 vs 砍少、砍掉的絕對量、斷頭強度
+    if rows9:
+        def ctrl_q(key, flt=lambda r: True, q=5):
+            """每波：跌幅三等分內，把股票依 key 分 q 組，算各組相對同跌幅組平均的 20 天超額；回傳各組（9 波平均、為正波數）"""
+            res = [[] for _ in range(q)]
+            for T in eps9:
+                rs = sorted([r for r in rows9 if r["ep"] == T and r.get(key) is not None and flt(r)], key=lambda r: r["drop"])
+                if len(rs) < 30:
+                    continue
+                n3 = len(rs) // 3
+                acc = [[] for _ in range(q)]
+                for g in (rs[:n3], rs[n3:2 * n3], rs[2 * n3:]):
+                    m = st.mean(r["r20"] for r in g)
+                    gs = sorted(g, key=lambda r: r[key])
+                    for i, r in enumerate(gs):
+                        acc[min(q - 1, i * q // len(gs))].append(r["r20"] - m)
+                for i in range(q):
+                    if acc[i]:
+                        res[i].append(st.mean(acc[i]))
+            return [{"avg": round(st.mean(x), 2), "pos": sum(v > 0 for v in x), "n": len(x)} if x else None for x in res]
+        print("\n■ 融資減少很多的股票（跌幅相近比較 20 天超額；組 1→5 由小到大）")
+        out["cut"] = {}
+        for key, lab, flt in (("marginChg", "融資增減 %（組 1＝砍最多）", lambda r: True),
+                              ("marginChg", "高點時融資多（上半）的股票裡：融資增減 %", lambda r: (r.get("marginUseP") or 0) >= med[r["ep"]].get("marginUseP", 0)),
+                              ("marginChg", "低點時融資仍多（上半）的股票裡：融資增減 %", lambda r: (r.get("marginUse") or 0) >= med[r["ep"]]["marginUse"]),
+                              ("marginCut", "砍掉的融資 ÷ 股本（組 5＝砍最多）", lambda r: True),
+                              ("marginCutVol", "砍掉的融資 ÷ 低點前 10 天成交量（斷頭強度，組 5＝最強）", lambda r: True),
+                              ("marginUseP", "高點時融資使用率", lambda r: True),
+                              ("marginUse", "低點時融資使用率（對照）", lambda r: True)):
+            v = ctrl_q(key, flt)
+            out["cut"][lab] = v
+            print(f"  {lab}")
+            print("    " + "  ".join(f"組{i + 1} {x['avg']:+.1f}%（{x['pos']}/{x['n']}）" if x else f"組{i + 1} —" for i, x in enumerate(v)))
     (DATA / "research" / "rebound_active.json").write_text(json.dumps(out, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     return 0
 
