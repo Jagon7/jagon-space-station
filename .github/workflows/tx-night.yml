@@ -86,6 +86,7 @@ jobs:
         run: |
           TZ=Asia/Taipei python3 scripts/tx_regime_review.py review
           [ "$(TZ=Asia/Taipei date +%u)" = 6 ] && TZ=Asia/Taipei python3 scripts/tx_regime_review.py tune; true
+          [ "$(TZ=Asia/Taipei date +%u)" = 6 ] && TZ=Asia/Taipei python3 scripts/tx_factor_scan.py; true
         continue-on-error: true
         env:
           JSS_DATA_DIR: ./data
@@ -105,7 +106,7 @@ jobs:
           rm -f shioaji.log
           git config user.name 'github-actions[bot]'
           git config user.email 'github-actions[bot]@users.noreply.github.com'
-          for f in data/futures/night data/futures/day data/market/index1m data/futures/regime_journal.json data/futures/regime_params.json data/futures/regime_rows.json data/futures/regime_research.json data/notify/tx-regime-review-sent.json data/notify/bottom-sent.json data/research/yahoo data/research/bottom.json data/research/bottom_rows.json data/research/bottom_multi.json data/research/rebound_stocks.json data/intel/us_events.json data/notify/usevent-sent.json; do [ -e "$f" ] && git add "$f"; done; true
+          for f in data/futures/night data/futures/day data/market/index1m data/futures/regime_journal.json data/futures/regime_params.json data/futures/regime_rows.json data/futures/regime_research.json data/futures/factor_scan.json data/futures/regime_overrides.json data/notify/tx-regime-review-sent.json data/notify/bottom-sent.json data/research/yahoo data/research/bottom.json data/research/bottom_rows.json data/research/bottom_multi.json data/research/rebound_stocks.json data/intel/us_events.json data/notify/usevent-sent.json; do [ -e "$f" ] && git add "$f"; done; true
           git diff --staged --quiet && exit 0
           git commit -m "data: tx night $(TZ=Asia/Taipei date +%Y-%m-%d)"
           for i in 1 2 3 4 5; do

@@ -39,12 +39,26 @@ def load(p, default):
         return default
 
 
+OVERRIDES = DATA / "futures" / "regime_overrides.json"  # 每週因子掃描（tx_factor_scan.py）通過嚴格驗證後採用的修正
+
+
 def params() -> dict:
     p = load(PARAMS, {})
-    return {"current": {**DEFAULT, **(p.get("current") or {})}, "history": p.get("history") or [], "eval": p.get("eval"), "tunedAt": p.get("tunedAt")}
+    cur = {**DEFAULT, **(p.get("current") or {})}
+    cur.pop("overrides", None)
+    cur["overrides"] = (load(OVERRIDES, {}) or {}).get("active") or []
+    return {"current": cur, "history": p.get("history") or [], "eval": p.get("eval"), "tunedAt": p.get("tunedAt")}
 
 
-def decide(r: dict, p: dict):
+def match(r: dict, o: dict) -> bool:
+    v = r.get(o["factor"])
+    if v is None:
+        return False
+    v = float(v)
+    return v > o["th"] if o["op"] == ">" else v < o["th"]
+
+
+def base_decide(r: dict, p: dict):
     """r：gapFilled30、orATR、gapATR → (分支, 做法)"""
     if r["gapFilled30"]:
         return "A", "MR"
@@ -53,6 +67,15 @@ def decide(r: dict, p: dict):
     if r["gapATR"] > p["cGap"]:
         return "C", "BO"
     return "D", p.get("dPlan")
+
+
+def decide(r: dict, p: dict):
+    """基本規則，再套用已採用的因子修正（同分支第一個符合的生效）"""
+    br, plan = base_decide(r, p)
+    for o in p.get("overrides") or []:
+        if o["branch"] == br and match(r, o):
+            return br, o["plan"]
+    return br, plan
 
 
 def pnl(r: dict, plan):
@@ -70,6 +93,7 @@ def tune():
     subprocess.run([sys.executable, str(Path(__file__).resolve().parent / "research_tx_regime.py")], check=False, capture_output=True)
     rows = load(DATA / "futures" / "regime_rows.json", [])[-TUNE_DAYS:]
     P = params()
+    P["current"].pop("overrides", None)  # 基本參數調參不含因子修正（修正另外由 tx_factor_scan 驗證）
     cur = P["current"]
     base = evaluate(rows, cur)
     best, best_p = base, cur
