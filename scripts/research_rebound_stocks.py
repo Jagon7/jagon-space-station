@@ -63,6 +63,28 @@ def lines_at(code: str, d: str):
     return out
 
 
+# 綜合分數：只用 9 次低點都驗證有效的因子；權重事先固定（不是回測挑的），方向：+＝越大越好
+SCORE_W = {"marginUse": 2.0, "drop": -1.0, "last5": -1.0, "mcap": -1.0, "trust10": -0.5}
+SECTOR_W = 0.5
+
+
+def score_rows(rows: list[dict], good_sectors: set) -> None:
+    """同一個橫斷面（同一波或今天）裡，各因子換成百分位排名（0～1），加權加總 → r["score"]（大約 −2.75～+2.75）"""
+    for k, w in SCORE_W.items():
+        vals = sorted(r[k] for r in rows if r.get(k) is not None)
+        if not vals:
+            continue
+        import bisect
+        for r in rows:
+            v = r.get(k)
+            pr = (bisect.bisect_left(vals, v) + bisect.bisect_right(vals, v)) / 2 / len(vals) if v is not None else 0.5
+            r["_s_" + k] = pr
+    for r in rows:
+        r["score"] = round(sum(w * (r.get("_s_" + k, 0.5) - 0.5) for k, w in SCORE_W.items()) + (SECTOR_W if r.get("sector") in good_sectors else 0) - SECTOR_W / 2, 3)
+        for k in SCORE_W:
+            r.pop("_s_" + k, None)
+
+
 def load(kind, d):
     p = R / f"{kind}_{d.replace('-', '')}.json"
     try:
@@ -202,6 +224,41 @@ def main():
         rs = [r for r in allrows if r["ssf"] == flag and r.get("r20") is not None]
         out["ssf"]["有個股期" if flag else "沒有個股期"] = {"n": len(rs), "r20": round(st.mean(r["r20"] for r in rs), 2), "r60": round(st.mean(r["r60"] for r in rs if r.get("r60") is not None), 2),
                                                         "win20": round(sum(r["r20"] > 0 for r in rs) / len(rs) * 100)}
+    # 綜合分數驗證：每一波用「其他波」決定強勢產業（不偷看），分數五等分 → 20 天報酬；跟舊規則（跌幅、融資都在前 1/3）比
+    sc_eps = []
+    for T in sorted(done):
+        rs = [r for r in allrows if r["ep"] == T and r.get("r20") is not None]
+        if len(rs) < 50:
+            continue
+        sect = {}
+        for r in allrows:
+            if r["ep"] != T and r.get("r20") is not None:
+                sect.setdefault(r["sector"], {}).setdefault(r["ep"], []).append(r["r20"])
+        epm = {e: st.mean(r["r20"] for r in allrows if r["ep"] == e and r.get("r20") is not None) for e in done if e != T}
+        good_o = {k for k, v in sect.items() if len(v) >= 3 and sum(st.mean(x) > epm[e] for e, x in v.items()) >= 0.6 * len(v)}
+        score_rows(rs, good_o)
+        rs.sort(key=lambda r: -r["score"])
+        n5 = len(rs) // 5
+        allm = st.mean(r["r20"] for r in rs)
+        q = [st.mean(r["r20"] for r in rs[i * n5:(i + 1) * n5]) - allm for i in range(5)]
+        top10 = st.mean(r["r20"] for r in rs[:max(5, len(rs) // 10)]) - allm
+        d3 = sorted(r["drop"] for r in rs)[len(rs) // 3]
+        mus = [r["marginUse"] for r in rs if r.get("marginUse") is not None]
+        m3 = sorted(mus)[len(mus) * 2 // 3] if mus else 0
+        old = [r["r20"] for r in rs if r["drop"] <= d3 and (r.get("marginUse") or 0) >= m3]
+        sc_eps.append({"ep": T, "n": len(rs), "q": [round(x, 2) for x in q], "top10": round(top10, 2), "old": round(st.mean(old) - allm, 2) if old else None,
+                       "nOld": len(old), "win5": round(sum(r["r20"] > 0 for r in rs[:n5]) / n5 * 100), "winAll": round(sum(r["r20"] > 0 for r in rs) / len(rs) * 100)})
+        for r in rs:
+            r.pop("score", None)
+    if sc_eps:
+        out["score"] = {"weights": SCORE_W, "sectorW": SECTOR_W, "eps": sc_eps,
+                        "q": [round(st.mean(e["q"][i] for e in sc_eps), 2) for i in range(5)],
+                        "qPos": [sum(e["q"][i] > 0 for e in sc_eps) for i in range(5)],
+                        "top10": round(st.mean(e["top10"] for e in sc_eps), 2), "top10Pos": sum(e["top10"] > 0 for e in sc_eps),
+                        "old": round(st.mean(e["old"] for e in sc_eps if e["old"] is not None), 2), "oldPos": sum((e["old"] or 0) > 0 for e in sc_eps)}
+        sv = out["score"]
+        print("\n綜合分數驗證（各波 20 天報酬 − 該波平均；組 1＝分數最高）：" + "  ".join(f"組{i + 1} {sv['q'][i]:+.2f}%（{sv['qPos'][i]}/{len(sc_eps)}）" for i in range(5))
+              + f"；前 10% {sv['top10']:+.2f}%（{sv['top10Pos']}/{len(sc_eps)}）；舊規則 {sv['old']:+.2f}%（{sv['oldPos']}/{len(sc_eps)}）")
     # 各波反彈前 15 名
     for T in sorted(done):
         rs = sorted([r for r in allrows if r["ep"] == T and r.get("r20") is not None], key=lambda r: -r["r20"])[:15]
@@ -217,6 +274,14 @@ def main():
     days = sorted(p.stem for p in (DATA / "daily").glob("20*.json"))[-60:]
     dq = {d: (json.loads((DATA / "daily" / f"{d}.json").read_text(encoding="utf-8")) or {}) for d in days}
     last = dq[days[-1]]
+    insti = {}
+    for d in days[-10:]:
+        j = {}
+        try:
+            j = json.loads((DATA / "insti" / f"{d}.json").read_text(encoding="utf-8")) or {}
+        except (OSError, ValueError):
+            pass
+        insti[d] = {k: v for k, v in j.items() if isinstance(v, list) and len(v) >= 6}
     cands = []
     for c, v in (last.get("q") or {}).items():
         if not (len(c) == 4 and c.isdigit() and c[0] != "0") or not v[5] or (v[8] or 0) < 5e7 or not shares.get(c):
@@ -225,8 +290,13 @@ def main():
         mg = ((last.get("m") or {}).get(c) or [None])[0]
         if not hi or mg is None:
             continue
+        c5 = ((dq[days[-6]].get("q") or {}).get(c) or [None] * 6)[5] if len(days) >= 6 else None
+        vol10 = sum((((dq[d].get("q") or {}).get(c) or [0] * 8)[7] or 0) for d in days[-10:])
+        tr10 = sum(((insti.get(d) or {}).get(c) or [0] * 6)[3] or 0 for d in days[-10:])
         cands.append({"code": c, "name": v[0], "mk": "上櫃" if v[1] else "上市", "sector": sec.get(c, "其他"), "ssf": c in ssf, "close": v[5],
-                      "drop": round((v[5] / hi - 1) * 100, 1), "marginUse": round(mg * 1000 / shares[c] * 100, 2), "value": round(v[8] / 1e8, 1)})
+                      "drop": round((v[5] / hi - 1) * 100, 1), "marginUse": round(mg * 1000 / shares[c] * 100, 2), "value": round(v[8] / 1e8, 1),
+                      "last5": round((v[5] / c5 - 1) * 100, 1) if c5 else None, "mcap": round(v[5] * shares[c] / 1e8), 
+                      "trust10": round(tr10 / vol10 * 100, 2) if vol10 and any(insti.get(d) for d in days[-10:]) else None})
     if cands:
         d3 = sorted(x["drop"] for x in cands)[len(cands) // 3]
         m3 = sorted(x["marginUse"] for x in cands)[len(cands) * 2 // 3]
@@ -234,10 +304,16 @@ def main():
         good = {k for k, v in out["sectors"].items() if v["excess20"] > 0 and v["pos"] >= v["eps"] * 0.6}
         for x in pick:
             x["goodSector"] = x["sector"] in good
-        out["now"] = {"date": days[-1], "cut": {"drop": d3, "marginUse": m3},
-                      "list": sorted(pick, key=lambda x: (not x["goodSector"], not x["ssf"], x["drop"]))[:60]}
-        print(f"\n現在候選（{days[-1]}，跌幅 ≤ {d3}%、融資使用率 ≥ {m3}%）：{len(pick)} 檔，例如",
-              "、".join(f"{x['name']}{x['code']}（{x['drop']}%／{x['marginUse']}%）" for x in out["now"]["list"][:12]))
+        # 綜合分數：在今天全部候選（成交 ≥ 5000 萬）裡排名；名單＝分數最高的 60 檔
+        score_rows(cands, good)
+        for x in cands:
+            x["goodSector"] = x["sector"] in good
+        # 先篩（跌幅、融資使用率都在前 1/3，9/9 有效），再依綜合分數排序（篩出來的裡面，分數前半 7/9 波勝過後半）
+        ranked = sorted(pick, key=lambda x: -x["score"])
+        out["now"] = {"date": days[-1], "cut": {"drop": d3, "marginUse": m3}, "rule": "filter+score", "weights": SCORE_W, "sectorW": SECTOR_W,
+                      "n": len(pick), "nAll": len(cands), "list": ranked[:60]}
+        print(f"\n現在候選（{days[-1]}，跌幅 ≤ {d3}%、融資使用率 ≥ {m3}% 共 {len(pick)} 檔，依綜合分數排序），前 15：",
+              "、".join(f"{x['name']}{x['code']}（{x['score']:+.2f}｜跌 {x['drop']}%／融資 {x['marginUse']}%）" for x in ranked[:15]))
     (DATA / "research" / "rebound_stocks.json").write_text(json.dumps(out, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     print("\n特徵：最高 1/5 − 最低 1/5 的反彈差（R20 低點起 20 天／L20 T+5 起 15 天／R60）；後面是各波方向一致的次數")
     for k, v in out["features"].items():
