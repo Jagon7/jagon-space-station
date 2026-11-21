@@ -1,0 +1,38 @@
+name: Research Data
+
+# 研究用資料下載（手動觸發）：抄底個股研究（證交所歷史行情與籌碼）
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: main
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.11'
+      - run: pip install requests
+      - name: Rebound stock data (TWSE)
+        run: python3 -u scripts/fetch_rebound_data.py
+        continue-on-error: true
+        env:
+          JSS_DATA_DIR: ./data
+      - name: Commit
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add data/research/rebound 2>/dev/null || exit 0
+          git diff --staged --quiet && exit 0
+          git commit -m "data: rebound research"
+          for i in 1 2 3 4 5; do
+            git push && exit 0
+            git pull --rebase -X theirs origin main || { git rebase --abort; git pull --no-rebase -X ours origin main; }
+          done
+          exit 1
