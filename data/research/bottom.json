@@ -1508,11 +1508,11 @@
   "keyRev": false,
   "aboveMa5": false,
   "lowerTail": 0.15,
-  "vix": 28.44,
+  "vix": 35.89,
   "vixOff": 0.0,
-  "credit20": 0.42,
-  "spx1": -2.02,
-  "soxDD": -33.88,
+  "credit20": -0.78,
+  "spx1": -3.7,
+  "soxDD": -37.52,
   "margin": null,
   "fedCut30": false
  }
