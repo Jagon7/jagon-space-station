@@ -18,7 +18,8 @@ type Data = { split: string; markets: Record<string, string>; signals: Record<st
     features: Record<string, { label: string; r20?: { avg: number; pos: number; n: number; lo: number; hi: number }; l20?: { avg: number; pos: number; n: number }; r60?: { avg: number; pos: number; n: number }; ctrl?: { avg: number; pos: number; n: number } }>;
     sectors: Record<string, { n: number; excess20: number; pos: number; eps: number }>; ssf: Record<string, { n: number; r20: number; r60: number; win20: number }>;
     repeat: [string, string, string, boolean, number][];
-    now?: { date: string; cut: { drop: number; marginUse: number }; list: { code: string; name: string; mk: string; sector: string; ssf: boolean; close: number; drop: number; marginUse: number; value: number; goodSector: boolean }[] } } | null;
+    now?: { date: string; cut: { drop: number; marginUse: number }; list: { code: string; name: string; mk: string; sector: string; ssf: boolean; close: number; drop: number; marginUse: number; value: number; goodSector: boolean; score?: number; last5?: number | null; trust10?: number | null; mcap?: number }[] };
+    score?: { q: number[]; qPos: number[]; top10: number; top10Pos: number; old: number; oldPos: number; eps: unknown[] } } | null;
   swings?: Record<string, { list: { peak: string; trough: string; drop: number; days: number; r20: number; r60: number }[]; current: { peak: string; low: string; drop: number; days: number; now: number } | null; dd60: number }> };
 
 const pct = (v: number | null | undefined, d = 1) => (v == null ? "—" : `${v > 0 ? "+" : ""}${v.toFixed(d)}%`);
@@ -225,11 +226,16 @@ export default function BottomDashboard() {
             </div>
             {sk.now && (
               <div className="mt-4">
-                <div className="text-xs font-semibold text-white mb-1">現在符合「跌深＋融資使用率高」的股票（{sk.now.date}：近 60 天跌 ≥ {-sk.now.cut.drop}%、融資 ÷ 股本 ≥ {sk.now.cut.marginUse}%；強勢產業、有個股期排前面）</div>
+                <div className="text-xs font-semibold text-white mb-1">現在的候選（{sk.now.date}：先篩近 60 天跌 ≥ {-sk.now.cut.drop}%、融資 ÷ 股本 ≥ {sk.now.cut.marginUse}%，再依綜合分數排序）</div>
+                <div className="mb-2 rounded-lg border border-[#243247] bg-[#0b1020] p-2 text-[11px] leading-relaxed text-[#9aa6b8]">
+                  <div><span className="text-[#22c55e]">有效（納入分數）</span>：融資使用率高（權重 2，9/9）、個股跌越深（1，8/9）、低點前 5 天急殺（1，8/9）、小市值（1，9/9）、投信低點前賣超（0.5，9/9）、電子／半導體／光電／電機產業（0.5）</div>
+                  <div><span className="text-[#ef4444]">無效（不採用）</span>：外資買賣超與持股、融資砍多少／斷頭強度、主動式 ETF 是否賣光（樣本太少）、有沒有個股期、守住生命線或年線、低點後法人進場</div>
+                  {sk.score && <div>驗證（2012 起 9 次低點，各波 20 天報酬 − 該波平均）：分數最高 1/5 {pct(sk.score.q[0], 1)}（{sk.score.qPos[0]}/9 為正）、最低 1/5 {pct(sk.score.q[4], 1)}（{sk.score.qPos[4]}/9）；篩選後再依分數排序，前半 7/9 波勝過後半</div>}
+                </div>
                 <div className="grid gap-x-4 sm:grid-cols-2 lg:grid-cols-3">{sk.now.list.slice(0, 30).map((x) => (
                   <div key={x.code} className="flex justify-between border-b border-[#243247]/40 py-1 text-[11px]">
                     <span><span className="text-slate-200">{x.name}</span><span className="ml-1 font-mono text-[#7c8aa0]">{x.code}</span>{x.ssf && <span className="ml-1 text-[#4f8cff]">期</span>}<span className="ml-1 text-[#7c8aa0]">{x.sector}</span></span>
-                    <span className="font-mono"><span className="text-[#22c55e]">{pct(x.drop, 0)}</span><span className="text-[#f59e0b]"> 融 {x.marginUse.toFixed(1)}%</span></span>
+                    <span className="font-mono">{x.score != null && <span className="text-white">{x.score.toFixed(1)} </span>}<span className="text-[#22c55e]">{pct(x.drop, 0)}</span><span className="text-[#f59e0b]"> 融 {x.marginUse.toFixed(1)}%</span></span>
                   </div>))}</div>
                 <p className="mt-2 text-[11px] text-[#7c8aa0]">這是「選什麼」不是「什麼時候」：要等抄底訊號 A／B 出現再進場。高融資、跌深的股票反彈最猛，但如果大盤沒止跌，也會跌得最兇（融資斷頭賣壓）。</p>
               </div>
