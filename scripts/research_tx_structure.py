@@ -80,7 +80,7 @@ def logit(X, y, lam=1.0, it=3000, lr=0.1):
     return w, b
 
 
-def main():
+def build_rows() -> list[dict]:
     day = rr.load_dir(DATA / "futures" / "day")
     dates = sorted(d for d, b in day.items() if len(b) >= 250 and rr.OR_M in b)
     O, H, L, C, E = [], [], [], [], []
@@ -142,6 +142,11 @@ def main():
         if f["adx"] is None:
             continue
         rows.append(f)
+    return rows
+
+
+def main():
+    rows = build_rows()
     tr = [r for r in rows if r["date"] < SPLIT]
     te = [r for r in rows if r["date"] >= SPLIT]
     feats = [("tr1", "前一天 TR ÷ ATR20"), ("atr5_20", "ATR5 ÷ ATR20（短期壓縮）"), ("atr10_60", "ATR10 ÷ ATR60"),
