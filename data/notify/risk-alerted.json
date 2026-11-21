@@ -3,8 +3,9 @@
 "cds:NBIS",
 "dxy:警戒",
 "temp:偏高",
-"vix:警戒",
+"vix:jump:2026-11-20",
+"vix:危險",
 "vixts:危險",
-"vvix:警戒"
+"vvix:危險"
 ]
 }
