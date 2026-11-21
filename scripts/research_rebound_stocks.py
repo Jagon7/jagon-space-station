@@ -30,6 +30,39 @@ DATA = Path(os.environ.get("JSS_DATA_DIR", ROOT / "data"))
 R = DATA / "research" / "rebound"
 
 
+_LINES: dict = {}
+
+
+def lines_at(code: str, d: str):
+    """個股在 d 收盤時離各條線多遠（%）：生命線（今年 VWAP）、252 日 VWAP、季線、半年線、年線（Yahoo 日線，data/research/yahoo_stocks）"""
+    if code not in _LINES:
+        p = DATA / "research" / "yahoo_stocks" / f"{code}.json"
+        try:
+            rows = [r for r in json.loads(p.read_text(encoding="utf-8"))["d"] if r[4] and r[2] and r[3]]
+        except (OSError, ValueError):
+            rows = []
+        _LINES[code] = rows
+    rows = _LINES[code]
+    i = next((k for k in range(len(rows) - 1, -1, -1) if rows[k][0] <= d), None)
+    if i is None or rows[i][0] != d:  # 當天沒有 Yahoo 資料（停牌等）
+        return {}
+    c = rows[i][4]
+    tp = lambda r: (r[2] + r[3] + r[4]) / 3 * (r[5] or 0)  # noqa: E731
+    ytd = [r for r in rows[:i + 1] if r[0][:4] == d[:4]]
+    out = {}
+    if len(ytd) >= 20 and sum(r[5] or 0 for r in ytd):
+        out["lifeDist"] = (c / (sum(tp(r) for r in ytd) / sum(r[5] or 0 for r in ytd)) - 1) * 100
+    if i >= 251:
+        w = rows[i - 251:i + 1]
+        vv = sum(r[5] or 0 for r in w)
+        if vv:
+            out["life252Dist"] = (c / (sum(tp(r) for r in w) / vv) - 1) * 100
+    for n in (60, 120, 240):
+        if i >= n - 1:
+            out[f"ma{n}Dist"] = (c / st.mean(r[4] for r in rows[i - n + 1:i + 1]) - 1) * 100
+    return out
+
+
 def load(kind, d):
     p = R / f"{kind}_{d.replace('-', '')}.json"
     try:
@@ -94,6 +127,7 @@ def main():
             r["fgnHold"] = fv[0]
             r["marginUse"] = mt * 1000 / sh_c * 100 if mt is not None and sh_c else None
             r["mcap"] = px * sh_c / 1e8 if sh_c else None
+            r.update(lines_at(c, T))
             allrows.append(r)
             n_ok += 1
         print(f"{T}（大盤 {idx_drop:.1f}%）：{n_ok} 檔")
@@ -101,7 +135,9 @@ def main():
              ("fgn10", "低點前 10 天外資買賣超 ÷ 成交量"), ("trust10", "低點前 10 天投信買賣超 ÷ 成交量"), ("dealer10", "低點前 10 天自營商買賣超 ÷ 成交量"),
              ("marginChg", "融資增減（高點→低點，越負＝散戶砍越多）"), ("marginUse", "融資使用率（融資 ÷ 股本，散戶槓桿多寡）"),
              ("fgnHold", "外資持股比率"), ("mcap", "市值"), ("px", "股價"), ("value", "低點當天成交金額"),
-             ("fgnPost5", "低點後 5 天外資買賣超（止跌後誰進場）"), ("trustPost5", "低點後 5 天投信買賣超")]
+             ("fgnPost5", "低點後 5 天外資買賣超（止跌後誰進場）"), ("trustPost5", "低點後 5 天投信買賣超"),
+             ("lifeDist", "離生命線（今年成本 VWAP）%"), ("life252Dist", "離過去一年成本（252 日 VWAP）%"),
+             ("ma60Dist", "離季線 %"), ("ma120Dist", "離半年線 %"), ("ma240Dist", "離年線 %")]
     # 只列已經過完 20 個交易日、有 T+20 行情的波段（還在進行中的回檔，低點可能還沒到，不能當成一次「低點」）
     done = {T for T in {r["ep"] for r in allrows} if any(r.get("r20") is not None for r in allrows if r["ep"] == T)}
     out = {"episodes": [e for e in eps if e["trough"] in done], "features": {}, "sectors": {}, "ssf": {}, "top": {},
@@ -132,6 +168,14 @@ def main():
                     diffs.append(st.mean(r["r20"] for r in g[h:]) - st.mean(r["r20"] for r in g[:h]))
         if diffs and k not in ("drop", "relDrop", "beta"):
             res["ctrl"] = {"avg": round(st.mean(diffs), 2), "pos": sum(1 for x in diffs if x > 0), "n": len(diffs)}
+        if "r20" not in res:  # 沒有資料（例如 GitHub 上沒有個股日線）：沿用上次的結果
+            try:
+                old = json.loads((DATA / "research" / "rebound_stocks.json").read_text(encoding="utf-8"))["features"].get(k)
+            except (OSError, ValueError, KeyError):
+                old = None
+            if old:
+                out["features"][k] = old
+            continue
         out["features"][k] = res
     # 產業
     by = {}

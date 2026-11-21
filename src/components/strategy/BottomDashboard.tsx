@@ -194,7 +194,7 @@ export default function BottomDashboard() {
 
       {data.stocks && (() => {
         const sk = data.stocks!;
-        const F = ["marginUse", "drop", "last5", "mcap", "trust10", "dealer10", "fgn10", "fgnHold", "marginChg", "px", "trustPost5", "fgnPost5"];
+        const F = ["marginUse", "drop", "last5", "lifeDist", "ma60Dist", "ma240Dist", "mcap", "trust10", "dealer10", "fgn10", "fgnHold", "marginChg", "px", "trustPost5", "fgnPost5"];
         return (
           <section className="mb-6 rounded-xl border border-[#243247] bg-[#0d1220] p-4 overflow-x-auto">
             <div className="text-sm font-semibold text-white mb-1">抄底選股：大跌低點後哪些股票反彈最強（上市股，{sk.features.drop?.r20?.n ?? sk.episodes.length} 次 ≥ 15% 回檔，2012 起）</div>
