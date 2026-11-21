@@ -242,7 +242,18 @@ function buildRows() {
     level: r.ok ? "ok" : (r.lag ?? 9) <= 1 ? "warn" : "error", item: `新鮮度・${r.cat}`, name: r.name, date: r.latest, lag: r.lag,
     count: null, note: r.ok ? `應有 ${r.expected}（${fr!.checkedAt.slice(5, 16).replace("T", " ")} 檢查）` : `應有 ${r.expected}，還沒更新`,
   }));
-  return { rows: [...frRows, ...rows], expected, latestPrice: priceDates.at(-1) ?? null };
+  // 每晚的數值驗證（scripts/validate_data.py）：同一個數字用兩個來源或兩種算法對照；只列出有問題的項目＋一行總結
+  const va = read<{ checkedAt: string; rows: { cat: string; name: string; level: "ok" | "warn" | "error"; detail: string }[] }>("validation.json");
+  const vaRows: Row[] = [];
+  if (va) {
+    const bad = va.rows.filter((r) => r.level !== "ok");
+    const nErr = bad.filter((r) => r.level === "error").length;
+    vaRows.push({ level: nErr ? "error" : bad.length ? "warn" : "ok", item: "數值驗證", name: `${va.rows.length} 項交叉比對（行情、融資、法人、股數、期貨、國際、研究）`,
+      date: va.checkedAt.slice(0, 10), lag: null, count: va.rows.length,
+      note: `${va.checkedAt.slice(5, 16).replace("T", " ")} 檢查・錯誤 ${nErr}、注意 ${bad.length - nErr}${bad.length ? "" : "：全部一致"}` });
+    for (const r of bad) vaRows.push({ level: r.level, item: `數值・${r.cat}`, name: r.name, date: null, lag: null, count: null, note: r.detail });
+  }
+  return { rows: [...vaRows, ...frRows, ...rows], expected, latestPrice: priceDates.at(-1) ?? null };
 }
 
 const SCHEDULE: [string, string][] = [
@@ -260,6 +271,7 @@ const SCHEDULE: [string, string][] = [
   ["每天 14:30／20:40", "訂單流：永豐逐筆成交補當天＋回補歷史"],
   ["平日 22:00", "主動 ETF 建倉成本重算＋停損／融資斷頭 LINE"],
   ["每天 23:10", "資料新鮮度檢查：任何資料或通知沒更新到最新交易日就發 LINE"],
+  ["每天 23:10", "數值驗證：同一個數字用兩個來源或兩種算法對照（證交所 vs Yahoo、個股加總 vs 官方、VIX vs CBOE、研究結果重算），不一致就發 LINE"],
 ];
 
 export default function HealthPage() {

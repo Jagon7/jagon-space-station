@@ -6,7 +6,7 @@
   行情 MI_INDEX（每日收盤行情）：波段高點日、T−9～T+5 每天、T+20、T+60
   三大法人 T86：T−9～T+5 每天
   融資融券 MI_MARGN：波段高點日、T
-  外資持股 MI_QFIIS：T
+  外資持股 MI_QFIIS：T（[外資持股比率%, 當時發行股數]，融資使用率、市值用當時的股數）
 存 data/research/rebound/<種類>_<YYYYMMDD>.json（只留需要的欄位）；已抓過的不重抓
 用法：python scripts/fetch_rebound_data.py（GitHub Actions 上跑；證交所連續抓太快會被擋，每次間隔 4 秒）
 """
@@ -117,7 +117,8 @@ def qfii(d):
     i = next((k for k, x in enumerate(f) if "持股比率" in x and "全體" in x), None)
     if i is None:
         i = next((k for k, x in enumerate(f) if "持股比率" in x), None)
-    return {r[0].strip(): num(r[i]) for r in data} if i is not None else {}
+    k = next((n for n, x in enumerate(f) if x.strip() == "發行股數"), None)
+    return {r[0].strip(): [num(r[i]), num(r[k]) if k is not None else None] for r in data} if i is not None else {}
 
 
 def main():
@@ -139,7 +140,8 @@ def main():
     for kind, d in jobs:
         key = f"{kind}_{d.replace('-', '')}"
         p = OUT / f"{key}.json"
-        if key in seen or (p.exists() and p.stat().st_size > 100):
+        old = kind == "f" and p.exists() and p.read_text(encoding="utf-8")[:300].find("[") < 0  # 舊格式沒有發行股數，重抓
+        if key in seen or (p.exists() and p.stat().st_size > 100 and not old):
             seen.add(key)
             continue
         seen.add(key)

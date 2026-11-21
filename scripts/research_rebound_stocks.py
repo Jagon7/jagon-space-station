@@ -9,7 +9,7 @@
 特徵（T 日當時可知）：
   跌幅       波段高點 → T 的個股跌幅；相對大盤（beta 概念）
   外資／投信／自營  T−9～T 這 10 天買賣超 ÷ 這 10 天成交量（籌碼）
-  融資增減   波段高點 → T 融資餘額變化（散戶去槓桿）；融資使用率＝融資餘額 ÷ 發行股數（散戶多寡，用目前股數近似）
+  融資增減   波段高點 → T 融資餘額變化（散戶去槓桿）；融資使用率＝融資餘額 ÷ 發行股數（散戶多寡；用當時的發行股數，證交所 MI_QFIIS）
   外資持股比率（T 日）
   市值、股價、成交金額、低點前 5 天跌幅（急殺）
   產業（目前分類）、有沒有個股期貨（目前清單）
@@ -88,9 +88,12 @@ def main():
                 r[f"{lab}Post5"] = netp / vol10 * 100 if vol10 else None
             mp, mt = (mP.get(c) or [None])[0], (mT.get(c) or [None])[0]
             r["marginChg"] = (mt / mp - 1) * 100 if mp and mt and mp > 50 else None
-            r["marginUse"] = mt * 1000 / shares[c] * 100 if mt is not None and shares.get(c) else None
-            r["fgnHold"] = fT.get(c)
-            r["mcap"] = px * shares[c] / 1e8 if shares.get(c) else None
+            fv = fT.get(c)
+            fv = fv if isinstance(fv, list) else [fv, None]  # [外資持股%, 當時發行股數]
+            sh_c = fv[1] or shares.get(c)  # 用當時的發行股數（證交所 MI_QFIIS）；沒有才用目前股數
+            r["fgnHold"] = fv[0]
+            r["marginUse"] = mt * 1000 / sh_c * 100 if mt is not None and sh_c else None
+            r["mcap"] = px * sh_c / 1e8 if sh_c else None
             allrows.append(r)
             n_ok += 1
         print(f"{T}（大盤 {idx_drop:.1f}%）：{n_ok} 檔")
@@ -99,7 +102,10 @@ def main():
              ("marginChg", "融資增減（高點→低點，越負＝散戶砍越多）"), ("marginUse", "融資使用率（融資 ÷ 股本，散戶槓桿多寡）"),
              ("fgnHold", "外資持股比率"), ("mcap", "市值"), ("px", "股價"), ("value", "低點當天成交金額"),
              ("fgnPost5", "低點後 5 天外資買賣超（止跌後誰進場）"), ("trustPost5", "低點後 5 天投信買賣超")]
-    out = {"episodes": [e for e in eps if load("q", e["trough"])], "features": {}, "sectors": {}, "ssf": {}, "top": {}}
+    # 只列已經過完 20 個交易日、有 T+20 行情的波段（還在進行中的回檔，低點可能還沒到，不能當成一次「低點」）
+    done = {T for T in {r["ep"] for r in allrows} if any(r.get("r20") is not None for r in allrows if r["ep"] == T)}
+    out = {"episodes": [e for e in eps if e["trough"] in done], "features": {}, "sectors": {}, "ssf": {}, "top": {},
+           "pending": [e["trough"] for e in eps if e["trough"] not in done]}
     for k, lab in feats:
         res = {"label": lab, "eps": {}}
         for tgt in ("r20", "r60", "l20"):
@@ -148,7 +154,7 @@ def main():
         out["ssf"]["有個股期" if flag else "沒有個股期"] = {"n": len(rs), "r20": round(st.mean(r["r20"] for r in rs), 2), "r60": round(st.mean(r["r60"] for r in rs if r.get("r60") is not None), 2),
                                                         "win20": round(sum(r["r20"] > 0 for r in rs) / len(rs) * 100)}
     # 各波反彈前 15 名
-    for T in sorted({r["ep"] for r in allrows}):
+    for T in sorted(done):
         rs = sorted([r for r in allrows if r["ep"] == T and r.get("r20") is not None], key=lambda r: -r["r20"])[:15]
         out["top"][T] = [{k: (round(v, 2) if isinstance(v, float) else v) for k, v in r.items() if k in ("code", "name", "sector", "ssf", "r20", "r60", "drop", "fgn10", "trust10", "marginChg", "marginUse", "fgnHold", "mcap")} for r in rs]
     # 重複上榜：各波前 10% 出現最多次的股票
