@@ -138,6 +138,8 @@ def main():
              ("fgnPost5", "低點後 5 天外資買賣超（止跌後誰進場）"), ("trustPost5", "低點後 5 天投信買賣超"),
              ("lifeDist", "離生命線（今年成本 VWAP）%"), ("life252Dist", "離過去一年成本（252 日 VWAP）%"),
              ("ma60Dist", "離季線 %"), ("ma120Dist", "離半年線 %"), ("ma240Dist", "離年線 %")]
+    if os.environ.get("REBOUND_DUMP"):  # 研究用：把每檔的特徵輸出給其他分析
+        Path(os.environ["REBOUND_DUMP"]).write_text(json.dumps(allrows, ensure_ascii=False), encoding="utf-8")
     # 只列已經過完 20 個交易日、有 T+20 行情的波段（還在進行中的回檔，低點可能還沒到，不能當成一次「低點」）
     done = {T for T in {r["ep"] for r in allrows} if any(r.get("r20") is not None for r in allrows if r["ep"] == T)}
     out = {"episodes": [e for e in eps if e["trough"] in done], "features": {}, "sectors": {}, "ssf": {}, "top": {},
