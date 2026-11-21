@@ -121,8 +121,21 @@ def main():
         kt = max(chain, key=lambda k: chain[k][0] + chain[k][1])
         r100 = round(p915 / 100) * 100
         isexp = ed == d
-        r = {"date": d, "exp": isexp, "code": code, "monthly": len(code) == 6, "atr": atr, "p915": p915, "settle": settle, "close": t[-1],
-             "mp": mp, "kCall": int(kc), "kPut": int(kp), "kTot": int(kt), "r100": r100, "oiTot": sum(v[0] + v[1] for v in chain.values())}
+        prev_chain = {}
+        if len(pv) >= 2 and code in oi[pv[-2]]:
+            prev_chain = oi[pv[-2]][code]
+        cO, pO = sum(v[0] for v in chain.values()), sum(v[1] for v in chain.values())
+        cO0, pO0 = sum(v[0] for v in prev_chain.values()), sum(v[1] for v in prev_chain.values())
+        # 未平倉加權中心（買＋賣）相對 09:15：正＝未平倉重心在上方
+        ctr = sum(int(k) * (v[0] + v[1]) for k, v in chain.items()) / max(1, cO + pO)
+        b = day.get(d) or {}
+        upPost = (b[max(m for m in b if m <= rr.EXIT_M)][3] > b[rr.OR_M - 1][3]) if b and rr.OR_M - 1 in b else None
+        rngPost = (max(x[1] for m, x in b.items() if m >= rr.OR_M) - min(x[2] for m, x in b.items() if m >= rr.OR_M)) / atr if b else None
+        r = {"pcr": pO / cO if cO else None, "dPcr": (pO / cO - pO0 / cO0) if cO and cO0 else None,
+             "dCall": (cO / cO0 - 1) * 100 if cO0 else None, "dPut": (pO / pO0 - 1) * 100 if pO0 else None,
+             "ctr": (ctr - p915) / atr, "upPost": upPost, "big": rngPost is not None and rngPost >= 1}
+        r.update({"date": d, "exp": isexp, "code": code, "monthly": len(code) == 6, "atr": atr, "p915": p915, "settle": settle, "close": t[-1],
+             "mp": mp, "kCall": int(kc), "kPut": int(kp), "kTot": int(kt), "r100": r100, "oiTot": sum(v[0] + v[1] for v in chain.values())})
         for nm, k in (("mp", mp), ("kTot", int(kt)), ("r100", r100)):
             d0, d1 = abs(p915 - k) / atr, abs(settle - k) / atr
             r[f"{nm}D0"], r[f"{nm}D1"] = d0, d1
@@ -184,6 +197,35 @@ def main():
                           "finTop": round(f1, 1), "finOther": round(f0, 1)})
                 print(f"    距離 {a:.2f}～{b:.2f} ATR {nm}：最大未平倉 突破 {c1:4.0f}%（收在外 {f1:3.0f}%，n{len(t1)}） vs 其他 {c0:4.0f}%（{f0:3.0f}%，n{len(t0)}）")
         out["wall"][side] = o
+    # 檢驗 3：未平倉多空比（P/C）與變化 → 方向、振幅
+    import research_tx_structure as rs
+    print("\n檢驗 3：未平倉結構 → 09:15 後收漲／大振幅（AUC，2020-24／2025 後；0.5＝沒用）")
+    out["struct"] = {}
+    for k, lab in (("pcr", "賣權÷買權未平倉（P/C 比）"), ("dPcr", "P/C 比前一天變化"), ("dCall", "買權未平倉增減 %"), ("dPut", "賣權未平倉增減 %"),
+                   ("ctr", "未平倉重心 − 09:15 價（ATR）")):
+        o = {}
+        line = f"  {lab:24s}"
+        for t, tl in (("upPost", "收漲"), ("big", "大振幅")):
+            a = []
+            for part in ([r for r in rows if r["date"] < "2025-01-01"], [r for r in rows if r["date"] >= "2025-01-01"]):
+                v = [(r[k], bool(r[t])) for r in part if r.get(k) is not None and r.get(t) is not None]
+                a.append(rs.auc([y for _, y in v], [x for x, _ in v]))
+            o[t] = [round(a[0], 3), round(a[1], 3)]
+            line += f"   {tl} {a[0]:.2f}／{a[1]:.2f}"
+        out["struct"][k] = {"label": lab, "auc": o}
+        print(line)
+    # 加進大振幅模型（research_tx_range 的逐年滾動），看 P/C 比、未平倉重心有沒有額外資訊
+    import research_tx_range as rg
+    by = {r["date"]: r for r in rows}
+    base = [dict(x, pcr=by[x["date"]]["pcr"], ctr=by[x["date"]]["ctr"]) for x in rg.rows_all() if x["date"] in by]
+    oos = [x for x in base if x["date"] >= "2022-01-01"]
+    out["model"] = {}
+    for nm, keys in (("09:15 全部（原本）", rg.STRUCT + rg.PRE + rg.AT915), ("＋P/C 比＋未平倉重心", rg.STRUCT + rg.PRE + rg.AT915 + ["pcr", "ctr"])):
+        pr = rg.walk(base, keys)
+        s_ = [x for x in oos if x["date"] in pr]
+        a = rs.auc([x["big"] for x in s_], [pr[x["date"]][0] for x in s_])
+        out["model"][nm] = round(a, 3)
+        print(f"  大振幅模型 {nm}：AUC {a:.3f}（{len(s_)} 天樣本外）")
     (DATA / "research" / "tx_oi.json").write_text(json.dumps(out, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     return 0
 
