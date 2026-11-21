@@ -134,7 +134,7 @@ def build_rows() -> list[dict]:
             "prevEff": E[p],
             "out1": float(o > H[p] or o < L[p]), "out5": float(o > max(H[i - 5:i]) or o < min(L[i - 5:i])),
             "out20": float(o > h20 or o < l20),
-            "absGap": abs(o - C[p]) / atr20, "sd20": sd20 / atr20,
+            "absGap": abs(o - C[p]) / atr20, "sd20": sd20 / atr20, "atrPctRaw": atr20 / C[p] * 100,
             "orATR": (orh - orl) / atr20, "orTR1": (orh - orl) / TR[p] if TR[p] else 1,
             # 目標
             "eff": eff, "trend": eff >= 0.6, "chop": eff < 0.3, "two": up and dn, "rngPost": (ph - pl) / atr20,
