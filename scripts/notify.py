@@ -1010,6 +1010,33 @@ def active_alert(dry: bool, force: bool = False) -> int:
                     sub=f"{r['etf']} {r['etfName']}・成本 {r['cost']:,.1f}" + (f"・{md(r['below'])} 跌破、期限 {md(r['due'])}" if r.get("below") else ""))
         if len(new) > 12:
             m.note(f"另有 {len(new) - 12} 個部位，請看網頁")
+    # 停損期限快到：跌破 -40% 後第 5 個交易日（假設）落在今天起 5 個交易日內的部位，依期限排；附上近 5 天 ETF 實際增減（看有沒有真的在賣）
+    soon_end = None
+    try:
+        import build_margin as _bm
+        soon_end = _bm.add_trading_days(ROOT / "data", today, 5, [])
+    except Exception:  # noqa: BLE001
+        soon_end = (now.date() + timedelta(days=7)).isoformat()
+    due = sorted([r for r in ad["rows"] if r.get("due") and today <= r["due"] <= (soon_end or today) and r["lots"] >= 50],
+                 key=lambda r: (r["due"], r["dd"]))
+    if due:
+        g = {}
+        for r in due:
+            x = g.setdefault(r["code"], {"name": r["name"], "code": r["code"], "n": 0, "lots": 0, "c5": 0, "due": r["due"], "dd": r["dd"]})
+            x["n"] += 1
+            x["lots"] += r["lots"]
+            x["c5"] += r.get("c5") or 0
+            x["due"] = min(x["due"], r["due"])
+            x["dd"] = min(x["dd"], r["dd"])
+        gs = sorted(g.values(), key=lambda x: -x["lots"])
+        m.section("停損期限快到（5 個交易日內）", f"{len(gs)} 檔股票・{len(due)} 個部位")
+        m.cols("合計張數", "近 5 天")
+        for x in gs[:10]:
+            m.stock(x["name"], x["code"], f"{x['lots']:,}", "沒動" if x["c5"] == 0 else f"{x['c5']:+,} 張",
+                    color="#E5484D" if x["c5"] < 0 else None, star=x["code"] in wl,
+                    sub=f"{x['n']} 檔 ETF・最早期限 {md(x['due'])}・最深 DD {x['dd']:.0f}%")
+        if len(gs) > 10:
+            m.note(f"另有 {len(gs) - 10} 檔，請看網頁")
     top = [a for a in ad["stocks"] if a["warn"]][:5]
     if top:
         m.section("套牢最集中", "被幾檔 ETF 套在 -30% 以下")
@@ -1037,7 +1064,7 @@ def active_alert(dry: bool, force: bool = False) -> int:
                         star=r["code"] in wl, sub=f"{md(r['below'])} 跌破 130%・追繳價 {r['call']:,}" if r.get("below") else f"追繳價 {r['call']:,}")
             if len(low) > 8:
                 m.note(f"熱門股共 {len(low)} 檔低於 130%")
-    m.note("DD＝收盤 ÷ 回推平均建倉成本 − 1；疑似停損＝最新一天減碼 ≥ 50 張或出清、且 DD ≤ -30%；停損期限＝跌破 -40% 後第 5 個交易日（假設）；預計斷頭日＝跌破 130% 後第 3 個交易日；融資維持率為推估值；★＝自選股")
+    m.note("DD＝收盤 ÷ 回推平均建倉成本 − 1；疑似停損＝最新一天減碼 ≥ 50 張或出清、且 DD ≤ -30%；停損期限＝跌破 -40% 後第 5 個交易日（假設；實際上多數 ETF 跌破後沒有賣，近 20 天反而淨加碼，「近 5 天」負數才是真的在賣）；預計斷頭日＝跌破 130% 後第 3 個交易日；融資維持率為推估值；★＝自選股")
     print(m.text())
     if dry:
         return 0
