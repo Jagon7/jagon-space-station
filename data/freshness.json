@@ -1,6 +1,6 @@
 {
- "checkedAt": "2026-11-22T23:10+08:00",
- "tradingDay": "2026-11-20",
+ "checkedAt": "2026-11-23T05:00+08:00",
+ "tradingDay": "2026-11-23",
  "rows": [
   {
    "cat": "行情",
@@ -158,8 +158,8 @@
   {
    "cat": "網站",
    "name": "網站部署（Cloudflare）",
-   "latest": "2026-11-22",
-   "expected": "2026-11-22",
+   "latest": "2026-11-23",
+   "expected": "2026-11-23",
    "ready": "00:00",
    "lag": 0,
    "ok": true
