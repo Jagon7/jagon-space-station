@@ -45,10 +45,12 @@ jobs:
       - id: when
         name: Evening run?
         run: |
-          h=$(TZ=Asia/Taipei date +%H)
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ] || [ "$h" -ge 15 ]; then echo "evening=true" >> "$GITHUB_OUTPUT"; else echo "evening=false" >> "$GITHUB_OUTPUT"; fi
+          # 用「觸發的是哪一個排程」判斷晚上那次（不看現在幾點：GitHub 排程常延後好幾小時，早上那次延到下午會被誤判）
+          ev=false
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] || [ "${{ github.event.schedule }}" = "17 10 * * 1-5" ]; then ev=true; fi
+          echo "evening=$ev" >> "$GITHUB_OUTPUT"
           # 晚上那次要在 19:00 前算完：抓取最多到 18:48
-          if [ "${{ github.event_name }}" = "schedule" ] && [ "$h" -ge 15 ]; then
+          if [ "${{ github.event_name }}" = "schedule" ] && [ "$ev" = true ]; then
             left=$(( ( $(TZ=Asia/Taipei date -d '18:48' +%s) - $(date +%s) ) / 60 ))
             [ "$left" -lt 8 ] && left=8
             echo "MINUTES=$left" >> "$GITHUB_ENV"
@@ -108,7 +110,10 @@ jobs:
         if: github.event_name == 'schedule'
         run: |
           now=$(date +%s); target=$(TZ=Asia/Taipei date -d '19:00' +%s)
-          if [ "$now" -lt "$target" ]; then echo "等到 19:00（$(( (target - now) / 60 )) 分鐘）"; sleep $(( target - now )); fi
+          wait=$(( target - now ))
+          # 等太久會超過這個 job 的 60 分鐘上限被取消（會寄錯誤信）：超過 50 分鐘就不等，直接推（不會發生在正常的 18:17 排程）
+          if [ "$wait" -gt 3000 ]; then echo "離 19:00 還有 $(( wait / 60 )) 分鐘，超過上限，不等直接推"; exit 0; fi
+          if [ "$wait" -gt 0 ]; then echo "等到 19:00（$(( wait / 60 )) 分鐘）"; sleep "$wait"; fi
       - name: Send rebalance prediction
         run: TZ=Asia/Taipei python3 scripts/notify.py --rebalance-alert ${{ github.event.inputs.notify == 'true' && '--preview' || '' }}
         env:
