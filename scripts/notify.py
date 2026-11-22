@@ -1412,6 +1412,92 @@ def rebalance_alert(dry: bool, force: bool = False) -> int:
     return 0
 
 
+INDEX_STATE = ROOT / "data" / "notify" / "index-sent.json"
+INDEX_MIN_AUM = 1e10  # 追蹤 ETF 規模 ≥ 100 億才提醒（MSCI 一律提醒）
+
+
+def index_alert(dry: bool, force: bool = False) -> int:
+    """被動式 ETF 指數調整：生效日落在今天起 5 個交易日內就提醒一次（同一個指數＋生效日只發一次）；
+    已公告的列出納入／剔除，有換股預估的（00919、0050、0051、0056、00929）附預估張數與量能倍數"""
+    import build_margin
+    data = Path(os.environ.get("JSS_DATA_DIR", ROOT / "data"))
+    now = datetime.now(TPE_TZ)
+    today = now.date().isoformat()
+    if not force and (now.weekday() >= 5 or today in _holidays()):
+        print("今天休市，不發指數調整提醒")
+        return 0
+    rows = (json.loads((data / "etf" / "index_schedule.json").read_text(encoding="utf-8")) or {}).get("rows", [])
+    end = build_margin.add_trading_days(data, today, 5, [])
+    try:
+        aum = json.loads((data / "etf" / "aum.json").read_text(encoding="utf-8")).get("days") or {}
+        last = aum[max(aum)] if aum else {}
+    except (OSError, ValueError):
+        last = {}
+    size = {c: (v[1] or 0) * (v[3] or 0) for c, v in last.items()}
+    try:
+        state = json.loads(INDEX_STATE.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        state = {"sent": []}
+    todo = []
+    for r in rows:
+        if not (today < r["effective"] <= end):
+            continue
+        big = sorted([c for c in r.get("etfs") or [] if size.get(c, 0) >= INDEX_MIN_AUM], key=lambda c: -size[c])
+        if not big and r.get("provider") != "MSCI":
+            continue
+        key = f"{r['index']}|{r['effective']}"
+        has_list = bool(r.get("add") or r.get("del"))
+        if has_list:
+            key += "|名單"  # 公告後抓到名單：再提醒一次正式名單（第一次提醒通常還沒公告）
+        if key in state["sent"] and not force:
+            continue
+        todo.append((r, big, key))
+    if not todo:
+        print(f"今天起到 {end} 沒有需要提醒的指數調整")
+        return 0
+    md = lambda d: f"{int(d[5:7])}/{int(d[8:10])}"  # noqa: E731
+    wl = set(watchlist())
+    m = Msg(("【預覽】" if force else "") + ("📅 ETF 成分股調整：已公告名單" if all(k.endswith("|名單") for _, _, k in todo) else "📅 ETF 成分股調整：5 個交易日內生效"), f"{md(today)} 提醒・{len(todo)} 個指數", accent="#0EA5E9",
+            url=f"{SITE}/etf-flow/", button="開啟 ETF 資金流")
+    for r, big, _ in sorted(todo, key=lambda x: (x[0]["effective"], -sum(size.get(c, 0) for c in x[1]))):
+        nm = r["index"].replace("臺灣指數公司", "").replace("特選臺灣上市上櫃", "").replace("特選", "").replace("指數", "").strip()
+        tot = sum(size.get(c, 0) for c in big)
+        m.section(nm, f"{md(r['effective'])} 生效")
+        m.kv("ETF", ("、".join(f"{c}（{size[c] / 1e8:,.0f} 億）" for c in big[:4]) if big else "（MSCI 追蹤基金）") + (f"・合計 {tot / 1e8:,.0f} 億" if len(big) > 1 else ""))
+        m.kv("公告日", md(r["announce"]) + ("（已公告）" if r["announce"] <= today else "（還沒公告）"))
+        pred = None
+        for c in big:
+            try:
+                pred = json.loads((data / "rebalance" / "pred" / f"{c}.json").read_text(encoding="utf-8"))
+                break
+            except (OSError, ValueError):
+                continue
+        if r.get("add") or r.get("del"):
+            if r.get("add"):
+                m.line("納入：" + "、".join(f"{'★' if c in wl else ''}{n} {c}" for c, n in r["add"][:12]) + (f" 等 {len(r['add'])} 檔" if len(r["add"]) > 12 else ""), color="#16A34A")
+            if r.get("del"):
+                m.line("剔除：" + "、".join(f"{'★' if c in wl else ''}{n} {c}" for c, n in r["del"][:12]) + (f" 等 {len(r['del'])} 檔" if len(r["del"]) > 12 else ""), color="#DC2626")
+        elif pred and pred.get("ready", True) and (pred.get("add") or pred.get("del")):
+            m.line(f"預估（{md(pred['asof'])} 資料，以公告為準）", color=FLAT)
+            m.cols("預估張數", "量能倍數")
+            for x, up in [(x, True) for x in pred["add"][:6]] + [(x, False) for x in pred["del"][:6]]:
+                m.stock(x["name"], x["code"], f"{abs(x['lots']):,.0f}" if x.get("lots") is not None else "—",
+                        f"{abs(x['mult']):.1f}x" if x.get("mult") is not None else "—", up=up, sub="預估納入" if up else "預估剔除", star=x["code"] in wl)
+        else:
+            m.line("成分股名單要等公告" if r["announce"] > today else "公告沒有成分股異動，或名單還沒抓到", color=FLAT)
+    m.note("ETF 通常在生效日前一個交易日收盤調整持股；預估張數＝權重調整×ETF 規模÷股價，量能倍數＝預估張數÷扣除當沖後的日成交量。★＝自選股")
+    print(m.text())
+    if dry:
+        return 0
+    if not send(m):
+        print("（沒有設定任何推播管道，只印出內容）")
+    if not force:
+        state["sent"] = (state["sent"] + [k for _, _, k in todo])[-300:]
+        INDEX_STATE.parent.mkdir(parents=True, exist_ok=True)
+        INDEX_STATE.write_text(json.dumps(state, ensure_ascii=False, indent=0), encoding="utf-8")
+    return 0
+
+
 SETTLE_STATE = ROOT / "data" / "notify" / "settlement-sent.json"
 
 
@@ -1649,6 +1735,7 @@ def main():
     ap.add_argument("--risk-alert", action="store_true", help="市場風險警示：風險溫度偏高、指標達警戒／危險、VIX 暴漲、信用利差擴大、科技廠隱含 CDS 跳升")
     ap.add_argument("--etf-alert", action="store_true", help="每日 ETF 持股變化摘要（週一到五 20:00；加 --preview 立刻發預覽）")
     ap.add_argument("--rebalance-alert", action="store_true", help="ETF 換股預估（週一到五 19:00；加 --preview 立刻發預覽）")
+    ap.add_argument("--index-alert", action="store_true", help="被動式 ETF 指數調整：生效前 5 個交易日內提醒一次（週一到五 19:00；加 --preview 立刻發預覽）")
     ap.add_argument("--broker-alert", action="store_true", help="重點分點當日買賣超 ≥ 5000 萬（週一到五 20:00；加 --preview 立刻發預覽）")
     ap.add_argument("--active-alert", action="store_true", help="主動 ETF 停損＋融資斷頭（週一到五晚上；加 --preview 立刻發預覽）")
     ap.add_argument("--g85-alert", action="store_true", help="85g 當沖標的（週一到五 08:30；加 --preview 立刻發預覽）")
@@ -1669,6 +1756,8 @@ def main():
         return broker_alert(a.dry_run, force=a.preview)
     if a.rebalance_alert:
         return rebalance_alert(a.dry_run, force=a.preview)
+    if a.index_alert:
+        return index_alert(a.dry_run, force=a.preview)
     if a.active_alert:
         return active_alert(a.dry_run, force=a.preview)
     if a.g85_alert:
