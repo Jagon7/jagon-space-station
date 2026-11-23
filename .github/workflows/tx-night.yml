@@ -54,6 +54,8 @@ jobs:
           SITE_URL: ${{ secrets.SITE_URL || vars.SITE_URL }}
           LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
           LINE_USER_ID: ${{ secrets.LINE_USER_ID }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
       - name: Shioaji 1-min bars backfill
         # 永豐登入訊息會印出登入識別碼（身分證字號格式），公開的 Actions log 一律遮掉
         run: |
@@ -93,6 +95,8 @@ jobs:
           SITE_URL: ${{ secrets.SITE_URL || vars.SITE_URL }}
           LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
           LINE_USER_ID: ${{ secrets.LINE_USER_ID }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
       - name: Bottom-fishing watch (LINE daily status during a drawdown)
         run: TZ=Asia/Taipei python3 scripts/bottom_watch.py evening
         continue-on-error: true
@@ -101,6 +105,8 @@ jobs:
           SITE_URL: ${{ secrets.SITE_URL || vars.SITE_URL }}
           LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
           LINE_USER_ID: ${{ secrets.LINE_USER_ID }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
       - name: Commit
         run: |
           rm -f shioaji.log

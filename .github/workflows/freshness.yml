@@ -43,6 +43,8 @@ jobs:
           SITE_URL: ${{ secrets.SITE_URL || vars.SITE_URL }}
           LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
           LINE_USER_ID: ${{ secrets.LINE_USER_ID }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
       - name: Validate values (cross-source checks)
         if: inputs.only == '' || inputs.only == null
         run: TZ=Asia/Taipei python3 scripts/validate_data.py ${{ inputs.quiet != 'true' && '--alert' || '' }}
@@ -52,6 +54,8 @@ jobs:
           SITE_URL: ${{ secrets.SITE_URL || vars.SITE_URL }}
           LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
           LINE_USER_ID: ${{ secrets.LINE_USER_ID }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
       - name: Re-run settlement update if the page is stale
         if: inputs.only == '結算' && steps.check.outputs.stale == 'true'
         run: gh workflow run settlement.yml --ref main
