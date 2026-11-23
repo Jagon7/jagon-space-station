@@ -44,6 +44,11 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+      - name: Commodity big-move alert (batched with the morning brief)
+        continue-on-error: true
+        run: TZ=Asia/Taipei python3 scripts/notify.py --commodity-alert
+        env:
+          JSS_DATA_DIR: ./data
       - name: Send morning brief at 08:00
         run: TZ=Asia/Taipei python3 scripts/notify.py --morning
         env:
