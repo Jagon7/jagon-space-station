@@ -1,5 +1,5 @@
 {
-  "date": "2026-11-20",
+  "date": "2026-11-23",
   "data": [
     {
       "code": "2344",
@@ -2046,7 +2046,7 @@
       "code": "7751",
       "name": "竑騰科技",
       "market": "上櫃",
-      "status": "審查中",
+      "status": "生效",
       "cbType": "轉換公司債(無擔保)",
       "amount": 10.0,
       "currency": "台幣",
@@ -2059,7 +2059,7 @@
       "code": "7751",
       "name": "竑騰科技",
       "market": "上櫃",
-      "status": "審查中",
+      "status": "生效",
       "cbType": "轉換公司債(無擔保)",
       "amount": 10.0,
       "currency": "台幣",
@@ -2184,6 +2184,58 @@
       "effectiveDate": "2026-12-04",
       "withdrawDate": null,
       "underwriter": "永豐金證券"
+    },
+    {
+      "code": "4556",
+      "name": "旭然國際",
+      "market": "上櫃",
+      "status": "審查中",
+      "cbType": "轉換公司債(有擔保)",
+      "amount": 2.0,
+      "currency": "台幣",
+      "filingDate": "2026-11-20",
+      "effectiveDate": "2026-12-08",
+      "withdrawDate": null,
+      "underwriter": "統一證券"
+    },
+    {
+      "code": "7740",
+      "name": "熙特爾-創",
+      "market": "上市",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 6.5,
+      "currency": "台幣",
+      "filingDate": "2026-11-20",
+      "effectiveDate": "2026-12-08",
+      "withdrawDate": null,
+      "underwriter": "永豐金證券"
+    },
+    {
+      "code": "7744",
+      "name": "崴寶精密",
+      "market": "上櫃",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 5.0,
+      "currency": "台幣",
+      "filingDate": "2026-11-20",
+      "effectiveDate": "2026-12-08",
+      "withdrawDate": null,
+      "underwriter": "中國信託證券"
+    },
+    {
+      "code": "7744",
+      "name": "崴寶精密",
+      "market": "上櫃",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 5.0,
+      "currency": "台幣",
+      "filingDate": "2026-11-20",
+      "effectiveDate": "2026-12-08",
+      "withdrawDate": null,
+      "underwriter": "中國信託證券"
     }
   ]
 }
