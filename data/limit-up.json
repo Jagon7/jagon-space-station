@@ -32,9 +32,9 @@
       "limitTime": "--:--",
       "market": "上市",
       "instiForeign": 1042,
-      "instiTrust": 172,
+      "instiTrust": 173,
       "instiDealer": -737,
-      "instiTotal": 479,
+      "instiTotal": 480,
       "reason": "國安基金護盤題材"
     },
     {
@@ -50,9 +50,9 @@
       "limitTime": "--:--",
       "market": "上市",
       "instiForeign": -628,
-      "instiTrust": 240,
+      "instiTrust": -538,
       "instiDealer": -436,
-      "instiTotal": -824,
+      "instiTotal": -1602,
       "reason": "國安基金護盤題材"
     },
     {
@@ -123,8 +123,8 @@
       "market": "上櫃",
       "instiForeign": 156,
       "instiTrust": 85,
-      "instiDealer": -1946,
-      "instiTotal": -1703,
+      "instiDealer": -2109,
+      "instiTotal": -1866,
       "reason": "PCB 題材"
     },
     {
@@ -1133,7 +1133,7 @@
       "instiTrust": 0,
       "instiDealer": -1,
       "instiTotal": -5,
-      "reason": ""
+      "reason": "矽光子題材、機器人題材"
     },
     {
       "code": "8201",
@@ -1223,7 +1223,7 @@
       "instiTrust": null,
       "instiDealer": null,
       "instiTotal": null,
-      "reason": ""
+      "reason": "財報亮眼、營收成長"
     }
   ]
 }
