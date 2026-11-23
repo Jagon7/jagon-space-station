@@ -22,6 +22,8 @@ env:
 jobs:
   brief:
     runs-on: ubuntu-latest
+    env:
+      NOTIFY_BATCH: /tmp/notify-outbox.json   # 通知先排入批次，最後合併成一次推送
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v7
@@ -50,6 +52,18 @@ jobs:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
           LINE_USER_ID: ${{ secrets.LINE_USER_ID }}
+      # 這次執行裡所有通知合併成一次推送（LINE 一次推送最多 5 張卡片只算 1 則）
+      - name: Flush notifications (one LINE push)
+        if: always()
+        run: TZ=Asia/Taipei python3 scripts/notify.py --flush
+        continue-on-error: true
+        env:
+          LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
+          LINE_USER_ID: ${{ secrets.LINE_USER_ID }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+
       - name: Save sent state
         run: |
           git config user.name 'github-actions[bot]'

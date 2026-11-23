@@ -278,32 +278,39 @@ def _discord(text: str) -> bool:
     return ok
 
 
-def _line(msg, text: str) -> bool | None:
-    """LINE：Flex 卡片，失敗退回純文字；沒設定回傳 None"""
+def _line_push(objs: list[dict], text: str) -> bool | None:
+    """一次推送最多 5 個訊息物件（LINE 計費：一次推送給 1 人＝1 則，不管裡面有幾張卡片）；超過 5 個才分次推。
+    Flex 失敗（非額度問題）就退回純文字；沒設定回傳 None"""
     ltok, luser = os.environ.get("LINE_CHANNEL_TOKEN"), os.environ.get("LINE_USER_ID")
     if not (ltok and luser):
         return None
 
-    def push(message):
+    def push(messages):
         return requests.post("https://api.line.me/v2/bot/message/push", timeout=30,
-                             headers={"Authorization": f"Bearer {ltok}"}, json={"to": luser, "messages": [message]})
+                             headers={"Authorization": f"Bearer {ltok}"}, json={"to": luser, "messages": messages})
     try:
-        r = None
-        if not isinstance(msg, str):
-            for part in split_flex(msg):
-                r = push(part.flex())
-                print("LINE flex", r.status_code, r.text[:300])
-                if r.status_code != 200:
-                    break
-        if r is not None and r.status_code == 429:
-            return False  # 每月額度用完：純文字也一樣會被擋，不用再試
-        if r is None or r.status_code != 200:
-            r = push({"type": "text", "text": text[:4900]})
-            print("LINE text", r.status_code, r.text[:200])
+        ok = True
+        for i in range(0, len(objs), 5):
+            r = push(objs[i:i + 5])
+            print(f"LINE 推送 {len(objs[i:i + 5])} 張卡片", r.status_code, r.text[:300])
+            if r.status_code == 429:
+                return False  # 每月額度用完：純文字也一樣會被擋
+            if r.status_code != 200:
+                ok = False
+                break
+        if ok:
+            return True
+        r = push([{"type": "text", "text": text[:4900]}])
+        print("LINE text", r.status_code, r.text[:200])
         return r.status_code == 200
     except requests.RequestException as e:
         print("LINE 連線錯誤", e)
         return False
+
+
+def _line(msg, text: str) -> bool | None:
+    objs = [{"type": "text", "text": text[:4900]}] if isinstance(msg, str) else [p.flex() for p in split_flex(msg)]
+    return _line_push(objs, text)
 
 
 def line_quota() -> tuple[int | None, int | None]:
@@ -325,6 +332,18 @@ def send(msg) -> int:
     LINE 沒設定或送不出去（例如每月免費額度用完 429）才改用 Telegram／Discord，避免重複收到。
     回傳成功送達的管道數（0＝全部失敗，會記在 data/notify/undelivered.json）"""
     text = msg if isinstance(msg, str) else msg.text()
+    batch = os.environ.get("NOTIFY_BATCH")
+    if batch:
+        # 批次模式：先存起來，流程最後 notify.py --flush 合併成一次推送（省 LINE 額度）
+        objs = [{"type": "text", "text": text[:4900]}] if isinstance(msg, str) else [p.flex() for p in split_flex(msg)]
+        try:
+            q = json.loads(Path(batch).read_text(encoding="utf-8")) if Path(batch).exists() else []
+        except (OSError, ValueError):
+            q = []
+        q.append({"objs": objs, "text": text, "title": (text.split("\n", 1)[0] if isinstance(msg, str) else msg.title)[:80]})
+        Path(batch).write_text(json.dumps(q, ensure_ascii=False), encoding="utf-8")
+        print(f"已排入批次（{len(q)} 則）：{q[-1]['title']}")
+        return 1
     ok = _line(msg, text)
     sent = 1 if ok else 0
     if not ok:
@@ -336,6 +355,35 @@ def send(msg) -> int:
             title = msg.split("\n", 1)[0] if isinstance(msg, str) else msg.title
             u = json.loads(UNDELIVERED.read_text(encoding="utf-8")) if UNDELIVERED.exists() else []
             u = (u + [{"at": datetime.now(timezone(timedelta(hours=8))).isoformat(timespec="minutes"), "title": title[:80]}])[-200:]
+            UNDELIVERED.parent.mkdir(parents=True, exist_ok=True)
+            UNDELIVERED.write_text(json.dumps(u, ensure_ascii=False, indent=0), encoding="utf-8")
+        except (OSError, ValueError):
+            pass
+    return sent
+
+
+def flush(batch: str | None = None) -> int:
+    """把批次裡的通知合併成一次推送（最多 5 張卡片一次）；LINE 失敗改送 Telegram／Discord"""
+    batch = batch or os.environ.get("NOTIFY_BATCH")
+    if not batch or not Path(batch).exists():
+        print("批次是空的")
+        return 0
+    q = json.loads(Path(batch).read_text(encoding="utf-8"))
+    Path(batch).unlink()
+    if not q:
+        return 0
+    objs = [o for m in q for o in m["objs"]]
+    text = "\n\n────────\n\n".join(m["text"] for m in q)
+    print(f"合併送出 {len(q)} 則通知、{len(objs)} 張卡片（LINE 計 {(len(objs) + 4) // 5} 則）：" + "、".join(m["title"] for m in q))
+    ok = _line_push(objs, text)
+    sent = 1 if ok else 0
+    if not ok:
+        sent += int(_telegram(text)) + int(_discord(text))
+    if not sent:
+        try:
+            u = json.loads(UNDELIVERED.read_text(encoding="utf-8")) if UNDELIVERED.exists() else []
+            now = datetime.now(timezone(timedelta(hours=8))).isoformat(timespec="minutes")
+            u = (u + [{"at": now, "title": m["title"]} for m in q])[-200:]
             UNDELIVERED.parent.mkdir(parents=True, exist_ok=True)
             UNDELIVERED.write_text(json.dumps(u, ensure_ascii=False, indent=0), encoding="utf-8")
         except (OSError, ValueError):
@@ -1788,6 +1836,7 @@ def daytrade_review_alert(dry: bool, force: bool = False) -> int:
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("--flush", action="store_true", help="把 NOTIFY_BATCH 批次裡的通知合併成一次推送")
     ap.add_argument("--check", action="store_true")
     ap.add_argument("--insider-alert", action="store_true")
     ap.add_argument("--intel-alert", action="store_true")
@@ -1807,6 +1856,9 @@ def main():
     ap.add_argument("--morning", action="store_true", help="盤前快報：台指期夜盤、美股主要指數、類股龍頭與台股預估（08:00 發）")
     ap.add_argument("--preview", action="store_true", help="不管有沒有推過，把每日戰報、策略、高週轉三張卡片各發一次（測試排版用）")
     a = ap.parse_args()
+    if a.flush:
+        flush()
+        return 0
     if a.check:
         return check()
     if a.insider_alert:
