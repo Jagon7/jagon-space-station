@@ -43,7 +43,8 @@ jobs:
           JSS_DATA_DIR: ./data
       - name: Build data views
         run: TZ=Asia/Taipei python3 scripts/build_views.py > /dev/null
-      - name: Send ETF summary at 20:00
+      - name: Send ETF summary （只在手動預覽時發；平常併入 22:00 晚間總結）
+        if: inputs.preview
         run: TZ=Asia/Taipei python3 scripts/notify.py --etf-alert ${{ inputs.preview && '--preview' || '' }}
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
