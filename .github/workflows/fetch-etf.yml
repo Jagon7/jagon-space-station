@@ -76,7 +76,10 @@ jobs:
 
       # 被動式 ETF 指數調整：生效前 5 個交易日內提醒一次；公告抓到名單後再提醒一次正式名單（緊接在抓審核名單之後）
       - name: Index rebalance reminder (LINE)
-        run: TZ=Asia/Taipei python3 scripts/notify.py --index-alert
+        run: |
+          h=$(TZ=Asia/Taipei date +%H)
+          if [ "$h" -ge 21 ] && [ "$h" -lt 23 ]; then echo "21～23 點交給 22:00 晚間總結"; exit 0; fi
+          TZ=Asia/Taipei python3 scripts/notify.py --index-alert
         continue-on-error: true
         env:
           JSS_DATA_DIR: ./data

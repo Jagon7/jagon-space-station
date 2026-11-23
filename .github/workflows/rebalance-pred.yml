@@ -90,7 +90,7 @@ jobs:
 
   notify:
     needs: predict
-    if: needs.predict.outputs.evening == 'true'
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.notify == 'true'   # 平常併入 22:00 晚間總結，只在手動要求時立刻推
     runs-on: ubuntu-latest
     timeout-minutes: 60
     concurrency:

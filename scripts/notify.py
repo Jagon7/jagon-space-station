@@ -278,6 +278,37 @@ def _discord(text: str) -> bool:
     return ok
 
 
+CAROUSEL_MAX = 48000  # LINE 輪播（carousel）整個訊息上限約 50KB、最多 12 張卡片
+
+
+def pack_carousel(objs: list[dict]) -> list[dict]:
+    """連續的 Flex 卡片收進輪播（左右滑），一個輪播算 1 個訊息物件；一次推送最多 5 個物件，能塞更多卡片"""
+    out, cur, alts = [], [], []
+
+    def close():
+        if not cur:
+            return
+        if len(cur) == 1:
+            out.append({"type": "flex", "altText": alts[0][:400], "contents": cur[0]})
+        else:
+            out.append({"type": "flex", "altText": "／".join(alts)[:400], "contents": {"type": "carousel", "contents": list(cur)}})
+        cur.clear()
+        alts.clear()
+    for o in objs:
+        b = o.get("contents") if o.get("type") == "flex" else None
+        if not b or b.get("type") != "bubble":
+            close()
+            out.append(o)
+            continue
+        trial = len(json.dumps({"type": "carousel", "contents": cur + [b]}, ensure_ascii=False).encode())
+        if cur and (len(cur) >= 12 or trial > CAROUSEL_MAX):
+            close()
+        cur.append(b)
+        alts.append(o.get("altText") or "")
+    close()
+    return out
+
+
 def _line_push(objs: list[dict], text: str) -> bool | None:
     """一次推送最多 5 個訊息物件（LINE 計費：一次推送給 1 人＝1 則，不管裡面有幾張卡片）；超過 5 個才分次推。
     Flex 失敗（非額度問題）就退回純文字；沒設定回傳 None"""
@@ -288,6 +319,7 @@ def _line_push(objs: list[dict], text: str) -> bool | None:
     def push(messages):
         return requests.post("https://api.line.me/v2/bot/message/push", timeout=30,
                              headers={"Authorization": f"Bearer {ltok}"}, json={"to": luser, "messages": messages})
+    objs = pack_carousel(objs) if len(objs) > 5 else objs
     try:
         ok = True
         for i in range(0, len(objs), 5):
@@ -374,7 +406,8 @@ def flush(batch: str | None = None) -> int:
         return 0
     objs = [o for m in q for o in m["objs"]]
     text = "\n\n────────\n\n".join(m["text"] for m in q)
-    print(f"合併送出 {len(q)} 則通知、{len(objs)} 張卡片（LINE 計 {(len(objs) + 4) // 5} 則）：" + "、".join(m["title"] for m in q))
+    n_obj = len(pack_carousel(objs)) if len(objs) > 5 else len(objs)
+    print(f"合併送出 {len(q)} 則通知、{len(objs)} 張卡片（LINE 計 {(n_obj + 4) // 5} 則）：" + "、".join(m["title"] for m in q))
     ok = _line_push(objs, text)
     sent = 1 if ok else 0
     if not ok:
@@ -991,8 +1024,8 @@ def broker_alert(dry: bool, force: bool = False) -> int:
     if today in state["sent"] and not force:
         print("今天的分點通知已發過")
         return 0
-    if now.hour * 60 + now.minute > 22 * 60 + 30 and not force:
-        print("已經超過 22:30，不發分點通知")
+    if now.hour * 60 + now.minute > 23 * 60 + 45 and not force:
+        print("已經超過 23:45，不發分點通知")
         return 0
     files = sorted((ROOT / "data" / "broker").glob("20*.json"))
     doc = json.loads(files[-1].read_text(encoding="utf-8")) if files else {}
@@ -1206,8 +1239,8 @@ def etf_alert(dry: bool, force: bool = False) -> int:
     if now.weekday() >= 5 and not force:
         print("週末不發 ETF 摘要")
         return 0
-    if now.hour * 60 + now.minute > 22 * 60 + 30 and not force:
-        print("已經超過 22:30，不發 ETF 摘要")
+    if now.hour * 60 + now.minute > 23 * 60 + 45 and not force:
+        print("已經超過 23:45，不發 ETF 摘要")
         return 0
     ev = {int(k): v[-1] for k, v in act.get("events", {}).items() if v}
     if not ev:
