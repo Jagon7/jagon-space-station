@@ -258,9 +258,29 @@ def build_intl(data_dir: Path, out: Path, days):
     print(f"國際類股：{len(groups)} 組，美股 {us_date}，觸發 {sum(1 for g in groups if g['alert'])} 組 → public/data/intel/intl.json")
 
 
+def build_options(data_dir: Path, out: Path):
+    """美股異常大額選擇權（fetch_options_flow.py）→ public/data/intel/options_flow.json，附對應台股（國際類股的成員）"""
+    try:
+        doc = json.loads((data_dir / "intel" / "options_flow.json").read_text(encoding="utf-8"))
+        intl = json.loads((out / "intl.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return
+    tw = {}
+    for g in intl.get("groups", []):
+        for q in g.get("quotes", []):
+            tw.setdefault(q["sym"], {"group": g["name"], "members": [m["name"] for m in g.get("members", [])[:5]]})
+    for sym, o in doc.get("tickers", {}).items():
+        o["tw"] = tw.get(sym)
+        o["top"] = o.get("top", [])[:10]
+    _w(out / "options_flow.json", doc)
+    n = sum(len(o.get("flags", [])) for o in doc.get("tickers", {}).values())
+    print(f"美股選擇權：{len(doc.get('tickers', {}))} 檔，{doc.get('asof')}，異常合約 {n} 筆 → public/data/intel/options_flow.json")
+
+
 def build(data_dir: Path, public_dir: Path):
     out = public_dir / "intel"
     days = _daily(data_dir)
     build_reports(data_dir, out, days)
     build_conf(data_dir, out, days)
     build_intl(data_dir, out, days)
+    build_options(data_dir, out)

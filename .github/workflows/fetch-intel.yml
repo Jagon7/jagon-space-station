@@ -42,6 +42,13 @@ jobs:
         run: python3 scripts/fetch_intel.py --pages 8
         env:
           JSS_DATA_DIR: ./data
+      - name: US options unusual activity (after US close only)
+        run: |
+          h=$(TZ=Asia/Taipei date +%H)
+          if [ "$h" -ge 4 ] && [ "$h" -le 9 ]; then python3 scripts/fetch_options_flow.py; else echo "不是美股收盤後（台灣 4～9 點），略過"; fi
+        continue-on-error: true
+        env:
+          JSS_DATA_DIR: ./data
       - name: Build data views
         run: TZ=Asia/Taipei python3 scripts/build_views.py
       - name: Alert (new reports)

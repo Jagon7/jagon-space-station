@@ -1779,6 +1779,66 @@ def commodity_alert(dry: bool, force: bool = False) -> int:
     return 0
 
 
+OPT_STATE = ROOT / "data" / "notify" / "options-sent.json"
+
+
+def options_alert(dry: bool, force: bool = False) -> int:
+    """美股異常大額選擇權（台股相關美股，前一個美股交易日收盤後的全天資料）：新建倉大單、超大額、長天期、個股整體暴增；
+    同一個美股交易日只發一次，沒有異常不發（併入 08:00 盤前推送）。資料：public/data/intel/options_flow.json"""
+    doc = load("intel/options_flow.json", {}) or {}
+    if not doc.get("tickers"):
+        print("沒有選擇權資料")
+        return 0
+    asof = doc.get("asof")
+    if not doc.get("final") and not force:
+        print(f"{asof} 還是盤中資料，等收盤後的")
+        return 0
+    try:
+        state = json.loads(OPT_STATE.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        state = {"sent": []}
+    if asof in state["sent"] and not force:
+        print(f"{asof} 的選擇權異常已推過")
+        return 0
+    flags = [dict(f, sym=sym, tw=o.get("tw")) for sym, o in doc["tickers"].items() for f in o.get("flags", []) if o.get("asof") == asof]
+    totals = [(sym, t, o.get("tw")) for sym, o in doc["tickers"].items() for t in o.get("totalFlags", []) if o.get("asof") == asof]
+    if not flags and not totals:
+        print(f"{asof} 沒有異常大額選擇權")
+        if not dry and not force:
+            state["sent"] = (state["sent"] + [asof])[-60:]
+            OPT_STATE.parent.mkdir(parents=True, exist_ok=True)
+            OPT_STATE.write_text(json.dumps(state, ensure_ascii=False, indent=0), encoding="utf-8")
+        return 0
+    md = lambda d: f"{int(d[5:7])}/{int(d[8:10])}"  # noqa: E731
+    ym = lambda d: f"{d[2:4]}/{int(d[5:7])}/{int(d[8:10])}"  # noqa: E731
+    m = Msg(("【預覽】" if force else "") + "🎯 美股異常大額選擇權", f"美股 {md(asof)} 收盤・{len(flags)} 筆合約" + (f"・{len(totals)} 檔整體暴增" if totals else ""),
+            accent="#0EA5E9", url=f"{SITE}/global/", button="開啟國際行情")
+    if totals:
+        m.section("個股整體暴增")
+        for sym, t, tw in totals:
+            m.kv(sym, t + (f"・相關台股：{'、'.join(tw['members'][:3])}" if tw and tw.get("members") else ""))
+    if flags:
+        m.section("異常合約", "依成交金額")
+        m.cols("成交金額", "量／未平倉")
+        for f in sorted(flags, key=lambda f: -f["prem"])[:10]:
+            name = f"{f['sym']} {'Call' if f['cp'] == 'C' else 'Put'} {f['k']:g}"
+            m.stock(name, ym(f["exp"]), f"${f['prem'] / 1e6:,.1f}M", f"{f['vol']:,}／{f['oi']:,}", up=f["cp"] == "C",
+                    sub="・".join(f["why"]) + ((f"・價外 {f['otm']:.0f}%" if f["otm"] > 0.5 else f"・價內 {-f['otm']:.0f}%" if f["otm"] < -0.5 else "・價平") if f.get("otm") is not None else "") + (f"・偏{f['side']}" if f.get("side") and f["side"] != "中間" else "")
+                    + (f"・台股：{'、'.join(f['tw']['members'][:3])}" if f.get("tw") and f["tw"].get("members") else ""))
+    m.note("成交金額≈成交量×最後價×100（Nasdaq 公開資料，每個合約的全天合計，沒有逐筆時間與買賣方）；量／未平倉 > 1 多半是新建倉；"
+           "「偏買方」＝最後價靠近賣價（追價買進）。一週內到期的不列。大單也可能是避險或價差組合的一腳，只供參考")
+    print(m.text())
+    if dry:
+        return 0
+    if not send(m):
+        print("（沒有設定任何推播管道，只印出內容）")
+    if not force:
+        state["sent"] = (state["sent"] + [asof])[-60:]
+        OPT_STATE.parent.mkdir(parents=True, exist_ok=True)
+        OPT_STATE.write_text(json.dumps(state, ensure_ascii=False, indent=0), encoding="utf-8")
+    return 0
+
+
 SETTLE_STATE = ROOT / "data" / "notify" / "settlement-sent.json"
 
 
@@ -2018,6 +2078,7 @@ def main():
     ap.add_argument("--etf-alert", action="store_true", help="每日 ETF 持股變化摘要（週一到五 20:00；加 --preview 立刻發預覽）")
     ap.add_argument("--rebalance-alert", action="store_true", help="ETF 換股預估（週一到五 19:00；加 --preview 立刻發預覽）")
     ap.add_argument("--bookbuild-alert", action="store_true", help="詢圈／競拍：兩週內的可轉債與股票承銷（併入 22:00 晚間總結；加 --preview 立刻發預覽）")
+    ap.add_argument("--options-alert", action="store_true", help="美股異常大額選擇權（併入 08:00 盤前推送；加 --preview 立刻發預覽）")
     ap.add_argument("--commodity-alert", action="store_true", help="商品報價大幅異動（併入 08:00 盤前推送；加 --preview 立刻發預覽）")
     ap.add_argument("--index-alert", action="store_true", help="被動式 ETF 指數調整：生效前 5 個交易日內提醒一次（週一到五 19:00；加 --preview 立刻發預覽）")
     ap.add_argument("--broker-alert", action="store_true", help="重點分點當日買賣超 ≥ 5000 萬（週一到五 20:00；加 --preview 立刻發預覽）")
@@ -2049,6 +2110,8 @@ def main():
         return bookbuild_alert(a.dry_run, force=a.preview)
     if a.commodity_alert:
         return commodity_alert(a.dry_run, force=a.preview)
+    if a.options_alert:
+        return options_alert(a.dry_run, force=a.preview)
     if a.active_alert:
         return active_alert(a.dry_run, force=a.preview)
     if a.g85_alert:
