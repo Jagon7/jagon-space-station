@@ -1644,6 +1644,141 @@ def index_alert(dry: bool, force: bool = False) -> int:
     return 0
 
 
+BOOK_STATE = ROOT / "data" / "notify" / "bookbuild-sent.json"
+
+
+def bookbuild_alert(dry: bool, force: bool = False) -> int:
+    """詢圈／競拍：兩週內開始（或進行中）的可轉債與股票承銷，加上申報生效、還沒詢圈的可轉債；
+    有新案子（第一次出現）或明天開始的才發（併入 22:00 晚間總結）。資料：data/cb/cases.json（fetch_cb.py，證券商公會承銷公告）"""
+    import build_margin
+    data = Path(os.environ.get("JSS_DATA_DIR", ROOT / "data"))
+    now = datetime.now(TPE_TZ)
+    today = now.date().isoformat()
+    if not force and (now.weekday() >= 5 or today in _holidays()):
+        print("今天休市，不發詢圈通知")
+        return 0
+    try:
+        doc = json.loads((data / "cb" / "cases.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        print("沒有詢圈資料")
+        return 0
+    end = (now.date() + timedelta(days=14)).isoformat()
+    tmr = build_margin.add_trading_days(data, today, 1, [])
+    rows = [dict(c, _stk=False) for c in doc.get("cases", [])] + [dict(c, _stk=True) for c in doc.get("stocks", [])]
+    win = sorted([c for c in rows if c.get("start") and c.get("end") and c["end"] >= today and c["start"] <= end], key=lambda c: (c["start"], c["company"]))
+    try:
+        state = json.loads(BOOK_STATE.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        state = {"seen": [], "pre": [], "remind": []}
+    seen, pre_seen, remind = set(state.get("seen", [])), set(state.get("pre", [])), set(state.get("remind", []))
+    new = [c for c in win if c["id"] not in seen]
+    soon = [c for c in win if c["start"] == tmr and c["id"] not in remind]
+    cut = (now.date() - timedelta(days=45)).isoformat()
+    pkey = lambda p: f"{p.get('code')}|{p.get('effectiveDate')}|{p.get('amount')}"  # noqa: E731
+    pre = list({pkey(p): p for p in doc.get("pre", []) if p.get("status") == "生效" and (p.get("effectiveDate") or "") >= cut}.values())
+    pre_new = [p for p in pre if pkey(p) not in pre_seen]
+    if not (new or soon or pre_new) and not force:
+        print(f"沒有新的詢圈案（兩週內 {len(win)} 件、申報生效待詢圈 {len(pre)} 件都通知過）")
+        return 0
+    md = lambda d: f"{int(d[5:7])}/{int(d[8:10])}" if d else "—"  # noqa: E731
+    wl = set(watchlist())
+    m = Msg(("【預覽】" if force else "") + "📝 詢圈／競拍：兩週內", f"{md(today)}・{len(win)} 件進行中或兩週內開始" + (f"・新 {len(new)} 件" if new else ""),
+            accent="#8B5CF6", url=f"{SITE}/cb-watch/", button="開啟可轉債追蹤")
+    if win:
+        m.section("兩週內／進行中", f"{len(win)} 件")
+        m.cols("期間", "條件")
+        nid = {c["id"] for c in new}
+        for c in win[:14]:
+            name = c.get("short") or re.sub(r"(股份)?有限公司.*$", "", c["company"])
+            if c["_stk"]:
+                cond = f"{c['priceLo']:g}～{c['priceHi']:g} 元" if c.get("priceHi") else (f"底價 {c['priceLo']:g}" if c.get("priceLo") else "—")
+                what = f"{c['type']}・{c['method']}"
+            else:
+                cond = f"{c['premiumLo']:g}～{c['premiumHi']:g}%" if c.get("premiumLo") else (f"底價 {c['minPrice']:g}" if c.get("minPrice") else "—")
+                what = f"{c.get('kind', 'CB')} {c['method']}・{(c.get('units') or 0) / 1000:,.0f} 億" if c.get("units") else f"{c.get('kind', 'CB')} {c['method']}"
+            tag = "🆕 " if c["id"] in nid else ("⏰ " if c["start"] == tmr else "")
+            m.stock(tag + name, c.get("code") or "", f"{md(c['start'])}～{md(c['end'])}", cond, star=(c.get("code") or "") in wl,
+                    sub=f"{what}・{c.get('lead', '')}" + ("・明天開始" if c["start"] == tmr else "・進行中" if c["start"] <= today else ""))
+        if len(win) > 14:
+            m.note(f"另有 {len(win) - 14} 件，請看網頁")
+    if pre_new:
+        m.section("申報生效、還沒詢圈（可能近期開始）", f"{len(pre_new)} 件")
+        for p in pre_new[:8]:
+            m.kv(f"{p.get('name')} {p.get('code')}", f"{p.get('cbType', '')} {p.get('amount') or 0:g} 億・{md(p.get('effectiveDate'))} 生效・{p.get('underwriter') or ''}")
+    m.note("詢圈＝詢價圈購（可轉債條件是轉換溢價率區間）；競拍＝競價拍賣（底價）。來源：證券商業同業公會承銷公告、金管會申報案件。🆕＝第一次出現、⏰＝明天開始、★＝自選股")
+    print(m.text())
+    if dry:
+        return 0
+    if not send(m):
+        print("（沒有設定任何推播管道，只印出內容）")
+    if not force:
+        state = {"seen": sorted(seen | {c["id"] for c in win})[-500:], "pre": sorted(pre_seen | {pkey(p) for p in pre})[-300:],
+                 "remind": sorted(remind | {c["id"] for c in soon})[-500:]}
+        BOOK_STATE.parent.mkdir(parents=True, exist_ok=True)
+        BOOK_STATE.write_text(json.dumps(state, ensure_ascii=False, indent=0), encoding="utf-8")
+    return 0
+
+
+COMMOD_STATE = ROOT / "data" / "notify" / "commodity-sent.json"
+# 代號：名稱、單日門檻 %、相關台股族群（週資料的 SCFI 用單週）
+COMMODITIES = {
+    "CL=F": ("原油", 4.0, "塑化、油電燃氣、航空"), "HG=F": ("銅", 3.0, "電線電纜、PCB 銅箔基板"),
+    "GC=F": ("黃金", 2.5, "金銀珠寶、避險"), "SI=F": ("白銀", 4.0, "金屬、太陽能銀漿"), "PL=F": ("白金", 4.0, "汽車觸媒"),
+    "BDI": ("BDI 散裝運價", 6.0, "散裝航運"), "SCFI": ("SCFI 貨櫃運價（週）", 5.0, "貨櫃航運"), "BDRY": ("乾散貨運價 ETF", 6.0, "散裝航運"),
+}
+
+
+def commodity_alert(dry: bool, force: bool = False) -> int:
+    """商品報價大幅異動：最新一天（SCFI 為一週）漲跌 ≥ max(門檻, 2.5 倍近 20 期波動)，或 5 期累積 ≥ max(門檻×2, 2.5×波動×√5)；
+    同一個代號同一個資料日只發一次（併入 08:00 盤前推送）。資料：data/intel/us.json（fetch_intel.py）"""
+    import math
+    import statistics as st_
+    data = Path(os.environ.get("JSS_DATA_DIR", ROOT / "data"))
+    try:
+        ser = json.loads((data / "intel" / "us.json").read_text(encoding="utf-8")).get("series", {})
+    except (OSError, ValueError):
+        print("沒有商品資料")
+        return 0
+    try:
+        state = json.loads(COMMOD_STATE.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        state = {"sent": []}
+    hits = []
+    for sym, (name, floor, sect) in COMMODITIES.items():
+        s = [x for x in ser.get(sym) or [] if x[1]]
+        if len(s) < 25:
+            continue
+        r = [(s[i][1] / s[i - 1][1] - 1) * 100 for i in range(1, len(s))]
+        sd = st_.pstdev(r[-21:-1]) or 0.0001
+        d1, d5 = r[-1], (s[-1][1] / s[-6][1] - 1) * 100
+        th1, th5 = max(floor, 2.5 * sd), max(floor * 2, 2.5 * sd * math.sqrt(5))
+        key = f"{sym}|{s[-1][0]}"
+        if (abs(d1) >= th1 or abs(d5) >= th5) and (key not in state["sent"] or force):
+            hits.append({"sym": sym, "name": name, "sect": sect, "date": s[-1][0], "px": s[-1][1], "d1": d1, "d5": d5, "z": d1 / sd, "key": key,
+                         "why": "單日" if abs(d1) >= th1 else "5 期累積"})
+    if not hits:
+        print("商品報價沒有大幅異動")
+        return 0
+    md = lambda d: f"{int(d[5:7])}/{int(d[8:10])}"  # noqa: E731
+    m = Msg(("【預覽】" if force else "") + "🛢️ 商品報價大幅異動", f"{len(hits)} 項・" + "、".join(h["name"] for h in hits[:4]), accent="#D97706",
+            url=f"{SITE}/global/", button="開啟國際行情")
+    m.cols("最新價", "漲跌")
+    for h in sorted(hits, key=lambda h: -abs(h["z"])):
+        m.stock(h["name"], "", f"{h['px']:,.2f}", f"{h['d1']:+.1f}%", up=h["d1"] > 0,
+                sub=f"{md(h['date'])}・5 期 {h['d5']:+.1f}%・波動的 {abs(h['z']):.1f} 倍（{h['why']}）・相關：{h['sect']}")
+    m.note("門檻：單日漲跌 ≥ 該商品平常（近 20 期）波動 2.5 倍且超過最低門檻（原油 4%、銅 3%、黃金 2.5%、白銀／白金 4%、運價 5～6%），或 5 期累積達門檻兩倍")
+    print(m.text())
+    if dry:
+        return 0
+    if not send(m):
+        print("（沒有設定任何推播管道，只印出內容）")
+    if not force:
+        state["sent"] = (state["sent"] + [h["key"] for h in hits])[-300:]
+        COMMOD_STATE.parent.mkdir(parents=True, exist_ok=True)
+        COMMOD_STATE.write_text(json.dumps(state, ensure_ascii=False, indent=0), encoding="utf-8")
+    return 0
+
+
 SETTLE_STATE = ROOT / "data" / "notify" / "settlement-sent.json"
 
 
@@ -1882,6 +2017,8 @@ def main():
     ap.add_argument("--risk-alert", action="store_true", help="市場風險警示：風險溫度偏高、指標達警戒／危險、VIX 暴漲、信用利差擴大、科技廠隱含 CDS 跳升")
     ap.add_argument("--etf-alert", action="store_true", help="每日 ETF 持股變化摘要（週一到五 20:00；加 --preview 立刻發預覽）")
     ap.add_argument("--rebalance-alert", action="store_true", help="ETF 換股預估（週一到五 19:00；加 --preview 立刻發預覽）")
+    ap.add_argument("--bookbuild-alert", action="store_true", help="詢圈／競拍：兩週內的可轉債與股票承銷（併入 22:00 晚間總結；加 --preview 立刻發預覽）")
+    ap.add_argument("--commodity-alert", action="store_true", help="商品報價大幅異動（併入 08:00 盤前推送；加 --preview 立刻發預覽）")
     ap.add_argument("--index-alert", action="store_true", help="被動式 ETF 指數調整：生效前 5 個交易日內提醒一次（週一到五 19:00；加 --preview 立刻發預覽）")
     ap.add_argument("--broker-alert", action="store_true", help="重點分點當日買賣超 ≥ 5000 萬（週一到五 20:00；加 --preview 立刻發預覽）")
     ap.add_argument("--active-alert", action="store_true", help="主動 ETF 停損＋融資斷頭（週一到五晚上；加 --preview 立刻發預覽）")
@@ -1908,6 +2045,10 @@ def main():
         return rebalance_alert(a.dry_run, force=a.preview)
     if a.index_alert:
         return index_alert(a.dry_run, force=a.preview)
+    if a.bookbuild_alert:
+        return bookbuild_alert(a.dry_run, force=a.preview)
+    if a.commodity_alert:
+        return commodity_alert(a.dry_run, force=a.preview)
     if a.active_alert:
         return active_alert(a.dry_run, force=a.preview)
     if a.g85_alert:

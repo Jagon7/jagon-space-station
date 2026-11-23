@@ -151,8 +151,12 @@ def bond_kind(t: str) -> str:
     return "EB" if "交換" in t else "CB"
 
 
+STOCKS: list[dict] = []  # 同一份清單裡的股票承銷（初次上市／上櫃、現金增資），通知用
+
+
 def edoc_cases(years, full, short) -> list[dict]:
     cases = []
+    STOCKS.clear()
     for year in years:
         for report, method in (("BookBuilding", "詢圈"), ("Auction", "競拍")):
             try:
@@ -168,7 +172,16 @@ def edoc_cases(years, full, short) -> list[dict]:
             i_price = col("價格")
             n = 0
             for r in rows[1:]:
-                if len(r) < len(head) - 2 or "公司債" not in r[i_type]:
+                if len(r) < len(head) - 2:
+                    continue
+                if "公司債" not in r[i_type]:
+                    st_, en_ = parse_period(r[i_period])
+                    ps = [num(x) for x in re.findall(r"[\d.]+", r[i_price] if i_price is not None else "")]
+                    code = match_code(r[i_co], full, short)
+                    STOCKS.append({"id": f"{method}-{r[i_sn]}-{year}", "method": method, "company": r[i_co], "code": code,
+                                   "short": short.get(code or "", ""), "lead": re.sub(r"(股份)?有限公司$", "", r[i_lead]), "type": r[i_type],
+                                   "units": num(r[i_units]), "saleUnits": num(r[i_sale]) if i_sale is not None else None,
+                                   "start": st_, "end": en_, "priceLo": ps[0] if ps else None, "priceHi": ps[1] if len(ps) > 1 else None})
                     continue
                 start, end = parse_period(r[i_period])
                 price = r[i_price] if i_price is not None else ""
@@ -269,7 +282,8 @@ def main():
     cases.sort(key=lambda c: c["start"] or "", reverse=True)
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps({"updatedAt": datetime.now(TPE).isoformat(timespec="minutes"),
-                               "cases": cases, "pre": pre_stage(cases)},
+                               "cases": cases, "pre": pre_stage(cases),
+                               "stocks": sorted(STOCKS, key=lambda c: c["start"] or "", reverse=True)},
                               ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     nocode = [c["company"] for c in cases if not c["code"]]
     log(f"CB：{len(cases)} 件（對不到代號 {len(nocode)} 件{'：' + '、'.join(nocode[:8]) if nocode else ''}）")
