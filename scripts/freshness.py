@@ -141,6 +141,29 @@ def main():
         (DATA / "freshness.json").write_text(json.dumps(doc, ensure_ascii=False, indent=1), encoding="utf-8")
     for r in rows:
         print(("✅" if r["ok"] else "❌"), r["cat"], r["name"], r["latest"], "應有", r["expected"])
+    # LINE 每月推播額度：用到 80% 先提醒，用完時說明已改走備援（同一個月同一級只提醒一次）
+    if not a.only:
+        sys.path.insert(0, str(Path(__file__).resolve().parent))
+        import notify as _n
+        used, limit = _n.line_quota()
+        doc["lineQuota"] = {"used": used, "limit": limit}
+        if not a.dry_run:
+            (DATA / "freshness.json").write_text(json.dumps(doc, ensure_ascii=False, indent=1), encoding="utf-8")
+        if used is not None and limit:
+            print(f"LINE 本月推播 {used}/{limit} 則")
+            level = "full" if used >= limit else "warn" if used >= 0.8 * limit else None
+            st_ = load(STATE, {}) or {}
+            qkey = f"{now:%Y-%m}|quota|{level}"
+            if level and a.alert and qkey not in st_.get("keys", []):
+                from line_flex import Msg
+                tg = bool(os.environ.get("TELEGRAM_BOT_TOKEN") and os.environ.get("TELEGRAM_CHAT_ID"))
+                m = Msg("📵 LINE 本月推播額度" + ("已用完" if level == "full" else "快用完"), f"{now:%m/%d} 檢查・已用 {used}/{limit} 則", accent="#E5484D")
+                m.line("免費方案每月 200 則，下個月 1 號重置。" + ("用完後會自動改送 Telegram。" if tg else "還沒設定 Telegram 備援：用完後到月底都收不到通知。"))
+                m.note("解法：在 GitHub repo 的 Secrets 加 TELEGRAM_BOT_TOKEN、TELEGRAM_CHAT_ID（免費、沒有則數限制），或升級 LINE 官方帳號方案")
+                if not a.dry_run and _n.send(m):
+                    st_["keys"] = (st_.get("keys", []) + [qkey])[-30:]
+                    STATE.parent.mkdir(parents=True, exist_ok=True)
+                    STATE.write_text(json.dumps(st_, ensure_ascii=False, indent=0), encoding="utf-8")
     if not a.alert or not bad:
         return 0
     state = load(STATE, {}) or {}

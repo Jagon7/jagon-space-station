@@ -243,27 +243,51 @@ def split_flex(msg):
     return out
 
 
-def send(msg) -> int:
-    """msg 可以是純文字或 Msg；LINE 用 Flex 卡片（失敗就退回純文字），其他管道用文字"""
-    text = msg if isinstance(msg, str) else msg.text()
-    sent = 0
+UNDELIVERED = ROOT / "data" / "notify" / "undelivered.json"
+
+
+def _telegram(text: str) -> bool:
     tok, chat = os.environ.get("TELEGRAM_BOT_TOKEN"), os.environ.get("TELEGRAM_CHAT_ID")
-    if tok and chat:
-        for i in range(0, len(text), 3800):
+    if not (tok and chat):
+        return False
+    ok = True
+    for i in range(0, len(text), 3800):
+        try:
             r = requests.post(f"https://api.telegram.org/bot{tok}/sendMessage", json={"chat_id": chat, "text": text[i:i + 3800], "disable_web_page_preview": True}, timeout=30)
             print("Telegram", r.status_code, r.text[:200])
-        sent += 1
+            ok = ok and r.status_code == 200
+        except requests.RequestException as e:
+            print("Telegram 連線錯誤", e)
+            ok = False
+    return ok
+
+
+def _discord(text: str) -> bool:
     hook = os.environ.get("DISCORD_WEBHOOK_URL")
-    if hook:
-        for i in range(0, len(text), 1900):
+    if not hook:
+        return False
+    ok = True
+    for i in range(0, len(text), 1900):
+        try:
             r = requests.post(hook, json={"content": text[i:i + 1900]}, timeout=30)
             print("Discord", r.status_code)
-        sent += 1
+            ok = ok and r.status_code in (200, 204)
+        except requests.RequestException as e:
+            print("Discord 連線錯誤", e)
+            ok = False
+    return ok
+
+
+def _line(msg, text: str) -> bool | None:
+    """LINE：Flex 卡片，失敗退回純文字；沒設定回傳 None"""
     ltok, luser = os.environ.get("LINE_CHANNEL_TOKEN"), os.environ.get("LINE_USER_ID")
-    if ltok and luser:
-        def push(message):
-            return requests.post("https://api.line.me/v2/bot/message/push", timeout=30,
-                                 headers={"Authorization": f"Bearer {ltok}"}, json={"to": luser, "messages": [message]})
+    if not (ltok and luser):
+        return None
+
+    def push(message):
+        return requests.post("https://api.line.me/v2/bot/message/push", timeout=30,
+                             headers={"Authorization": f"Bearer {ltok}"}, json={"to": luser, "messages": [message]})
+    try:
         r = None
         if not isinstance(msg, str):
             for part in split_flex(msg):
@@ -271,10 +295,51 @@ def send(msg) -> int:
                 print("LINE flex", r.status_code, r.text[:300])
                 if r.status_code != 200:
                     break
+        if r is not None and r.status_code == 429:
+            return False  # 每月額度用完：純文字也一樣會被擋，不用再試
         if r is None or r.status_code != 200:
             r = push({"type": "text", "text": text[:4900]})
             print("LINE text", r.status_code, r.text[:200])
-        sent += 1
+        return r.status_code == 200
+    except requests.RequestException as e:
+        print("LINE 連線錯誤", e)
+        return False
+
+
+def line_quota() -> tuple[int | None, int | None]:
+    """LINE 本月已用則數、上限（沒設定或查不到回傳 None）"""
+    ltok = os.environ.get("LINE_CHANNEL_TOKEN")
+    if not ltok:
+        return None, None
+    h = {"Authorization": f"Bearer {ltok}"}
+    try:
+        q = requests.get("https://api.line.me/v2/bot/message/quota", headers=h, timeout=30).json()
+        u = requests.get("https://api.line.me/v2/bot/message/quota/consumption", headers=h, timeout=30).json()
+        return u.get("totalUsage"), (q.get("value") if q.get("type") == "limited" else None)
+    except (requests.RequestException, ValueError):
+        return None, None
+
+
+def send(msg) -> int:
+    """msg 可以是純文字或 Msg。LINE 優先（Flex 卡片，失敗退回純文字）；
+    LINE 沒設定或送不出去（例如每月免費額度用完 429）才改用 Telegram／Discord，避免重複收到。
+    回傳成功送達的管道數（0＝全部失敗，會記在 data/notify/undelivered.json）"""
+    text = msg if isinstance(msg, str) else msg.text()
+    ok = _line(msg, text)
+    sent = 1 if ok else 0
+    if not ok:
+        sent += int(_telegram(text)) + int(_discord(text))
+        if ok is False:
+            print("LINE 送不出去，改用備援管道" + ("成功" if sent else "：沒有設定 Telegram／Discord 或也失敗"))
+    if not sent:
+        try:
+            title = msg.split("\n", 1)[0] if isinstance(msg, str) else msg.title
+            u = json.loads(UNDELIVERED.read_text(encoding="utf-8")) if UNDELIVERED.exists() else []
+            u = (u + [{"at": datetime.now(timezone(timedelta(hours=8))).isoformat(timespec="minutes"), "title": title[:80]}])[-200:]
+            UNDELIVERED.parent.mkdir(parents=True, exist_ok=True)
+            UNDELIVERED.write_text(json.dumps(u, ensure_ascii=False, indent=0), encoding="utf-8")
+        except (OSError, ValueError):
+            pass
     return sent
 
 
