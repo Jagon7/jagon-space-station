@@ -2,36 +2,6 @@
   "date": "2026-11-23",
   "data": [
     {
-      "code": "2466",
-      "name": "冠西電",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/11/17～115/11/23",
-      "endDate": "2026-11-23",
-      "announceDate": "115/11/16",
-      "market": "上市"
-    },
-    {
-      "code": "6108",
-      "name": "競國",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/11/17～115/11/23",
-      "endDate": "2026-11-23",
-      "announceDate": "115/11/16",
-      "market": "上市"
-    },
-    {
-      "code": "6751",
-      "name": "智聯服務",
-      "count": 2,
-      "condition": "連續3個營業日",
-      "period": "115/11/17~115/11/23",
-      "endDate": "2026-11-23",
-      "announceDate": "115/11/16",
-      "market": "上櫃"
-    },
-    {
       "code": "4174",
       "name": "浩鼎",
       "count": 5,
@@ -74,7 +44,7 @@
     {
       "code": "3441",
       "name": "聯一光",
-      "count": 2,
+      "count": 1,
       "condition": "連續5個營業日及沖銷標準",
       "period": "115/11/17~115/11/25",
       "endDate": "2026-11-25",
@@ -188,7 +158,7 @@
       "condition": "連續三次",
       "period": "115/11/24～115/11/30",
       "endDate": "2026-11-30",
-      "announceDate": "*115/11/23",
+      "announceDate": "115/11/23",
       "market": "上市"
     },
     {
@@ -198,7 +168,7 @@
       "condition": "連續三次",
       "period": "115/11/24～115/11/30",
       "endDate": "2026-11-30",
-      "announceDate": "*115/11/23",
+      "announceDate": "115/11/23",
       "market": "上市"
     },
     {
@@ -208,7 +178,7 @@
       "condition": "連續三次",
       "period": "115/11/24～115/11/30",
       "endDate": "2026-11-30",
-      "announceDate": "*115/11/23",
+      "announceDate": "115/11/23",
       "market": "上市"
     },
     {
@@ -218,7 +188,7 @@
       "condition": "連續三次",
       "period": "115/11/24～115/11/30",
       "endDate": "2026-11-30",
-      "announceDate": "*115/11/23",
+      "announceDate": "115/11/23",
       "market": "上市"
     },
     {
@@ -228,7 +198,7 @@
       "condition": "連續三次",
       "period": "115/11/24～115/11/30",
       "endDate": "2026-11-30",
-      "announceDate": "*115/11/23",
+      "announceDate": "115/11/23",
       "market": "上市"
     },
     {
@@ -238,7 +208,7 @@
       "condition": "連續三次",
       "period": "115/11/24～115/11/30",
       "endDate": "2026-11-30",
-      "announceDate": "*115/11/23",
+      "announceDate": "115/11/23",
       "market": "上市"
     },
     {
@@ -248,7 +218,7 @@
       "condition": "連續三次",
       "period": "115/11/24～115/11/30",
       "endDate": "2026-11-30",
-      "announceDate": "*115/11/23",
+      "announceDate": "115/11/23",
       "market": "上市"
     },
     {
