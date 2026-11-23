@@ -247,7 +247,9 @@ UNDELIVERED = ROOT / "data" / "notify" / "undelivered.json"
 
 
 def _telegram(text: str) -> bool:
-    tok, chat = os.environ.get("TELEGRAM_BOT_TOKEN"), os.environ.get("TELEGRAM_CHAT_ID")
+    tok, chat = (os.environ.get("TELEGRAM_BOT_TOKEN") or "").strip(), (os.environ.get("TELEGRAM_CHAT_ID") or "").strip()
+    if tok.lower().startswith("bot") and ":" in tok:
+        tok = tok[3:]  # 貼成「bot123:ABC」時去掉前面的 bot
     if not (tok and chat):
         return False
     ok = True
