@@ -104,6 +104,55 @@ function GroupCard({ g }: { g: Group }) {
   );
 }
 
+type Opt = { cp: "C" | "P"; exp: string; k: number; vol: number; oi: number; last: number; prem: number; voi: number | null; side: string | null; dte: number | null; otm: number | null; why?: string[] };
+type OptTicker = { sym: string; spot: number | null; asof: string | null; final: boolean; callPrem: number; putPrem: number; callPremX?: number | null; putPremX?: number | null;
+  flags: Opt[]; totalFlags?: string[]; tw?: { group: string; members: string[] } | null };
+type OptDoc = { asof: string; final: boolean; updatedAt: string; tickers: Record<string, OptTicker> };
+const usd = (v: number) => (v >= 1e9 ? `$${(v / 1e9).toFixed(2)}B` : `$${(v / 1e6).toFixed(1)}M`);
+const moneyness = (o: number | null) => (o == null ? "—" : o > 0.5 ? `價外 ${o.toFixed(0)}%` : o < -0.5 ? `價內 ${(-o).toFixed(0)}%` : "價平");
+
+function OptionsFlow() {
+  const { data } = useStaticJson<OptDoc>("intel/options_flow.json");
+  if (!data || !Object.keys(data.tickers || {}).length) return null;
+  const ts = Object.values(data.tickers).sort((a, b) => b.callPrem + b.putPrem - a.callPrem - a.putPrem);
+  const flags = ts.flatMap((t) => t.flags.map((f) => ({ ...f, sym: t.sym, tw: t.tw }))).sort((a, b) => b.prem - a.prem);
+  const totals = ts.flatMap((t) => (t.totalFlags ?? []).map((x) => ({ sym: t.sym, x })));
+  return (
+    <div className="mb-6 rounded-xl border border-[#243247] bg-[#0d1220] p-4 overflow-x-auto">
+      <div className="text-sm font-semibold text-white">美股異常大額選擇權（台股相關美股）</div>
+      <p className="mt-1 mb-3 text-[11px] leading-relaxed text-[#7c8aa0]">
+        美股 {md(data.asof)}{data.final ? " 收盤" : "（盤中，延遲約 15 分鐘）"}・每個合約全天合計：成交金額約等於成交量×最後價×100；量／未平倉大於 1 多半是新建倉。
+        標記：新建倉大單（1,000 萬美元以上且量達未平倉 2 倍）、超大額（3,000 萬美元以上且量不低於未平倉）、長天期（1 年以上、500 萬美元以上）；一週內到期的不列。
+        資料來源 Nasdaq 公開報價，沒有逐筆時間與買賣方；大單也可能是避險或價差組合的一腳。
+      </p>
+      {totals.length > 0 && <div className="mb-3 text-xs text-[#f59e0b]">{totals.map((t) => `${t.sym}：${t.x}`).join("；")}</div>}
+      {flags.length ? (
+        <table className="w-full text-xs mb-4">
+          <thead><tr className="text-[10px] text-[#7c8aa0] text-right"><th className="text-left font-normal py-1">合約</th><th className="font-normal">到期</th><th className="font-normal">成交金額</th><th className="font-normal">量／未平倉</th><th className="font-normal">價內外</th><th className="font-normal">主動</th><th className="text-left font-normal pl-3">標記・台股</th></tr></thead>
+          <tbody>{flags.slice(0, 20).map((f, i) => (
+            <tr key={i} className="border-t border-[#243247]/60 text-right font-mono">
+              <td className={`text-left py-1 ${f.cp === "C" ? "text-[#f05252]" : "text-[#22c55e]"}`}>{f.sym} {f.cp === "C" ? "Call" : "Put"} {f.k}</td>
+              <td className="text-slate-400">{f.exp}</td>
+              <td className="text-white">{usd(f.prem)}</td>
+              <td className="text-slate-300">{f.vol.toLocaleString()}／{f.oi.toLocaleString()}</td>
+              <td className="text-slate-400">{moneyness(f.otm)}</td>
+              <td className="text-slate-400 font-sans">{f.side ?? "—"}</td>
+              <td className="text-left pl-3 font-sans text-[#8b97ab]">{(f.why ?? []).join("・")}{f.tw?.members?.length ? `・${f.tw.members.slice(0, 3).join("、")}` : ""}</td>
+            </tr>))}</tbody>
+        </table>
+      ) : <div className="mb-4 text-xs text-[#8b97ab]">這個交易日沒有符合條件的異常大額合約。</div>}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
+        {ts.map((t) => (
+          <div key={t.sym} className="rounded border border-[#243247] px-2 py-1.5 text-[11px] font-mono">
+            <div className="text-slate-200 font-sans">{t.sym}</div>
+            <div className="text-[#f05252]">C {usd(t.callPrem)}{t.callPremX ? <span className="text-[#7c8aa0]"> x{t.callPremX}</span> : null}</div>
+            <div className="text-[#22c55e]">P {usd(t.putPrem)}{t.putPremX ? <span className="text-[#7c8aa0]"> x{t.putPremX}</span> : null}</div>
+          </div>))}
+      </div>
+    </div>
+  );
+}
+
 export default function IntlDashboard() {
   const { data, error } = useStaticJson<Data>("intel/intl.json");
   if (!data) return <div className="py-16 text-center text-sm text-[#8b97ab] font-mono">{error ? "資料載入失敗" : "載入中…"}</div>;
@@ -116,6 +165,7 @@ export default function IntlDashboard() {
         「美股當天漲跌」與「台股隔天漲跌」的相關程度（越接近 1 越同步），<b>β</b> 是美股每漲 1% 台股隔天平均漲幾 %。
         「開盤可能反應」＝β × 美股漲跌，只是歷史平均，不代表一定如此。虛線框是名單外、但實際走勢高度連動的股票。
       </Note>
+      <OptionsFlow />
       <div className={`mb-5 rounded-xl border px-4 py-3 text-sm ${alerts.length ? "border-[#f59e0b]/60 bg-[#f59e0b]/10 text-white" : "border-[#243247] bg-[#0d1220] text-[#8b97ab]"}`}>
         美股 {md(data.usDate)} 收盤
         {alerts.length
