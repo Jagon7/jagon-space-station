@@ -1,10 +1,8 @@
 {
 "active": [
-"cds:NBIS",
 "temp:偏高",
-"vix:jump:2026-11-20",
-"vix:危險",
+"vix:警戒",
 "vixts:危險",
-"vvix:危險"
+"vvix:警戒"
 ]
 }
