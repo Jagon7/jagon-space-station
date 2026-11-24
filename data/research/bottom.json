@@ -1,6 +1,6 @@
 {
  "from": "2005-04-07",
- "to": "2026-11-20",
+ "to": "2026-11-24",
  "split": "2018-01-01",
  "signals": {
   "BASE": {
@@ -1496,23 +1496,23 @@
   }
  },
  "now": {
-  "date": "2026-11-20",
-  "close": 36033.29,
-  "dd": -27.89,
-  "rsi": 25.63,
-  "z20": -2.36,
-  "bias20": -15.65,
-  "streak": 2,
-  "volx": 1.14,
-  "upDay": false,
+  "date": "2026-11-24",
+  "close": 40122.35,
+  "dd": -19.71,
+  "rsi": 42.91,
+  "z20": -0.63,
+  "bias20": -4.38,
+  "streak": 0,
+  "volx": null,
+  "upDay": true,
   "keyRev": false,
-  "aboveMa5": false,
-  "lowerTail": 0.15,
-  "vix": 35.89,
-  "vixOff": 0.0,
-  "credit20": -0.78,
-  "spx1": -3.7,
-  "soxDD": -37.52,
+  "aboveMa5": true,
+  "lowerTail": 0.0,
+  "vix": 26.62,
+  "vixOff": 25.83,
+  "credit20": -0.79,
+  "spx1": 4.73,
+  "soxDD": -31.22,
   "margin": null,
   "fedCut30": false
  }
