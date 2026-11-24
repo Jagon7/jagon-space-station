@@ -1013,7 +1013,7 @@ BROKER_MIN = 5e4  # 仟元＝5000 萬
 
 def broker_alert(dry: bool, force: bool = False) -> int:
     """重點分點當日買賣超 ≥ 5000 萬的個股（週一到五 20:00）。資料來源 data/broker/<日期>.json（fetch_broker.py，金額單位仟元）；
-    ETF 不列；買超、賣超各別列，多個分點同時買／賣同一檔的另外標出"""
+    買超、賣超各別列，多個分點同時買／賣同一檔的另外標出；ETF（0 開頭代號）另外彙整成一段，不和個股混在一起"""
     now = datetime.now(TPE_TZ)
     today = now.date().isoformat()
     if not force and (now.weekday() >= 5 or today in _holidays()):
@@ -1039,6 +1039,7 @@ def broker_alert(dry: bool, force: bool = False) -> int:
     md = lambda d: f"{int(d[5:7])}/{int(d[8:10])}"  # noqa: E731
     wl = set(watchlist())
     hits: dict[str, list] = {}  # 代號 → [(分點, 淨額億)]
+    etf: dict[str, list] = {}   # ETF 代號 → [(分點, 淨額億, 名稱, 張數)]
     per = []
     for label in BROKER_ALERT:
         rows = br.get(label)
@@ -1047,10 +1048,13 @@ def broker_alert(dry: bool, force: bool = False) -> int:
             continue
         b, sl = [], []
         for code, name, buy, sell, bq, sq in rows:
-            if code.startswith("0") or buy is None or sell is None:
+            if buy is None or sell is None:
                 continue
             net = buy - sell
             if abs(net) < BROKER_MIN:
+                continue
+            if code.startswith("0"):  # ETF：另外彙整
+                etf.setdefault(code, []).append((label, net / 1e5, name, (bq or 0) - (sq or 0) if bq is not None and sq is not None else None))
                 continue
             lots = (bq or 0) - (sq or 0) if bq is not None and sq is not None else None
             px = (buy if net > 0 else sell) / ((bq if net > 0 else sq) or 0) if ((bq if net > 0 else sq) or 0) else None
@@ -1061,7 +1065,8 @@ def broker_alert(dry: bool, force: bool = False) -> int:
         sl.sort(key=lambda x: x[2])
         per.append((label, b, sl))
     n = sum(len(x[1] or []) + len(x[2] or []) for x in per)
-    m = Msg(("【預覽】" if force else "") + "🏦 分點大額進出", f"{md(day or today)}・單一分點買賣超 ≥ 5000 萬・{n} 筆", accent="#0EA5E9",
+    n_etf = sum(len(v) for v in etf.values())
+    m = Msg(("【預覽】" if force else "") + "🏦 分點大額進出", f"{md(day or today)}・單一分點買賣超 ≥ 5000 萬・個股 {n} 筆" + (f"・ETF {n_etf} 筆" if n_etf else ""), accent="#0EA5E9",
             url=f"{SITE}/broker/", button="開啟分點追蹤")
     multi = {c: v for c, v in hits.items() if len(v) >= 2}
     if multi:
@@ -1082,12 +1087,22 @@ def broker_alert(dry: bool, force: bool = False) -> int:
         for code, name, net, lots, px in b + sl:
             sub = f"均價約 {px:,.1f}" if px else ""
             m.stock(name, code, f"{lots:+,.0f} 張" if lots is not None else "", f"{net:+.2f} 億", color=sign_tone(net), star=code in wl, sub=sub)
-    quiet = [label for label, b, sl in per if b is not None and not b and not sl]
+    if etf:
+        m.section("ETF 大額進出", f"{len(etf)} 檔")
+        m.cols("張數", "淨額")
+        for c, v in sorted(etf.items(), key=lambda kv: -abs(sum(x[1] for x in kv[1])))[:12]:
+            tot = sum(x[1] for x in v)
+            lots = sum(x[3] for x in v if x[3] is not None) if any(x[3] is not None for x in v) else None
+            m.stock(v[0][2], c, f"{lots:+,.0f} 張" if lots is not None else "", f"{tot:+.2f} 億", color=sign_tone(tot), star=c in wl,
+                    sub="、".join(f"{x[0]} {x[1]:+.2f}" for x in v))
+        if len(etf) > 12:
+            m.note(f"另有 {len(etf) - 12} 檔 ETF，請看網頁")
+    quiet = [label for label, b, sl in per if b is not None and not b and not sl and not any(x[0] == label for v in etf.values() for x in v)]
     if quiet:
         m.note("沒有 5000 萬以上進出：" + "、".join(quiet))
-    if not n:
-        m.line("今天這些分點都沒有單一個股買賣超 5000 萬以上", color=FLAT)
-    m.note("淨額＝該分點當日買進金額 − 賣出金額（富邦／MoneyDJ 分點明細，各分點買、賣超前 50 名）；ETF 不列；★＝自選股")
+    if not n and not n_etf:
+        m.line("今天這些分點都沒有單一個股或 ETF 買賣超 5000 萬以上", color=FLAT)
+    m.note("淨額＝該分點當日買進金額 − 賣出金額（富邦／MoneyDJ 分點明細，各分點買、賣超前 50 名）；ETF 另列一段（可能含申購贖回或造市）；★＝自選股")
     print(m.text())
     if dry:
         return 0
