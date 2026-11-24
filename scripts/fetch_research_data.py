@@ -24,6 +24,21 @@ SYMS = [
 ]
 
 
+def session_closed(meta: dict, t: int) -> bool:
+    """最新報價那一盤是否已收盤（收盤後才能用即時報價補收盤）。
+    不能只看 currentTradingPeriod：過了午夜它會換成下一個交易日的時段，前一天的收盤就補不進來。
+    做法：拿時段的收盤時刻（當地幾點幾分）套到最新成交那一天，現在已過收盤且最新成交在收盤前後 30 分鐘內才算。"""
+    reg = (meta.get("currentTradingPeriod") or {}).get("regular") or {}
+    end, off, rmt = reg.get("end") or 0, meta.get("gmtoffset") or 0, meta.get("regularMarketTime") or 0
+    if not end or not rmt:
+        return False
+    day = lambda x: (x + off) // 86400  # noqa: E731
+    if day(rmt) != day(t):
+        return False  # 最新成交不是這根日 K 那天
+    sess_end = day(rmt) * 86400 + (end + off) % 86400 - off
+    return time.time() >= sess_end + 300 and rmt >= sess_end - 1800
+
+
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
     syms = ["^TWII", "^GSPC", "^IXIC", "^VIX", "^SOX", "HYG", "LQD", "^N225", "^KS11"] if "--quick" in sys.argv else SYMS
@@ -37,9 +52,7 @@ def main():
             meta = res.get("meta") or {}
             for i, t in enumerate(res["timestamp"]):
                 c = q["close"][i]
-                end = ((meta.get("currentTradingPeriod") or {}).get("regular") or {}).get("end") or 0
-                closed = (meta.get("regularMarketTime") or 0) >= end > 0  # 收盤後才補，盤中的即時價不能當收盤
-                if c is None and closed and i == len(res["timestamp"]) - 1 and meta.get("regularMarketPrice"):
+                if c is None and i == len(res["timestamp"]) - 1 and meta.get("regularMarketPrice") and session_closed(meta, t):
                     # Yahoo 最新一天的日線收盤常是空的：用即時報價欄位補（收盤後就是當天收盤）
                     c = meta["regularMarketPrice"]
                     q["high"][i] = q["high"][i] or meta.get("regularMarketDayHigh")
