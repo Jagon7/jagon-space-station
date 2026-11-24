@@ -3,52 +3,52 @@
   "data": [
     {
       "name": "半導體",
-      "count": 144,
+      "count": 73,
       "momentum": "strong"
     },
     {
       "name": "電子零組件",
-      "count": 126,
+      "count": 69,
       "momentum": "strong"
     },
     {
       "name": "光電",
-      "count": 60,
+      "count": 40,
       "momentum": "strong"
     },
     {
       "name": "電腦週邊",
-      "count": 57,
+      "count": 33,
       "momentum": "strong"
     },
     {
       "name": "其他電子",
-      "count": 51,
-      "momentum": "strong"
-    },
-    {
-      "name": "通信網路",
-      "count": 38,
+      "count": 21,
       "momentum": "strong"
     },
     {
       "name": "電機機械",
-      "count": 32,
+      "count": 17,
+      "momentum": "strong"
+    },
+    {
+      "name": "通信網路",
+      "count": 16,
       "momentum": "strong"
     },
     {
       "name": "化工",
-      "count": 20,
-      "momentum": "strong"
-    },
-    {
-      "name": "綠能環保",
-      "count": 12,
+      "count": 14,
       "momentum": "strong"
     },
     {
       "name": "金融保險",
-      "count": 10,
+      "count": 8,
+      "momentum": "strong"
+    },
+    {
+      "name": "綠能環保",
+      "count": 8,
       "momentum": "strong"
     }
   ]
