@@ -50,9 +50,9 @@
       "limitTime": "--:--",
       "market": "上市",
       "instiForeign": -95,
-      "instiTrust": -85,
+      "instiTrust": -8,
       "instiDealer": 52,
-      "instiTotal": -127,
+      "instiTotal": -50,
       "reason": "AI 題材"
     },
     {
@@ -464,9 +464,9 @@
       "limitTime": "--:--",
       "market": "上市",
       "instiForeign": -250,
-      "instiTrust": 182,
+      "instiTrust": 179,
       "instiDealer": 1,
-      "instiTotal": -67,
+      "instiTotal": -69,
       "reason": "電機機械族群同步漲停（18 檔）"
     },
     {
@@ -897,8 +897,8 @@
       "market": "上櫃",
       "instiForeign": 25,
       "instiTrust": 4,
-      "instiDealer": 13,
-      "instiTotal": 43,
+      "instiDealer": 42,
+      "instiTotal": 72,
       "reason": "低軌衛星題材"
     },
     {
@@ -1022,9 +1022,9 @@
       "limitTime": "--:--",
       "market": "上市",
       "instiForeign": -48,
-      "instiTrust": -3,
+      "instiTrust": -7,
       "instiDealer": 6,
-      "instiTotal": -44,
+      "instiTotal": -48,
       "reason": "PCB 題材"
     },
     {
@@ -1058,9 +1058,9 @@
       "limitTime": "--:--",
       "market": "上市",
       "instiForeign": -90,
-      "instiTrust": -274,
+      "instiTrust": -234,
       "instiDealer": 10,
-      "instiTotal": -353,
+      "instiTotal": -313,
       "reason": "光電族群同步漲停（41 檔）"
     },
     {
@@ -1166,9 +1166,9 @@
       "limitTime": "--:--",
       "market": "上市",
       "instiForeign": 13,
-      "instiTrust": -1,
+      "instiTrust": -4,
       "instiDealer": 6,
-      "instiTotal": 19,
+      "instiTotal": 17,
       "reason": "半導體族群同步漲停（81 檔）"
     },
     {
@@ -8945,7 +8945,7 @@
       "instiTrust": null,
       "instiDealer": null,
       "instiTotal": null,
-      "reason": ""
+      "reason": "接單／打入供應鏈"
     },
     {
       "code": "4169",
