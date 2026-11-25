@@ -34,6 +34,7 @@
     "manual": {},
     "max_changes": 16,
     "december": true,
-    "official": true
-  }
+    "official": false
+  },
+  "00918": {}
 }

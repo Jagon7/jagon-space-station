@@ -252,6 +252,7 @@ class Public:
             for c, v in doc.items():
                 if v.get("eq") is not None:
                     equity[c][q] = v["eq"]
+        self._fill_selfreport_eps(eps, asof)
         return {
             "asof": asof, "names": names, "universe": universe, "close": close, "mcap": mcap,
             "insider": self.latest_insider(), "tv6m_avg": tv6, "tv1m_avg": tv1, "tv6m_median": med6,
@@ -260,6 +261,29 @@ class Public:
             "etf": {e: self.etf(e) for e in etfs}, "windows": {"6m": [win6[0], win6[-1], len(win6)],
                                                                  "1m": [win1[0], win1[-1], len(win1)]},
         }
+
+    def _fill_selfreport_eps(self, eps: dict, asof: str):
+        """
+        正式財報還沒公布的最近一季（多半是金控），用公開資訊觀測站「自結損益」補：
+        該季三個月的當月淨利加總（千元）÷ 發行股數 → 單季 EPS（TEJ 也會先放自結數）
+        """
+        basic = self.basic()
+        y, m = int(asof[:4]), int(asof[5:7])
+        q = (m - 1) // 3  # 已結束的最近一季
+        if q == 0:
+            y, q = y - 1, 4
+        qk = f"{y}Q{q}"
+        months = [f"{y}-{mm:02d}" for mm in range(3 * q - 2, 3 * q + 1)]
+        docs = [_read(self.d / "fund" / "selfreport" / f"{mo}.json", {}) for mo in months]
+        if not all(docs):
+            return
+        for c in set(docs[0]) & set(docs[1]) & set(docs[2]):
+            if eps.get(c, {}).get(qk) is not None:
+                continue
+            vals = [d[c][4] for d in docs]
+            sh = (basic.get(c) or {}).get("sh")
+            if all(v is not None for v in vals) and sh:
+                eps.setdefault(c, {})[qk] = round(sum(vals) * 1000 / sh, 2)
 
     # ---------- FTSE（0050／0051／0056）額外欄位 ----------
     def ftse_extras(self, b: dict, cfg: dict) -> dict:
