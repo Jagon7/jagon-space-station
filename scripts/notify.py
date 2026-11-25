@@ -1736,6 +1736,77 @@ def bookbuild_alert(dry: bool, force: bool = False) -> int:
     return 0
 
 
+NEWHIGH_STATE = ROOT / "data" / "notify" / "newhigh-sent.json"
+
+
+def new_high_alert(dry: bool, force: bool = False) -> int:
+    """新高法（scan_new_high.py 每晚 22:00 掃完）：今天出現的合格買點（隔天開盤買、拿 10 個交易日）、等買點的突破龍頭（明天的條件）、
+    明天到期該賣的部位；三種都沒有就不發。只看合格的（龍頭＋大盤在 60 日線上）。回測：scripts/research_new_high.py"""
+    import build_margin
+    data = Path(os.environ.get("JSS_DATA_DIR", ROOT / "data"))
+    now = datetime.now(TPE_TZ)
+    today = now.date().isoformat()
+    try:
+        doc = json.loads((data / "strategy" / "new_high.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        print("沒有新高法掃描結果")
+        return 0
+    if doc.get("date") != today and not force:
+        print(f"新高法掃描不是今天的（{doc.get('date')}）")
+        return 0
+    try:
+        state = json.loads(NEWHIGH_STATE.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        state = {"sent": []}
+    if doc["date"] in state["sent"] and not force:
+        print("今天的新高法已發過")
+        return 0
+    tmr = build_margin.add_trading_days(data, doc["date"], 1, [])
+    sig = [r for r in doc["signals"] if r["qualified"]]
+    watch = [r for r in doc["watch"] if r["qualified"]]
+    due = [r for r in doc["holding"] if r["qualified"] and r.get("sell") == tmr]
+    hold = [r for r in doc["holding"] if r["qualified"] and r.get("sell") != tmr]
+    if not (sig or watch or due) and not force:
+        print(f"新高法：沒有合格的新買點／等買點／明天要賣的（大盤 {'在' if doc['marketOk'] else '不在'} 60 日線上）")
+        return 0
+    md = lambda d: f"{int(d[5:7])}/{int(d[8:10])}" if d else "—"  # noqa: E731
+    wl = set(watchlist())
+    m = Msg(("【預覽】" if force else "") + "🚀 新高法", f"{md(doc['date'])}・大盤{'在' if doc['marketOk'] else '跌破'} 60 日線" +
+            f"・新買點 {len(sig)}・等買點 {len(watch)}", accent="#10B981")
+    if sig:
+        m.section("今天出現買點（明天開盤買，拿 10 個交易日）", f"{len(sig)} 檔")
+        m.cols("收盤", "預定賣出")
+        for r in sig:
+            m.stock(r["name"], r["code"], f"{r['buyClose']:g}", md(r["sell"]), star=r["code"] in wl,
+                    sub=f"{md(r['date'])} 突破 +{r['chg']}%・量 {r['volX']} 倍・{r.get('sector') or ''}" + ("・上櫃" if r.get("otc") else "") +
+                    (f"・法人 {r['inst']:+,} 張" if r.get("inst") is not None else ""))
+    if watch:
+        m.section("突破龍頭、等買點（明天收黑或十字、收盤 ≥ 條件價就在收盤前買）", f"{len(watch)} 檔")
+        m.cols("條件價", "剩幾天")
+        for r in watch:
+            m.stock(r["name"], r["code"], f"≥ {r['needAbove']:g}", f"{r['daysLeft']} 天", star=r["code"] in wl,
+                    sub=f"{md(r['date'])} 突破 +{r['chg']}%・量 {r['volX']} 倍・前高 {r['prior']:g}・今收 {r['lastClose']:g}")
+    if due:
+        m.section("明天收盤到期（第 10 天）", f"{len(due)} 檔")
+        for r in due:
+            m.kv(f"{r['name']} {r['code']}", f"{md(r['buy'])} 買 {r['buyClose']:g}・目前 {r['ret']:+.1f}%")
+    if hold:
+        m.section("持有中", f"{len(hold)} 檔")
+        for r in hold:
+            m.kv(f"{r['name']} {r['code']}", f"{md(r['buy'])} 買・第 {r['day']} 天・{r['ret']:+.1f}%・{md(r['sell'])} 賣")
+    m.note("規則：成交額前 50、創一年新高、站上 120 日線、放量長紅（漲 ≥ 4%、量 ≥ 2 倍）、同產業龍頭、加權指數在 60 日線上；"
+           "突破後 3 天內第一根收黑／十字且守住前高與 5 日線就買，拿 10 個交易日。回測 2012 起每筆平均約 +1.7%、勝率約 5 成，常連虧，同時最多 3 檔。")
+    print(m.text())
+    if dry:
+        return 0
+    if not send(m):
+        print("（沒有設定任何推播管道，只印出內容）")
+    if not force:
+        NEWHIGH_STATE.parent.mkdir(parents=True, exist_ok=True)
+        NEWHIGH_STATE.write_text(json.dumps({"sent": (state["sent"] + [doc["date"]])[-60:]}, ensure_ascii=False), encoding="utf-8")
+    return 0
+
+
 COMMOD_STATE = ROOT / "data" / "notify" / "commodity-sent.json"
 # 代號：名稱、單日門檻 %、相關台股族群（週資料的 SCFI 用單週）
 COMMODITIES = {
@@ -2094,6 +2165,7 @@ def main():
     ap.add_argument("--risk-alert", action="store_true", help="市場風險警示：風險溫度偏高、指標達警戒／危險、VIX 暴漲、信用利差擴大、科技廠隱含 CDS 跳升")
     ap.add_argument("--etf-alert", action="store_true", help="每日 ETF 持股變化摘要（週一到五 20:00；加 --preview 立刻發預覽）")
     ap.add_argument("--rebalance-alert", action="store_true", help="ETF 換股預估（週一到五 19:00；加 --preview 立刻發預覽）")
+    ap.add_argument("--new-high-alert", action="store_true", help="新高法：合格買點、等買點、明天到期（併入 22:00 晚間總結；加 --preview 立刻發預覽）")
     ap.add_argument("--bookbuild-alert", action="store_true", help="詢圈／競拍：兩週內的可轉債與股票承銷（併入 22:00 晚間總結；加 --preview 立刻發預覽）")
     ap.add_argument("--options-alert", action="store_true", help="美股異常大額選擇權（併入 08:00 盤前推送；加 --preview 立刻發預覽）")
     ap.add_argument("--commodity-alert", action="store_true", help="商品報價大幅異動（併入 08:00 盤前推送；加 --preview 立刻發預覽）")
@@ -2125,6 +2197,8 @@ def main():
         return index_alert(a.dry_run, force=a.preview)
     if a.bookbuild_alert:
         return bookbuild_alert(a.dry_run, force=a.preview)
+    if a.new_high_alert:
+        return new_high_alert(a.dry_run, force=a.preview)
     if a.commodity_alert:
         return commodity_alert(a.dry_run, force=a.preview)
     if a.options_alert:

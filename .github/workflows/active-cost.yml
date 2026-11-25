@@ -3,6 +3,7 @@ name: Active ETF Cost
 # 主動式 ETF 建倉成本：逐日抓各檔從掛牌起的持股，用股數增減重播平均成本（停損監控用）。
 # 第一次要抓一年多的每日持股（約 1～3 小時）；每日原始持股存在 Actions cache，之後每天只補新的日子。
 # 更新完就發「晚間總結」：主動ETF停損＋融資斷頭、ETF 持股變化、分點大額進出、ETF 換股預估、指數調整提醒、詢圈／競拍，
+# 新高法（買點／等買點／到期），
 # 全部合併成一次 LINE 推送（省每月額度；19:00／20:00 的流程只抓資料不推播）。週一到五；各自的已發送紀錄在 data/notify/。
 on:
   workflow_dispatch:
@@ -48,10 +49,15 @@ jobs:
       - name: Build data views (ETF summary reads public/data)
         run: TZ=Asia/Taipei python3 scripts/build_views.py > /dev/null
         continue-on-error: true
+      - name: New-high strategy scan (Yahoo adjusted prices + today's quotes)
+        run: TZ=Asia/Taipei python3 -u scripts/scan_new_high.py
+        continue-on-error: true
+        env:
+          JSS_DATA_DIR: ./data
       - name: Evening digest (one LINE push)
         run: |
           P="${{ inputs.preview && '--preview' || '' }}"
-          for f in --active-alert --etf-alert --broker-alert --rebalance-alert --index-alert --bookbuild-alert; do
+          for f in --active-alert --etf-alert --broker-alert --rebalance-alert --index-alert --bookbuild-alert --new-high-alert; do
             TZ=Asia/Taipei python3 scripts/notify.py $f $P || echo "::warning::$f 失敗"
           done
           TZ=Asia/Taipei python3 scripts/notify.py --flush
@@ -74,7 +80,7 @@ jobs:
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email 'github-actions[bot]@users.noreply.github.com'
-          git add data/etf/active_cost.json data/notify/ 2>/dev/null || exit 0
+          git add data/etf/active_cost.json data/notify/ data/strategy/new_high.json 2>/dev/null || exit 0
           git diff --staged --quiet && exit 0
           git commit -m "data: active etf cost $(TZ=Asia/Taipei date +%Y-%m-%d)"
           for i in 1 2 3 4 5; do

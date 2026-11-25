@@ -172,7 +172,7 @@ def main():
             down_or_doji = cl[b] <= o[b] or abs(cl[b] / o[b] - 1) <= 0.003
             m5 = ma(cl, b, 5)
             if down_or_doji and m5 and cl[b] > m5:
-                key = (e["c"], b)
+                key = (e["c"], b, e["strong"], e["leader"], e["mkt"])  # 同一個買點只算一次，但不能讓不合格的突破佔掉合格突破的買點
                 if key in seen:
                     break
                 seen.add(key)
