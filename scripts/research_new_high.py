@@ -18,6 +18,7 @@
   資金模擬：同時最多 3 檔、每檔 1/3 資金
   成本：手續費 0.1425% × 2 × 6 折＋證交稅 0.3% ≈ 0.47%
   比較組：突破當天收盤直接買（不等陰線）、陰線但不限龍頭／不加大盤濾網、固定拿 5／10 天
+三大法人：data/research/new_high_inst.json（--need 列出要的日期，Actions 上 fetch_t86_hist.py 抓）
 資料：data/research/yahoo_stocks（Yahoo 上市股日線 2011 起，約 950 檔；上櫃股不在內、下市股缺 → 有存活者偏差）
 輸出 data/research/new_high.json；用法：python scripts/research_new_high.py
 """
@@ -189,6 +190,39 @@ def main():
             j, r = simulate(f, i, next_stop=False, exit_ma=10)
             trades["baseline_top50_ma120_exit_ma10"].append({**t, "r": r, "days": j - i})
 
+    # 三大法人（外資＋投信）：突破日到買進日合計買超股數
+    # 要用的（日期, 代號）寫進 data/research/new_high_need.json，GitHub Actions 上跑 fetch_t86_hist.py 抓（證交所擋雲端以外的連線較少）
+    # → data/research/new_high_inst.json {日期: {代號: [外資, 投信]}}
+    need = defaultdict(set)
+    for t in trades["pullback"]:
+        if t["strong"]:
+            f = feats[t["c"]]
+            for x in f["d"][f["idx"][t["d"]]:f["idx"][t["buy"]] + 1]:
+                need[x].add(t["c"])
+    if "--need" in sys.argv:
+        (DATA / "research" / "new_high_need.json").write_text(json.dumps({d: sorted(v) for d, v in sorted(need.items())}, separators=(",", ":")), encoding="utf-8")
+        print(f"寫出 {len(need)} 天")
+        return 0
+    try:
+        t86 = json.loads((DATA / "research" / "new_high_inst.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        t86 = {}
+    print(f"三大法人資料：{sum(d in t86 for d in need)}／{len(need)} 天")
+    for ts in trades.values():
+        for t in ts:
+            if "buy" not in t:
+                continue
+            f = feats[t["c"]]
+            ds = f["d"][f["idx"][t["d"]]:f["idx"][t["buy"]] + 1]
+            if not all(d in t86 for d in ds):
+                t["inst"] = None
+                continue
+            x = [t86[d].get(t["c"]) or [0, 0] for d in ds]
+            ft = sum((a or 0) + (b or 0) for a, b in x)
+            t["inst"] = ft > 0
+            t["instBuyDay"] = ((x[-1][0] or 0) + (x[-1][1] or 0)) > 0
+            t["trust"] = sum(b or 0 for _, b in x) > 0
+
     def summ(ts):
         if len(ts) < 15:
             return {"n": len(ts)}
@@ -206,7 +240,14 @@ def main():
                ("放量長紅（不限龍頭、不看大盤）", lambda t: t["strong"]),
                ("放量長紅＋龍頭（不看大盤）", lambda t: t["strong"] and t["leader"]),
                ("非放量長紅（磨上去的）＋大盤濾網", lambda t: not t["strong"] and t["mkt"]),
-               ("放量長紅、大盤 < MA60", lambda t: t["strong"] and t["mkt"] is False))
+               ("放量長紅、大盤 < MA60", lambda t: t["strong"] and t["mkt"] is False),
+               ("影片完整版＋法人（外資＋投信）突破到買進合計買超", lambda t: t["strong"] and t["leader"] and t["mkt"] and t.get("inst") is True),
+               ("影片完整版＋法人合計賣超", lambda t: t["strong"] and t["leader"] and t["mkt"] and t.get("inst") is False),
+               ("影片完整版＋買進當天法人買超", lambda t: t["strong"] and t["leader"] and t["mkt"] and t.get("instBuyDay") is True),
+               ("影片完整版＋買進當天法人賣超", lambda t: t["strong"] and t["leader"] and t["mkt"] and t.get("instBuyDay") is False),
+               ("影片完整版＋投信合計買超", lambda t: t["strong"] and t["leader"] and t["mkt"] and t.get("trust") is True),
+               ("放量長紅＋大盤＋法人合計買超（不限龍頭）", lambda t: t["strong"] and t["mkt"] and t.get("inst") is True),
+               ("放量長紅＋大盤＋法人合計賣超（不限龍頭）", lambda t: t["strong"] and t["mkt"] and t.get("inst") is False))
     out = {"cost": COST, "universe": len(feats), "range": [days[0], days[-1]], "groups": {}}
     fmt = lambda s: (f"n{s['n']:4d} 勝率 {s['win']:4.1f}% 平均 {s['avg']:+5.2f}% 中位 {s['med']:+5.2f}% 賺 {s['avgWin']:+.1f}/賠 {s['avgLoss']:+.1f} PF {s['pf']} 天數 {s['days']}"  # noqa: E731
                      if "win" in s else f"n{s['n']}（樣本不足）")
