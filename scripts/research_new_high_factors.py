@@ -9,6 +9,7 @@
   氣氛／廣度：全市場站上 20 日線的比例、當天創一年新高的家數、近 5 天放量突破的家數
   上市／上櫃：上櫃平均 20 日漲幅減上市平均（資金偏好中小型股？）、這檔是上市或上櫃
   國際類股：電子類（半導體、電腦週邊、電子零組件…）看費半趨勢，其他類看 S&P 500
+  月營收：最新已公布月的年增率、近 3 月年增率、年增率加速、營收創 12 個月新高（公布期限 M+1 月 10 日，之後才算知道）
   相對強度：近 3／6／12 個月漲幅、加權綜合在全市場的百分位（買點當天）
   法人：外資＋投信（及各自）從突破日到買點的合計買超，佔同期間成交量 %（data/research/new_high_inst.json）
   個股：突破日漲幅、量倍數、突破前 20 天漲幅、突破幅度（離前高多少）、距離上一次創高幾天、
@@ -217,6 +218,45 @@ def main():
             v = rsv.get((t["buy"], t["c"], nm))
             if v is not None:
                 t[nm] = v
+    # 月營收：買點當天「已公布」的最新月份（M 月營收最晚 M+1 月 10 日公布，買點要在 11 日以後才算知道）
+    #   yoy＝最新月年增率、yoy3＝近 3 個月合計年增率、accel＝最新月年增率 − 前 3 個月平均年增率、revHi＝最新月是不是近 12 個月最高（1／0）
+    rev = {}
+    try:
+        rev.update(json.loads((DATA / "research" / "revenue_hist.json").read_text(encoding="utf-8")))
+    except (OSError, ValueError):
+        pass
+    for fp in sorted((DATA / "fund" / "revenue").glob("20*.json")):
+        doc = json.loads(fp.read_text(encoding="utf-8"))
+        rev[fp.stem] = {c: [v[3], v[4]] for c, v in doc.items() if isinstance(v, list) and len(v) > 4}
+    months = sorted(rev)
+
+    def known(day):
+        y, m = int(day[:4]), int(day[5:7])
+        # day 的前一個月在 day 那個月 10 日後才公布
+        last = (y, m - 1) if int(day[8:10]) > 10 else (y, m - 2)
+        while last[1] < 1:
+            last = (last[0] - 1, last[1] + 12)
+        return f"{last[0]}-{last[1]:02d}"
+
+    if months:
+        for t in trades:
+            lm = known(t["buy"])
+            ks = [k for k in months if k <= lm][-12:]
+            if not ks or ks[-1] != lm:
+                continue
+            ser = [rev[k].get(t["c"]) for k in ks]
+            if any(x is None or x[0] is None for x in ser[-4:]):
+                continue
+            yo = [(x[0] / x[1] - 1) * 100 if x[1] else None for x in ser]
+            if yo[-1] is None:
+                continue
+            t["yoy"] = yo[-1]
+            c3, l3 = sum(x[0] for x in ser[-3:]), sum(x[1] or 0 for x in ser[-3:])
+            t["yoy3"] = (c3 / l3 - 1) * 100 if l3 else None
+            prev = [x for x in yo[-4:-1] if x is not None]
+            t["accel"] = yo[-1] - st.mean(prev) if prev else None
+            t["revHi"] = 1 if len(ser) >= 12 and all(x and x[0] is not None for x in ser) and ser[-1][0] >= max(x[0] for x in ser) else 0
+        print(f"有月營收的買點：{sum('yoy' in t for t in trades)}／{len(trades)}（月營收 {months[0]}～{months[-1]}，{len(months)} 個月）")
     print(f"有法人資料的買點：{sum('inst' in t for t in trades)}／{len(trades)}")
     base = [t for t in trades if t["leader"] and t["mkt"]]
     print(f"影片完整版買點 {len(base)} 筆（不限大盤／龍頭的放量突破買點共 {len(trades)} 筆）；拿 {HOLD} 天、收盤買、已扣 {COST}%")
@@ -243,6 +283,8 @@ def main():
         ("pbDrop", "買點當天漲跌 %"), ("k", "買點是突破後第幾天"),
         ("rs3", "相對強度：近 3 個月漲幅百分位"), ("rs6", "相對強度：近 6 個月漲幅百分位"), ("rs12", "相對強度：近 12 個月漲幅百分位"),
         ("rsw", "相對強度：加權（2×3 月＋6、9、12 月）百分位"),
+        ("yoy", "月營收年增率 %（最新已公布月）"), ("yoy3", "近 3 個月營收年增率 %"), ("accel", "營收年增率加速（最新 − 前 3 月平均）"),
+        ("revHi", "最新月營收創 12 個月新高（1／0）"),
         ("inst", "外資＋投信買超佔成交量 %（突破到買點）"), ("foreign", "外資買超佔成交量 %"), ("trust", "投信買超佔成交量 %"),
     ]
     out = {"n": len(base), "base": allp, "factors": {}}
@@ -252,8 +294,8 @@ def main():
         tr = sorted(t[key] for t in part(base, "2012", "2019") if t.get(key) is not None)
         if len(tr) < 60:
             continue
-        if key in ("otc", "k"):
-            cuts = (0.5, 1.5) if key == "otc" else (1.5, 2.5)
+        if key in ("otc", "k", "revHi"):
+            cuts = (0.5, 0.5) if key in ("otc", "revHi") else (1.5, 2.5)  # 0／1 的因子：直接比 0 組和 1 組
         else:
             cuts = (tr[len(tr) // 3], tr[2 * len(tr) // 3])
         grp = lambda t, ct=cuts, kk=key: None if t.get(kk) is None else (0 if t[kk] < ct[0] else 1 if t[kk] < ct[1] else 2)  # noqa: E731
