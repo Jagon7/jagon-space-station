@@ -42,7 +42,8 @@ const PLAN = [
   ["21:20", WD, "fetch-etf.yml"],
   ["21:35", WD, "fetch.yml"],            // 融資融券（資料到齊後自動發每日戰報）
   ["21:40", WD, "settlement.yml"],       // 結算策略：期交所＋自營＋當天當沖＋折溢價 → 部署（晚上 10 點前要是當天的）
-  ["21:50", WD, "freshness.yml", { only: "結算", quiet: "true" }],  // 網站結算表不是當天（含當沖）→ 再跑一次結算更新
+  ["21:50", WD, "freshness.yml", { only: "結算", quiet: "true" }],
+  ["21:50", WD, "tx-night-live.yml"],    // 台指期夜盤：美股開盤後 30 分鐘區間突破，等到 22:00（冬令 23:00）判斷後推 LINE  // 網站結算表不是當天（含當沖）→ 再跑一次結算更新
   ["22:00", WD, "active-cost.yml"],      // 主動式 ETF 建倉成本（停損監控）
   ["22:05", WD, "freshness.yml", { only: "結算" }],  // 還不是當天 → 再跑一次＋LINE 通知
   ["22:30", ALL, "gooaye.yml"],          // 特別集
