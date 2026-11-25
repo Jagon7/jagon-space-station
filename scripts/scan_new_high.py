@@ -4,6 +4,7 @@
 
   1 突破日：當天成交額前 50（上市＋上櫃、去掉 ETF）、收盤創一年新高（> 前 250 天最高收盤）、站上 120 日線、
            漲 ≥ 4% 且量 ≥ 20 日均量 2 倍（放量長紅）、同產業前 50 名裡近 20 天漲幅第一（龍頭）、加權指數 > 60 日線
+  營收：最新已公布月的年增率減前 3 個月平均（營收加速）≥ −3.1 個百分點（回測：最差 1/3 的報酬明顯較差）
   2 買點：突破後 1～3 天內第一根收黑或十字星（|收−開| ≤ 0.3%）、收盤仍 ≥ 突破前的高點、在 5 日線上 → 當天收盤（或隔天開盤）買
   3 賣出：訊號隔天開盤買、買進後第 10 個交易日收盤賣（訊號日 +11 個交易日）
 價格用 Yahoo 還原權息日線（最近幾天用 data/daily 的官方行情補）；三大法人（外資＋投信，突破到買點合計，張）只列出參考
@@ -31,6 +32,7 @@ DATA = Path(os.environ.get("JSS_DATA_DIR", ROOT / "data"))
 OUT = DATA / "strategy" / "new_high.json"
 TPE = timezone(timedelta(hours=8))
 TOPN, LOOK, HOLD = 50, 20, 10
+ACCEL_MIN = -3.1  # 營收年增率加速門檻（百分點）：回測 2012-18 最差 1/3 的分界，去掉這 1/3 後 2019 後樣本外每筆多約 +0.5%
 
 
 def ma(v, i, n):
@@ -107,6 +109,25 @@ def main():
     # 產業
     from research_new_high import sector_map
     sec = sector_map(DATA)  # 官方產業別（題材類股會隨每天排序變動，不用）
+    # 月營收：只用已公布的月份（M 月營收 M+1 月 10 日前公布）；加速＝最新月年增率 − 前 3 個月平均年增率（百分點）
+    rev = {}
+    for fp in sorted((DATA / "fund" / "revenue").glob("20*.json"))[-8:]:
+        rev[fp.stem] = json.loads(fp.read_text(encoding="utf-8"))
+
+    def rev_feat(code, day):
+        y, m = int(day[:4]), int(day[5:7])
+        y2, m2 = (y, m - 1) if int(day[8:10]) > 10 else (y, m - 2)
+        if m2 < 1:
+            y2, m2 = y2 - 1, m2 + 12
+        ks = [k for k in sorted(rev) if k <= f"{y2}-{m2:02d}"][-4:]
+        yo = []
+        for k in ks:
+            v = rev[k].get(code)
+            yo.append((v[3] / v[4] - 1) * 100 if isinstance(v, list) and len(v) > 4 and v[3] and v[4] else None)
+        if len(yo) < 4 or yo[-1] is None or not any(x is not None for x in yo[:-1]):
+            return None, None, (ks[-1] if ks else None)
+        prev = [x for x in yo[:-1] if x is not None]
+        return round(yo[-1], 1), round(yo[-1] - sum(prev) / len(prev), 1), ks[-1]
     # 三大法人（張）
     inst = {}
     for d in days:
@@ -163,10 +184,11 @@ def main():
                 break
         if status == "等買點" and i + 3 < len(cl):
             status = "3 天內沒出現買點（取消）"
-        qualified = b["leader"] and b["mktOk"]
+        yoy, accel, rm = rev_feat(b["code"], f["d"][buy] if buy is not None else today)
+        revOk = accel is None or accel >= ACCEL_MIN  # 沒有營收資料（新上市等）不擋，訊息裡註明
+        qualified = b["leader"] and b["mktOk"] and revOk
         row = {k: b[k] for k in ("code", "name", "otc", "sector", "date", "chg", "volX", "leader", "mktOk")}
-        row["prior"] = round(b["prior"], 2)
-        row["qualified"] = qualified
+        row.update({"prior": round(b["prior"], 2), "qualified": qualified, "yoy": yoy, "accel": accel, "revMonth": rm, "revOk": revOk})
         if buy is not None:
             if (b["code"], buy) in used:
                 continue
@@ -194,7 +216,7 @@ def main():
     print(f"{today} 大盤 {'> ' if doc['marketOk'] else '< '}60 日線；今天突破 {len(doc['breakouts'])} 檔、新買點 {len(signals)}"
           f"（合格 {sum(r['qualified'] for r in signals)}）、等買點 {len(watch)}、持有中 {len(holding)}")
     for r in signals + watch + holding:
-        print(" ", r["code"], r["name"], r["date"], "合格" if r["qualified"] else "（不合格：" + ("非龍頭" if not r["leader"] else "大盤弱") + "）",
+        print(" ", r["code"], r["name"], r["date"], "合格" if r["qualified"] else "（不合格：" + ("非龍頭" if not r["leader"] else "大盤弱" if not r["mktOk"] else "營收減速") + "）",
               r.get("buy", ""), r.get("sell", ""), r.get("needAbove", ""), r.get("ret", ""))
     return 0
 

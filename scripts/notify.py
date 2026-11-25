@@ -1779,13 +1779,15 @@ def new_high_alert(dry: bool, force: bool = False) -> int:
         for r in sig:
             m.stock(r["name"], r["code"], f"{r['buyClose']:g}", md(r["sell"]), star=r["code"] in wl,
                     sub=f"{md(r['date'])} 突破 +{r['chg']}%・量 {r['volX']} 倍・{r.get('sector') or ''}" + ("・上櫃" if r.get("otc") else "") +
+                    (f"・營收年增 {r['yoy']:+.0f}%（加速 {r['accel']:+.0f}）" if r.get("accel") is not None else "・沒有營收資料") +
                     (f"・法人 {r['inst']:+,} 張" if r.get("inst") is not None else ""))
     if watch:
         m.section("突破龍頭、等買點（明天收黑或十字、收盤 ≥ 條件價就在收盤前買）", f"{len(watch)} 檔")
         m.cols("條件價", "剩幾天")
         for r in watch:
             m.stock(r["name"], r["code"], f"≥ {r['needAbove']:g}", f"{r['daysLeft']} 天", star=r["code"] in wl,
-                    sub=f"{md(r['date'])} 突破 +{r['chg']}%・量 {r['volX']} 倍・前高 {r['prior']:g}・今收 {r['lastClose']:g}")
+                    sub=f"{md(r['date'])} 突破 +{r['chg']}%・量 {r['volX']} 倍・前高 {r['prior']:g}・今收 {r['lastClose']:g}" +
+                    (f"・營收加速 {r['accel']:+.0f}" if r.get("accel") is not None else ""))
     if due:
         m.section("明天收盤到期（第 10 天）", f"{len(due)} 檔")
         for r in due:
@@ -1794,7 +1796,7 @@ def new_high_alert(dry: bool, force: bool = False) -> int:
         m.section("持有中", f"{len(hold)} 檔")
         for r in hold:
             m.kv(f"{r['name']} {r['code']}", f"{md(r['buy'])} 買・第 {r['day']} 天・{r['ret']:+.1f}%・{md(r['sell'])} 賣")
-    m.note("規則：成交額前 50、創一年新高、站上 120 日線、放量長紅（漲 ≥ 4%、量 ≥ 2 倍）、同產業龍頭、加權指數在 60 日線上；"
+    m.note("規則：成交額前 50、創一年新高、站上 120 日線、放量長紅（漲 ≥ 4%、量 ≥ 2 倍）、同產業龍頭、加權指數在 60 日線上、營收沒有明顯減速；"
            "突破後 3 天內第一根收黑／十字且守住前高與 5 日線就買，拿 10 個交易日。回測 2012 起每筆平均約 +1.7%、勝率約 5 成，常連虧，同時最多 3 檔。")
     print(m.text())
     if dry:
