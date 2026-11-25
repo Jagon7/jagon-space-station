@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-ETF 換股預估（00919、0050、0051、0056、00929）：用 fetch_rebalance.py 等抓的公開資料，
+ETF 換股預估（00919、0050、0051、0056、00929、00918）：用 fetch_rebalance.py 等抓的公開資料，
 照原本 TEJ 試算表的算法每天重算，輸出：
 
   data/rebalance/pred/<ETF>.json   預估納入／剔除、權重、交易衝擊、篩選明細（網站用）
@@ -25,6 +25,7 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
 from scripts.rebalance import etf919, etf929, ftse  # noqa: E402
+from scripts.rebalance.common import trade_impact  # noqa: E402
 from scripts.rebalance.public import Public  # noqa: E402
 from scripts.rebalance.report import rebal_book, weight_sheet  # noqa: E402
 
@@ -192,6 +193,60 @@ def run_919(pub: Public, cfg: dict, asof: str | None):
     return s
 
 
+def run_918(pub: Public, cfg: dict, asof: str | None):
+    import openpyxl
+    from scripts.rebalance import etf918
+    from scripts.rebalance.public import may_extras
+    b = pub.bundle(asof, etfs=("00918",))
+    Y = int(b["asof"][:4])
+    b = may_extras(pub, b, Y)
+    b = etf918.extras(pub, b, cfg)
+    e = b["etf"]["00918"]
+    if not e.get("aum"):   # 持股檔沒有規模時，用受益權單位數 × 淨值（data/etf/aum.json）
+        try:
+            days = json.loads((DATA_DIR / "etf" / "aum.json").read_text(encoding="utf-8"))["days"]
+            v = days[max(days)].get("00918")
+            e["aum"] = v[1] * v[3] / 1000 if v else None
+        except (OSError, ValueError, KeyError):
+            pass
+    miss = readiness(pub, {"px_from": b["windows"]["6m"][0], "div_years": [Y - 3, Y - 2, Y - 1],
+                           "fin_quarters": [f"{Y}Q2", f"{Y}Q1", f"{Y - 1}Q4"]})
+    if not b.get("fill"):
+        miss.append("填息紀錄（scripts/fetch_fill.py）")
+    res = etf918.compute(b, cfg)
+    names = b["names"]
+    wb = openpyxl.Workbook()
+    wb.remove(wb.active)
+    sheet(wb, "918條件篩選", sorted(res["universe"].values(), key=lambda r: r["mcap_rank"]), [
+        ("code", "代號"), ("name", "名稱"), ("price", "股價"), ("mcap", "市值(百萬)"), ("mcap_rank", "市值排名"),
+        ("ff", "自由流通量"), ("tv12", "近12月成交金額(千)"), ("tv12_rank", "成交金額排名"), ("ffturn_n", "自由流通週轉≥3%月數"),
+        ("liq_ok", "流動性過關"), ("oi4", "近四季營業利益(千)"), ("fin_q", "最新財報季"), ("eps4", "近四季EPS"),
+        ("payout3", "近3年平均發放率"), ("yield", "股利率"), ("yield_rank", "股利率排名"), ("fill", "填息比例"),
+        ("fill_n", "除息次數"), ("exist", "既有成分股"), ("pass", "篩選通過"), ("sel_rank", "入選順位")])
+    sheet(wb, "權重", res["weights"]["rows"], [("code", "代號"), ("name", "名稱"), ("yield", "股利率"), ("yield_w", "股利率權重"),
+                                             ("ff_w", "自由流通市值占比"), ("base", "基準權重"), ("cap", "上限"), ("final", "預估權重")])
+    impact = trade_impact(res["weights"]["final"], {k: v / 100 for k, v in e["weights"].items()}, (e["aum"] or 0) * 1000,
+                          {k: v["price"] for k, v in res["universe"].items()} | b["close"], b["turnover1"])
+    sheet(wb, "預估影響", impact_rows(impact, names), IMPACT_COLS)
+    BOOK["918"] = {"sheet": "918", "label": "918", "layout": "blocks", "asof": b["asof"], "missing": miss,
+                   "final_w": res["weights"]["final"], "old_w": {k: v / 100 for k, v in e["weights"].items()},
+                   "names": names, "price": b["close"], "turnover": b["turnover1"], "aum_yuan": (e["aum"] or 0) * 1000,
+                   "adds": res["add"], "dels": res["del"], "confidence": (cfg.get("confidence") or {})}
+    OUT.mkdir(parents=True, exist_ok=True)
+    wb.save(OUT / "00918.xlsx")
+    notes = res["notes"] + ["股利率口徑還在跟原試算表對帳（市值、成交金額門檻與填息比例已對齊）",
+                            "權重的「自由流通市值調整比例」規則沒寫明，暫用「占比 − 1/N」"]
+    s = summary("00918", res["add"], res["del"], names, res["weights"]["final"], impact, notes,
+                {"thresholds": res["thresholds"], "missing": miss})
+    ranked = sorted((r for r in res["universe"].values() if r.get("sel_rank")), key=lambda r: r["sel_rank"])
+    write_json(OUT / "00918.json", {**s, "asof": b["asof"],
+                                    "ranked": [{k: r.get(k) for k in ("sel_rank", "code", "name", "fill", "yield", "yield_rank", "exist")}
+                                               for r in ranked],
+                                    "weights": res["weights"]["rows"], "impact": impact_rows(impact, names),
+                                    "config": res["config"]})
+    return s
+
+
 def run_ftse(pub: Public, cfg: dict, asof: str | None):
     import openpyxl
     cfg = {**cfg, "ibes_csv": str(ROOT / cfg["ibes_csv"]) if cfg.get("ibes_csv") else None,
@@ -314,7 +369,7 @@ def main():
     pub = Public(DATA_DIR)
     idx = json.loads((OUT / "index.json").read_text(encoding="utf-8")) if (OUT / "index.json").exists() else {}
     jobs = {"00919": lambda: [run_919(pub, cfg["00919"], a.asof)], "ftse": lambda: run_ftse(pub, cfg["ftse"], a.asof),
-            "00929": lambda: [run_929(pub, cfg["00929"], a.asof)]}
+            "00929": lambda: [run_929(pub, cfg["00929"], a.asof)], "00918": lambda: [run_918(pub, cfg.get("00918", {}), a.asof)]}
     failed = 0
     for name in a.jobs or list(jobs):
         try:
@@ -333,7 +388,7 @@ def main():
     if BOOK:
         # 整理表：ETFRebal_YYMMDD.xlsx（頁序 919、50、51、56、929），另存一份固定檔名給網站下載
         asof_all = max(v["asof"] for v in BOOK.values())
-        items = [BOOK[k] for k in ("919", "50", "51", "56", "929") if k in BOOK]
+        items = [BOOK[k] for k in ("919", "50", "51", "56", "929", "918", "713") if k in BOOK]
         name = f"ETFRebal_{asof_all[2:4]}{asof_all[5:7]}{asof_all[8:10]}.xlsx"
         for old in OUT.glob("ETFRebal_*.xlsx"):
             old.unlink()

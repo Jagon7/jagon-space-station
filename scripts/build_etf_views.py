@@ -238,7 +238,7 @@ def build():
     # ── 換股預估（build_rebalance_pred.py 的結果）＋ 計算過程 Excel ─────────────
     pred_dir = DATA_DIR.parent / "rebalance" / "pred"
     pred = {"etfs": []}
-    for code in ("00919", "0050", "0051", "0056", "00929"):
+    for code in ("00919", "0050", "0051", "0056", "00929", "00918", "00713"):
         doc = read_json(pred_dir / f"{code}.json", None)
         if not doc:
             continue

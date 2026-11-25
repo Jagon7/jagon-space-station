@@ -131,9 +131,11 @@ def eps_growth(eps: dict, rev: dict, Y: int):
     except (TypeError, ZeroDivisionError):
         Y3 = NA
     AB = B if not is_na(B) else ""
-    if z(F) + z(G) + z(H) <= 0:
+    # 規則筆記：累積前三季同期 EPS 成長率＝今年前三季 EPS 加總 ÷ 去年前三季加總 − 1；
+    #   去年前三季加總 ≤ 0 或任一季缺資料 → NA（排除）。（舊試算表寫成 SUM(F,F,G)，是錯的）
+    if any(is_na(x) for x in (F, G, H, C, D)) or F + G + H <= 0:
         return "", AB
-    den = z(F) + z(F) + z(G)   # 原表寫 SUM(F,F,G)，照抄
+    den = F + G + H
     try:
         if AB != "":
             AC = (z(C) + z(D) + AB) / den - 1
