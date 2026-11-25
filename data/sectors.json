@@ -1,54 +1,54 @@
 {
-  "date": "2026-11-24",
+  "date": "2026-11-25",
   "data": [
     {
       "name": "半導體",
-      "count": 73,
+      "count": 71,
       "momentum": "strong"
     },
     {
       "name": "電子零組件",
-      "count": 69,
-      "momentum": "strong"
-    },
-    {
-      "name": "光電",
-      "count": 40,
-      "momentum": "strong"
-    },
-    {
-      "name": "電腦週邊",
-      "count": 33,
+      "count": 57,
       "momentum": "strong"
     },
     {
       "name": "其他電子",
-      "count": 21,
+      "count": 30,
       "momentum": "strong"
     },
     {
-      "name": "電機機械",
-      "count": 17,
+      "name": "電腦週邊",
+      "count": 24,
       "momentum": "strong"
     },
     {
       "name": "通信網路",
-      "count": 16,
+      "count": 22,
+      "momentum": "strong"
+    },
+    {
+      "name": "光電",
+      "count": 20,
+      "momentum": "strong"
+    },
+    {
+      "name": "電機機械",
+      "count": 15,
+      "momentum": "strong"
+    },
+    {
+      "name": "資訊服務",
+      "count": 9,
+      "momentum": "strong"
+    },
+    {
+      "name": "數位雲端",
+      "count": 7,
       "momentum": "strong"
     },
     {
       "name": "化工",
-      "count": 14,
-      "momentum": "strong"
-    },
-    {
-      "name": "金融保險",
-      "count": 8,
-      "momentum": "strong"
-    },
-    {
-      "name": "綠能環保",
-      "count": 8,
+      "count": 6,
       "momentum": "strong"
     }
   ]
