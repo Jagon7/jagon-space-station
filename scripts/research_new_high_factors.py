@@ -247,7 +247,7 @@ def main():
             ser = [rev[k].get(t["c"]) for k in ks]
             if any(x is None or x[0] is None for x in ser[-4:]):
                 continue
-            yo = [(x[0] / x[1] - 1) * 100 if x[1] else None for x in ser]
+            yo = [(x[0] / x[1] - 1) * 100 if x and x[0] is not None and x[1] else None for x in ser]
             if yo[-1] is None:
                 continue
             t["yoy"] = yo[-1]
@@ -340,6 +340,27 @@ def main():
         r = [stat(part([t for t in mk60 if fn(t)], a, b)) for _, a, b in PARTS]
         out["leaderVsRs"][lab] = r
         print(f"  {lab:20s} " + "｜".join(f"{n}: {m:+.2f}%（{k}）" if m is not None else f"{n}: —（{k}）" for (n, _, _), (m, k) in zip(PARTS, r)))
+    # 營收條件候選（門檻用 2012-18 的三等份；之後兩段是樣本外）
+    fz = out["factors"]
+    if "accel" in fz and "yoy3" in fz:
+        aL, aH = fz["accel"]["cuts"]
+        yL, yH = fz["yoy3"]["cuts"]
+        print(f"\n營收條件候選（影片完整版＋…；門檻：加速 {aL:.1f}/{aH:.1f}、近 3 月年增 {yL:.1f}/{yH:.1f}）：")
+        out["revenueRules"] = {}
+        for lab, fn in (("基準", lambda t: True),
+                        (f"營收加速 ≥ {aL:.1f}（去掉最差 1/3）", lambda t: t.get("accel") is not None and t["accel"] >= aL),
+                        (f"營收加速 ≥ {aH:.1f}（最好 1/3）", lambda t: t.get("accel") is not None and t["accel"] >= aH),
+                        (f"近 3 月年增 ≥ {yL:.1f}", lambda t: t.get("yoy3") is not None and t["yoy3"] >= yL),
+                        (f"近 3 月年增 ≥ {yL:.1f} 且加速 ≥ {aL:.1f}", lambda t: (t.get("yoy3") or -99) >= yL and (t.get("accel") if t.get("accel") is not None else -99) >= aL),
+                        ("近 3 月年增 > 0 且加速 > 0", lambda t: (t.get("yoy3") or -99) > 0 and (t.get("accel") if t.get("accel") is not None else -99) > 0),
+                        ("營收創 12 個月新高", lambda t: t.get("revHi") == 1),
+                        ("營收加速 < 最差 1/3 門檻（對照）", lambda t: t.get("accel") is not None and t["accel"] < aL)):
+            ts = [t for t in base if fn(t)]
+            r = [stat(part(ts, a, b)) for _, a, b in PARTS]
+            rn = [stat(part(ts, a, b), "rn") for _, a, b in PARTS]
+            out["revenueRules"][lab] = {"close": r, "nextOpen": rn}
+            print(f"  {lab:34s} " + "｜".join(f"{n}: {m:+.2f}%（{k}）" if m is not None else f"{n}: —（{k}）" for (n, _, _), (m, k) in zip(PARTS, r))
+                  + "  隔天開盤買 " + "｜".join(f"{m:+.2f}%" if m is not None else "—" for m, _ in rn))
     # 穩定因子組合：每個穩定因子「落在差的那一組」扣 1 分，0 分＝都不在差組
     print(f"\n穩定因子 {len(stable)} 個：{[s[3] for s in stable]}")
     if stable:
