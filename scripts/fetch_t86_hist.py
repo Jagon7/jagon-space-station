@@ -15,9 +15,6 @@ from pathlib import Path
 
 import requests
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from fetch_rebound_data import t86  # noqa: E402
-
 ROOT = Path(__file__).resolve().parent.parent
 DATA = Path(os.environ.get("JSS_DATA_DIR", ROOT / "data"))
 NEED = DATA / "research" / "new_high_need.json"
@@ -30,6 +27,30 @@ def num(x):
         return float(str(x).replace(",", "").strip())
     except ValueError:
         return 0.0
+
+
+def twse(d: str) -> dict | None:
+    """{代號: [外資, 投信]} 股數；證交所 T86 從 2012-05-02 才有，之前回空的；
+    回應有 stat 但不是 OK（沒有資料、日期超出範圍）就當沒資料，不重試"""
+    if d < "2012-05-02":
+        return {}
+    for i in range(3):
+        try:
+            j = requests.get("https://www.twse.com.tw/rwd/zh/fund/T86", headers=H, timeout=60,
+                             params={"date": d.replace("-", ""), "selectType": "ALLBUT0999", "response": "json"}).json()
+        except (requests.RequestException, ValueError):
+            time.sleep(15 * (i + 1))
+            continue
+        if j.get("stat") and j["stat"] != "OK":
+            return {}
+        t = (j.get("tables") or [j])[0]
+        f = [str(x).replace(" ", "") for x in t.get("fields") or []]
+        i_f = next((k for k, x in enumerate(f) if "外陸資買賣超股數" in x or "外資買賣超股數" in x), None)
+        i_t = next((k for k, x in enumerate(f) if x.startswith("投信買賣超股數")), None)
+        if i_f is None or i_t is None:
+            return {}
+        return {str(r[0]).strip(): [num(r[i_f]), num(r[i_t])] for r in t.get("data") or []}
+    return None
 
 
 def tpex(d: str) -> dict | None:
@@ -66,7 +87,7 @@ def main():
             print("時間到，下次接著抓", flush=True)
             break
         got = {}
-        for mkt, fn in (("twse", lambda: t86(d.replace("-", ""))), ("tpex", lambda: tpex(d))):
+        for mkt, fn in (("twse", lambda: twse(d)), ("tpex", lambda: tpex(d))):
             if not need[d][mkt]:
                 continue
             j = fn()
