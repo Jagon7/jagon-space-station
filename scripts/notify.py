@@ -903,7 +903,8 @@ def g85_alert(dry: bool, force: bool = False) -> int:
         m.cols("昨收", f"開在這裡＝開高 {lo:g}～{hi:g}%")
         for c in cand[:10]:
             lim = "漲停" if (c.get("chg") or 0) >= 9.5 else f"{c['chg']:+.1f}%"
-            sub = "・".join(x for x in (c.get("sector") or "", f"昨 {lim}", f"5 日 {c['p5']:+.1f}%", f"成交第 {c['rank']} 名 {c['valYi']:g} 億") if x)
+            sub = "・".join(x for x in (c.get("sector") or "", f"昨 {lim}", f"5 日 {c['p5']:+.1f}%", f"成交第 {c['rank']} 名 {c['valYi']:g} 億",
+                                        f"漲到 {c['close'] * 1.09:.2f} 回補") if x)
             m.stock(c["name"], c["code"], f"{c['close']:g}", f"{c['lo']:g}～{c['hi']:g}", color="#D97706", sub=sub)
     else:
         m.line("昨天的熱門股沒有漲停或近 5 日大漲的，今天沒有候選", color=FLAT)
@@ -913,7 +914,7 @@ def g85_alert(dry: bool, force: bool = False) -> int:
     m.line(f"① 開盤落在上面的區間（開高 {lo:g}～{hi:g}%）才做；開漲停、開平或開低不做", color=INK)
     m.line("② 09:00～10:00 趁開盤後衝高分批賣，不追價、不加碼", color=INK)
     m.line("③ 12:00 後到收盤前在低檔分批買回", color=INK)
-    m.line("④ 開盤後一路創高、收在高檔是虧損日的共同點：過開盤高點就停損", color=INK)
+    m.line("④ 停損（防券差）：漲到昨收 +9% 就買回，不要等鎖漲停（不停損約 8% 的日子收盤鎖漲停買不回來）；想再控風險可加「比賣出價高 5% 就買回」", color=INK)
     sm = (g.get("summary") or {}).get("top3") or {}
     bt = next((x for x in (g.get("backtest") or {}).get("groups", []) if x["group"].startswith("A：")), None)
     if sm.get("n") or bt:
