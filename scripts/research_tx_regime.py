@@ -28,6 +28,7 @@ DATA = Path(os.environ.get("JSS_DATA_DIR", ROOT / "data"))
 OR_M = 30          # 開盤區間分鐘數（08:45～09:15）
 EXIT_M = 285       # 13:30
 COST = 3.0         # 點（手續費＋稅＋滑價，大台一口來回約 2～3 點）
+MR_LAST_FROM = "2026-11-26"  # 這天起的訊號才套用 MR 進場期限（之前的復盤紀錄用舊規則：不限時）
 MR_LAST = 44       # MR 只在 09:15～09:29 第一次碰到邊界才做（scripts/research_tx_mr_exec.py：09:30 以後才碰到的兩段都虧）
 
 
@@ -52,8 +53,9 @@ def vwap_path(bars: dict, upto: int):
     return out
 
 
-def simulate(bars: dict, orh: float, orl: float):
-    """09:15 之後：BO 與 MR 各一筆的損益（點）"""
+def simulate(bars: dict, orh: float, orl: float, mr_last: int | None = None):
+    """09:15 之後：BO 與 MR 各一筆的損益（點）；mr_last：MR 最晚進場分鐘（None＝MR_LAST；舊規則不限時用 EXIT_M）"""
+    mr_last = MR_LAST if mr_last is None else mr_last
     w = orh - orl
     mid = (orh + orl) / 2
     bo = mr = None
@@ -76,7 +78,7 @@ def simulate(bars: dict, orh: float, orl: float):
             if (d > 0 and lo <= stop) or (d < 0 and h >= stop):
                 bo = (stop - ent) * d
         # MR（09:30 前沒碰到邊界就不做）
-        if mr is None and mr_pos is None and m <= MR_LAST:
+        if mr is None and mr_pos is None and m <= mr_last:
             if h >= orh:
                 mr_pos = (-1, max(o, orh), orh + 0.5 * w, mid)
             elif lo <= orl:
