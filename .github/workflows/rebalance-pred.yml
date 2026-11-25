@@ -69,6 +69,12 @@ jobs:
         env:
           JSS_DATA_DIR: ./data
 
+      - name: Operating cash flow for 00713 (MOPS t164sb05)
+        run: python3 scripts/fetch_ocf.py --minutes 25
+        continue-on-error: true
+        env:
+          JSS_DATA_DIR: ./data
+
       - name: Build predictions
         run: python3 scripts/build_rebalance_pred.py
         env:
