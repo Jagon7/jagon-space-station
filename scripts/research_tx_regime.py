@@ -5,7 +5,8 @@
 資料：data/futures/day/（日盤 1 分 K）、data/futures/night/（夜盤）、data/intel/us_events.json
 開盤區間 OR＝08:45～09:15（前 30 分鐘）；09:15 之後每天各做一筆：
   BO：先突破 OR 高點做多（先跌破 OR 低點做空），停損在 OR 另一側，13:30 出場
-  MR：先碰到 OR 高點做空（先碰到 OR 低點做多），目標 OR 中間，停損＝OR 外再 0.5 個 OR 寬度，13:30 出場
+  MR：09:15～09:30 先碰到 OR 高點做空（先碰到 OR 低點做多），目標 OR 中間，停損＝OR 外再 0.5 個 OR 寬度，13:30 出場；
+      09:30 前都沒碰到就不做；一天只做一筆，停利或停損後另一邊被碰到也不做
   （兩個都扣 COST 點成本；09:15 前已經突破的不算，從 09:15 收盤價開始看）
   BO 日＝BO 損益 > MR 損益
 指標（開盤前可知）：跳空／ATR、開盤在昨天區間外、夜盤振幅與單邊程度、昨天振幅（窄幅）、昨天是不是趨勢日、波動水準、前一晚美國事件、結算日
@@ -27,6 +28,7 @@ DATA = Path(os.environ.get("JSS_DATA_DIR", ROOT / "data"))
 OR_M = 30          # 開盤區間分鐘數（08:45～09:15）
 EXIT_M = 285       # 13:30
 COST = 3.0         # 點（手續費＋稅＋滑價，大台一口來回約 2～3 點）
+MR_LAST = 44       # MR 只在 09:15～09:29 第一次碰到邊界才做（scripts/research_tx_mr_exec.py：09:30 以後才碰到的兩段都虧）
 
 
 def load_dir(d: Path) -> dict:
@@ -73,8 +75,8 @@ def simulate(bars: dict, orh: float, orl: float):
             d, ent, stop = bo_pos
             if (d > 0 and lo <= stop) or (d < 0 and h >= stop):
                 bo = (stop - ent) * d
-        # MR
-        if mr is None and mr_pos is None:
+        # MR（09:30 前沒碰到邊界就不做）
+        if mr is None and mr_pos is None and m <= MR_LAST:
             if h >= orh:
                 mr_pos = (-1, max(o, orh), orh + 0.5 * w, mid)
             elif lo <= orl:
