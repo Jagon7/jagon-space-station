@@ -9,6 +9,7 @@
   氣氛／廣度：全市場站上 20 日線的比例、當天創一年新高的家數、近 5 天放量突破的家數
   上市／上櫃：上櫃平均 20 日漲幅減上市平均（資金偏好中小型股？）、這檔是上市或上櫃
   國際類股：電子類（半導體、電腦週邊、電子零組件…）看費半趨勢，其他類看 S&P 500
+  法人：外資＋投信（及各自）從突破日到買點的合計買超，佔同期間成交量 %（data/research/new_high_inst.json）
   個股：突破日漲幅、量倍數、突破前 20 天漲幅、突破幅度（離前高多少）、距離上一次創高幾天、
         買點那天跌多少、買點是突破後第幾天、成交額排名、突破日上影線、離 120 日線多遠
 判斷：每個因子分三等份（門檻用 2012-18 的資料定，再拿去看 2019-22、2023 後，避免用未來資料挑門檻），
@@ -178,6 +179,22 @@ def main():
                                "breadth": ab[0] / ab[1] * 100 if ab and ab[1] else None, "newhi": newhi.get(bd, 0),
                                "strong5": strong5, "otc_tse": (st.mean(ot) - st.mean(ts)) * 100 if ot and ts else None})
                 break
+    # 三大法人（外資＋投信）：突破日到買點合計買超，佔這段期間成交量的 %（data/research/new_high_inst.json，fetch_t86_hist.py）
+    try:
+        inst = json.loads((DATA / "research" / "new_high_inst.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        inst = {}
+    for t in trades:
+        f = feats[t["c"]]
+        ds = f["d"][f["idx"][t["d"]]:f["idx"][t["buy"]] + 1]
+        xs = [inst.get(x, {}).get(t["c"], "缺") for x in ds]
+        if any(x == "缺" or x is None for x in xs):
+            continue
+        vol = sum(f["v"][f["idx"][x]] for x in ds) or 1
+        t["inst"] = sum(a + b for a, b in xs) / vol * 100
+        t["trust"] = sum(b for _, b in xs) / vol * 100
+        t["foreign"] = sum(a for a, _ in xs) / vol * 100
+    print(f"有法人資料的買點：{sum('inst' in t for t in trades)}／{len(trades)}")
     base = [t for t in trades if t["leader"] and t["mkt"]]
     print(f"影片完整版買點 {len(base)} 筆（不限大盤／龍頭的放量突破買點共 {len(trades)} 筆）；拿 {HOLD} 天、收盤買、已扣 {COST}%")
 
@@ -201,6 +218,7 @@ def main():
         ("chg", "突破日漲幅 %"), ("volX", "突破日量倍數"), ("pre20", "突破前 20 天漲幅 %"), ("brk", "突破幅度（離前高）%"),
         ("gap", "距上次創一年新高天數"), ("shadow", "突破日上影線比例"), ("ext120", "離 120 日線 %"),
         ("pbDrop", "買點當天漲跌 %"), ("k", "買點是突破後第幾天"),
+        ("inst", "外資＋投信買超佔成交量 %（突破到買點）"), ("foreign", "外資買超佔成交量 %"), ("trust", "投信買超佔成交量 %"),
     ]
     out = {"n": len(base), "base": allp, "factors": {}}
     stable = []

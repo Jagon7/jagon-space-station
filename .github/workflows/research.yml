@@ -5,9 +5,9 @@ on:
   workflow_dispatch:
     inputs:
       job:
-        description: "rebound＝抄底個股；t86＝新高法三大法人（data/research/new_high_need.json 的日期）"
+        description: "rebound＝抄底個股；t86＝新高法三大法人（data/research/new_high_need.json 的日期）；revenue＝月營收歷史（2011 起）"
         type: choice
-        options: [rebound, t86]
+        options: [rebound, t86, revenue]
         default: rebound
 
 permissions:
@@ -26,7 +26,7 @@ jobs:
           python-version: '3.11'
       - run: pip install requests
       - name: Rebound stock data (TWSE)
-        if: inputs.job != 't86'
+        if: inputs.job == 'rebound'
         run: python3 -u scripts/fetch_rebound_data.py
         continue-on-error: true
         env:
@@ -38,12 +38,18 @@ jobs:
         env:
           JSS_DATA_DIR: ./data
           T86_MAX_SEC: "18000"
+      - name: Monthly revenue history (MOPS)
+        if: inputs.job == 'revenue'
+        run: python3 -u scripts/fetch_revenue_hist.py
+        continue-on-error: true
+        env:
+          JSS_DATA_DIR: ./data
       - name: Commit
         if: always()
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email 'github-actions[bot]@users.noreply.github.com'
-          for f in data/research/rebound data/research/new_high_inst.json; do [ -e "$f" ] && git add "$f"; done; true
+          for f in data/research/rebound data/research/new_high_inst.json data/research/revenue_hist.json data/research/revenue_sample_*.html; do [ -e "$f" ] && git add "$f"; done; true
           git diff --staged --quiet && exit 0
           git commit -m "data: research ${{ inputs.job }}"
           for i in 1 2 3 4 5; do
