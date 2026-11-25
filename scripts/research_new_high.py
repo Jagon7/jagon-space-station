@@ -27,6 +27,7 @@ from __future__ import annotations
 import glob
 import json
 import os
+import re
 import statistics as st
 import sys
 from collections import defaultdict
@@ -57,12 +58,17 @@ def load():
     return px, mk
 
 
-def sector_map():
-    try:
-        d = json.loads((DATA / "sector-stocks.json").read_text(encoding="utf-8"))["data"]
-    except (OSError, ValueError, KeyError):
-        return {}
-    return {s["code"]: sec for sec, ls in d.items() for s in ls}
+def sector_map(data: Path | None = None):
+    """官方產業別（公開資訊觀測站月營收的產業欄，最新一個月；去掉「業」和括號說明）。
+    不用 sector-stocks.json：那是題材類股，一檔可能在好幾類，取到哪一類會隨每天排序變動，龍頭判定會跟著變"""
+    data = data or DATA
+    out = {}
+    for fp in sorted((data / "fund" / "revenue").glob("20*.json"))[-3:]:  # 最近 3 個月，補新上市的
+        for c, v in json.loads(fp.read_text(encoding="utf-8")).items():
+            if isinstance(v, list) and len(v) > 1 and v[1]:
+                ind = re.sub(r"（.*?）|\(.*?\)", "", v[1]).strip()
+                out[c] = ind[:-1] if ind.endswith("業") and len(ind) > 2 else ind
+    return out
 
 
 def ma(v, i, n):

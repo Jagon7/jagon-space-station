@@ -105,10 +105,8 @@ def main():
         if d["date"] not in mkt_ok and d["date"] > tw[-1][0] and isinstance(ix, list) and ix and ix[0]:
             mkt_ok[d["date"]] = ix[0] > ma(twc + [ix[0]], len(twc), 60)
     # 產業
-    try:
-        sec = {s["code"]: k for k, ls in json.loads((DATA / "sector-stocks.json").read_text(encoding="utf-8"))["data"].items() for s in ls}
-    except (OSError, ValueError, KeyError):
-        sec = {}
+    from research_new_high import sector_map
+    sec = sector_map(DATA)  # 官方產業別（題材類股會隨每天排序變動，不用）
     # 三大法人（張）
     inst = {}
     for d in days:
