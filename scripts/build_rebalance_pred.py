@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-ETF 換股預估（00919、0050、0051、0056、00929、00918）：用 fetch_rebalance.py 等抓的公開資料，
+ETF 換股預估（00919、0050、0051、0056、00929、00918、00713）：用 fetch_rebalance.py 等抓的公開資料，
 照原本 TEJ 試算表的算法每天重算，輸出：
 
   data/rebalance/pred/<ETF>.json   預估納入／剔除、權重、交易衝擊、篩選明細（網站用）
@@ -247,6 +247,47 @@ def run_918(pub: Public, cfg: dict, asof: str | None):
     return s
 
 
+def run_713(pub: Public, cfg: dict, asof: str | None):
+    import openpyxl
+    from scripts.rebalance import etf713
+    from scripts.rebalance.public import may_extras
+    b = pub.bundle(asof, etfs=("00713",))
+    Y = int(b["asof"][:4])
+    b = may_extras(pub, b, Y)
+    b = etf713.extras(pub, b, cfg)
+    e = b["etf"]["00713"]
+    miss = readiness(pub, {"px_from": b["windows"]["6m"][0], "div_years": [Y - 3, Y - 2, Y - 1],
+                           "fin_quarters": [f"{Y}Q2", f"{Y}Q1", f"{Y - 1}Q4"]})
+    res = etf713.compute(b, cfg)
+    names = b["names"]
+    wb = openpyxl.Workbook()
+    wb.remove(wb.active)
+    sheet(wb, "713條件篩選", sorted(res["universe"].values(), key=lambda r: r["mcap_rank"]), [
+        ("code", "代號"), ("name", "名稱"), ("price", "股價"), ("mcap", "市值(百萬)"), ("mcap_rank", "市值排名"),
+        ("exist", "既有成分股"), ("tv6_med", "近6月成交中位數(千)"), ("liq_ok", "流動性過關"), ("yield", "股利率"), ("y_ok", "股利率過關"),
+        ("stab", "營運穩定度"), ("stab_ok", "穩定度過關"), ("roe", "ROE"), ("roe_ok", "ROE過關"), ("mom", "價格動能"), ("mom_ok", "動能過關"),
+        ("payout3", "近3年發放率"), ("pay_ok", "發放品質過關"), ("ep", "益本比"), ("ocf_mcap", "營運現金流/市值"), ("vol", "波動度"),
+        ("pass", "五項通過"), ("score", "綜合分數"), ("rank", "排名")])
+    sheet(wb, "權重", res["weights"]["rows"], [("code", "代號"), ("name", "名稱"), ("old", "原權重"), ("liq", "長短期成交值(千)"),
+                                             ("liq_share", "占比"), ("lb", "下限"), ("ub", "上限"), ("mv", "最小變異數權重"),
+                                             ("cap", "規模上限"), ("final", "預估權重")])
+    old_w = {k: v / 100 for k, v in e["weights"].items()}
+    impact = trade_impact(res["weights"]["final"], old_w, (e["aum"] or 0) * 1000, b["close"], b["turnover1"])
+    sheet(wb, "預估影響", impact_rows(impact, names), IMPACT_COLS)
+    BOOK["713"] = {"sheet": "713", "label": "713", "layout": "blocks", "asof": b["asof"], "missing": miss,
+                   "final_w": res["weights"]["final"], "old_w": old_w, "names": names, "price": b["close"],
+                   "turnover": b["turnover1"], "aum_yuan": (e["aum"] or 0) * 1000, "adds": res["add"], "dels": res["del"],
+                   "confidence": (cfg.get("confidence") or {})}
+    OUT.mkdir(parents=True, exist_ok=True)
+    wb.save(OUT / "00713.xlsx")
+    s = summary("00713", res["add"], res["del"], names, res["weights"]["final"], impact, res["notes"], {"missing": miss})
+    write_json(OUT / "00713.json", {**s, "asof": b["asof"],
+                                    "ranked": [{k: r.get(k) for k in ("rank", "code", "name", "score", "yield", "roe", "ep", "ocf_mcap", "vol", "exist")}
+                                               for r in res["ranked"][:100]],
+                                    "weights": res["weights"]["rows"], "impact": impact_rows(impact, names), "config": res["config"]})
+    return s
+
+
 def run_ftse(pub: Public, cfg: dict, asof: str | None):
     import openpyxl
     cfg = {**cfg, "ibes_csv": str(ROOT / cfg["ibes_csv"]) if cfg.get("ibes_csv") else None,
@@ -369,7 +410,8 @@ def main():
     pub = Public(DATA_DIR)
     idx = json.loads((OUT / "index.json").read_text(encoding="utf-8")) if (OUT / "index.json").exists() else {}
     jobs = {"00919": lambda: [run_919(pub, cfg["00919"], a.asof)], "ftse": lambda: run_ftse(pub, cfg["ftse"], a.asof),
-            "00929": lambda: [run_929(pub, cfg["00929"], a.asof)], "00918": lambda: [run_918(pub, cfg.get("00918", {}), a.asof)]}
+            "00929": lambda: [run_929(pub, cfg["00929"], a.asof)], "00918": lambda: [run_918(pub, cfg.get("00918", {}), a.asof)],
+            "00713": lambda: [run_713(pub, cfg.get("00713", {}), a.asof)]}
     failed = 0
     for name in a.jobs or list(jobs):
         try:
