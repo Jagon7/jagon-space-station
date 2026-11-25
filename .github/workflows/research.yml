@@ -5,9 +5,9 @@ on:
   workflow_dispatch:
     inputs:
       job:
-        description: "rebound＝抄底個股；t86＝新高法三大法人（data/research/new_high_need.json 的日期）；revenue＝月營收歷史（2011 起）"
+        description: "rebound＝抄底個股；t86＝新高法三大法人（data/research/new_high_need.json 的日期）；revenue＝月營收歷史（2011 起）；dtstop＝當沖停損研究的盤中 K 線（永豐）"
         type: choice
-        options: [rebound, t86, revenue]
+        options: [rebound, t86, revenue, dtstop]
         default: rebound
 
 permissions:
@@ -24,7 +24,7 @@ jobs:
       - uses: actions/setup-python@v7
         with:
           python-version: '3.11'
-      - run: pip install requests
+      - run: pip install requests ${{ inputs.job == 'dtstop' && 'shioaji==1.7.9' || '' }}
       - name: Rebound stock data (TWSE)
         if: inputs.job == 'rebound'
         run: python3 -u scripts/fetch_rebound_data.py
@@ -44,12 +44,24 @@ jobs:
         continue-on-error: true
         env:
           JSS_DATA_DIR: ./data
+      - name: Day-trade stop-loss intraday bars (Shioaji, quote only)
+        if: inputs.job == 'dtstop'
+        # 永豐登入訊息會印出登入識別碼（身分證字號格式），公開的 Actions log 一律遮掉
+        run: |
+          set -o pipefail
+          python3 -u scripts/fetch_dt_stop.py --minutes 300 2>&1 | sed -u -E 's/[A-Z][12][0-9]{8}/[已遮蔽]/g'
+        continue-on-error: true
+        env:
+          JSS_DATA_DIR: ./data
+          SHIOAJI_API_KEY: ${{ secrets.SHIOAJI_API_KEY }}
+          SHIOAJI_SECRET_KEY: ${{ secrets.SHIOAJI_SECRET_KEY }}
       - name: Commit
         if: always()
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email 'github-actions[bot]@users.noreply.github.com'
-          for f in data/research/rebound data/research/new_high_inst.json data/research/revenue_hist.json data/research/revenue_sample_*.html; do [ -e "$f" ] && git add "$f"; done; true
+          rm -f shioaji.log
+          for f in data/research/rebound data/research/new_high_inst.json data/research/revenue_hist.json data/research/revenue_sample_*.html data/research/dt_stop_bars.json.gz; do [ -e "$f" ] && git add "$f"; done; true
           git diff --staged --quiet && exit 0
           git commit -m "data: research ${{ inputs.job }}"
           for i in 1 2 3 4 5; do
