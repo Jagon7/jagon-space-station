@@ -1,0 +1,61 @@
+name: TX Night Signal
+
+# 台指期夜盤即時訊號：美股開盤後 30 分鐘區間突破（停損反手、最多 3 筆），推 LINE（永豐只查行情、不下單）
+# 21:50 由 Cloudflare 觸發，程式等到區間結束（夏令 22:00、冬令 23:00）才判斷
+on:
+  schedule:
+    - cron: '55 13 * * 1-5'   # 21:55 台灣時間（備援）
+  workflow_dispatch:
+    inputs:
+      now:
+        description: 'true＝不等區間結束，直接用目前資料（測試用）'
+        default: 'false'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: tx-night-live
+  cancel-in-progress: false
+
+jobs:
+  signal:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: main
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.11'
+      - run: pip install shioaji==1.7.9 requests
+      - name: Night signal after US open range
+        # 永豐登入訊息會印出登入識別碼（身分證字號格式），公開的 Actions log 一律遮掉
+        run: |
+          set -o pipefail
+          TZ=Asia/Taipei python3 -u scripts/tx_night_live.py ${{ inputs.now == 'true' && '--now' || '' }} 2>&1 | sed -u -E 's/[A-Z][12][0-9]{8}/[已遮蔽]/g'
+        env:
+          SHIOAJI_API_KEY: ${{ secrets.SHIOAJI_API_KEY }}
+          SHIOAJI_SECRET_KEY: ${{ secrets.SHIOAJI_SECRET_KEY }}
+          LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
+          LINE_USER_ID: ${{ secrets.LINE_USER_ID }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          SITE_URL: ${{ secrets.SITE_URL || vars.SITE_URL }}
+          JSS_DATA_DIR: ./data
+      - name: Save journal
+        if: always()
+        run: |
+          rm -f shioaji.log
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          [ -e data/futures/night_journal.json ] && git add data/futures/night_journal.json; true
+          git diff --staged --quiet && exit 0
+          git commit -m "notify: tx night signal sent"
+          for i in 1 2 3 4 5; do
+            git push && exit 0
+            git pull --rebase -X theirs origin main || { git rebase --abort; git pull --no-rebase -X ours origin main; }
+          done
+          exit 1
