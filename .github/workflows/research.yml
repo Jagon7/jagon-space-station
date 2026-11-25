@@ -1,8 +1,14 @@
 name: Research Data
 
-# 研究用資料下載（手動觸發）：抄底個股研究（證交所歷史行情與籌碼）
+# 研究用資料下載（手動觸發）：抄底個股研究（證交所歷史行情與籌碼）、新高法回測要用的三大法人
 on:
   workflow_dispatch:
+    inputs:
+      job:
+        description: "rebound＝抄底個股；t86＝新高法三大法人（data/research/new_high_need.json 的日期）"
+        type: choice
+        options: [rebound, t86]
+        default: rebound
 
 permissions:
   contents: write
@@ -10,7 +16,7 @@ permissions:
 jobs:
   fetch:
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 330
     steps:
       - uses: actions/checkout@v7
         with:
@@ -20,17 +26,26 @@ jobs:
           python-version: '3.11'
       - run: pip install requests
       - name: Rebound stock data (TWSE)
+        if: inputs.job != 't86'
         run: python3 -u scripts/fetch_rebound_data.py
         continue-on-error: true
         env:
           JSS_DATA_DIR: ./data
+      - name: New-high strategy institutional flow (TWSE T86)
+        if: inputs.job == 't86'
+        run: python3 -u scripts/fetch_t86_hist.py
+        continue-on-error: true
+        env:
+          JSS_DATA_DIR: ./data
+          T86_MAX_SEC: "18000"
       - name: Commit
+        if: always()
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email 'github-actions[bot]@users.noreply.github.com'
-          git add data/research/rebound 2>/dev/null || exit 0
+          for f in data/research/rebound data/research/new_high_inst.json; do [ -e "$f" ] && git add "$f"; done; true
           git diff --staged --quiet && exit 0
-          git commit -m "data: rebound research"
+          git commit -m "data: research ${{ inputs.job }}"
           for i in 1 2 3 4 5; do
             git push && exit 0
             git pull --rebase -X theirs origin main || { git rebase --abort; git pull --no-rebase -X ours origin main; }
