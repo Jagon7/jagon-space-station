@@ -9,6 +9,7 @@
   氣氛／廣度：全市場站上 20 日線的比例、當天創一年新高的家數、近 5 天放量突破的家數
   上市／上櫃：上櫃平均 20 日漲幅減上市平均（資金偏好中小型股？）、這檔是上市或上櫃
   國際類股：電子類（半導體、電腦週邊、電子零組件…）看費半趨勢，其他類看 S&P 500
+  相對強度：近 3／6／12 個月漲幅、加權綜合在全市場的百分位（買點當天）
   法人：外資＋投信（及各自）從突破日到買點的合計買超，佔同期間成交量 %（data/research/new_high_inst.json）
   個股：突破日漲幅、量倍數、突破前 20 天漲幅、突破幅度（離前高多少）、距離上一次創高幾天、
         買點那天跌多少、買點是突破後第幾天、成交額排名、突破日上影線、離 120 日線多遠
@@ -194,6 +195,28 @@ def main():
         t["inst"] = sum(a + b for a, b in xs) / vol * 100
         t["trust"] = sum(b for _, b in xs) / vol * 100
         t["foreign"] = sum(a for a, _ in xs) / vol * 100
+    # 相對強度：買點當天，近 3／6／12 個月漲幅在全市場（有資料的上市櫃股）的百分位；加權版＝2×3 月＋6 月＋9 月＋12 月
+    need_days = {t["buy"] for t in trades}
+    rsv = {}
+    for day in need_days:
+        rows = []
+        for c, f in feats.items():
+            i = f["idx"].get(day)
+            if i is None or i < 250 or i in f["bad"]:
+                continue
+            cl = f["c"]
+            r = [cl[i] / cl[i - n] - 1 for n in (63, 126, 189, 250)]
+            rows.append((c, r[0], r[1], r[3], 2 * r[0] + r[1] + r[2] + r[3]))
+        for k, nm in ((1, "rs3"), (2, "rs6"), (3, "rs12"), (4, "rsw")):
+            srt = sorted(rows, key=lambda x: x[k])
+            n = len(srt)
+            for rank, x in enumerate(srt):
+                rsv[(day, x[0], nm)] = rank / max(1, n - 1) * 100
+    for t in trades:
+        for nm in ("rs3", "rs6", "rs12", "rsw"):
+            v = rsv.get((t["buy"], t["c"], nm))
+            if v is not None:
+                t[nm] = v
     print(f"有法人資料的買點：{sum('inst' in t for t in trades)}／{len(trades)}")
     base = [t for t in trades if t["leader"] and t["mkt"]]
     print(f"影片完整版買點 {len(base)} 筆（不限大盤／龍頭的放量突破買點共 {len(trades)} 筆）；拿 {HOLD} 天、收盤買、已扣 {COST}%")
@@ -218,6 +241,8 @@ def main():
         ("chg", "突破日漲幅 %"), ("volX", "突破日量倍數"), ("pre20", "突破前 20 天漲幅 %"), ("brk", "突破幅度（離前高）%"),
         ("gap", "距上次創一年新高天數"), ("shadow", "突破日上影線比例"), ("ext120", "離 120 日線 %"),
         ("pbDrop", "買點當天漲跌 %"), ("k", "買點是突破後第幾天"),
+        ("rs3", "相對強度：近 3 個月漲幅百分位"), ("rs6", "相對強度：近 6 個月漲幅百分位"), ("rs12", "相對強度：近 12 個月漲幅百分位"),
+        ("rsw", "相對強度：加權（2×3 月＋6、9、12 月）百分位"),
         ("inst", "外資＋投信買超佔成交量 %（突破到買點）"), ("foreign", "外資買超佔成交量 %"), ("trust", "投信買超佔成交量 %"),
     ]
     out = {"n": len(base), "base": allp, "factors": {}}
@@ -260,6 +285,19 @@ def main():
         r = [stat(part([t for t in lead if fn(t)], a, b)) for _, a, b in PARTS]
         out["filters"][lab] = r
         print(f"  {lab:28s} " + "｜".join(f"{n}: {m:+.2f}%（{k}）" if m is not None else f"{n}: —（{k}）" for (n, _, _), (m, k) in zip(PARTS, r)))
+    # 相對強度能不能取代「同產業龍頭」：大盤 > MA60 的放量突破買點，不同的個股強度條件
+    print("\n龍頭 vs 相對強度（大盤 > MA60 的放量突破買點）：")
+    mk60 = [t for t in trades if t["mkt"]]
+    out["leaderVsRs"] = {}
+    for lab, fn in (("全部（不限龍頭）", lambda t: True), ("同產業龍頭（目前規則）", lambda t: t["leader"]),
+                    ("非龍頭", lambda t: not t["leader"]),
+                    ("加權 RS ≥ 95", lambda t: (t.get("rsw") or 0) >= 95), ("加權 RS < 95", lambda t: (t.get("rsw") or 0) < 95),
+                    ("6 個月 RS ≥ 95", lambda t: (t.get("rs6") or 0) >= 95),
+                    ("龍頭且加權 RS ≥ 95", lambda t: t["leader"] and (t.get("rsw") or 0) >= 95),
+                    ("龍頭或加權 RS ≥ 97", lambda t: t["leader"] or (t.get("rsw") or 0) >= 97)):
+        r = [stat(part([t for t in mk60 if fn(t)], a, b)) for _, a, b in PARTS]
+        out["leaderVsRs"][lab] = r
+        print(f"  {lab:20s} " + "｜".join(f"{n}: {m:+.2f}%（{k}）" if m is not None else f"{n}: —（{k}）" for (n, _, _), (m, k) in zip(PARTS, r)))
     # 穩定因子組合：每個穩定因子「落在差的那一組」扣 1 分，0 分＝都不在差組
     print(f"\n穩定因子 {len(stable)} 個：{[s[3] for s in stable]}")
     if stable:
