@@ -278,6 +278,22 @@ class Public:
         b["foreign"] = {c: {"fol": (v[3] or 0) / 100, "headroom": ((v[1] or 0) / v[3]) if v[3] else NA}
                         for c, v in fdoc.items()}
         b["iw_override"] = _read_csv_map(cfg.get("iw_csv"), lambda r: float(r[1]))
+        # 權重用的 investability weight：沒有 FTSE 檔時，現有成分股從 0050／0051 的實際持股反推
+        #   ETF 照指數持股 → 持股市值 ∝ 指數可投資市值（＝IW × 發行市值），比例 f 用「反推值中位數＝公開版（1 − 董監持股）中位數」對齊，
+        #   新納入的股票才用公開版。驗證：2026-11 對照 TEJ 試算表，台積電等權重調整的誤差大幅縮小
+        if not b["iw_override"] and not cfg.get("no_iw_from_etf"):
+            implied = {}
+            for code in ("0050", "0051"):
+                sh = self.etf(code).get("shares") or {}
+                r = {k: v * b["close"][k] / (b["mcap"][k] * 1e6) for k, v in sh.items()
+                     if v and b["close"].get(k) and b["mcap"].get(k)}
+                pub = {k: 1 - b["insider"][k] / 100 for k in r if b["insider"].get(k) is not None}
+                if len(pub) < 10:
+                    continue
+                f = _med(r[k] for k in pub) / _med(pub.values())
+                implied.update({k: v / f for k, v in r.items()})  # 只看相對大小，不設上限（設 1.0 會把台積電等截掉）
+            b["ff_override"] = {**implied, **b.get("ff_override", {})}
+            b["iw_from_etf"] = len(implied)
         b["ibes"] = _read_csv_map(cfg.get("ibes_csv"), lambda r: {"dps1": float(r[1]), "dps2": float(r[2]),
                                                                    "brokers": int(float(r[3])) if len(r) > 3 else 2})
         # 5 日加權換手量：(T×5 + T-1×4 + … + T-4×1) / 15（成交量扣當沖，千股）
