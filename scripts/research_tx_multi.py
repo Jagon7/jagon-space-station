@@ -13,6 +13,7 @@
   MR1   均值回歸一筆：進場後 15 分鐘內先碰到哪邊做哪邊（碰高空、碰低多），目標 OR 中點，停損 OR 外 0.5 倍寬度
   MR_RE 均值回歸多筆：前一筆結束後，進場後 60 分鐘內再碰到邊界就再做，最多 3 筆
   MR_BO MR 被停損就改做突破方向（停損 OR 中點），時段結束出場
+  BO_MR 突破被停損（價格到了另一側邊界）就在那裡改做均值回歸（目標 OR 中點、停損再外 0.5 倍寬度）
 另看「窄 OR（寬度 ≤ 過去 20 天同時段 OR 寬度中位數）」與「寬 OR」分開的表現，判斷這個時段該打 BO 還是 MR
 分三段：2020-22、2023-24、2025 後；每段看每天平均點數、勝率、最差一天、年化夏普（每天平均 ÷ 標準差 × √250）
 輸出 data/research/tx_multi.json；用法：python scripts/research_tx_multi.py
@@ -47,7 +48,7 @@ def run(bars: dict, orh: float, orl: float, start: int, end: int, kind: str):
     """回傳 [(損益點, 進場分, 出場分)]"""
     w, mid = orh - orl, (orh + orl) / 2
     trades, pos = [], None  # pos = [方向, 進場, 停損, 目標, 進場分, 型態]
-    max_n = 1 if kind in ("BO1", "MR1", "MR_BO") else 3
+    max_n = 1 if kind in ("BO1", "MR1", "MR_BO", "BO_MR") else 3
     mr_until = start + (15 if kind in ("MR1", "MR_BO") else 60)
     flipped = False
     last_c = None
@@ -82,6 +83,11 @@ def run(bars: dict, orh: float, orl: float, start: int, end: int, kind: str):
             elif kind == "MR_BO" and not flipped:
                 flipped = True
                 pos = [-d, stop, mid, None, m, "BO"]
+                max_n = 2
+            elif kind == "BO_MR" and not flipped:
+                # 突破失敗、價格回到另一側邊界：在那裡做均值回歸（碰低做多／碰高做空），目標中點，停損再外 0.5 倍寬度
+                flipped = True
+                pos = [d, stop, stop - d * 0.5 * w, mid, m, "MR"]
                 max_n = 2
             continue
         if tgt is not None and ((d > 0 and h >= tgt) or (d < 0 and lo <= tgt)):
@@ -118,9 +124,9 @@ def stats(xs):
 
 def main():
     S = sessions()
-    kinds = ["BO1", "BO_SAR", "BO_RE", "MR1", "MR_RE", "MR_BO"]
+    kinds = ["BO1", "BO_SAR", "BO_RE", "BO_MR", "MR1", "MR_RE", "MR_BO"]
     names = {"BO1": "突破一筆", "BO_SAR": "突破＋停損反手（最多 3 筆）", "BO_RE": "突破再進場（最多 3 筆）",
-             "MR1": "均值回歸一筆（15 分鐘內碰到）", "MR_RE": "均值回歸多筆（60 分鐘內，最多 3 筆）", "MR_BO": "MR 停損改做突破"}
+             "MR1": "均值回歸一筆（15 分鐘內碰到）", "MR_RE": "均值回歸多筆（60 分鐘內，最多 3 筆）", "MR_BO": "MR 停損改做突破", "BO_MR": "突破停損改做均值回歸"}
     out = {"cost": COST, "sessions": {}}
     for sn, items in S.items():
         # OR 寬度與過去 20 天中位數
