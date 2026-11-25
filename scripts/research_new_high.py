@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-「新高法」短線策略回測（影片：投機實驗室，韓股；這裡改成台股上市股）
+「新高法」短線策略回測（影片：投機實驗室，韓股；這裡改成台股上市＋上櫃、還原權息）
 
 影片規則 → 這裡的實作：
   1 選股：當天成交額前 50 名（去掉 ETF）、類股裡的龍頭、股價刷新一年來最高價、站上 120 日線、跌勢裡不碰
@@ -19,7 +19,7 @@
   成本：手續費 0.1425% × 2 × 6 折＋證交稅 0.3% ≈ 0.47%
   比較組：突破當天收盤直接買（不等陰線）、陰線但不限龍頭／不加大盤濾網、固定拿 5／10 天
 三大法人：data/research/new_high_inst.json（--need 列出要的日期，Actions 上 fetch_t86_hist.py 抓）
-資料：data/research/yahoo_stocks（Yahoo 上市股日線 2011 起，約 950 檔；上櫃股不在內、下市股缺 → 有存活者偏差）
+資料：data/research/yahoo_adj（fetch_yahoo_adj.py；Yahoo 上市＋上櫃日線 2011 起、還原權息；只有現在還掛牌的 → 有存活者偏差）
 輸出 data/research/new_high.json；用法：python scripts/research_new_high.py
 """
 from __future__ import annotations
@@ -39,13 +39,22 @@ TOPN = 50
 
 
 def load():
-    px = {}
-    for f in glob.glob(str(DATA / "research" / "yahoo_stocks" / "*.json")):
+    """還原權息日線：開高低收都乘上「還原收盤 ÷ 收盤」；成交額用原始收盤 × 成交量；
+    最後一天若比 data/daily 最新的還新（盤中抓到的即時價）就去掉"""
+    last = sorted(Path(x).stem for x in glob.glob(str(DATA / "daily" / "20*.json")))[-1]
+    px, mk = {}, {}
+    for f in glob.glob(str(DATA / "research" / "yahoo_adj" / "*.json")):
         j = json.loads(Path(f).read_text(encoding="utf-8"))
-        rows = [r for r in j["d"] if r[4] and r[1] and r[5] is not None]
+        rows = []
+        for d, o, h, l, c, v, a in j["d"]:
+            if d > last or not (o and h and l and c and a):
+                continue
+            k = a / c
+            rows.append([d, o * k, h * k, l * k, a, v, c * v])
         if len(rows) > 300:
             px[j["code"]] = rows
-    return px
+            mk[j["code"]] = j["mkt"]
+    return px, mk
 
 
 def sector_map():
@@ -65,7 +74,7 @@ def build(px):
     feats, by_day = {}, defaultdict(list)
     for c, rows in px.items():
         d = [r[0] for r in rows]
-        o, h, l, cl, v = ([r[k] for r in rows] for k in (1, 2, 3, 4, 5))
+        o, h, l, cl, v, tv = ([r[k] for r in rows] for k in (1, 2, 3, 4, 5, 6))
         bad = set()
         for i in range(1, len(rows)):  # Yahoo 偶有錯價：單日 > 11% 視為壞資料（台股漲跌幅 10%）
             if abs(cl[i] / cl[i - 1] - 1) > 0.11:
@@ -73,7 +82,7 @@ def build(px):
         f = {"d": d, "o": o, "h": h, "l": l, "c": cl, "v": v, "bad": bad, "idx": {x: i for i, x in enumerate(d)}}
         feats[c] = f
         for i in range(250, len(rows)):
-            by_day[d[i]].append((cl[i] * v[i], c))
+            by_day[d[i]].append((tv[i], c))
     top = {day: {c for _, c in sorted(xs, reverse=True)[:TOPN]} for day, xs in by_day.items()}
     return feats, top
 
@@ -109,7 +118,7 @@ def simulate(f, i_buy, hold=None, next_stop=True, exit_ma=5, stop_px=None):
 
 
 def main():
-    px = load()
+    px, mk = load()
     sec = sector_map()
     feats, top = build(px)
     mkt = twii()
@@ -149,7 +158,7 @@ def main():
         f = feats[e["c"]]
         o, cl = f["o"], f["c"]
         i = e["i"]
-        base = {"c": e["c"], "d": e["d"], "strong": e["strong"], "leader": e["leader"], "mkt": e["mkt"]}
+        base = {"c": e["c"], "d": e["d"], "strong": e["strong"], "leader": e["leader"], "mkt": e["mkt"], "otc": mk[e["c"]] == 1}
         # 比較組：突破當天收盤買
         if (e["c"], i) not in seen:
             j, r = simulate(f, i)
@@ -170,6 +179,8 @@ def main():
                 j, r = simulate(f, b)
                 t = {**base, "buy": f["d"][b], "r": r, "days": j - b, "stopNext": j == b + 1, "sell": f["d"][j]}
                 trades["pullback"].append(t)
+                if b + 11 < len(cl):  # 晚上才看到訊號、隔天開盤買，拿 10 天（第 11 天收盤賣）
+                    trades["pullback_nextopen_hold10"].append({**t, "r": (cl[b + 11] / o[b + 1] - 1) * 100 - COST, "days": 10, "sell": f["d"][b + 11]})
                 for hd in (5, 10):
                     jh = min(len(cl) - 1, b + hd)
                     trades[f"pullback_hold{hd}"].append({**t, "r": simulate(f, b, hold=hd)[1], "days": hd, "sell": f["d"][jh]})
@@ -200,7 +211,9 @@ def main():
             for x in f["d"][f["idx"][t["d"]]:f["idx"][t["buy"]] + 1]:
                 need[x].add(t["c"])
     if "--need" in sys.argv:
-        (DATA / "research" / "new_high_need.json").write_text(json.dumps({d: sorted(v) for d, v in sorted(need.items())}, separators=(",", ":")), encoding="utf-8")
+        (DATA / "research" / "new_high_need.json").write_text(json.dumps(
+            {d: {"twse": sorted(c for c in v if not mk[c]), "tpex": sorted(c for c in v if mk[c])} for d, v in sorted(need.items())},
+            separators=(",", ":")), encoding="utf-8")
         print(f"寫出 {len(need)} 天")
         return 0
     try:
@@ -217,7 +230,10 @@ def main():
             if not all(d in t86 for d in ds):
                 t["inst"] = None
                 continue
-            x = [t86[d].get(t["c"]) or [0, 0] for d in ds]
+            x = [t86[d].get(t["c"], [0, 0]) for d in ds]
+            if any(v is None for v in x):
+                t["inst"] = None
+                continue
             ft = sum((a or 0) + (b or 0) for a, b in x)
             t["inst"] = ft > 0
             t["instBuyDay"] = ((x[-1][0] or 0) + (x[-1][1] or 0)) > 0
@@ -241,6 +257,8 @@ def main():
                ("放量長紅＋龍頭（不看大盤）", lambda t: t["strong"] and t["leader"]),
                ("非放量長紅（磨上去的）＋大盤濾網", lambda t: not t["strong"] and t["mkt"]),
                ("放量長紅、大盤 < MA60", lambda t: t["strong"] and t["mkt"] is False),
+               ("影片完整版・只看上市", lambda t: t["strong"] and t["leader"] and t["mkt"] and not t.get("otc")),
+               ("影片完整版・只看上櫃", lambda t: t["strong"] and t["leader"] and t["mkt"] and t.get("otc")),
                ("影片完整版＋法人（外資＋投信）突破到買進合計買超", lambda t: t["strong"] and t["leader"] and t["mkt"] and t.get("inst") is True),
                ("影片完整版＋法人合計賣超", lambda t: t["strong"] and t["leader"] and t["mkt"] and t.get("inst") is False),
                ("影片完整版＋買進當天法人買超", lambda t: t["strong"] and t["leader"] and t["mkt"] and t.get("instBuyDay") is True),
@@ -251,8 +269,8 @@ def main():
     out = {"cost": COST, "universe": len(feats), "range": [days[0], days[-1]], "groups": {}}
     fmt = lambda s: (f"n{s['n']:4d} 勝率 {s['win']:4.1f}% 平均 {s['avg']:+5.2f}% 中位 {s['med']:+5.2f}% 賺 {s['avgWin']:+.1f}/賠 {s['avgLoss']:+.1f} PF {s['pf']} 天數 {s['days']}"  # noqa: E731
                      if "win" in s else f"n{s['n']}（樣本不足）")
-    print(f"上市股 {len(feats)} 檔，{days[0]}～{days[-1]}；成交額前 {TOPN}；每筆扣 {COST}%")
-    for strat in ("pullback", "breakout_close", "pullback_hold5", "pullback_hold10", "exit_ma5_nostop", "exit_ma10_nostop",
+    print(f"上市＋上櫃 {len(feats)} 檔（還原權息），{days[0]}～{days[-1]}；成交額前 {TOPN}；每筆扣 {COST}%")
+    for strat in ("pullback", "breakout_close", "pullback_hold5", "pullback_hold10", "pullback_nextopen_hold10", "exit_ma5_nostop", "exit_ma10_nostop",
                   "exit_ma10_stopBreakLow", "exit_ma20_stopBreakLow", "baseline_top50_ma120_hold10", "baseline_top50_ma120_exit_ma10"):
         print(f"\n■ {strat}")
         out["groups"][strat] = {}
@@ -267,7 +285,7 @@ def main():
     print("\n資金模擬（影片完整版進場；同時最多 3 檔、每檔 1/3 資金；額滿就跳過新訊號；同一天多檔依代號順序）")
     tw = {r[0]: r[4] for r in json.loads((DATA / "research" / "yahoo" / "_TWII.json").read_text(encoding="utf-8"))["d"]}
     out["portfolio"] = {}
-    for strat in ("pullback", "pullback_hold10", "exit_ma10_nostop", "exit_ma20_stopBreakLow"):
+    for strat in ("pullback", "pullback_hold10", "pullback_nextopen_hold10", "exit_ma10_nostop", "exit_ma20_stopBreakLow"):
         ts = sorted([t for t in trades[strat] if t["strong"] and t["leader"] and t["mkt"]], key=lambda t: (t["buy"], t["c"]))
         eq, held, curve = 1.0, [], {}
         for t in ts:
