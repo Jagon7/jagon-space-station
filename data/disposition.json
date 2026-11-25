@@ -2,16 +2,6 @@
   "date": "2026-11-25",
   "data": [
     {
-      "code": "3441",
-      "name": "聯一光",
-      "count": 1,
-      "condition": "連續5個營業日及沖銷標準",
-      "period": "115/11/17~115/11/25",
-      "endDate": "2026-11-25",
-      "announceDate": "115/11/16",
-      "market": "上櫃"
-    },
-    {
       "code": "7610",
       "name": "聯友金屬-創",
       "count": 1,
@@ -268,7 +258,7 @@
       "condition": "連續三次",
       "period": "115/11/26～115/12/02",
       "endDate": "2026-12-02",
-      "announceDate": "*115/11/25",
+      "announceDate": "115/11/25",
       "market": "上市"
     },
     {
@@ -278,7 +268,7 @@
       "condition": "連續三次",
       "period": "115/11/26～115/12/02",
       "endDate": "2026-12-02",
-      "announceDate": "*115/11/25",
+      "announceDate": "115/11/25",
       "market": "上市"
     },
     {
