@@ -503,7 +503,10 @@ def backfill_conf(days: int, names, confs: dict):
 RISK_TICKERS = {"^VIX": "VIX", "^VVIX": "VVIX", "^VIX9D": "VIX9D", "^VIX3M": "VIX3M", "^SKEW": "SKEW", "^MOVE": "MOVE",
                 "DX-Y.NYB": "美元指數", "HYG": "高收益債 ETF", "LQD": "投資級債 ETF", "^TNX": "美 10 年債殖利率"}
 # FRED：ICE BofA 高收益／投資級公司債利差（OAS，常用來代替 CDX 信用違約交換利差）、10Y−2Y、聖路易聯準金融壓力指數（週）
-FRED_SERIES = {"BAMLH0A0HYM2": "高收益債利差", "BAMLC0A0CM": "投資級債利差", "T10Y2Y": "10Y−2Y 利差", "STLFSI4": "金融壓力指數"}
+FRED_SERIES = {"BAMLH0A0HYM2": "高收益債利差", "BAMLC0A0CM": "投資級債利差", "T10Y2Y": "10Y−2Y 利差", "STLFSI4": "金融壓力指數",
+               # 各評等利差與殖利率（ICE BofA）：CCC 級最先反映違約風險，BBB 是投資級最低一級（降評就變垃圾債）
+               "BAMLH0A3HYC": "CCC 級利差", "BAMLH0A2HYB": "B 級利差", "BAMLH0A1HYBB": "BB 級利差", "BAMLC0A4CBBB": "BBB 級利差",
+               "BAMLH0A0HYM2EY": "高收益債殖利率", "BAMLH0A3HYCEY": "CCC 級殖利率"}
 
 
 # 科技廠信用風險：單一公司 CDS 沒有免費資料，用股價、波動度與負債算 CreditGrades「股價隱含 CDS」（build_risk.py）
