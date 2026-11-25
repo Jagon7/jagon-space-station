@@ -183,7 +183,7 @@ def check_journals():
         if not b or not e.get("result"):
             continue
         r = e["result"]
-        bo, mr, _, _ = rr.simulate(b, e["orh"], e["orl"])
+        bo, mr, _, _ = rr.simulate(b, e["orh"], e["orl"], None if d >= rr.MR_LAST_FROM else rr.EXIT_M)  # 規則修改前的紀錄用舊規則重算
         orb = [b[m] for m in range(rr.OR_M) if m in b]
         orh, orl = max(x[1] for x in orb), min(x[2] for x in orb)
         px = (fut.get(d) or {}).get("px")
