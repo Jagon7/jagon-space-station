@@ -1,6 +1,6 @@
 {
  "from": "2005-04-07",
- "to": "2026-11-24",
+ "to": "2026-11-25",
  "split": "2018-01-01",
  "signals": {
   "BASE": {
@@ -1496,18 +1496,18 @@
   }
  },
  "now": {
-  "date": "2026-11-24",
-  "close": 40122.35,
-  "dd": -19.71,
-  "rsi": 42.91,
-  "z20": -0.63,
-  "bias20": -4.38,
-  "streak": 0,
+  "date": "2026-11-25",
+  "close": 38195.43,
+  "dd": -23.56,
+  "rsi": 38.33,
+  "z20": -1.2,
+  "bias20": -8.0,
+  "streak": 1,
   "volx": null,
-  "upDay": true,
+  "upDay": false,
   "keyRev": false,
   "aboveMa5": true,
-  "lowerTail": 0.0,
+  "lowerTail": 0.46,
   "vix": 26.36,
   "vixOff": 26.55,
   "credit20": -1.02,
