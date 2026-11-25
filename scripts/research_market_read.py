@@ -11,6 +11,7 @@
   P2 逆價差：台指期近月收盤 − 加權指數收盤 < −0.3%（排除 6～9 月除息旺季，那時逆價差主要是除息造成的）
   D1 美元強、美債跌：美元指數 5 日漲 ≥ 1% 且美債 10 年殖利率 5 日升 ≥ 3%（前一晚收盤）
   T1 跌破 60 日低點後 5 天內反彈到跌破點附近（± 1.5%）又收在它下面（回測不過）
+另外：回檔 ≥ 5% 中漲 ≥ 1.5% 的反彈日，依融資增減（佔餘額 %）、量能分三等份比較（M1 原定義事件太少）
 統計：事件法——訊號連續出現只算第一天（相隔 ≥ 10 個交易日才算新事件），事件的平均報酬、上漲機率和同情境所有日子比，
      t＝（事件平均 − 全部平均）÷（事件標準差 ÷ √事件數）；事件少於 10 個不下結論
 資料：data/research/yahoo（指數、美元、美債）、data/futures/day（台指期 1 分 K，2020 起）、data/research/market_hist.json（成交金額、融資，2012 起）
@@ -129,6 +130,30 @@ def main():
             out["tests"][scope][key] = {"label": lab, "events": len(ev), "h": line, "dates": [r["d"] for r in ev][-12:]}
             print(f"  {lab}：{len(ev)} 個事件（最近：{', '.join(r['d'] for r in ev[-4:])}）")
             print("     " + "、".join(f"{n} 天 {line[n]['avg']:+.2f}%（漲機率 {line[n]['up']:.0f}%，t={line[n]['t']:+.2f}）" for n in HZ))
+    # 反彈日分組：回檔 ≥ 5% 中、當天漲 ≥ 1.5% 的日子，依「融資增減佔前一天融資餘額 %」與「成交金額 ÷ 20 日均量」分三等份
+    print("\n■ 回檔 ≥ 5% 中、當天漲 ≥ 1.5% 的反彈日：依融資增減、量能分三等份（融資 2015/3 起，上市＋上櫃）")
+    rb = []
+    for r in rows:
+        k = days.index(r["d"])
+        p_ = days[k - 1]
+        if r["dd"] > -5 or r["chg"] < 1.5 or r["d"] not in mg or p_ not in mg or None in mg[r["d"]] or None in mg[p_]:
+            continue
+        bal = mg[p_][0] + mg[p_][1]
+        a20 = [tv[x] for x in days[k - 20:k] if x in tv]
+        rb.append({**r, "dmp": (mg[r["d"]][0] + mg[r["d"]][1] - bal) / bal * 100, "tvr": tv[r["d"]] / st.mean(a20) if r["d"] in tv and a20 else None})
+    out["rebound"] = {}
+    for key, lab in (("dmp", "融資增減 % 餘額"), ("tvr", "量能（倍 20 日均量）")):
+        xs = sorted(x[key] for x in rb if x[key] is not None)
+        if len(xs) < 30:
+            continue
+        lo, hi = xs[len(xs) // 3], xs[2 * len(xs) // 3]
+        out["rebound"][key] = {}
+        for g, gf in (("低", lambda v: v < lo), ("中", lambda v: lo <= v < hi), ("高", lambda v: v >= hi)):
+            ys = [x for x in rb if x[key] is not None and gf(x[key])]
+            o = {n: {"avg": round(st.mean(x["fwd"][n] for x in ys), 2), "up": round(sum(x["fwd"][n] > 0 for x in ys) / len(ys) * 100, 1)} for n in HZ}
+            out["rebound"][key][g] = {"n": len(ys), "months": len({x["d"][:7] for x in ys}), "h": o}
+            print(f"  {lab} {g}（{'<' if g == '低' else '≥'} {lo if g == '低' else hi if g == '高' else lo:+.2f}）{len(ys)} 天："
+                  + "、".join(f"{n} 天 {o[n]['avg']:+.2f}%（漲 {o[n]['up']:.0f}%）" for n in HZ))
     (DATA / "research" / "market_read.json").write_text(json.dumps(out, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     return 0
 
