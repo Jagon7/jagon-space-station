@@ -248,7 +248,8 @@ def run_ftse(pub: Public, cfg: dict, asof: str | None):
         if code == "0056" and not b.get("ibes"):
             notes.append("沒有 IBES 授權資料：預估股利率用公開資料（近四季現金股利 × (1+累積EPS成長率)）替代")
         if not b.get("iw_override"):
-            notes.append("沒有 FTSE 授權資料：公眾流通量用 1 − 董監持股（公開資料）")
+            notes.append("沒有 FTSE 授權資料：現有成分股的公眾流通量用 0050／0051 實際持股反推（不含本次審核的流通量更新），"
+                         "新納入的用 1 − 董監持股（公開資料）" if b.get("iw_from_etf") else "沒有 FTSE 授權資料：公眾流通量用 1 − 董監持股（公開資料）")
         notes += [f"條件剔除 {k}" for k in r.get("cond_del", [])]
         notes += [f"遞補納入 {k}" for k in r.get("fill", [])] + [f"超額剔除 {k}" for k in r.get("over", [])]
         s = summary(code, r["add"], r["del"], names, r["weights"], r["impact"], notes, {"missing": miss})
