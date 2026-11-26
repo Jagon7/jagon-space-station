@@ -645,7 +645,7 @@ def turnover_alert(dry: bool, force: bool = False) -> int:
         m.line(f"今天沒有當沖比 ≥ {tv.get('dtMin', 60)}%、收黑K 但仍收漲的股票（成交 ≥ 1 億）", color=FLAT)
     fade_s = next((s for s in tv.get("dtStats", []) if "開高走低" in s["group"]), None)
     if size_tier == "低":
-        m.line("小型股偏強日：高當沖比 2026/5 起回測這種日子平均 +0.6%（其他日子約 +2.6%），建議減半", color="#D97706")
+        m.line("小型股偏強日：高當沖比 2019 起回測這種日子平均 −0.2～−0.6%（其他日子 +0.2～+0.6%），建議暫停", color="#D97706")
     if fade_s:
         m.kv("回測隔天開盤→收盤", f"{fade_s['o2c']:+.2f}%（黑K {fade_s['black']:.0f}%）", color=sign_tone(fade_s["o2c"]))
         m.kv("開盤空收盤補（全額成本）", f"{fade_s['shortNet']:+.2f}%", color=sign_tone(fade_s["shortNet"]))
