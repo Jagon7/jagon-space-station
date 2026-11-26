@@ -50,9 +50,10 @@ def macro_zh(e: dict) -> str:
     return f"{FLAG.get(e['country'], e['country'])} {t}" + (f"（{e['period']}）" if e.get("period") else "")
 
 
-def week_events(data_dir: Path, ex: dict, today: date) -> dict:
+def week_events(data_dir: Path, ex: dict, today: date, end: date | None = None) -> dict:
+    import us_market
     start = today  # 今天的事件也要列（例如今晚的美國 CPI），不能從明天才開始
-    end = today + timedelta(days=7 - today.weekday() + 6)  # 下週日
+    end = end or today + timedelta(days=7 - today.weekday() + 6)  # 下週日
     s, e = start.isoformat(), end.isoformat()
     days: dict[str, list] = {}
 
@@ -61,16 +62,42 @@ def week_events(data_dir: Path, ex: dict, today: date) -> dict:
             days.setdefault(d, []).append({"cat": cat, "text": text, "hi": hi, "href": href})
 
     holidays = set((_load(data_dir / "calendar.json", {}) or {}).get("holidays", []))
-    d = start
+    trading = lambda x: x.weekday() < 5 and x.isoformat() not in holidays  # noqa: E731
+
+    def next_trading(x):
+        while not trading(x):
+            x += timedelta(days=1)
+        return x
+
+    def prev_trading(x):
+        x -= timedelta(days=1)
+        while not trading(x):
+            x -= timedelta(days=1)
+        return x
+    d = start - timedelta(days=10)   # 往前看：結算／營收截止遇休市順延到這段期間
     while d <= end:
         iso = d.isoformat()
-        if d.weekday() < 5 and iso in holidays:
+        if d >= start and d.weekday() < 5 and iso in holidays:
             add(iso, "休市", "台股休市", True)
         if d.weekday() == 2 and 15 <= d.day <= 21:
-            add(iso, "結算", "台指期／台指選擇權月結算", True, "/futures")
+            add(next_trading(d).isoformat(), "結算", "台指期／台指選擇權月結算", True, "/futures")
         if d.day == 10:
-            add(iso, "營收", "上市櫃月營收公布截止", False, "/revenue")
+            add(next_trading(d).isoformat(), "營收", "上市櫃月營收公布截止", False, "/revenue")
+        # FTSE 臺灣 50（0050、006208）／中型 100（0051）每季、高股息（0056）6／12 月：第 3 個週五收盤後生效
+        if d.month in (3, 6, 9, 12) and d.weekday() == 4 and 15 <= d.day <= 21:
+            etfs = "0050、006208、0051" + ("、0056" if d.month in (6, 12) else "")
+            add(next_trading(d).isoformat(), "ETF", f"FTSE 臺灣指數調整：收盤換股（{etfs}）", True, "/etf-flow")
+        # 美股休市／提早收盤（美國日期＝台灣當天晚上；提早收盤是台灣隔天凌晨）
+        stt = us_market.status(d) if d >= start else None
+        if stt and stt[0] == "closed":
+            add(iso, "休市", f"美股休市（{stt[1]}）：夜盤美股段訊號暫停", True, "/us-events")
+        elif stt and stt[0] == "early":
+            add((d + timedelta(days=1)).isoformat(), "休市", f"美股提早收盤（{stt[1]}）：台灣 {us_market.tw_close_hour(d):02d}:00 收", False, "/us-events")
         d += timedelta(days=1)
+    # 手動事件（央行理監事會等）：config/events_manual.json [{"d", "cat", "text", "hi"}]
+    for r in _load(Path(__file__).resolve().parent.parent / "config" / "events_manual.json", []) or []:
+        if r.get("d") and r.get("text"):
+            add(r["d"], r.get("cat", "其他"), r["text"], r.get("hi", True), r.get("href"))
 
     wk = _load(data_dir / "intel" / "week.json", {}) or {}
     seen = set()
@@ -122,10 +149,12 @@ def week_events(data_dir: Path, ex: dict, today: date) -> dict:
         nm = r["index"].replace("臺灣指數公司", "").replace("特選臺灣上市上櫃", "").replace("指數", "").strip()
         tag = "、".join(big[:4])
         add(r["announce"], "ETF", f"{nm} 審核公告" + (f"（{tag}）" if tag else ""), r.get("provider") == "MSCI", "/etf-flow")
-        if r.get("effective") != r.get("announce"):
+        if r.get("provider") == "MSCI":   # MSCI 的生效日是換股隔天，實際換股在前一個交易日收盤
+            add(prev_trading(date.fromisoformat(r["effective"])).isoformat(), "ETF", "MSCI 季度調整：收盤換股（尾盤量大）", True, "/etf-flow")
+        elif r.get("effective") != r.get("announce"):
             add(r["effective"], "ETF", f"{nm} 調整生效" + (f"（{tag}）" if tag else ""), r.get("provider") == "MSCI", "/etf-flow")
 
-    order = {"休市": 0, "結算": 1, "總經": 2, "IPO": 3, "財報": 3, "法說": 4, "ETF": 5, "除息": 6, "營收": 7}
+    order = {"休市": 0, "結算": 1, "其他": 1, "總經": 2, "IPO": 3, "財報": 3, "法說": 4, "ETF": 5, "除息": 6, "營收": 7}
     out = []
     for d in sorted(days):
         items = sorted(days[d], key=lambda x: (not x["hi"], order.get(x["cat"], 9)))

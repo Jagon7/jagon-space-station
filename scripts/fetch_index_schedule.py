@@ -176,7 +176,12 @@ def main():
         print(f"臺灣指數公司日程表失敗：{e}")
         rows += [r for r in prev.get("rows", []) if r["provider"] == "臺灣指數公司"]
     try:
-        rows += msci_rows()
+        new = msci_rows()
+        # MSCI 的 ir_dates.csv 只列「未來八次」：公告後那一季就消失，但生效（換股）還沒到 → 沿用上次的
+        have = {r["effective"] for r in new}
+        new += [r for r in prev.get("rows", []) if r["provider"] == "MSCI" and r["effective"] not in have
+                and r["effective"] >= (datetime.now(TPE).date() - timedelta(days=KEEP_PAST_DAYS)).isoformat()]
+        rows += new
     except Exception as e:  # noqa: BLE001
         print(f"MSCI 審核日期失敗：{e}")
         rows += [r for r in prev.get("rows", []) if r["provider"] == "MSCI"]
