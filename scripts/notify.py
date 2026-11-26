@@ -618,7 +618,7 @@ def turnover_alert(dry: bool, force: bool = False) -> int:
     al = tv.get("alert") or []
     ref = next((s for s in tv.get("stats", []) if s["group"].strip().endswith("當天漲停")), None)
     m = Msg(("【預覽】" if force else "") + "🔻 高週轉＋漲停／高當沖比開高走低", f"{md(nxt)} 開高走低觀察名單・{md(asof)} 收盤", accent="#16A34A", url=f"{SITE}/turnover/", button="開啟週轉率頁")
-    size_section(m, now.date().isoformat(), "tv")
+    size_tier = size_section(m, now.date().isoformat(), "tv")
     m.section("高週轉＋漲停", f"{len(al)} 檔")
     if al:
         m.cols("收盤", "週轉率")
@@ -644,7 +644,8 @@ def turnover_alert(dry: bool, force: bool = False) -> int:
     if not dal:
         m.line(f"今天沒有當沖比 ≥ {tv.get('dtMin', 60)}%、收黑K 但仍收漲的股票（成交 ≥ 1 億）", color=FLAT)
     fade_s = next((s for s in tv.get("dtStats", []) if "開高走低" in s["group"]), None)
-    m.line("（高當沖比還沒有大小型股過濾的回測，先照常做、記錄觀察）", color=FLAT)
+    if size_tier == "低":
+        m.line("小型股偏強日：高當沖比 2026/5 起回測這種日子平均 +0.6%（其他日子約 +2.6%），建議減半", color="#D97706")
     if fade_s:
         m.kv("回測隔天開盤→收盤", f"{fade_s['o2c']:+.2f}%（黑K {fade_s['black']:.0f}%）", color=sign_tone(fade_s["o2c"]))
         m.kv("開盤空收盤補（全額成本）", f"{fade_s['shortNet']:+.2f}%", color=sign_tone(fade_s["shortNet"]))
