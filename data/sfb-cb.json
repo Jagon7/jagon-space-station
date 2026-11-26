@@ -1,5 +1,5 @@
 {
-  "date": "2026-11-25",
+  "date": "2026-11-26",
   "data": [
     {
       "code": "2344",
@@ -2236,6 +2236,19 @@
       "effectiveDate": "2026-12-08",
       "withdrawDate": null,
       "underwriter": "中國信託證券"
+    },
+    {
+      "code": "6166",
+      "name": "凌華科技",
+      "market": "上市",
+      "status": "審查中",
+      "cbType": "轉換公司債(無擔保)",
+      "amount": 25.0,
+      "currency": "台幣",
+      "filingDate": "2026-11-25",
+      "effectiveDate": "2026-12-11",
+      "withdrawDate": null,
+      "underwriter": "元大證券"
     }
   ]
 }
