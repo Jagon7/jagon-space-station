@@ -799,29 +799,29 @@
     },
     {
       "date": "2026-11-26",
-      "limitUpCount": 60,
+      "limitUpCount": 93,
       "marketMood": "強勢",
       "taiexChange": 2.5,
       "topSectors": [
         {
           "name": "電子零組件",
-          "count": 27
+          "count": 37
         },
         {
           "name": "半導體",
-          "count": 7
+          "count": 14
         },
         {
           "name": "通信網路",
-          "count": 7
+          "count": 13
         },
         {
           "name": "電腦週邊",
-          "count": 6
+          "count": 7
         },
         {
           "name": "其他電子",
-          "count": 3
+          "count": 7
         }
       ]
     }
