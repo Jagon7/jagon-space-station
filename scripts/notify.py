@@ -801,6 +801,16 @@ def morning_brief(dry: bool, force: bool = False) -> int:
 
     # 2) 美股主要指數
     m.section("美股主要指數")
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    import us_market
+    usd = today - timedelta(days=1)
+    while usd.weekday() >= 5:
+        usd -= timedelta(days=1)
+    ust = us_market.status(usd)
+    if ust and ust[0] == "closed":
+        m.line(f"{usd.month}/{usd.day} 美股休市（{ust[1]}），下面是前一個交易日的收盤", color="#D97706")
+    elif ust and ust[0] == "early":
+        m.line(f"{usd.month}/{usd.day} 美股提早收盤（{ust[1]}），成交清淡", color=FLAT)
     for sym, name in (("^DJI", "道瓊"), ("^GSPC", "S&P 500"), ("^IXIC", "那斯達克"), ("^SOX", "費城半導體"), ("TSM", "台積電 ADR"), ("TWD=X", "美元兌台幣")):
         q = quotes.get(sym)
         if q:
@@ -2048,14 +2058,18 @@ def us_event_alert(dry: bool, force: bool = False) -> int:
     ups = [u for u in doc.get("upcoming") or [] if night_of(u["t"]) == tomorrow or (force and night_of(u["t"]) >= now.date().isoformat())]
     if force:
         ups = ups[:3]
-    if not ups:
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    import us_market
+    mk = us_market.status(date.fromisoformat(tomorrow))
+    mk = mk if mk and mk[0] in ("closed", "early") else None
+    if not ups and not mk:
         print(f"{tomorrow} 晚上沒有美國重大事件")
         return 0
     try:
         state = json.loads(USEV_STATE.read_text(encoding="utf-8"))
     except (OSError, ValueError):
         state = {"sent": []}
-    keys = [f"{u['key']}|{u['t']}" for u in ups]
+    keys = [f"{u['key']}|{u['t']}" for u in ups] + ([f"usmkt|{tomorrow}"] if mk else [])
     if not force and all(k in state["sent"] for k in keys):
         print("已推過")
         return 0
@@ -2063,9 +2077,17 @@ def us_event_alert(dry: bool, force: bool = False) -> int:
     md = lambda d: f"{int(d[5:7])}/{int(d[8:10])}"  # noqa: E731
     wk = "一二三四五六日"
     when = lambda t: f"{md(t)}（{wk[datetime.fromisoformat(t).weekday()]}）{t[11:16]}"  # noqa: E731
-    names = "、".join(dict.fromkeys(kinds.get(u["key"], u["key"]) for u in ups))
+    mk_name = (f"美股休市（{mk[1]}）" if mk[0] == "closed" else f"美股提早收盤（{mk[1]}）") if mk else None
+    names = "、".join(([mk_name] if mk_name else []) + list(dict.fromkeys(kinds.get(u["key"], u["key"]) for u in ups)))
     m = Msg(("【預覽】" if force else "") + f"🇺🇸 明晚美國重大事件：{names}", f"台指期夜盤 {md(tomorrow)} 晚上・歷史走勢參考",
             accent="#B91C1C", url=f"{SITE}/us-events/", button="開啟美國事件夜盤")
+    if mk and mk[0] == "closed":
+        m.section("美股休市", mk[1])
+        m.line("美股沒開：夜盤「美股段突破」訊號暫停（回測的區間是美股開盤後 30 分鐘，休市不適用）", color=INK)
+        m.line("台指期夜盤照常交易，但量少、容易被單筆大單拉動；隔天早上的大小型股預測會把美股漲跌當成 0", color=FLAT)
+    elif mk:
+        m.section("美股提早收盤", mk[1])
+        m.line(f"美東 13:00 收盤＝台灣 {us_market.tw_close_hour(date.fromisoformat(tomorrow)):02d}:00；夜盤突破訊號照發，但建議那時就平倉（之後流動性很差）", color=INK)
     infl = {"cpi", "ppi", "pce"}
     for u in ups:
         k = u["key"]

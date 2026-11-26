@@ -65,10 +65,12 @@ def yser(name):
     return {r[0]: r[4] for r in j if r[4]}
 
 
-def us_ret(ser: dict, keys: list, tw_day: str):
-    """台股 tw_day 開盤前最近一次美股收盤的日報酬（美股日期 < 台股日期）"""
+def us_ret(ser: dict, keys: list, tw_day: str, prev_tw: str):
+    """台股 tw_day 開盤前最近一次美股收盤的日報酬（美股日期 < 台股日期）；前一個台股交易日之後美股都休市＝ 0"""
     k = bisect_left(keys, tw_day) - 1
-    return (ser[keys[k]] / ser[keys[k - 1]] - 1) * 100 if k >= 1 else None
+    if k < 1:
+        return None
+    return 0.0 if keys[k] < prev_tw else (ser[keys[k]] / ser[keys[k - 1]] - 1) * 100
 
 
 def build():
@@ -135,7 +137,7 @@ def features(days, agg, tsmc):
              "lu": a["lu"], "lu3": st.mean(lus[-3:]), "lu_rel": st.mean(lus[-3:]) / (st.mean(lus) + 1), "adv": a["adv"],
              "otc_sh": a["otc_sh"] / st.mean(sh), "tsmc240": tsmc[tk[k]] / max(t240) if k < len(tk) and tk[k] == d else None,
              "vol20": vol, "twd1": (tw0 / tw1 - 1) * 100 if tw0 and tw1 else None, "twd5": (tw0 / tw5 - 1) * 100 if tw0 and tw5 else None}
-        pre = {"sox": us_ret(sox, ks["sox"], n), "ixic": us_ret(ixic, ks["ixic"], n), "vix": us_ret(vix, ks["vix"], n), "tsm": us_ret(tsm, ks["tsm"], n)}
+        pre = {"sox": us_ret(sox, ks["sox"], n, d), "ixic": us_ret(ixic, ks["ixic"], n, d), "vix": us_ret(vix, ks["vix"], n, d), "tsm": us_ret(tsm, ks["tsm"], n, d)}
         rows.append({"d": d, "n": n, "f": f, "pre": pre,
                      "y": agg[n]["s"] - agg[n]["b"], "y_id": agg[n]["s_id"] - agg[n]["b_id"]})
     return rows

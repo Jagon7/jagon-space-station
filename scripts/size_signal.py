@@ -145,10 +145,13 @@ def daily_agg(before: str):
     return agg
 
 
-def us_ret(ser: dict, today: str):
+def us_ret(ser: dict, today: str, prev_tw: str):
+    """台股 today 開盤前最近一次美股收盤的日報酬；前一個台股交易日收盤後美股都沒開（休市）＝ 0"""
     ks = sorted(ser)
     k = bisect_left(ks, today) - 1
-    return (ser[ks[k]] / ser[ks[k - 1]] - 1) * 100 if k >= 1 else None
+    if k < 1:
+        return None
+    return 0.0 if ks[k] < prev_tw else (ser[ks[k]] / ser[ks[k - 1]] - 1) * 100
 
 
 def live_features(today: str, agg: dict | None = None, ys: dict | None = None):
@@ -171,7 +174,7 @@ def live_features(today: str, agg: dict | None = None, ys: dict | None = None):
          "otc_sh": a["otc_sh"] / st.mean(sh), "tsmc240": ts[tk[-1]] / max(ts[x] for x in tk[-240:]) if tk and tk[-1] >= days[-3] else None,
          "vol20": st.pstdev(agg[x]["s"] for x in days[-20:]),
          "twd1": (tw0 / tw1 - 1) * 100 if tw0 and tw1 else None, "twd5": (tw0 / tw5 - 1) * 100 if tw0 and tw5 else None}
-    pre = {k: us_ret(ys[k], today) for k in ("sox", "ixic", "vix", "tsm")}
+    pre = {k: us_ret(ys[k], today, d) for k in ("sox", "ixic", "vix", "tsm")}
     return d, {**f, **pre}
 
 
