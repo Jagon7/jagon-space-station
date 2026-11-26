@@ -618,6 +618,7 @@ def turnover_alert(dry: bool, force: bool = False) -> int:
     al = tv.get("alert") or []
     ref = next((s for s in tv.get("stats", []) if s["group"].strip().endswith("當天漲停")), None)
     m = Msg(("【預覽】" if force else "") + "🔻 高週轉＋漲停／高當沖比開高走低", f"{md(nxt)} 開高走低觀察名單・{md(asof)} 收盤", accent="#16A34A", url=f"{SITE}/turnover/", button="開啟週轉率頁")
+    size_section(m, now.date().isoformat(), "tv")
     m.section("高週轉＋漲停", f"{len(al)} 檔")
     if al:
         m.cols("收盤", "週轉率")
@@ -643,6 +644,7 @@ def turnover_alert(dry: bool, force: bool = False) -> int:
     if not dal:
         m.line(f"今天沒有當沖比 ≥ {tv.get('dtMin', 60)}%、收黑K 但仍收漲的股票（成交 ≥ 1 億）", color=FLAT)
     fade_s = next((s for s in tv.get("dtStats", []) if "開高走低" in s["group"]), None)
+    m.line("（高當沖比還沒有大小型股過濾的回測，先照常做、記錄觀察）", color=FLAT)
     if fade_s:
         m.kv("回測隔天開盤→收盤", f"{fade_s['o2c']:+.2f}%（黑K {fade_s['black']:.0f}%）", color=sign_tone(fade_s["o2c"]))
         m.kv("開盤空收盤補（全額成本）", f"{fade_s['shortNet']:+.2f}%", color=sign_tone(fade_s["shortNet"]))
@@ -868,6 +870,27 @@ def morning_brief(dry: bool, force: bool = False) -> int:
 G85_STATE = ROOT / "data" / "notify" / "g85-sent.json"
 
 
+SIZE_SIGNAL = ROOT / "data" / "strategy" / "size_signal.json"
+
+
+def size_section(m, today: str, which: str):
+    """今天的大小型股預測（scripts/size_signal.py，08:25 算）：大型股贏的機率落在最低 1/3 → 當沖空建議暫停或減量"""
+    try:
+        sz = json.loads(SIZE_SIGNAL.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        sz = {}
+    if sz.get("date") != today:
+        m.line("大小型股預測：今天的還沒算出來，照原本打法", color=FLAT)
+        return None
+    p, t = sz["pLarge"], sz["tier"]
+    if t == "低":
+        bt = "85g 平均約 0%、高週轉＋漲停約 −0.3%" if which == "g85" else "高週轉＋漲停平均約 −0.3%、85g 約 0%"
+        m.line(f"⚠️ 小型股偏強日：大型股贏的機率 {p:.0%}（落在最低 1/3）。回測這種日子 {bt}，建議暫停或減半", color="#D97706", bold=True)
+    else:
+        m.line(f"大小型股預測：大型股贏的機率 {p:.0%}（{t}）→ 照常做" + ("，偏向黑K" if t == "高" else ""), color=INK)
+    return t
+
+
 def g85_alert(dry: bool, force: bool = False) -> int:
     """85g 當沖標的（週一到五 08:30）：前一交易日成交金額前 100、當天漲停或近 5 日漲 ≥ 10% 的熱門股，
     今天開盤落在開高 0～4% 的價位就是先賣後買的候選；暫停先賣後買的不列。每個交易日一次"""
@@ -898,6 +921,7 @@ def g85_alert(dry: bool, force: bool = False) -> int:
             accent="#D97706", url=f"{SITE}/85g/", button="開啟 85g 策略")
     if stale:
         m.line(f"⚠️ 資料停在 {md(asof)}，昨天的收盤資料還沒抓到，名單僅供參考", color="#D97706")
+    size_section(m, today.isoformat(), "g85")
     m.section("開高走低候選", f"{len(cand)} 檔")
     if cand:
         m.cols("昨收", f"開在這裡＝開高 {lo:g}～{hi:g}%")
