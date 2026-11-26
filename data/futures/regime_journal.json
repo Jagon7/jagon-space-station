@@ -134,6 +134,16 @@
 },
 "basis": "價差 +98 點，比昨天平均 +0.63% → 正價差過頭（回測偏 MR）",
 "override": null,
-"feat": null
+"feat": null,
+"result": {
+"bo": 119.0,
+"mr": 413.0,
+"pnl": 119.0,
+"best": "MR",
+"close": 39455,
+"hi": 39688,
+"lo": 38473,
+"right": false
+}
 }
 }
