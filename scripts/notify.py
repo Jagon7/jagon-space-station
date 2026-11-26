@@ -859,6 +859,19 @@ def morning_brief(dry: bool, force: bool = False) -> int:
             m.stock(g["name"], NAME.get(q["sym"], q["sym"]), close, f"{q['chg']:+.2f}%", color=sign_tone(q["chg"]), sub=sub)
         m.note("台股預估＝β × 龍頭漲跌（過去約半年的隔日連動），只列預估 ±0.3% 以上的股票，僅供參考")
 
+    # 5) 今明重點大事（scripts/build_week_events.py）
+    try:
+        tmr = today + timedelta(days=1)
+        evs = [e for e in _week_events(today) if e["d"] in (today.isoformat(), tmr.isoformat())]
+        if evs:
+            m.section("今明重點", f"{len(evs)} 件")
+            for e in evs[:10]:
+                _event_line(m, e, show_date=e["d"] != today.isoformat())
+            if len(evs) > 10:
+                m.line(f"…另有 {len(evs) - 10} 件", color=FLAT)
+    except Exception as ex:  # noqa: BLE001  大事清單抓不到不影響快報
+        print("今明重點失敗：", ex)
+
     print(m.text())
     if dry:
         return 0
@@ -2043,6 +2056,71 @@ def settlement_alert(dry: bool, force: bool = False) -> int:
     return 0
 
 
+WEEK_EVENTS_STATE = ROOT / "data" / "notify" / "week-events-sent.json"
+CAT_ICON = {"美國": "🇺🇸", "美股財報": "📊", "台股": "🇹🇼", "台股法說": "🎤", "除權息": "💰"}
+
+
+def _week_events(today: date, days: int = 15):
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    import build_week_events as bwe
+    try:
+        doc = json.loads(bwe.OUT.read_text(encoding="utf-8"))
+        if doc.get("from") != today.isoformat():
+            raise ValueError
+    except (OSError, ValueError):
+        doc = bwe.build(days, today)
+    return doc.get("events") or []
+
+
+def _event_line(m, e, show_date=True):
+    d = date.fromisoformat(e["d"])
+    parts = [("★" if e.get("star") else "") + CAT_ICON.get(e["cat"], "・"), f"{d.month}/{d.day}（{WEEK[d.weekday()]}）" if show_date else "",
+             e.get("time") or "", e["title"]]
+    m.line(" ".join(x for x in parts if x) + (f"｜{e['note']}" if e.get("note") else ""),
+           color=INK if e.get("star") else FLAT, bold=bool(e.get("star")))
+
+
+def week_events_alert(dry: bool, force: bool = False) -> int:
+    """週日晚上：接下來兩週（本週、下週）的重點大事"""
+    now = datetime.now(TPE_TZ)
+    today = now.date()
+    if today.weekday() != 6 and not force:
+        print("重點大事週日晚上發")
+        return 0
+    try:
+        state = json.loads(WEEK_EVENTS_STATE.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        state = {"sent": []}
+    if today.isoformat() in state["sent"] and not force:
+        print("這週的重點大事已發過")
+        return 0
+    start = today if force else today + timedelta(days=1)   # 週日發：從明天（週一）開始；預覽從今天
+    evs = _week_events(today, 16)
+    wk1_end = start + timedelta(days=6 - start.weekday())
+    wk2_end = wk1_end + timedelta(days=7)
+    m = Msg(("【預覽】" if force else "") + "🗓️ 本週／下週重點大事", f"{start.month}/{start.day}～{wk2_end.month}/{wk2_end.day}・★ 是對台股影響較大的",
+            accent="#0E7490", url=f"{SITE}/us-events/", button="開啟美國事件夜盤")
+    for lab, a, b in (("本週", start, wk1_end), ("下週", wk1_end + timedelta(days=1), wk2_end)):
+        xs = [e for e in evs if a.isoformat() <= e["d"] <= b.isoformat()]
+        m.section(f"{lab}（{a.month}/{a.day}～{b.month}/{b.day}）", f"{len(xs)} 件")
+        if not xs:
+            m.line("沒有排定的重點事件", color=FLAT)
+        for e in xs[:25]:
+            _event_line(m, e)
+    m.note("美國事件是台灣時間；美股財報「盤後」＝台灣隔天清晨公布。台指期結算、MSCI／FTSE 調整、月營收截止是依規則推算；"
+           "央行理監事會等可加在 config/events_manual.json。")
+    print(m.text())
+    if dry:
+        return 0
+    if not send(m):
+        print("（沒有設定任何推播管道，只印出內容）")
+    if not force:
+        state["sent"] = sorted(set(state["sent"]) | {today.isoformat()})[-30:]
+        WEEK_EVENTS_STATE.parent.mkdir(parents=True, exist_ok=True)
+        WEEK_EVENTS_STATE.write_text(json.dumps(state, ensure_ascii=False, indent=0), encoding="utf-8")
+    return 0
+
+
 USEV_STATE = ROOT / "data" / "notify" / "usevent-sent.json"
 
 
@@ -2210,6 +2288,7 @@ def main():
     ap.add_argument("--turnover-alert", action="store_true")
     ap.add_argument("--exdiv-alert", action="store_true", help="除權息黑K：明天除息的放空候選與明天要回補的部位")
     ap.add_argument("--daytrade-review", action="store_true", help="當沖復盤：收盤後推今天推薦標的的結果（加 --preview 立刻發預覽）")
+    ap.add_argument("--week-events", action="store_true", help="週日晚上：本週／下週重點大事（加 --preview 立刻發預覽）")
     ap.add_argument("--us-event-alert", action="store_true", help="隔天晚上有美國重大事件就推（每天傍晚；加 --preview 立刻發預覽）")
     ap.add_argument("--settlement-alert", action="store_true", help="結算策略：每月結算前一週週五晚上推控盤排行（加 --preview 立刻發預覽）")
     ap.add_argument("--risk-alert", action="store_true", help="市場風險警示：風險溫度偏高、指標達警戒／危險、VIX 暴漲、信用利差擴大、科技廠隱含 CDS 跳升")
@@ -2267,6 +2346,8 @@ def main():
         return risk_alert(a.dry_run, force=a.preview)
     if a.daytrade_review:
         return daytrade_review_alert(a.dry_run, force=a.preview)
+    if a.week_events:
+        return week_events_alert(a.dry_run, force=a.preview)
     if a.us_event_alert:
         return us_event_alert(a.dry_run, force=a.preview)
     if a.settlement_alert:
