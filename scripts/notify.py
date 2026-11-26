@@ -859,16 +859,16 @@ def morning_brief(dry: bool, force: bool = False) -> int:
             m.stock(g["name"], NAME.get(q["sym"], q["sym"]), close, f"{q['chg']:+.2f}%", color=sign_tone(q["chg"]), sub=sub)
         m.note("台股預估＝β × 龍頭漲跌（過去約半年的隔日連動），只列預估 ±0.3% 以上的股票，僅供參考")
 
-    # 5) 今明重點大事（scripts/build_week_events.py）
+    # 5) 今明重點大事（同首頁 build_home.week_events）
     try:
         tmr = today + timedelta(days=1)
-        evs = [e for e in _week_events(today) if e["d"] in (today.isoformat(), tmr.isoformat())]
+        evs = _week_events(today, tmr)
         if evs:
             m.section("今明重點", f"{len(evs)} 件")
-            for e in evs[:10]:
+            for e in evs[:12]:
                 _event_line(m, e, show_date=e["d"] != today.isoformat())
-            if len(evs) > 10:
-                m.line(f"…另有 {len(evs) - 10} 件", color=FLAT)
+            if len(evs) > 12:
+                m.line(f"…另有 {len(evs) - 12} 件，見首頁", color=FLAT)
     except Exception as ex:  # noqa: BLE001  大事清單抓不到不影響快報
         print("今明重點失敗：", ex)
 
@@ -2057,27 +2057,21 @@ def settlement_alert(dry: bool, force: bool = False) -> int:
 
 
 WEEK_EVENTS_STATE = ROOT / "data" / "notify" / "week-events-sent.json"
-CAT_ICON = {"美國": "🇺🇸", "美股財報": "📊", "台股": "🇹🇼", "台股法說": "🎤", "除權息": "💰"}
+CAT_ICON = {"休市": "⛔", "結算": "⚖️", "總經": "🌐", "財報": "📊", "IPO": "🆕", "法說": "🎤", "ETF": "🔄", "除息": "💰", "營收": "📈", "其他": "📌"}
 
 
-def _week_events(today: date, days: int = 15):
+def _week_events(today: date, end: date | None = None):
+    """跟首頁「本週＋下週重點大事」同一份（scripts/build_home.py week_events）→ [{"d", "cat", "text", "hi"}]"""
     sys.path.insert(0, str(Path(__file__).resolve().parent))
-    import build_week_events as bwe
-    try:
-        doc = json.loads(bwe.OUT.read_text(encoding="utf-8"))
-        if doc.get("from") != today.isoformat():
-            raise ValueError
-    except (OSError, ValueError):
-        doc = bwe.build(days, today)
-    return doc.get("events") or []
+    import build_home
+    wk = build_home.week_events(ROOT / "data", load("exdiv.json", {}) or {}, today, end)
+    return [{**i, "d": day["d"]} for day in wk["days"] for i in day["items"]]
 
 
 def _event_line(m, e, show_date=True):
     d = date.fromisoformat(e["d"])
-    parts = [("★" if e.get("star") else "") + CAT_ICON.get(e["cat"], "・"), f"{d.month}/{d.day}（{WEEK[d.weekday()]}）" if show_date else "",
-             e.get("time") or "", e["title"]]
-    m.line(" ".join(x for x in parts if x) + (f"｜{e['note']}" if e.get("note") else ""),
-           color=INK if e.get("star") else FLAT, bold=bool(e.get("star")))
+    parts = [("★" if e.get("hi") else "") + CAT_ICON.get(e["cat"], "・"), f"{d.month}/{d.day}（{WEEK[d.weekday()]}）" if show_date else "", e["text"]]
+    m.line(" ".join(x for x in parts if x), color=INK if e.get("hi") else FLAT, bold=bool(e.get("hi")))
 
 
 def week_events_alert(dry: bool, force: bool = False) -> int:
@@ -2095,7 +2089,8 @@ def week_events_alert(dry: bool, force: bool = False) -> int:
         print("這週的重點大事已發過")
         return 0
     start = today if force else today + timedelta(days=1)   # 週日發：從明天（週一）開始；預覽從今天
-    evs = _week_events(today, 16)
+    wk1_end_ = start + timedelta(days=6 - start.weekday())
+    evs = _week_events(start, wk1_end_ + timedelta(days=7))
     wk1_end = start + timedelta(days=6 - start.weekday())
     wk2_end = wk1_end + timedelta(days=7)
     m = Msg(("【預覽】" if force else "") + "🗓️ 本週／下週重點大事", f"{start.month}/{start.day}～{wk2_end.month}/{wk2_end.day}・★ 是對台股影響較大的",
@@ -2105,10 +2100,12 @@ def week_events_alert(dry: bool, force: bool = False) -> int:
         m.section(f"{lab}（{a.month}/{a.day}～{b.month}/{b.day}）", f"{len(xs)} 件")
         if not xs:
             m.line("沒有排定的重點事件", color=FLAT)
-        for e in xs[:25]:
+        for e in xs[:30]:
             _event_line(m, e)
-    m.note("美國事件是台灣時間；美股財報「盤後」＝台灣隔天清晨公布。台指期結算、MSCI／FTSE 調整、月營收截止是依規則推算；"
-           "央行理監事會等可加在 config/events_manual.json。")
+        if len(xs) > 30:
+            m.line(f"…另有 {len(xs) - 30} 件，見首頁", color=FLAT)
+    m.note("和首頁「本週＋下週重點大事」同一份；時間都是台灣時間，美股財報「盤後」＝台灣隔天清晨。"
+           "央行理監事會等沒有固定規則的可加在 config/events_manual.json。")
     print(m.text())
     if dry:
         return 0

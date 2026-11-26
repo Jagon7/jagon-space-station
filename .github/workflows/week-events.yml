@@ -34,8 +34,8 @@ jobs:
         with:
           python-version: '3.11'
       - run: pip install requests
-      - name: Build week events
-        run: TZ=Asia/Taipei python3 scripts/build_week_events.py --days 16
+      - name: Build data views
+        run: TZ=Asia/Taipei python3 scripts/build_views.py > /dev/null
       - name: Send week events
         run: TZ=Asia/Taipei python3 scripts/notify.py --week-events ${{ inputs.preview && '--preview' || '' }}
         env:
@@ -48,7 +48,7 @@ jobs:
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email 'github-actions[bot]@users.noreply.github.com'
-          git add data/notify/ data/intel/week_events.json
+          git add data/notify/
           git diff --staged --quiet && exit 0
           git commit -m "notify: week events sent"
           for i in 1 2 3 4 5; do
