@@ -2,26 +2,6 @@
   "date": "2026-11-26",
   "data": [
     {
-      "code": "7610",
-      "name": "聯友金屬-創",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/11/20～115/11/26",
-      "endDate": "2026-11-26",
-      "announceDate": "115/11/19",
-      "market": "上市"
-    },
-    {
-      "code": "4534",
-      "name": "慶騰",
-      "count": 3,
-      "condition": "連續3個營業日",
-      "period": "115/11/20~115/11/26",
-      "endDate": "2026-11-26",
-      "announceDate": "115/11/19",
-      "market": "上櫃"
-    },
-    {
       "code": "2305",
       "name": "全友",
       "count": 1,
@@ -288,7 +268,7 @@
       "condition": "連續三次",
       "period": "115/11/27～115/12/03",
       "endDate": "2026-12-03",
-      "announceDate": "*115/11/26",
+      "announceDate": "115/11/26",
       "market": "上市"
     },
     {
