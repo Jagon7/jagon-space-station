@@ -98,6 +98,12 @@ def main():
     now = datetime.now(TPE)
     today = now.date().isoformat()
     j = load(JOURNAL, {})
+    import us_market
+    stt = us_market.status(now.date())
+    if stt and stt[0] == "closed":
+        log(f"今晚美股休市（{stt[1]}），不發夜盤美股段訊號（前一天傍晚的美國事件提醒已預告）")
+        return 0
+    early = stt[1] if stt and stt[0] == "early" else None
     if today in j and not a.dry_run:
         log("今晚已經發過")
         return 0
@@ -153,7 +159,10 @@ def main():
     m.kv("跌破低點做空", f"{orl:,.0f}・停損 {orh:,.0f}")
     m.line("選擇性：被停損可在停損價反手做另一邊（停損放原本進場那一側），最多 3 筆；回測 2023 後有加分、2020-22 打平")
     m.line("❌ 停損後不要改做均值回歸（回測三段都虧）")
-    m.line("05:00 收盤前平倉（回測最好）；不想熬夜可在 02:00 平倉，回測少賺約 15%")
+    if early:
+        m.line(f"⚠️ 今晚美股提早收盤（{early}，美東 13:00＝台灣 {'01' if us_dst(now.date()) else '02'}:00）：建議那時就平倉，之後流動性很差", color="#D97706", bold=True)
+    else:
+        m.line("05:00 收盤前平倉（回測最好）；不想熬夜可在 02:00 平倉，回測少賺約 15%")
     m.line("判斷時價格如果已經在區間外，回測是當下就進場（照突破方向）")
     if prev:
         d0, r0 = prev[-1]
