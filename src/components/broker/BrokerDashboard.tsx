@@ -23,6 +23,10 @@ const wan = (v: number) => {
 const signed = (s: string, v: number) => (v > 0 ? `+${s}` : s);
 const color = (v: number) => (v > 0 ? "text-[#f05252]" : v < 0 ? "text-[#22c55e]" : "text-slate-400");
 const md = (d: string) => `${Number(d.slice(5, 7))}/${Number(d.slice(8, 10))}`;
+const isEtf = (code: string) => code.startsWith("0");
+const EtfTag = ({ code }: { code: string }) =>
+  isEtf(code) ? <span className="text-[10px] px-1 rounded border border-[#22c55e]/40 text-[#22c55e]">ETF</span> : null;
+const BIG = 5e4; // 仟元＝5000 萬
 
 /** 選「全部分點」時要載入每個分點的檔案 */
 function useBranchFiles(ids: number[]) {
@@ -128,6 +132,7 @@ export default function BrokerDashboard() {
         <button onClick={() => setStock(a.code)} className="inline-flex items-center gap-2 hover:text-[#4f8cff]">
           <span className="text-slate-200">{names[a.code] ?? a.code}</span>
           <span className="font-mono text-xs text-[#8b97ab]">{a.code}</span>
+          <EtfTag code={a.code} />
         </button>
       ),
     },
@@ -148,6 +153,9 @@ export default function BrokerDashboard() {
         所以累積數字是這些上榜紀錄的加總，不是完整成交明細。金額以「萬」顯示，紅色為買超、綠色為賣超。
       </Note>
 
+      <BigMoves branches={index.data.branches} dates={dates} onPick={setStock} />
+
+      <h3 className="text-sm font-semibold text-white mb-2">分點累積買賣超</h3>
       <div className="flex flex-wrap items-center gap-1.5 mb-4">
         {index.data.branches.map((b, i) => (
           <button
@@ -187,11 +195,11 @@ export default function BrokerDashboard() {
           </div>
 
           <div className="grid xl:grid-cols-2 gap-4">
-            <div>
+            <div className="min-w-0 overflow-x-auto">
               <h3 className="text-sm font-semibold text-[#f05252] mb-2">累積買超</h3>
               {buys.length ? <SortTable rows={buys} columns={cols} rowKey={(a) => a.code} initialSort={{ key: "net", desc: true }} limit={30} rank /> : <Empty>沒有買超紀錄。</Empty>}
             </div>
-            <div>
+            <div className="min-w-0 overflow-x-auto">
               <h3 className="text-sm font-semibold text-[#22c55e] mb-2">累積賣超</h3>
               {sells.length ? <SortTable rows={sells} columns={cols} rowKey={(a) => a.code} initialSort={{ key: "net", desc: true }} limit={30} rank /> : <Empty>沒有賣超紀錄。</Empty>}
             </div>
@@ -244,6 +252,107 @@ function StockDetail({ code, name, files, dates, from, onClose }: {
             </tbody>
           </table>
         </div>
+      )}
+    </div>
+  );
+}
+
+/** 單日大額進出（同 LINE 推播）：每個分點買賣超 ≥ 5000 萬的個股與 ETF 放在一起；多個分點同時進出另外列 */
+function BigMoves({ branches, dates, onPick }: { branches: string[]; dates: string[]; onPick: (code: string) => void }) {
+  const files = useBranchFiles(branches.map((_, i) => i));
+  const recent = dates.slice(-10).reverse();
+  const [day, setDay] = useState<string>("");
+  const d = day || recent[0];
+  const di = dates.indexOf(d);
+  const data = useMemo(() => {
+    if (!files) return null;
+    const per: { label: string; has: boolean; items: { code: string; name: string; net: number; lots: number | null; px: number | null }[] }[] = [];
+    const hits = new Map<string, { name: string; list: [string, number][] }>();
+    for (const f of files) {
+      const items = [];
+      let has = false;
+      for (const [code, cells] of Object.entries(f.rows)) {
+        const c = cells.find((x) => x[0] === di);
+        if (!c) continue;
+        has = true;
+        const [, ba, sa, bl, sl] = c;
+        if (ba == null || sa == null) continue;
+        const net = ba - sa;
+        if (Math.abs(net) < BIG) continue;
+        const lots = bl != null && sl != null ? bl - sl : null;
+        const q = net > 0 ? bl : sl;
+        const px = q ? ((net > 0 ? ba : sa) / q) : null; // 仟元 ÷ 張＝元／股
+        const name = f.names[code] ?? code;
+        items.push({ code, name, net, lots, px });
+        const h = hits.get(code) ?? { name, list: [] };
+        h.list.push([f.label, net]);
+        hits.set(code, h);
+      }
+      items.sort((a, b) => (a.net > 0) === (b.net > 0) ? Math.abs(b.net) - Math.abs(a.net) : b.net - a.net);
+      per.push({ label: f.label, has: has || f.dates.length === 0, items });
+    }
+    const multi = [...hits.entries()].filter(([, h]) => h.list.length >= 2)
+      .map(([code, h]) => ({ code, name: h.name, list: h.list, tot: h.list.reduce((s, x) => s + x[1], 0) }))
+      .sort((a, b) => Math.abs(b.tot) - Math.abs(a.tot));
+    return { per, multi };
+  }, [files, di]);
+
+  const yi = (v: number) => `${v > 0 ? "+" : ""}${(v / 1e5).toFixed(2)} 億`;
+  return (
+    <div className="mb-10 rounded-xl border border-[#243247] bg-[#0d1220] p-4">
+      <div className="flex flex-wrap items-baseline gap-3 mb-3">
+        <h3 className="text-sm font-semibold text-white">單日大額進出</h3>
+        <span className="text-[11px] text-[#8b97ab]">單一分點買賣超 ≥ 5000 萬（個股和 ETF 一起列；ETF 進出可能含申購贖回或造市）</span>
+        <select value={d} onChange={(e) => setDay(e.target.value)} className="ml-auto bg-[#0b1020] border border-[#243247] rounded px-2 py-1 text-xs text-slate-300">
+          {recent.map((x) => <option key={x} value={x}>{md(x)}</option>)}
+        </select>
+      </div>
+      {!data ? <p className="text-xs text-[#8b97ab]">載入中…</p> : (
+        <>
+          {data.multi.length > 0 && (
+            <div className="mb-4">
+              <div className="text-xs text-[#a78bfa] mb-1.5">多個分點同時進出（{data.multi.length} 檔）</div>
+              <ul className="space-y-1 text-xs">
+                {data.multi.map((x) => (
+                  <li key={x.code} className="flex flex-wrap items-center gap-x-2">
+                    <button onClick={() => onPick(x.code)} className="text-slate-200 hover:text-[#4f8cff]">{x.name}</button>
+                    <span className="font-mono text-[#8b97ab]">{x.code}</span><EtfTag code={x.code} />
+                    <span className={`font-mono ${color(x.tot)}`}>{yi(x.tot)}</span>
+                    <span className="text-[#8b97ab]">{x.list.map(([b, v]) => `${b} ${yi(v).replace(" 億", "")}`).join("、")}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-3">
+            {data.per.filter((b) => b.items.length).map((b) => (
+              <div key={b.label} className="rounded-lg border border-[#243247]/70 p-3">
+                <div className="flex items-baseline justify-between mb-1.5">
+                  <span className="text-sm text-slate-200">{b.label}</span>
+                  <span className="text-[11px] text-[#8b97ab]">買 {b.items.filter((x) => x.net > 0).length}・賣 {b.items.filter((x) => x.net < 0).length}</span>
+                </div>
+                <table className="w-full text-xs">
+                  <tbody>
+                    {b.items.map((x) => (
+                      <tr key={x.code} className="border-t border-[#243247]/40">
+                        <td className="py-1 pr-2">
+                          <button onClick={() => onPick(x.code)} className="text-slate-300 hover:text-[#4f8cff]">{x.name}</button>
+                          <span className="ml-1 font-mono text-[#8b97ab]">{x.code}</span> <EtfTag code={x.code} />
+                        </td>
+                        <td className="py-1 pr-2 text-right font-mono text-slate-400 whitespace-nowrap">{x.lots != null ? `${x.lots > 0 ? "+" : ""}${x.lots.toLocaleString()} 張` : ""}</td>
+                        <td className={`py-1 text-right font-mono whitespace-nowrap ${color(x.net)}`}>{yi(x.net)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ))}
+          </div>
+          {data.per.every((b) => !b.items.length) && <p className="text-xs text-[#8b97ab]">這天追蹤的分點都沒有單一個股或 ETF 買賣超 5000 萬以上。</p>}
+          {data.per.some((b) => b.has && !b.items.length) && (
+            <p className="mt-2 text-[11px] text-[#7c8aa0]">沒有 5000 萬以上進出：{data.per.filter((b) => b.has && !b.items.length).map((b) => b.label).join("、")}</p>
+          )}
+        </>
       )}
     </div>
   );
