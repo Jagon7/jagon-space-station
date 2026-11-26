@@ -1,0 +1,58 @@
+name: Week Events
+
+# 週日晚上推「本週／下週重點大事」（美國總經、美股休市、美股大型財報、台指期結算、MSCI／FTSE 調整、大型股法說與除權息）
+# 由 Cloudflare 排程 19:55 觸發；cron 是備援；發過的日期記在 data/notify/week-events-sent.json
+on:
+  schedule:
+    - cron: '10 12 * * 0'   # 週日 20:10 台灣時間（備援）
+  workflow_dispatch:
+    inputs:
+      preview:
+        description: '立刻發一張預覽（不記錄已發送）'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: week-events
+  cancel-in-progress: false
+
+env:
+  SITE_URL: ${{ secrets.SITE_URL || vars.SITE_URL }}
+
+jobs:
+  push:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: main
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.11'
+      - run: pip install requests
+      - name: Build week events
+        run: TZ=Asia/Taipei python3 scripts/build_week_events.py --days 16
+      - name: Send week events
+        run: TZ=Asia/Taipei python3 scripts/notify.py --week-events ${{ inputs.preview && '--preview' || '' }}
+        env:
+          LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
+          LINE_USER_ID: ${{ secrets.LINE_USER_ID }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+      - name: Save sent state
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add data/notify/ data/intel/week_events.json
+          git diff --staged --quiet && exit 0
+          git commit -m "notify: week events sent"
+          for i in 1 2 3 4 5; do
+            git push && exit 0
+            git pull --rebase -X theirs origin main || { git rebase --abort; git pull --no-rebase -X ours origin main; }
+          done
+          exit 1

@@ -37,6 +37,7 @@ const PLAN = [
   ["19:45", WD, "broker-evening.yml"],   // 重點分點大額進出，等到 20:00 才發
   ["20:25", WD, "broker-evening.yml"],   // 分點資料晚出來時的備援
   ["20:20", ALL, "fetch-intel.yml"],
+  ["19:55", [0], "week-events.yml"],     // 週日：本週／下週重點大事
   ["20:40", ALL, "orderflow-ticks.yml"],   // 備援：14:30 沒跑成或流量還有剩
   ["21:00", [3, 6], "gooaye.yml"],
   ["21:20", WD, "fetch-etf.yml"],
