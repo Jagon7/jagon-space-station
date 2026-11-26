@@ -6550,15 +6550,6 @@
         "closePrice": 17.5,
         "volume": 8,
         "tradeValue": 141650.0
-      },
-      {
-        "code": "7869",
-        "name": "宏于電機",
-        "market": "上櫃",
-        "changePercent": -10.2,
-        "closePrice": 180.5,
-        "volume": 436,
-        "tradeValue": 79741000.0
       }
     ],
     "塑膠": [
@@ -10693,6 +10684,15 @@
         "closePrice": 50.0,
         "volume": 17,
         "tradeValue": 855800.0
+      },
+      {
+        "code": "7869",
+        "name": "宏于電機",
+        "market": "上櫃",
+        "changePercent": -10.2,
+        "closePrice": 180.5,
+        "volume": 436,
+        "tradeValue": 79741000.0
       }
     ],
     "金融保險": [
