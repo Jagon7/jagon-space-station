@@ -35,11 +35,12 @@ PARAMS = DATA / "strategy" / "daytrade_params.json"
 JOURNAL = DATA / "strategy" / "daytrade_journal.json"
 COST = 0.23  # 當沖：證交稅 0.15% ＋ 手續費 2.8 折來回
 TUNE_DAYS = 120
-NAMES = {"g85": "85g 開高走低", "tvLimit": "高週轉＋漲停", "dtFade": "高當沖比＋開高走低"}
+NAMES = {"g85": "85g 開高走低", "tvLimit": "高週轉＋漲停", "dtFade": "高當沖比＋開高走低", "gWeak": "空族群弱勢"}
 DEFAULT = {
     "g85": {"top": 100, "gapLo": 0.0, "gapHi": 4.0, "run5": 10.0},
     "tvLimit": {"top": 20, "minVal": 1.0, "gapMin": -99.0, "gapMax": 99.0},
     "dtFade": {"dtMin": 60.0, "minVal": 1.0, "minRet": 0.0, "gapMin": -99.0, "gapMax": 99.0},
+    "gWeak": {"gapMin": 0.0, "gapMax": 99.0},   # 空族群弱勢（build_group_weak.py）：開平以上才做；不自動調參
 }
 GRID = {
     "g85": {"top": [50, 100], "gapLo": [0.0, 0.5, 1.0], "gapHi": [3.0, 4.0, 5.0, 6.0], "run5": [8.0, 10.0, 15.0]},
@@ -216,6 +217,9 @@ def record():
     if tv.get("next") and tv.get("dtReady"):
         add.setdefault(tv["next"], {})["tvLimit"] = [{"code": r["code"], "name": r["name"], "ref": r["close"]} for r in tv.get("alert") or []]
         add[tv["next"]]["dtFade"] = [{"code": r["code"], "name": r["name"], "ref": r["close"]} for r in tv.get("dtAlert") or []]
+    gw = _load(PUB / "group_weak.json", {}) or {}
+    if gw.get("next"):
+        add.setdefault(gw["next"], {})["gWeak"] = [{"code": c["code"], "name": c["name"], "ref": c["close"]} for c in gw.get("cand", [])]
     if g.get("next"):
         add.setdefault(g["next"], {})["g85"] = [{"code": c["code"], "name": c["name"], "ref": c["close"]}
                                                for c in sorted((c for c in g.get("cand", []) if not c.get("noShort")), key=lambda c: c.get("rank") or 999)[:10]]
@@ -225,7 +229,7 @@ def record():
         day = j.setdefault(d, {"picks": {}, "params": {}})
         for k, picks in v.items():
             day["picks"][k] = picks
-            day["params"][k] = P[k]
+            day["params"][k] = P.get(k, DEFAULT[k])
         log(f"記錄 {d} 推薦：" + "、".join(f"{NAMES[k]} {len(x)} 檔" for k, x in v.items()))
     JOURNAL.parent.mkdir(parents=True, exist_ok=True)
     JOURNAL.write_text(json.dumps(dict(sorted(j.items())[-250:]), ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
