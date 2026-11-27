@@ -49,6 +49,9 @@ def _std(xs, ddof=1):
     return math.sqrt(sum((x - m) ** 2 for x in xs) / (len(xs) - ddof))
 
 
+DT_STOP = 7.5   # 當沖空單停損：漲到前一天收盤 +7.5% 就回補（所有當沖策略共用）
+
+
 def tick(p: float) -> float:
     return 0.01 if p < 10 else 0.05 if p < 50 else 0.1 if p < 100 else 0.5 if p < 500 else 1 if p < 1000 else 5
 

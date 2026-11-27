@@ -96,7 +96,9 @@ def fetch_week(days: int = 14) -> dict:
         r = S.get("https://economic-calendar.tradingview.com/events", timeout=30, headers={"Origin": "https://www.tradingview.com"},
                   params={"from": f"{today}T00:00:00.000Z", "to": f"{end}T00:00:00.000Z", "countries": MACRO_COUNTRIES})
         for e in r.json().get("result", []):
-            if (e.get("importance") or 0) < 1:
+            # 台灣的數據 TradingView 多半標低重要性，但出口、外銷訂單、GDP、CPI 對台股有影響 → 照收（台灣央行利率決策由 build_home 依慣例日期列）
+            tw_keep = e.get("country") == "TW" and any(k in (e.get("title") or "") for k in ("Export", "Balance of Trade", "GDP", "Inflation Rate", "Industrial Production"))
+            if (e.get("importance") or 0) < 1 and not tw_keep:
                 continue
             t = datetime.fromisoformat(e["date"].replace("Z", "+00:00")).astimezone(TPE)
             macro.append({"t": t.isoformat(timespec="minutes"), "country": e.get("country"), "title": e.get("title"),

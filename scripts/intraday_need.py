@@ -4,6 +4,9 @@
   ① 空族群弱勢（盤中版）：當天收盤鎖漲停的股票（強勢股），加上同產業、前 60 天日報酬相關 ≥ 0.5、
      當天最高漲 ≥ +3%、成交 ≥ 5000 萬的股票（弱勢股候選）
   ② 向上緩搓（盤中版）：前一天成交金額前 TOP2 名（開盤前就知道的熱門股）
+  ③ 各當沖策略的「交易日」（第 t 天收盤選出、t+1 天開盤空）：用 1 分 K 算 +7.5% 停損的實際成交價
+     85g（前一天成交前 50、漲停或 5 日漲 ≥ 8%）、高週轉＋漲停（週轉前 20、成交 ≥ 1 億）、高當沖比＋黑K收漲、
+     空族群弱勢（日線版）、散戶擁擠（週轉前 50 且當沖比 ≥ 50%）
 期間：FROM 起（永豐 1 分 K 歷史）；用 data/research/yahoo_adj 日線
 用法：python scripts/intraday_need.py
 """
@@ -24,6 +27,35 @@ from fetch_dt_stop import tick_limit  # noqa: E402
 
 FROM = "2024-01-01"
 TOP2 = 20
+
+
+def add_strategy_days(need: dict) -> int:
+    """③ 各當沖策略的交易日（t+1）；前一天收盤（原始價）當基準"""
+    import research_crowd_short as cs
+    rows = [r for r in cs.rows_all() if r["n"] >= FROM]
+    byd = defaultdict(list)
+    for r in rows:
+        byd[r["d"]].append(r)
+    raw = {}
+    for f in (DATA / "research" / "yahoo_adj").glob("*.json"):
+        j = json.loads(f.read_text(encoding="utf-8"))
+        raw[j["code"]] = {r[0]: r[4] for r in j["d"]}
+    n = 0
+    for d, xs in byd.items():
+        vr = {r["code"]: k for k, r in enumerate(sorted(xs, key=lambda r: -r["val"]), 1)}
+        tr = {r["code"]: k for k, r in enumerate(sorted((r for r in xs if r["turn"]), key=lambda r: -r["turn"]), 1)}
+        for r in xs:
+            c = r["code"]
+            g85 = vr[c] <= 50 and (r["limit"] or r["r5"] >= 8)
+            tvl = tr.get(c, 999) <= 20 and r["limit"]
+            dtf = r["dt"] is not None and r["dt"] >= 60 and r["black"] and r["ret"] >= 0
+            crowd = tr.get(c, 999) <= 50 and r["dt"] is not None and r["dt"] >= 50
+            if (g85 or tvl or dtf or crowd) and raw.get(c, {}).get(d):
+                k = (r["n"], c)
+                if k not in need:
+                    n += 1
+                need[k] = raw[c][d]
+    return n
 
 
 def main():
@@ -80,7 +112,11 @@ def main():
                     if (d, c) not in need:
                         n1 += 1
                     need[(d, c)] = pc
+                    if i + 1 < len(s["d"]) and 0.02 <= r[4] / pc - 1 < 0.09:   # 日線版：隔天開盤空 → 隔天的 1 分 K
+                        need[(s["d"][i + 1], c)] = r[4]
+    n3 = add_strategy_days(need)
     out = sorted([[d, c, pc] for (d, c), pc in need.items()], reverse=True)
+    print(f"當沖策略交易日另外加 {n3}")
     (DATA / "research" / "intraday_need.json").write_text(json.dumps(out, separators=(",", ":")), encoding="utf-8")
     print(f"{FROM} 起：共 {len(out)} 個日期×股票（熱門股 {n2}、族群弱勢另外加 {n1}）")
     return 0

@@ -4,7 +4,7 @@
 規則（scripts/research_dt_new.py 回測，2012 起三段都賺）：
   今天：同族群（公開資訊觀測站產業別）有股票收漲停＝強勢股；
         同族群、前 60 天日報酬相關係數 ≥ 0.5（走勢相似）、今天漲 +2%～+9%（被帶上去、沒漲停）、成交 ≥ 5000 萬＝弱勢股
-  明天：開盤 ≥ 今天收盤才放空（08:30～09:00 掛今天收盤價限價賣，開低不會成交），收盤回補；漲到今天收盤 +9% 停損
+  明天：開盤 ≥ 今天收盤才放空（08:30～09:00 掛今天收盤價限價賣，開低不會成交），收盤回補；漲到今天收盤 +DT_STOP%（7.5%）停損
   不做：暫停先賣後買、明天處置中
   回測（隔天開高 0～3%）：每筆 +0.44／+0.19／+0.26%（2012-18／2019-22／2023+），勝率約 6 成；
         今天收盤就空會被隔天開盤軋（每筆約 −1%），所以要等隔天開盤
@@ -19,7 +19,7 @@ import statistics as st
 from datetime import datetime
 from pathlib import Path
 
-from build_strategy import TPE, _load, limit_up, next_trading_day, tick
+from build_strategy import DT_STOP, TPE, _load, limit_up, next_trading_day, tick
 
 MAX = 10
 CORR_MIN = 0.5
@@ -91,7 +91,7 @@ def build(data_dir: Path, public_dir: Path):
             cand.append({"code": c, "name": q[c][0], "mk": "上櫃" if q[c][1] else "上市", "close": close, "ret": round(ret, 2),
                          "valYi": round((q[c][8] or 0) / 1e8, 1), "group": g, "leader": lc, "leaderName": q[lc][0], "nLU": len(leaders),
                          "breadth": round(breadth * 100), "corr": round(cor, 2),
-                         "stop": round(math.floor(close * 1.09 / tick(close * 1.09) + 1e-6) * tick(close * 1.09), 2),
+                         "stop": round(math.floor(close * (1 + DT_STOP / 100) / tick(close * (1 + DT_STOP / 100)) + 1e-6) * tick(close * (1 + DT_STOP / 100)), 2),
                          "noShort": c in nox, "disposed": any(a <= nxt <= b or a <= last <= b for a, b in disp.get(c, []))})
     cand.sort(key=lambda x: -x["valYi"])
     ok = [x for x in cand if not x["noShort"] and not x["disposed"]][:MAX]

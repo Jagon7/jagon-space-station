@@ -656,7 +656,7 @@ def turnover_alert(dry: bool, force: bool = False) -> int:
         b = [] if hi_ >= 99 else [f"開高超過 {hi_:g}% 不做"]
         return "、".join(a + b)
     gm = [f"{lab}：{cond(p_)}" for lab, p_ in (("高週轉＋漲停", pr.get("tvLimit") or {}), ("高當沖比", pr.get("dtFade") or {})) if cond(p_)]
-    m.note("已排除隔天處置、暫停先賣後買的股票。做法：開盤放空、收盤回補；開跌停不做" + ("。進場條件（" + "；".join(gm) + "）" if gm else "")
+    m.note(f"已排除隔天處置、暫停先賣後買的股票。做法：開盤放空、收盤回補，漲到昨收 +{DT_STOP:g}% 停損；開跌停不做" + ("。進場條件（" + "；".join(gm) + "）" if gm else "")
            + "。參數每週依回測自動檢討，收盤後會推當沖復盤。")
     text = m.text()
     print(text)
@@ -915,6 +915,9 @@ def size_section(m, today: str, which: str):
     return t
 
 
+from build_strategy import DT_STOP  # noqa: E402  當沖空單停損 %（所有當沖策略共用）
+
+
 def _tick_floor(p: float) -> float:
     """依台股升降單位無條件捨去（停損回補價）"""
     t = 0.01 if p < 10 else 0.05 if p < 50 else 0.1 if p < 100 else 0.5 if p < 500 else 1 if p < 1000 else 5
@@ -959,7 +962,7 @@ def g85_alert(dry: bool, force: bool = False) -> int:
         for c in cand[:10]:
             lim = "漲停" if (c.get("chg") or 0) >= 9.5 else f"{c['chg']:+.1f}%"
             sub = "・".join(x for x in (c.get("sector") or "", f"昨 {lim}", f"5 日 {c['p5']:+.1f}%", f"成交第 {c['rank']} 名 {c['valYi']:g} 億",
-                                        f"漲到 {_tick_floor(c['close'] * 1.09):g} 回補") if x)
+                                        f"漲到 {_tick_floor(c['close'] * (1 + DT_STOP / 100)):g} 回補") if x)
             m.stock(c["name"], c["code"], f"{c['close']:g}", f"掛 {c['lo']:g}（～{c['hi']:g}）", color="#D97706", sub=sub)
     else:
         m.line("昨天的熱門股沒有漲停或近 5 日大漲的，今天沒有候選", color=FLAT)
@@ -981,7 +984,7 @@ def g85_alert(dry: bool, force: bool = False) -> int:
     m.line(f"   開在 +{hi:g}% 以上回測約打平（每筆 −0.2～0%），可以接受；試撮價接近漲停就刪單（開漲停 3/4 收盤鎖死，回補不到）", color=INK)
     m.line("② 開盤沒成交、但 09:00～10:00 衝進區間的，也可以分批賣；不追價、不加碼", color=INK)
     m.line("③ 12:00 後到收盤前在低檔分批買回", color=INK)
-    m.line("④ 停損（防券差）：漲到昨收 +9% 就買回，不要等鎖漲停（不停損約 8% 的日子收盤鎖漲停買不回來）；想再控風險可加「比賣出價高 5% 就買回」", color=INK)
+    m.line(f"④ 停損：漲到昨收 +{DT_STOP:g}% 就買回（上面每檔的「漲到 X 回補」），不要等鎖漲停（收盤鎖漲停會買不回來、有券差）", color=INK)
     sm = (g.get("summary") or {}).get("top3") or {}
     bt = next((x for x in (g.get("backtest") or {}).get("groups", []) if x["group"].startswith("A：")), None)
     if sm.get("n") or bt:
