@@ -1,15 +1,13 @@
 {
 "active": [
 "ccc:危險",
-"cds:CRWV",
+"cds:DELL",
 "cds:INTC",
-"cds:NBIS",
 "cds:ORCL",
 "cds:SMCI",
 "hy:widen",
 "temp:偏高",
 "vix:警戒",
-"vixts:危險",
-"vvix:警戒"
+"vixts:警戒"
 ]
 }
