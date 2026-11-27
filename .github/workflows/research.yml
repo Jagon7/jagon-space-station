@@ -5,9 +5,9 @@ on:
   workflow_dispatch:
     inputs:
       job:
-        description: "rebound＝抄底個股；t86＝新高法三大法人（data/research/new_high_need.json 的日期）；revenue＝月營收歷史（2011 起）；dtstop＝當沖停損研究的盤中 K 線（永豐）；market＝大盤成交金額與融資餘額歷史；dthist＝個股當沖歷史（2014 起）"
+        description: "rebound＝抄底個股；t86＝新高法三大法人（data/research/new_high_need.json 的日期）；revenue＝月營收歷史（2011 起）；dtstop＝當沖停損研究的盤中 K 線（永豐）；market＝大盤成交金額與融資餘額歷史；dthist＝個股當沖歷史（2014 起）；futhist＝期交所法人期貨／選擇權籌碼歷史（2020 起）"
         type: choice
-        options: [rebound, t86, revenue, dtstop, market, dthist]
+        options: [rebound, t86, revenue, dtstop, market, dthist, futhist]
         default: rebound
 
 permissions:
@@ -56,6 +56,12 @@ jobs:
         continue-on-error: true
         env:
           JSS_DATA_DIR: ./data
+      - name: TAIFEX institutional futures / options history (2020+)
+        if: inputs.job == 'futhist'
+        run: python3 -u scripts/fetch_futures_hist.py --minutes 300
+        continue-on-error: true
+        env:
+          JSS_DATA_DIR: ./data
       - name: Day-trade stop-loss intraday bars (Shioaji, quote only)
         if: inputs.job == 'dtstop'
         # 永豐登入訊息會印出登入識別碼（身分證字號格式），公開的 Actions log 一律遮掉
@@ -73,7 +79,7 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email 'github-actions[bot]@users.noreply.github.com'
           rm -f shioaji.log
-          for f in data/research/rebound data/research/new_high_inst.json data/research/revenue_hist.json data/research/revenue_sample_*.html data/research/dt_stop_bars.json.gz data/research/market_hist.json data/research/dt_hist; do [ -e "$f" ] && git add "$f"; done; true
+          for f in data/research/rebound data/research/new_high_inst.json data/research/revenue_hist.json data/research/revenue_sample_*.html data/research/dt_stop_bars.json.gz data/research/market_hist.json data/research/dt_hist data/research/futures_hist.json; do [ -e "$f" ] && git add "$f"; done; true
           git diff --staged --quiet && exit 0
           git commit -m "data: research ${{ inputs.job }}"
           for i in 1 2 3 4 5; do
