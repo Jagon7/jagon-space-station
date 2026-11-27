@@ -290,6 +290,16 @@
       "endDate": "2026-12-03",
       "announceDate": "115/11/26",
       "market": "上櫃"
+    },
+    {
+      "code": "5013",
+      "name": "強新",
+      "count": 2,
+      "condition": "連續3個營業日",
+      "period": "115/11/30~115/12/04",
+      "endDate": "2026-12-04",
+      "announceDate": "115/11/27",
+      "market": "上櫃"
     }
   ]
 }
