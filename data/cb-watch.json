@@ -1,19 +1,6 @@
 {
-  "date": "2026-11-26",
+  "date": "2026-11-27",
   "data": [
-    {
-      "code": "7631",
-      "name": "聚賢研發-創",
-      "cbSeries": "第52次",
-      "filingDate": "2026-08-12",
-      "bookBuildDate": "2026-08-12",
-      "listingDate": "2026-08-28",
-      "amount": 4.0,
-      "conversionPrice": null,
-      "closePrice": 92.7,
-      "market": "上市",
-      "underwriter": "宏遠證券股份有限公司"
-    },
     {
       "code": "7743",
       "name": "金利食安",

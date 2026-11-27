@@ -1,133 +1,129 @@
 {
-  "date": "2026-11-26",
+  "date": "2026-11-27",
   "data": [
     {
-      "name": "電子零組件",
-      "changePercent": 8.31
-    },
-    {
-      "name": "電腦週邊",
-      "changePercent": 7.21
-    },
-    {
-      "name": "塑膠",
-      "changePercent": 7.07
-    },
-    {
-      "name": "光電",
-      "changePercent": 6.81
-    },
-    {
-      "name": "油電燃氣",
-      "changePercent": 6.02
-    },
-    {
-      "name": "其他電子",
-      "changePercent": 5.47
-    },
-    {
-      "name": "電機機械",
-      "changePercent": 5.33
-    },
-    {
-      "name": "電子通路",
-      "changePercent": 4.81
-    },
-    {
-      "name": "生技醫療",
-      "changePercent": 4.66
-    },
-    {
-      "name": "通信網路",
-      "changePercent": 4.16
-    },
-    {
-      "name": "綠能環保",
-      "changePercent": 3.93
-    },
-    {
-      "name": "電器電纜",
-      "changePercent": 3.51
-    },
-    {
-      "name": "化工",
-      "changePercent": 3.41
-    },
-    {
-      "name": "金融保險",
-      "changePercent": 2.52
-    },
-    {
-      "name": "居家生活",
-      "changePercent": 2.44
-    },
-    {
       "name": "建材營造",
-      "changePercent": 2.18
-    },
-    {
-      "name": "汽車",
-      "changePercent": 2.02
-    },
-    {
-      "name": "紡織纖維",
-      "changePercent": 1.95
-    },
-    {
-      "name": "觀光餐旅",
-      "changePercent": 1.7
-    },
-    {
-      "name": "水泥",
-      "changePercent": 1.51
-    },
-    {
-      "name": "鋼鐵",
-      "changePercent": 1.38
-    },
-    {
-      "name": "資訊服務",
-      "changePercent": 1.29
+      "changePercent": 1.39
     },
     {
       "name": "橡膠",
-      "changePercent": 1.26
-    },
-    {
-      "name": "其他",
-      "changePercent": 1.04
-    },
-    {
-      "name": "運動休閒",
-      "changePercent": 1.04
-    },
-    {
-      "name": "造紙",
-      "changePercent": 1.03
+      "changePercent": 1.18
     },
     {
       "name": "半導體",
-      "changePercent": 0.7
+      "changePercent": 1.09
     },
     {
-      "name": "航運",
-      "changePercent": 0.69
+      "name": "造紙",
+      "changePercent": 0.75
+    },
+    {
+      "name": "電子通路",
+      "changePercent": 0.49
+    },
+    {
+      "name": "油電燃氣",
+      "changePercent": 0.48
+    },
+    {
+      "name": "電腦週邊",
+      "changePercent": 0.46
+    },
+    {
+      "name": "水泥",
+      "changePercent": 0.43
+    },
+    {
+      "name": "汽車",
+      "changePercent": 0.43
+    },
+    {
+      "name": "紡織纖維",
+      "changePercent": 0.14
+    },
+    {
+      "name": "居家生活",
+      "changePercent": -0.04
+    },
+    {
+      "name": "電機機械",
+      "changePercent": -0.07
     },
     {
       "name": "數位雲端",
-      "changePercent": 0.57
+      "changePercent": -0.11
+    },
+    {
+      "name": "電子零組件",
+      "changePercent": -0.19
+    },
+    {
+      "name": "鋼鐵",
+      "changePercent": -0.21
+    },
+    {
+      "name": "觀光餐旅",
+      "changePercent": -0.22
     },
     {
       "name": "貿易百貨",
-      "changePercent": 0.56
+      "changePercent": -0.26
+    },
+    {
+      "name": "化工",
+      "changePercent": -0.31
     },
     {
       "name": "食品",
-      "changePercent": 0.12
+      "changePercent": -0.35
+    },
+    {
+      "name": "其他",
+      "changePercent": -0.42
+    },
+    {
+      "name": "運動休閒",
+      "changePercent": -0.44
+    },
+    {
+      "name": "電器電纜",
+      "changePercent": -0.55
+    },
+    {
+      "name": "資訊服務",
+      "changePercent": -0.7
+    },
+    {
+      "name": "綠能環保",
+      "changePercent": -0.94
+    },
+    {
+      "name": "塑膠",
+      "changePercent": -0.99
+    },
+    {
+      "name": "金融保險",
+      "changePercent": -1.03
+    },
+    {
+      "name": "航運",
+      "changePercent": -1.12
+    },
+    {
+      "name": "通信網路",
+      "changePercent": -1.39
+    },
+    {
+      "name": "生技醫療",
+      "changePercent": -1.44
+    },
+    {
+      "name": "光電",
+      "changePercent": -2.17
     },
     {
       "name": "玻璃陶瓷",
-      "changePercent": -0.02
+      "changePercent": -5.12
     }
   ]
 }
