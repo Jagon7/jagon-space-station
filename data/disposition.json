@@ -2,16 +2,6 @@
   "date": "2026-11-27",
   "data": [
     {
-      "code": "2305",
-      "name": "全友",
-      "count": 1,
-      "condition": "連續三次",
-      "period": "115/11/23～115/11/27",
-      "endDate": "2026-11-27",
-      "announceDate": "115/11/20",
-      "market": "上市"
-    },
-    {
       "code": "6538",
       "name": "倉和",
       "count": 5,
@@ -224,7 +214,7 @@
     {
       "code": "3532",
       "name": "台勝科",
-      "count": 2,
+      "count": 1,
       "condition": "連續三次",
       "period": "115/11/26～115/12/02",
       "endDate": "2026-12-02",
@@ -289,16 +279,6 @@
       "period": "115/11/27~115/12/03",
       "endDate": "2026-12-03",
       "announceDate": "115/11/26",
-      "market": "上櫃"
-    },
-    {
-      "code": "5013",
-      "name": "強新",
-      "count": 2,
-      "condition": "連續3個營業日",
-      "period": "115/11/30~115/12/04",
-      "endDate": "2026-12-04",
-      "announceDate": "115/11/27",
       "market": "上櫃"
     }
   ]
