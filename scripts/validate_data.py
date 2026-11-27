@@ -282,13 +282,30 @@ def check_research():
             res("研究", "結算策略折溢價範圍（±20% 內）", "ok" if not b else "error", f"{len(b)}/{len(rows)} 檔超出")
 
 
+def check_flow():
+    """即時資金流盤後驗證（validate_flow.py）：最新一天個股主動淨額跟逐筆完整資料對照"""
+    v = load(DATA / "flow" / "validation.json", {}) or {}
+    days = sorted((v.get("days") or {}))
+    if not days:
+        return
+    d = days[-1]
+    r = v["days"][d]
+    msg = f"{d}：{r['n']} 檔相關 {r['corr']}、方向一致 {r['sign']}%、合計 即時 {r['liveNet']:+} vs 逐筆 {r['tickNet']:+} 億"
+    if r["v"] >= 2 and r["corr"] is not None and (r["corr"] < 0.5 or r["sign"] < 65):
+        res("資金流", "即時資金流 vs 逐筆", "error", msg)
+    elif r["level"] == "warn":
+        res("資金流", "即時資金流 vs 逐筆", "warn", msg)
+    else:
+        res("資金流", "即時資金流 vs 逐筆", "ok", msg)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--alert", action="store_true")
     ap.add_argument("--dry-run", action="store_true")
     a = ap.parse_args()
     now = datetime.now(TPE)
-    for f in (check_daily, check_yahoo, check_vix_cboe, check_research, check_journals):
+    for f in (check_daily, check_yahoo, check_vix_cboe, check_research, check_journals, check_flow):
         try:
             f()
         except Exception as e:  # noqa: BLE001  檢查程式本身出錯也要報出來

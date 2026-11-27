@@ -8,6 +8,8 @@
      中途才開始訂閱的股票，用永豐提供的累計外盤／內盤張數 × 均價補回之前的部分
   3. 每 60 秒按產業彙整「外盤 − 內盤」＝主動買賣淨額，連同每 15 分鐘切片，寫成 flow.json 推到 live 分支（網頁每分鐘讀）
   4. 收盤後把當天完整結果存到 main 的 data/flow/YYYY-MM-DD.json
+  13:30 收盤集合競價不是主動買賣，不算進外盤／內盤（另記 auc）；沒有內外盤標記的成交另記 unk
+  盤後驗證：scripts/validate_flow.py 用永豐逐筆完整資料（orderflow_ticks.py）重算對照，結果在 data/flow/validation.json
 用法：python scripts/flow_live.py [--until 13:35] [--interval 60] [--no-push]
 """
 from __future__ import annotations
@@ -77,10 +79,15 @@ class Flow:
                         self.votes[(t.tick_type == 1) == (da > 0)] += 1
             st["pa"], st["pb"] = ask, bid
             amt = float(t.amount or 0)
-            if t.tick_type == 1:
+            tm = t.datetime
+            if tm.hour * 60 + tm.minute >= 13 * 60 + 30:   # 收盤集合競價：不是主動買賣
+                st["auc"] = st.get("auc", 0.0) + amt
+            elif t.tick_type == 1:
                 st["out"] += amt
             elif t.tick_type == 2:
                 st["in"] += amt
+            else:
+                st["unk"] = st.get("unk", 0.0) + amt
             if st.pop("first", False):  # 第一筆已含在累計張數裡，基準扣掉它
                 if t.tick_type == 1:
                     st["sub"] = v
@@ -118,7 +125,8 @@ class Flow:
             for c, st in self.s.items():
                 o, i = self.totals(st)
                 stocks.append({"code": c, "name": self.names[c], "sector": self.sectors[c], "close": st.get("close"), "chg": round(st.get("chg", 0), 2),
-                               "amt": round(st.get("amt", 0) / 1e8, 2), "out": round(o / 1e8, 2), "in": round(i / 1e8, 2), "net": round((o - i) / 1e8, 2)})
+                               "amt": round(st.get("amt", 0) / 1e8, 2), "out": round(o / 1e8, 2), "in": round(i / 1e8, 2), "net": round((o - i) / 1e8, 2),
+                               "auc": round(st.get("auc", 0) / 1e8, 2), "unk": round(st.get("unk", 0) / 1e8, 2)})
             votes = dict(self.votes)
             slices = list(self.slices)
         labels = [s[0] for s in slices]
@@ -131,7 +139,7 @@ class Flow:
         sectors.sort(key=lambda x: -x["net"])
         stocks.sort(key=lambda x: -x["net"])
         tot_out, tot_in = sum(g["out"] for g in secs.values()), sum(g["in"] for g in secs.values())
-        return {"updatedAt": datetime.now(TPE).isoformat(timespec="seconds"), "date": datetime.now(TPE).date().isoformat(), "status": status,
+        return {"v": 2, "updatedAt": datetime.now(TPE).isoformat(timespec="seconds"), "date": datetime.now(TPE).date().isoformat(), "status": status,
                 "n": len(stocks), "cover": round(cover * 100, 1) if cover else None, "sliceMin": SLICE_MIN, "slices": labels,
                 "total": {"net": round((tot_out - tot_in) / 1e8, 2), "out": round(tot_out / 1e8, 2), "in": round(tot_in / 1e8, 2)},
                 "calib": {"askIsOut": votes[True], "askIsIn": votes[False]}, "sectors": sectors, "stocks": stocks}
