@@ -1,7 +1,8 @@
 """
 85g 策略（開高走低當沖）→ public/data/85g.json
-  cand     明日觀察名單：今天成交金額前 100 名、今天漲停或前 5 日漲 ≥ 10% 的熱門股（明天開高 0～4% 就是 A 打法的標的），
-           附族群、開高 1.5%／6% 的價位、今天是否暫停先賣後買
+  cand     明日觀察名單：今天成交金額前 TOP 名、今天漲停或前 5 日漲 ≥ RUN5% 的熱門股（明天開高 GAP_LO～GAP_HI% 就是 A 打法的標的），
+           附族群、開高區間的價位、今天是否暫停先賣後買（noShort）、明天是否處置中（disposed）；推播會排除這兩種
+           TOP／RUN5／GAP_LO／GAP_HI 由 daytrade_lab.py 每週自動調整（data/strategy/daytrade_params.json），下面的常數只是預設值
   hot      今天成交金額前 100 名（指數大跌開低時 B 打法從這裡挑）
   recent   近 60 天每天符合 A 條件的股票，開盤賣、收盤買回的結果
   trades   85g 公開對帳單的逐筆解析（data/strategy/85g_trades.json，含當天 5 分 K）
@@ -14,7 +15,9 @@ import statistics as st
 from datetime import datetime
 from pathlib import Path
 
-from build_strategy import TPE, _load, next_trading_day
+import math
+
+from build_strategy import TPE, _load, next_trading_day, tick
 
 TOP, GAP_LO, GAP_HI, RUN5, LIMIT, COST = 100, 0.0, 4.0, 10.0, 9.5, 0.24
 
@@ -39,6 +42,11 @@ def build(data_dir: Path, public_dir: Path):
             sec.setdefault(r["code"], name)
     dtd = (_load(data_dir / "strategy" / "daytrade.json", {}) or {}).get("days", {})
     nox = set((dtd.get(last) or {}).get("x", []))
+    nxt = next_trading_day(last, holidays)
+    disp: dict[str, list] = {}
+    for c_, a_, b_ in (_load(data_dir / "strategy" / "disposition.json", {}) or {}).get("items", []):
+        disp.setdefault(c_, []).append((a_, b_))
+    disposed = lambda c_: any(a_ <= nxt <= b_ or a_ <= last <= b_ for a_, b_ in disp.get(c_, []))  # noqa: E731
 
     def top(qq):
         return sorted((c for c in qq if len(c) == 4 and c.isdigit() and c[0] != "0" and qq[c][5]), key=lambda c: -(qq[c][8] or 0))[:TOP]
@@ -52,10 +60,14 @@ def build(data_dir: Path, public_dir: Path):
         r = q[c]
         p5 = chg(q, days[-6][1], c)
         row = {"code": c, "name": r[0], "mk": "上櫃" if r[1] else "上市", "close": r[5], "chg": chg(q, days[-2][1], c), "p5": p5,
-               "valYi": round((r[8] or 0) / 1e8, 1), "rank": i + 1, "sector": sec.get(c), "noShort": c in nox}
+               "valYi": round((r[8] or 0) / 1e8, 1), "rank": i + 1, "sector": sec.get(c), "noShort": c in nox, "disposed": disposed(c)}
         hot.append(row)
         if (row["chg"] or 0) >= LIMIT or (p5 is not None and p5 >= RUN5):
-            cand.append({**row, "lo": round(r[5] * (1 + GAP_LO / 100), 2), "hi": round(r[5] * (1 + GAP_HI / 100), 2)})
+            lo_raw, hi_raw = r[5] * (1 + GAP_LO / 100), r[5] * (1 + GAP_HI / 100)
+            # 掛單價要符合升降單位：下緣無條件進位（確保至少開高 GAP_LO%）、上緣無條件捨去
+            lo_px = round(math.ceil(lo_raw / tick(lo_raw) - 1e-6) * tick(lo_raw), 2)
+            hi_px = round(math.floor(hi_raw / tick(hi_raw) + 1e-6) * tick(hi_raw), 2)
+            cand.append({**row, "lo": lo_px, "hi": hi_px})
     recent = []
     for i in range(6, len(days)):
         d, qq = days[i]
@@ -81,7 +93,7 @@ def build(data_dir: Path, public_dir: Path):
                 "net": round(st.mean(rr) - COST, 2) if rr else None}
     summary = {**summ(recent), "top3": summ([x for x in recent if x["top3"]]), "days": len({x["date"] for x in recent}), "from": days[6][0], "to": last}
     tr = _load(data_dir / "strategy" / "85g_trades.json", {}) or {}
-    out = {"updatedAt": datetime.now(TPE).isoformat(timespec="minutes"), "asof": last, "next": next_trading_day(last, holidays),
+    out = {"updatedAt": datetime.now(TPE).isoformat(timespec="minutes"), "asof": last, "next": nxt,
            "rule": {"top": TOP, "gap": [GAP_LO, GAP_HI], "run5": RUN5, "limit": LIMIT, "cost": COST}, "cand": cand, "hot": hot, "recent": recent[:400], "summary": summary,
            "trades": tr, "backtest": _load(data_dir / "strategy" / "85g_bt.json", {}) or {}}
     (public_dir / "85g.json").write_text(json.dumps(out, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")

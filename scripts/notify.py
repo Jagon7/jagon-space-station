@@ -915,9 +915,15 @@ def size_section(m, today: str, which: str):
     return t
 
 
+def _tick_floor(p: float) -> float:
+    """依台股升降單位無條件捨去（停損回補價）"""
+    t = 0.01 if p < 10 else 0.05 if p < 50 else 0.1 if p < 100 else 0.5 if p < 500 else 1 if p < 1000 else 5
+    return round(int(p / t + 1e-6) * t, 2)
+
+
 def g85_alert(dry: bool, force: bool = False) -> int:
-    """85g 當沖標的（週一到五 08:30）：前一交易日成交金額前 100、當天漲停或近 5 日漲 ≥ 10% 的熱門股，
-    今天開盤落在開高 0～4% 的價位就是先賣後買的候選；暫停先賣後買的不列。每個交易日一次"""
+    """85g 當沖標的（週一到五 08:30）：前一交易日成交金額前 N 名、當天漲停或近 5 日大漲的熱門股，今天開盤落在開高區間就是先賣後買的候選
+    （N、5 日漲幅、開高區間由 daytrade_lab.py 每週調整，讀 85g.json 的 rule）；暫停先賣後買、處置中的不列。每個交易日一次"""
     now = datetime.now(TPE_TZ)
     today = now.date()
     if not force and (today.weekday() >= 5 or today.isoformat() in _holidays()):
@@ -938,8 +944,9 @@ def g85_alert(dry: bool, force: bool = False) -> int:
     asof = g.get("asof") or ""
     ru = g.get("rule") or {}
     lo, hi = (ru.get("gap") or [0, 4])
-    cand = sorted((c for c in g.get("cand", []) if not c.get("noShort")), key=lambda c: c.get("rank") or 999)
+    cand = sorted((c for c in g.get("cand", []) if not c.get("noShort") and not c.get("disposed")), key=lambda c: c.get("rank") or 999)
     blocked = [c for c in g.get("cand", []) if c.get("noShort")]
+    disposed = [c for c in g.get("cand", []) if c.get("disposed") and not c.get("noShort")]
     stale = asof and asof != prev_trading_day(today).isoformat()
     m = Msg(("【預覽】" if force else "") + "🎯 85g 當沖標的", f"{md(today.isoformat())}（週{WEEK[today.weekday()]}）・依 {md(asof) if asof else '—'} 收盤",
             accent="#D97706", url=f"{SITE}/85g/", button="開啟 85g 策略")
@@ -952,15 +959,18 @@ def g85_alert(dry: bool, force: bool = False) -> int:
         for c in cand[:10]:
             lim = "漲停" if (c.get("chg") or 0) >= 9.5 else f"{c['chg']:+.1f}%"
             sub = "・".join(x for x in (c.get("sector") or "", f"昨 {lim}", f"5 日 {c['p5']:+.1f}%", f"成交第 {c['rank']} 名 {c['valYi']:g} 億",
-                                        f"漲到 {c['close'] * 1.09:.2f} 回補") if x)
-            m.stock(c["name"], c["code"], f"{c['close']:g}", f"{c['lo']:g}～{c['hi']:g}", color="#D97706", sub=sub)
+                                        f"漲到 {_tick_floor(c['close'] * 1.09):g} 回補") if x)
+            m.stock(c["name"], c["code"], f"{c['close']:g}", f"掛 {c['lo']:g}（～{c['hi']:g}）", color="#D97706", sub=sub)
     else:
         m.line("昨天的熱門股沒有漲停或近 5 日大漲的，今天沒有候選", color=FLAT)
     if blocked:
         m.note("暫停先賣後買（不能現股當沖放空）：" + "、".join(f"{c['name']}" for c in blocked[:6]))
+    if disposed:
+        m.note("處置中（分盤撮合、可能要預收款券，不列）：" + "、".join(f"{c['name']}" for c in disposed[:6]))
     m.section("打法")
-    m.line(f"① 開盤落在上面的區間（開高 {lo:g}～{hi:g}%）才做；開漲停、開平或開低不做", color=INK)
-    m.line("② 09:00～10:00 趁開盤後衝高分批賣，不追價、不加碼", color=INK)
+    m.line(f"① 08:30～09:00 在區間下緣（開高 {lo:g}%，上面左邊的價格）掛限價賣：開低於它不會成交；開更高會以開盤價成交", color=INK)
+    m.line(f"   開在 +{hi:g}% 以上回測約打平（每筆 −0.2～0%），可以接受；試撮價接近漲停就刪單（開漲停 3/4 收盤鎖死，回補不到）", color=INK)
+    m.line("② 開盤沒成交、但 09:00～10:00 衝進區間的，也可以分批賣；不追價、不加碼", color=INK)
     m.line("③ 12:00 後到收盤前在低檔分批買回", color=INK)
     m.line("④ 停損（防券差）：漲到昨收 +9% 就買回，不要等鎖漲停（不停損約 8% 的日子收盤鎖漲停買不回來）；想再控風險可加「比賣出價高 5% 就買回」", color=INK)
     sm = (g.get("summary") or {}).get("top3") or {}
