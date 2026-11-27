@@ -54,6 +54,11 @@ jobs:
           SHIOAJI_API_KEY: ${{ secrets.SHIOAJI_API_KEY }}
           SHIOAJI_SECRET_KEY: ${{ secrets.SHIOAJI_SECRET_KEY }}
           JSS_DATA_DIR: ./data
+      - name: Validate live flow against full ticks
+        run: python3 scripts/validate_flow.py
+        continue-on-error: true
+        env:
+          JSS_DATA_DIR: ./data
       - name: Save tick bar cache
         if: always()
         uses: actions/cache/save@v4
@@ -66,7 +71,7 @@ jobs:
           rm -f shioaji.log
           git config user.name 'github-actions[bot]'
           git config user.email 'github-actions[bot]@users.noreply.github.com'
-          git add data/orderflow/ data/settlement/ 2>/dev/null || exit 0
+          git add data/orderflow/ data/settlement/ data/flow/validation.json 2>/dev/null || exit 0
           git diff --staged --quiet && exit 0
           git commit -m "data: orderflow $(TZ=Asia/Taipei date +%Y-%m-%d)"
           for i in 1 2 3 4 5; do

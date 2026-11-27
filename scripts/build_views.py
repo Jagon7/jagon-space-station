@@ -252,7 +252,18 @@ def build_insider():
     print(f"內部人持股異動：{len(names)} 家、案例 {len(case_rows)}、事前申報 {len(transfers)} 筆、最新 {latest} → public/data/insider")
 
 
+def build_flow_validation():
+    """即時資金流盤後驗證（scripts/validate_flow.py）→ public/data/flow-validation.json（只留最近 30 天）"""
+    src = DATA_DIR / "flow" / "validation.json"
+    if not src.exists():
+        return
+    doc = json.loads(src.read_text(encoding="utf-8"))
+    doc["days"] = dict(sorted(doc.get("days", {}).items())[-30:])
+    (ROOT / "public" / "data" / "flow-validation.json").write_text(json.dumps(doc, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+
+
 if __name__ == "__main__":
+    build_flow_validation()
     build_etf_views.build()
     build_ranking()
     build_broker()

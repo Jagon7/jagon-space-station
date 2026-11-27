@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useWatchlist } from "@/lib/watchlist";
+import { useStaticJson } from "@/lib/static-json";
 import { Empty, Kpi, KpiRow, Note, Pills, SortTable, type Column } from "@/components/data-ui";
 
 export type Sector = { name: string; net: number; out: number; in: number; amt: number; n: number; slices: number[] };
@@ -129,10 +130,56 @@ export default function FlowDashboard() {
 
       {view === "stock" && <SortTable<Stock> rows={stocks} columns={cStk} rowKey={(s) => s.code} initialSort={{ key: "net", desc: true }} limit={pick ? undefined : 60} />}
 
+      <FlowValidation />
+
       <Note>
         主動買賣淨額＝外盤成交金額（成交在賣價，買方主動）− 內盤成交金額（成交在買價，賣方主動），單位億元。紅色＝資金主動流入、綠色＝主動流出。
         每 {data.sliceMin} 分鐘切片是該時段內新增的淨額；網頁每 90 秒自動更新。只看前一日成交金額前 200 大，冷門股不在內。
+        13:30 收盤集合競價不算主動買賣（2026/11/28 起）。
       </Note>
+    </div>
+  );
+}
+
+type VDay = { v: number; n: number; corr: number | null; sign: number; mae: number; liveNet: number; tickNet: number; amtRatio: number;
+  secSign: number | null; secN: number; level: "good" | "ok" | "warn" };
+type Validation = { updatedAt: string; days: Record<string, VDay>; summary: { days: number; corr: number | null; sign: number | null; amtRatio: number | null; latest: string | null } };
+
+/** 盤後驗證：盤中即時結果 vs 永豐逐筆完整資料（scripts/validate_flow.py） */
+function FlowValidation() {
+  const { data } = useStaticJson<Validation>("flow-validation.json");
+  if (!data || !data.summary.latest) return null;
+  const days = Object.entries(data.days).sort((a, b) => (a[0] < b[0] ? 1 : -1)).slice(0, 10);
+  const lv = { good: "text-[#22c55e]", ok: "text-slate-300", warn: "text-[#f59e0b]" };
+  return (
+    <div className="mt-8 rounded-xl border border-[#243247] bg-[#0d1220] p-4">
+      <div className="flex flex-wrap items-baseline gap-2 mb-2">
+        <h3 className="text-sm font-semibold text-white">盤後驗證</h3>
+        <span className="text-[11px] text-[#8b97ab]">盤中算的個股主動淨額 vs 永豐逐筆完整資料重算（約前 100 大）・近 {data.summary.days} 天平均相關 {data.summary.corr}、方向一致 {data.summary.sign}%</span>
+      </div>
+      <div className="overflow-x-auto">
+        <table className="w-full text-xs font-mono">
+          <thead><tr className="text-[#8b97ab] text-[11px]">
+            <th className="text-left font-normal py-1 pr-3">日期</th><th className="text-right font-normal pr-3">檔數</th><th className="text-right font-normal pr-3">相關</th>
+            <th className="text-right font-normal pr-3">方向一致</th><th className="text-right font-normal pr-3">產業方向</th><th className="text-right font-normal pr-3">合計 盤中／逐筆（億）</th>
+            <th className="text-right font-normal">成交額比</th>
+          </tr></thead>
+          <tbody>
+            {days.map(([d, r]) => (
+              <tr key={d} className="border-t border-[#1c2738]">
+                <td className="py-1 pr-3 text-slate-300 whitespace-nowrap">{d.slice(5).replace("-", "/")}{r.v < 2 && <span className="ml-1 text-[10px] text-[#7c8aa0]">舊版</span>}</td>
+                <td className="text-right pr-3 text-slate-400">{r.n}</td>
+                <td className={`text-right pr-3 ${lv[r.level]}`}>{r.corr ?? "—"}</td>
+                <td className={`text-right pr-3 ${lv[r.level]}`}>{r.sign.toFixed(0)}%</td>
+                <td className="text-right pr-3 text-slate-400">{r.secSign != null ? `${r.secSign.toFixed(0)}%` : "—"}</td>
+                <td className="text-right pr-3 text-slate-300 whitespace-nowrap">{r.liveNet > 0 ? "+" : ""}{r.liveNet.toFixed(0)}／{r.tickNet > 0 ? "+" : ""}{r.tickNet.toFixed(0)}</td>
+                <td className="text-right text-slate-400">{r.amtRatio.toFixed(0)}%</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p className="mt-2 text-[11px] text-[#7c8aa0]">成交額比 &gt; 100% 表示盤中多算了（舊版把 13:30 收盤集合競價算進主動買賣）。綠＝相關 ≥ 0.9 且方向一致 ≥ 85%；橘＝相關 &lt; 0.7 或方向一致 &lt; 75%。</p>
     </div>
   );
 }
