@@ -166,6 +166,16 @@
 },
 "basis": "價差 +115 點，比昨天平均 +0.02% → 偏正（回測最適合 BO）",
 "override": null,
-"feat": null
+"feat": null,
+"result": {
+"bo": -477.0,
+"mr": 234.0,
+"pnl": 234.0,
+"best": "MR",
+"close": 39363,
+"hi": 39652,
+"lo": 39050,
+"right": true
+}
 }
 }
