@@ -1511,9 +1511,9 @@
   "lowerTail": 0.46,
   "vix": 26.8,
   "vixOff": 25.33,
-  "credit20": -1.59,
-  "spx1": -0.25,
-  "soxDD": -40.04,
+  "credit20": -1.04,
+  "spx1": 1.6,
+  "soxDD": -35.52,
   "margin": null,
   "fedCut30": false
  }
