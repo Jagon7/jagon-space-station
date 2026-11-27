@@ -967,6 +967,15 @@ def g85_alert(dry: bool, force: bool = False) -> int:
         m.note("暫停先賣後買（不能現股當沖放空）：" + "、".join(f"{c['name']}" for c in blocked[:6]))
     if disposed:
         m.note("處置中（分盤撮合、可能要預收款券，不列）：" + "、".join(f"{c['name']}" for c in disposed[:6]))
+    gw = load("group_weak.json", {}) or {}
+    gwc = gw.get("cand") or [] if gw.get("next") == today.isoformat() else []
+    if gwc:
+        m.section("空族群弱勢（另一個策略）", f"{len(gwc)} 檔")
+        m.cols("昨收", "掛單（開平以上成交）")
+        for c in gwc[:6]:
+            m.stock(c["name"], c["code"], f"{c['close']:g}", f"掛 {c['close']:g}", color="#7C3AED",
+                    sub=f"{c['group']}：{c['leaderName']} 漲停帶動、昨 +{c['ret']:.1f}%・相關 {c['corr']:.2f}・漲到 {c['stop']:g} 回補")
+        m.note("回測 2012 起：隔天開平～+3% 放空、收盤補，每筆 +0.44／+0.19／+0.26%（三段），勝率約 6 成；昨天收盤就空會被今天開盤軋，要等開盤")
     m.section("打法")
     m.line(f"① 08:30～09:00 在區間下緣（開高 {lo:g}%，上面左邊的價格）掛限價賣：開低於它不會成交；開更高會以開盤價成交", color=INK)
     m.line(f"   開在 +{hi:g}% 以上回測約打平（每筆 −0.2～0%），可以接受；試撮價接近漲停就刪單（開漲停 3/4 收盤鎖死，回補不到）", color=INK)
@@ -2224,7 +2233,7 @@ def daytrade_review_alert(dry: bool, force: bool = False) -> int:
     m = Msg(("【預覽】" if force else "") + "📋 當沖復盤", f"{md(d)}（週{WEEK[date.fromisoformat(d).weekday()]}）・開盤空、收盤補・扣成本 {lab.COST}%",
             accent="#0F766E", url=f"{SITE}/daytrade-review/", button="開啟當沖復盤")
     tot = []
-    for k in ("g85", "tvLimit", "dtFade"):
+    for k in ("g85", "tvLimit", "dtFade", "gWeak"):
         rows = res.get(k)
         if rows is None:
             continue
