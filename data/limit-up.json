@@ -103,10 +103,10 @@
       "openPrice": 1540.0,
       "limitTime": "--:--",
       "market": "上櫃",
-      "instiForeign": -1237,
-      "instiTrust": 36,
-      "instiDealer": 1693,
-      "instiTotal": 493,
+      "instiForeign": -1959,
+      "instiTrust": -333,
+      "instiDealer": 2454,
+      "instiTotal": 163,
       "reason": "記憶體題材"
     },
     {
@@ -193,10 +193,10 @@
       "openPrice": 444.5,
       "limitTime": "--:--",
       "market": "上櫃",
-      "instiForeign": -1085,
-      "instiTrust": 139,
-      "instiDealer": -503,
-      "instiTotal": -1448,
+      "instiForeign": -2038,
+      "instiTrust": -359,
+      "instiDealer": -937,
+      "instiTotal": -3333,
       "reason": "AI 題材"
     },
     {
@@ -427,10 +427,10 @@
       "openPrice": 258.0,
       "limitTime": "--:--",
       "market": "上櫃",
-      "instiForeign": 728,
-      "instiTrust": 32,
-      "instiDealer": -124,
-      "instiTotal": 637,
+      "instiForeign": -750,
+      "instiTrust": 46,
+      "instiDealer": 349,
+      "instiTotal": -353,
       "reason": "法人調升看法、PCB 題材"
     },
     {
@@ -535,10 +535,10 @@
       "openPrice": 1360.0,
       "limitTime": "--:--",
       "market": "上櫃",
-      "instiForeign": -32,
-      "instiTrust": -1,
-      "instiDealer": -12,
-      "instiTotal": -45,
+      "instiForeign": -13,
+      "instiTrust": -7,
+      "instiDealer": 14,
+      "instiTotal": -6,
       "reason": "低軌衛星題材"
     },
     {
@@ -589,10 +589,10 @@
       "openPrice": 85.6,
       "limitTime": "--:--",
       "market": "上櫃",
-      "instiForeign": 747,
-      "instiTrust": 32,
-      "instiDealer": 100,
-      "instiTotal": 879,
+      "instiForeign": -1079,
+      "instiTrust": 13,
+      "instiDealer": -11,
+      "instiTotal": -1077,
       "reason": "宣布買回庫藏股、記憶體題材"
     },
     {
@@ -697,10 +697,10 @@
       "openPrice": 258.0,
       "limitTime": "--:--",
       "market": "上櫃",
-      "instiForeign": -188,
+      "instiForeign": -242,
       "instiTrust": 0,
-      "instiDealer": -5,
-      "instiTotal": -192,
+      "instiDealer": -100,
+      "instiTotal": -342,
       "reason": "財報亮眼、轉機題材"
     },
     {
@@ -715,10 +715,10 @@
       "openPrice": 1420.0,
       "limitTime": "--:--",
       "market": "上櫃",
-      "instiForeign": -44,
-      "instiTrust": 4,
-      "instiDealer": 24,
-      "instiTotal": -16,
+      "instiForeign": 92,
+      "instiTrust": 0,
+      "instiDealer": 13,
+      "instiTotal": 106,
       "reason": "半導體族群同步漲停（14 檔）"
     },
     {
@@ -751,10 +751,10 @@
       "openPrice": 147.0,
       "limitTime": "--:--",
       "market": "上櫃",
-      "instiForeign": 518,
-      "instiTrust": 9,
-      "instiDealer": 38,
-      "instiTotal": 566,
+      "instiForeign": -426,
+      "instiTrust": 2,
+      "instiDealer": -30,
+      "instiTotal": -454,
       "reason": "財報亮眼、AI 題材"
     },
     {
@@ -769,10 +769,10 @@
       "openPrice": 275.0,
       "limitTime": "--:--",
       "market": "上櫃",
-      "instiForeign": -314,
-      "instiTrust": 3,
-      "instiDealer": 19,
-      "instiTotal": -291,
+      "instiForeign": -437,
+      "instiTrust": -2,
+      "instiDealer": 218,
+      "instiTotal": -221,
       "reason": "AI 題材"
     },
     {
@@ -787,10 +787,10 @@
       "openPrice": 256.0,
       "limitTime": "--:--",
       "market": "上櫃",
-      "instiForeign": -248,
-      "instiTrust": 8,
+      "instiForeign": 79,
+      "instiTrust": -8,
       "instiDealer": 0,
-      "instiTotal": -240,
+      "instiTotal": 71,
       "reason": "電子零組件族群同步漲停（37 檔）"
     },
     {
@@ -841,10 +841,10 @@
       "openPrice": 251.5,
       "limitTime": "--:--",
       "market": "上櫃",
-      "instiForeign": -146,
-      "instiTrust": 25,
+      "instiForeign": 11,
+      "instiTrust": 14,
       "instiDealer": 0,
-      "instiTotal": -121,
+      "instiTotal": 25,
       "reason": "AI 題材"
     },
     {
@@ -859,10 +859,10 @@
       "openPrice": 133.0,
       "limitTime": "--:--",
       "market": "上櫃",
-      "instiForeign": 221,
-      "instiTrust": -21,
+      "instiForeign": 83,
+      "instiTrust": 32,
       "instiDealer": 0,
-      "instiTotal": 200,
+      "instiTotal": 115,
       "reason": "光學族群走強"
     },
     {
@@ -877,10 +877,10 @@
       "openPrice": 136.5,
       "limitTime": "--:--",
       "market": "上櫃",
-      "instiForeign": 98,
-      "instiTrust": 68,
+      "instiForeign": -94,
+      "instiTrust": -17,
       "instiDealer": 0,
-      "instiTotal": 166,
+      "instiTotal": -110,
       "reason": "其他電子族群同步漲停（7 檔）"
     },
     {
@@ -931,10 +931,10 @@
       "openPrice": 136.5,
       "limitTime": "--:--",
       "market": "上櫃",
-      "instiForeign": 174,
-      "instiTrust": 12,
-      "instiDealer": 1,
-      "instiTotal": 188,
+      "instiForeign": 272,
+      "instiTrust": -2,
+      "instiDealer": 4,
+      "instiTotal": 275,
       "reason": "電腦週邊族群同步漲停（7 檔）"
     },
     {
@@ -1039,10 +1039,10 @@
       "openPrice": 60.6,
       "limitTime": "--:--",
       "market": "上櫃",
-      "instiForeign": 1067,
-      "instiTrust": 2,
+      "instiForeign": 490,
+      "instiTrust": -37,
       "instiDealer": 0,
-      "instiTotal": 1070,
+      "instiTotal": 454,
       "reason": "割與線材成長題材"
     },
     {
@@ -1057,10 +1057,10 @@
       "openPrice": 96.0,
       "limitTime": "--:--",
       "market": "上櫃",
-      "instiForeign": 36,
-      "instiTrust": -9,
-      "instiDealer": -181,
-      "instiTotal": -152,
+      "instiForeign": -982,
+      "instiTrust": 9,
+      "instiDealer": -148,
+      "instiTotal": -1120,
       "reason": "太陽能導電漿題材"
     },
     {
@@ -1093,10 +1093,10 @@
       "openPrice": 27.0,
       "limitTime": "--:--",
       "market": "上櫃",
-      "instiForeign": 195,
-      "instiTrust": 3,
-      "instiDealer": 4,
-      "instiTotal": 203,
+      "instiForeign": 483,
+      "instiTrust": -7,
+      "instiDealer": 778,
+      "instiTotal": 1254,
       "reason": "低軌衛星題材、法人買超"
     },
     {
@@ -1129,10 +1129,10 @@
       "openPrice": 506.0,
       "limitTime": "--:--",
       "market": "上櫃",
-      "instiForeign": -27,
-      "instiTrust": 0,
-      "instiDealer": 14,
-      "instiTotal": -12,
+      "instiForeign": 45,
+      "instiTrust": -10,
+      "instiDealer": 0,
+      "instiTotal": 36,
       "reason": "低軌衛星題材"
     },
     {
@@ -1183,10 +1183,10 @@
       "openPrice": 219.5,
       "limitTime": "--:--",
       "market": "上櫃",
-      "instiForeign": 25,
-      "instiTrust": -7,
+      "instiForeign": 16,
+      "instiTrust": -11,
       "instiDealer": 0,
-      "instiTotal": 18,
+      "instiTotal": 5,
       "reason": ""
     },
     {
@@ -1201,10 +1201,10 @@
       "openPrice": 172.0,
       "limitTime": "--:--",
       "market": "上櫃",
-      "instiForeign": -34,
-      "instiTrust": 0,
-      "instiDealer": 0,
-      "instiTotal": -33,
+      "instiForeign": -50,
+      "instiTrust": -1,
+      "instiDealer": -1,
+      "instiTotal": -52,
       "reason": "營收成長"
     },
     {
@@ -1219,10 +1219,10 @@
       "openPrice": 29.25,
       "limitTime": "--:--",
       "market": "上櫃",
-      "instiForeign": 238,
+      "instiForeign": 671,
       "instiTrust": 0,
       "instiDealer": 0,
-      "instiTotal": 238,
+      "instiTotal": 671,
       "reason": "營收成長"
     },
     {
@@ -1237,10 +1237,10 @@
       "openPrice": 29.5,
       "limitTime": "--:--",
       "market": "上櫃",
-      "instiForeign": -62,
-      "instiTrust": 1,
+      "instiForeign": -125,
+      "instiTrust": -9,
       "instiDealer": 0,
-      "instiTotal": -61,
+      "instiTotal": -133,
       "reason": "被動元件題材"
     },
     {
@@ -1291,10 +1291,10 @@
       "openPrice": 666.0,
       "limitTime": "--:--",
       "market": "上櫃",
-      "instiForeign": -18,
-      "instiTrust": 3,
+      "instiForeign": -23,
+      "instiTrust": 0,
       "instiDealer": 0,
-      "instiTotal": -15,
+      "instiTotal": -23,
       "reason": "其他電子族群同步漲停（7 檔）"
     },
     {
@@ -1309,10 +1309,10 @@
       "openPrice": 150.0,
       "limitTime": "--:--",
       "market": "上櫃",
-      "instiForeign": 25,
-      "instiTrust": 3,
-      "instiDealer": 0,
-      "instiTotal": 29,
+      "instiForeign": -45,
+      "instiTrust": -2,
+      "instiDealer": -8,
+      "instiTotal": -55,
       "reason": "UTEX論壇題材"
     },
     {
@@ -1345,10 +1345,10 @@
       "openPrice": 30.05,
       "limitTime": "--:--",
       "market": "上櫃",
-      "instiForeign": -122,
-      "instiTrust": 1,
+      "instiForeign": -41,
+      "instiTrust": -2,
       "instiDealer": 0,
-      "instiTotal": -121,
+      "instiTotal": -43,
       "reason": "通信網路族群同步漲停（13 檔）"
     },
     {
@@ -1381,10 +1381,10 @@
       "openPrice": 52.6,
       "limitTime": "--:--",
       "market": "上櫃",
-      "instiForeign": 1,
-      "instiTrust": 2,
-      "instiDealer": 10,
-      "instiTotal": 13,
+      "instiForeign": -116,
+      "instiTrust": 12,
+      "instiDealer": -3,
+      "instiTotal": -106,
       "reason": "電子零組件族群同步漲停（37 檔）"
     },
     {
@@ -1417,10 +1417,10 @@
       "openPrice": 49.5,
       "limitTime": "--:--",
       "market": "上櫃",
-      "instiForeign": 10,
-      "instiTrust": 2,
+      "instiForeign": -40,
+      "instiTrust": -4,
       "instiDealer": 0,
-      "instiTotal": 12,
+      "instiTotal": -44,
       "reason": "半導體族群同步漲停（14 檔）"
     },
     {
@@ -1453,10 +1453,10 @@
       "openPrice": 30.3,
       "limitTime": "--:--",
       "market": "上櫃",
-      "instiForeign": 0,
+      "instiForeign": 46,
       "instiTrust": 0,
       "instiDealer": 0,
-      "instiTotal": 0,
+      "instiTotal": 46,
       "reason": "電子零組件族群同步漲停（37 檔）"
     },
     {
@@ -1471,10 +1471,10 @@
       "openPrice": 25.0,
       "limitTime": "--:--",
       "market": "上櫃",
-      "instiForeign": 153,
-      "instiTrust": 4,
+      "instiForeign": 150,
+      "instiTrust": 0,
       "instiDealer": 0,
-      "instiTotal": 157,
+      "instiTotal": 150,
       "reason": "低軌衛星題材"
     },
     {
@@ -1489,10 +1489,10 @@
       "openPrice": 438.0,
       "limitTime": "--:--",
       "market": "上櫃",
-      "instiForeign": 4,
+      "instiForeign": 1,
       "instiTrust": 0,
       "instiDealer": 0,
-      "instiTotal": 4,
+      "instiTotal": 1,
       "reason": "低軌衛星題材"
     },
     {
@@ -1507,10 +1507,10 @@
       "openPrice": 57.0,
       "limitTime": "--:--",
       "market": "上櫃",
-      "instiForeign": 19,
-      "instiTrust": 0,
+      "instiForeign": 7,
+      "instiTrust": -1,
       "instiDealer": 0,
-      "instiTotal": 19,
+      "instiTotal": 6,
       "reason": "低軌衛星題材"
     },
     {
@@ -1525,10 +1525,10 @@
       "openPrice": 22.6,
       "limitTime": "--:--",
       "market": "上櫃",
-      "instiForeign": -26,
-      "instiTrust": 2,
+      "instiForeign": 42,
+      "instiTrust": 0,
       "instiDealer": 0,
-      "instiTotal": -24,
+      "instiTotal": 42,
       "reason": "低軌衛星題材、記憶體題材"
     },
     {
@@ -1543,10 +1543,10 @@
       "openPrice": 16.55,
       "limitTime": "--:--",
       "market": "上櫃",
-      "instiForeign": -74,
+      "instiForeign": -124,
       "instiTrust": 0,
       "instiDealer": 0,
-      "instiTotal": -74,
+      "instiTotal": -124,
       "reason": "電機機械族群同步漲停（4 檔）"
     },
     {
@@ -1615,10 +1615,10 @@
       "openPrice": 20.25,
       "limitTime": "--:--",
       "market": "上櫃",
-      "instiForeign": -40,
+      "instiForeign": -1,
       "instiTrust": 0,
       "instiDealer": 0,
-      "instiTotal": -40,
+      "instiTotal": -1,
       "reason": "電機機械族群同步漲停（4 檔）"
     },
     {
@@ -1651,10 +1651,10 @@
       "openPrice": 13.0,
       "limitTime": "--:--",
       "market": "上櫃",
-      "instiForeign": -29,
-      "instiTrust": 1,
+      "instiForeign": 23,
+      "instiTrust": -1,
       "instiDealer": 0,
-      "instiTotal": -27,
+      "instiTotal": 23,
       "reason": "電子零組件族群同步漲停（37 檔）"
     },
     {
@@ -1669,10 +1669,10 @@
       "openPrice": 10.5,
       "limitTime": "--:--",
       "market": "上櫃",
-      "instiForeign": -3,
-      "instiTrust": 0,
-      "instiDealer": 0,
-      "instiTotal": -3,
+      "instiForeign": null,
+      "instiTrust": null,
+      "instiDealer": null,
+      "instiTotal": null,
       "reason": "半導體族群同步漲停（14 檔）"
     }
   ]
