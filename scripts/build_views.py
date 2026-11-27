@@ -260,6 +260,7 @@ def build_flow_validation():
         return
     doc = json.loads(src.read_text(encoding="utf-8"))
     doc["days"] = dict(sorted(doc.get("days", {}).items())[-30:])
+    (ROOT / "public" / "data").mkdir(parents=True, exist_ok=True)
     (ROOT / "public" / "data" / "flow-validation.json").write_text(json.dumps(doc, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
 
 
