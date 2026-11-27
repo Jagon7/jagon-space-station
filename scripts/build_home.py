@@ -34,7 +34,7 @@ MACRO_ZH = [  # 長的先比對
     ("ISM Manufacturing PMI", "ISM 製造業 PMI"), ("ISM Services PMI", "ISM 服務業 PMI"), ("NBS Manufacturing PMI", "官方製造業 PMI"),
     ("Manufacturing PMI", "製造業 PMI"), ("Services PMI", "服務業 PMI"), ("Retail Sales", "零售銷售"), ("Durable Goods Orders", "耐久財訂單"),
     ("JOLTs Job Openings", "JOLTS 職缺"), ("Michigan Consumer Sentiment", "密大消費者信心"), ("Consumer Confidence", "消費者信心"),
-    ("Personal Income", "個人所得"), ("Personal Spending", "個人支出"), ("Balance of Trade", "貿易收支"), ("Exports", "出口"),
+    ("Export Orders", "外銷訂單"), ("Personal Income", "個人所得"), ("Personal Spending", "個人支出"), ("Balance of Trade", "貿易收支"), ("Exports", "出口"),
     ("Industrial Production", "工業生產"), ("Initial Jobless Claims", "初領失業金"), ("Midterm Elections", "期中選舉"), ("Elections", "選舉"),
 ]
 FLAG = {"US": "美", "CN": "中", "JP": "日", "EU": "歐", "TW": "台"}
@@ -87,6 +87,9 @@ def week_events(data_dir: Path, ex: dict, today: date, end: date | None = None) 
         if d.month in (3, 6, 9, 12) and d.weekday() == 4 and 15 <= d.day <= 21:
             etfs = "0050、006208、0051" + ("、0056" if d.month in (6, 12) else "")
             add(next_trading(d).isoformat(), "ETF", f"FTSE 臺灣指數調整：收盤換股（{etfs}）", True, "/etf-flow")
+        # 台灣央行理監事會：3／6／9／12 月第 3 個週四（2026 年央行公告 3/19、6/18、9/17、12/17 都符合），會後記者會（約 16:30 盤後）
+        if d >= start and d.month in (3, 6, 9, 12) and d.weekday() == 3 and 15 <= d.day <= 21:
+            add(iso, "總經", "台灣央行理監事會（利率決策，會後記者會，盤後公布）", True, "/global")
         # 美股休市／提早收盤（美國日期＝台灣當天晚上；提早收盤是台灣隔天凌晨）
         stt = us_market.status(d) if d >= start else None
         if stt and stt[0] == "closed":
@@ -104,7 +107,10 @@ def week_events(data_dir: Path, ex: dict, today: date, end: date | None = None) 
     for m in sorted(wk.get("macro", []), key=lambda m: m["t"]):
         hi = any(k in m["title"] for k in MACRO_HI)
         txt = macro_zh(m)
-        if txt in seen or (m["country"] != "US" and not hi):  # 美國以外只留央行與重要數據
+        if m["country"] == "TW" and "Interest Rate" in m["title"]:
+            continue   # 台灣央行用下面的慣例日期列（含記者會）
+        tw = m["country"] == "TW" and any(k in m["title"] for k in ("Export", "Balance of Trade", "GDP", "Inflation Rate", "Industrial Production"))
+        if txt in seen or (m["country"] != "US" and not hi and not tw):  # 美國以外只留央行與重要數據（台灣另外保留出口、外銷訂單、GDP、CPI）
             continue
             continue
         seen.add(txt)

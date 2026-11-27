@@ -26,7 +26,7 @@ from datetime import datetime
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from build_strategy import STOCK, TPE, _load, limit_up  # noqa: E402
+from build_strategy import DT_STOP, STOCK, TPE, _load, limit_up  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 DATA = Path(os.environ.get("JSS_DATA_DIR", ROOT / "data"))
@@ -61,9 +61,19 @@ def params() -> dict:
     return {"current": cur, "history": p.get("history") or [], "tunedAt": p.get("tunedAt"), "eval": p.get("eval") or {}}
 
 
+def short_ret(o: float, h: float, c: float, prev: float) -> tuple[float, bool]:
+    """開盤空、收盤補，漲到前一天收盤 +DT_STOP% 停損（開盤就超過停損價：開盤後只要再往上就算停損，用開盤價）；回傳（報酬 %、停損了沒）"""
+    stop = prev * (1 + DT_STOP / 100)
+    if o >= stop:
+        return 0.0, False   # 開盤已超過停損價：不做（triggered 會擋掉）
+    if h >= stop:
+        return -(stop / o - 1) * 100, True
+    return -(c / o - 1) * 100, False
+
+
 def triggered(strat: str, p: dict, gap: float) -> bool:
-    """隔天開盤跳空 gap（%）時這筆會不會做：開跌停放不了空；85g 要落在區間；其他看 gapMin"""
-    if gap <= -9.5:
+    """隔天開盤跳空 gap（%）時這筆會不會做：開跌停放不了空；開盤已經超過停損價（+DT_STOP%）不做；85g 要落在區間；其他看 gapMin"""
+    if gap <= -9.5 or gap >= DT_STOP:
         return False
     if strat == "g85":
         return p["gapLo"] <= gap < p["gapHi"]
@@ -146,7 +156,7 @@ class Market:
             return None
         gap = (r[2] / q0[c][5] - 1) * 100
         trig = triggered(strat, p, gap)
-        return {"gap": gap, "trig": trig, "ret": -(r[5] / r[2] - 1) * 100}
+        return {"gap": gap, "trig": trig, "ret": short_ret(r[2], r[3], r[5], q0[c][5])[0]}
 
 
 def evaluate(m: Market, strat: str, p: dict, lo: int, hi: int) -> dict:
@@ -256,10 +266,10 @@ def review() -> list[str]:
                     continue
                 gap = (r[2] / x["ref"] - 1) * 100
                 trig = triggered(k, p, gap)
-                ret = -(r[5] / r[2] - 1) * 100
-                rows.append({**x, "open": r[2], "high": r[3], "low": r[4], "close": r[5], "gap": round(gap, 2), "trig": trig,
+                ret, stopped = short_ret(r[2], r[3], r[5], x["ref"])
+                rows.append({**x, "open": r[2], "high": r[3], "low": r[4], "close": r[5], "gap": round(gap, 2), "trig": trig, "stopped": stopped,
                              "ret": round(ret, 2), "net": round(ret - COST, 2), "mae": round((r[3] / r[2] - 1) * 100, 2),
-                             "status": ("開跌停放不了空" if gap <= -9.5 else "未觸發（開盤條件不符）" if not trig else "賺" if ret - COST > 0 else "賠")})
+                             "status": ("開跌停放不了空" if gap <= -9.5 else "未觸發（開盤條件不符）" if not trig else f"停損（+{DT_STOP:g}%）" if stopped else "賺" if ret - COST > 0 else "賠")})
             res[k] = rows
         day["result"] = res
         day["reviewedAt"] = datetime.now(TPE).isoformat(timespec="minutes")
