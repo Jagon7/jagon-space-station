@@ -145,5 +145,27 @@
 "lo": 38473,
 "right": false
 }
+},
+"2026-11-27": {
+"branch": "A",
+"plan": "MR",
+"orh": 39577.0,
+"orl": 39103.0,
+"open": 39525.0,
+"prevClose": 39455,
+"p915": 39232.0,
+"atr": 1699.8,
+"orATR": 0.279,
+"gapATR": 0.041,
+"filled": true,
+"params": {
+"narrow": 0.3,
+"cGap": 0.1,
+"dPlan": "MR",
+"overrides": []
+},
+"basis": "價差 +115 點，比昨天平均 +0.02% → 偏正（回測最適合 BO）",
+"override": null,
+"feat": null
 }
 }
