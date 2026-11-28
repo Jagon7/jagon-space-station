@@ -2,7 +2,10 @@
 空族群弱勢（當沖）→ public/data/group_weak.json
 
 規則（scripts/research_dt_new.py 回測，2012 起三段都賺）：
-  今天：同族群（公開資訊觀測站產業別）有股票收漲停＝強勢股；
+  族群：MoneyDJ 產業分類併寬（scripts/theme_groups.py，例：記憶體一個族群；一檔可屬多個族群）；
+        回測（+7.5% 停損、隔天開高 0～3%）比公開資訊觀測站產業別好：每筆 +0.60／+0.36／+0.30% vs +0.46／+0.17／+0.27%
+        沒有 data/industry/moneydj.json 時退回公開資訊觀測站產業別
+  今天：同族群有股票收漲停＝強勢股；
         同族群、前 60 天日報酬相關係數 ≥ 0.5（走勢相似）、今天漲 +2%～+9%（被帶上去、沒漲停）、成交 ≥ 5000 萬＝弱勢股
   明天：開盤 ≥ 今天收盤才放空（08:30～09:00 掛今天收盤價限價賣，開低不會成交），收盤回補；漲到今天收盤 +DT_STOP%（7.5%）停損
   不做：暫停先賣後買、明天處置中
@@ -20,6 +23,7 @@ from datetime import datetime
 from pathlib import Path
 
 from build_strategy import DT_STOP, TPE, _load, limit_up, next_trading_day, tick
+from theme_groups import groups as theme_groups
 
 MAX = 10
 CORR_MIN = 0.5
@@ -48,7 +52,14 @@ def build(data_dir: Path, public_dir: Path):
     last, q = days[-1]
     holidays = set((_load(data_dir / "calendar.json", {}) or {}).get("holidays", []))
     nxt = next_trading_day(last, holidays)
-    sec = sector_map(data_dir)
+    tg = theme_groups(data_dir)
+    if tg:
+        mem_of: dict[str, list] = {}
+        for g, cs in tg.items():
+            for c in cs:
+                mem_of.setdefault(c, []).append(g)
+    else:
+        mem_of = {c: [g] for c, g in sector_map(data_dir).items()}
     dtd = (_load(data_dir / "strategy" / "daytrade.json", {}) or {}).get("days", {})
     nox = set((dtd.get(last) or {}).get("x", []))
     disp: dict[str, list] = {}
@@ -62,14 +73,15 @@ def build(data_dir: Path, public_dir: Path):
             xs.append((b / a - 1) if a and b else 0.0)
         return xs
 
-    stocks = [c for c in q if len(c) == 4 and c.isdigit() and c[0] != "0" and q[c][5] and q[c][6] is not None and sec.get(c)]
+    stocks = [c for c in q if len(c) == 4 and c.isdigit() and c[0] != "0" and q[c][5] and q[c][6] is not None and mem_of.get(c)]
     groups: dict[str, list] = {}
     for c in stocks:
         r = q[c]
         prev = r[5] - r[6]
         if prev <= 0:
             continue
-        groups.setdefault(sec[c], []).append((c, r[6] / prev * 100, prev))
+        for g in mem_of[c]:
+            groups.setdefault(g, []).append((c, r[6] / prev * 100, prev))
     cand = []
     for g, mem in groups.items():
         leaders = [(c, ret) for c, ret, prev in mem if q[c][5] >= limit_up(prev) - 1e-6 and q[c][5] >= (q[c][3] or 0) * 0.999]
@@ -93,7 +105,11 @@ def build(data_dir: Path, public_dir: Path):
                          "breadth": round(breadth * 100), "corr": round(cor, 2),
                          "stop": round(math.floor(close * (1 + DT_STOP / 100) / tick(close * (1 + DT_STOP / 100)) + 1e-6) * tick(close * (1 + DT_STOP / 100)), 2),
                          "noShort": c in nox, "disposed": any(a <= nxt <= b or a <= last <= b for a, b in disp.get(c, []))})
-    cand.sort(key=lambda x: -x["valYi"])
+    best: dict[str, dict] = {}   # 一檔屬多個族群 → 留相關係數最高的那個
+    for x in cand:
+        if x["code"] not in best or x["corr"] > best[x["code"]]["corr"]:
+            best[x["code"]] = x
+    cand = sorted(best.values(), key=lambda x: -x["valYi"])
     ok = [x for x in cand if not x["noShort"] and not x["disposed"]][:MAX]
     out = {"updatedAt": datetime.now(TPE).isoformat(timespec="minutes"), "asof": last, "next": nxt,
            "rule": {"corr": CORR_MIN, "ret": [RET_LO, RET_HI], "minVal": MIN_VAL, "max": MAX}, "cand": ok, "all": cand}

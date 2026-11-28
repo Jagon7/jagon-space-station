@@ -228,7 +228,7 @@ def main():
         print(f"    收盤前再創當天新高：{sum(e['newHigh'] for e in ev2) / len(ev2) * 100:.0f}%；之後連續收黑的 5 分 K："
               + "、".join(f"{k} 根 {sum(e['blackRun'] == k for e in ev2) / len(ev2) * 100:.0f}%" for k in range(0, 5))
               + f"、≥5 根 {sum(e['blackRun'] >= 5 for e in ev2) / len(ev2) * 100:.0f}%")
-    # ---------- ③ 使用者定義：族群（價值鏈細分類）有股票鎖漲停那一刻，空族群裡當下漲最少的 ----------
+    # ---------- ③ 使用者定義：族群（MoneyDJ 產業分類併寬，例：記憶體）有股票鎖漲停那一刻，空族群裡當下漲最少的 ----------
     import intraday_need as inn
     groups = inn.theme_groups()
     ev3, seen = [], set()
@@ -266,7 +266,7 @@ def main():
             rm = short_path(stocks[mid_c]["m"], T + 1) if mid_c != wc else None
             ev3.append({"d": d, "g": g, "code": wc, "T": T, "w": wv, "n": len(mem), "up": sum(v > 0 for v in now.values()) / len(now),
                         "r": r[0], "stopped": r[1], **{f"p{k}": v for k, v in r[2].items()}, "mid": rm[0] if rm else None})
-    print(f"\n■ ③ 族群（價值鏈細分類，3～15 檔）有股票鎖漲停 → 空當下族群裡漲最少的：{len(ev3)} 筆")
+    print(f"\n■ ③ 族群（MoneyDJ 併寬，3～30 檔）有股票鎖漲停 → 空當下族群裡漲最少的：{len(ev3)} 筆")
     out["themeWeakest"] = {"all": report("鎖漲停下一分鐘空最弱的、13:25 補", ev3)}
     out["themeWeakest"]["mid"] = report("（對照）同一刻空漲幅中間的那檔", ev3, "mid")
     for name, f in (("最弱的當下下跌", lambda e: e["w"] < 0), ("最弱的當下 0～+3%", lambda e: 0 <= e["w"] < 300),
