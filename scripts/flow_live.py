@@ -9,6 +9,7 @@
   3. 每 60 秒按產業彙整「外盤 − 內盤」＝主動買賣淨額，連同每 15 分鐘切片，寫成 flow.json 推到 live 分支（網頁每分鐘讀）
   4. 收盤後把當天完整結果存到 main 的 data/flow/YYYY-MM-DD.json
   13:30 收盤集合競價不是主動買賣，不算進外盤／內盤（另記 auc）；沒有內外盤標記的成交另記 unk
+  09:15 另存各股外盤／內盤快照 snap915（台指期「權值股內外盤懸殊 → 突破盤」研究用）
   盤後驗證：scripts/validate_flow.py 用永豐逐筆完整資料（orderflow_ticks.py）重算對照，結果在 data/flow/validation.json
 用法：python scripts/flow_live.py [--until 13:35] [--interval 60] [--no-push]
 """
@@ -142,11 +143,15 @@ class Flow:
         return {"v": 2, "updatedAt": datetime.now(TPE).isoformat(timespec="seconds"), "date": datetime.now(TPE).date().isoformat(), "status": status,
                 "n": len(stocks), "cover": round(cover * 100, 1) if cover else None, "sliceMin": SLICE_MIN, "slices": labels,
                 "total": {"net": round((tot_out - tot_in) / 1e8, 2), "out": round(tot_out / 1e8, 2), "in": round(tot_in / 1e8, 2)},
-                "calib": {"askIsOut": votes[True], "askIsIn": votes[False]}, "sectors": sectors, "stocks": stocks}
+                "calib": {"askIsOut": votes[True], "askIsIn": votes[False]}, "sectors": sectors, "stocks": stocks,
+                "snap915": getattr(self, "snap915", None)}
 
     def close_slice(self, label):
         with self.lock:
             self.slices.append((label, {k: v["out"] - v["in"] for k, v in self.by_sector().items()}))
+            if label == "09:00":
+                # 09:15 各股外盤／內盤（億）快照：研究「權值股內外盤懸殊 → 突破盤」用（09:15 台指期規則判斷的同一時間）
+                self.snap915 = {c: [round(o / 1e8, 3), round(i / 1e8, 3)] for c, st in self.s.items() for o, i in [self.totals(st)]}
 
 
 def publish(doc, push: bool):
