@@ -8,7 +8,7 @@
      85g（前一天成交前 50、漲停或 5 日漲 ≥ 8%）、高週轉＋漲停（週轉前 20、成交 ≥ 1 億）、高當沖比＋黑K收漲、
      空族群弱勢（日線版）、散戶擁擠（週轉前 50 且當沖比 ≥ 50%）
   ⑤ 訂單流挑波段（1 分 K 推估買賣盤）：SWING_FROM 起每個交易日，前 20 天平均成交金額前 SWING_TOP 名，連續每天都抓
-  ④ 族群最弱勢（使用者定義）：族群＝櫃買產業價值鏈的細分類（data/industry/chain.json，3～15 檔，例：記憶體IC）；
+  ④ 族群最弱勢（使用者定義）：族群＝MoneyDJ 產業分類併成較寬的族群（scripts/theme_groups.py，3～30 檔，例：記憶體）；
      當天族群裡有股票收盤鎖漲停 → 抓族群裡所有當天成交 ≥ 5000 萬的成員（盤中再判斷鎖漲停那一刻誰最弱）
 期間：FROM 起（永豐 1 分 K 歷史）；用 data/research/yahoo_adj 日線
 用法：python scripts/intraday_need.py
@@ -34,22 +34,10 @@ SWING_FROM = "2025-01-01"
 SWING_TOP = 120
 
 
-def theme_groups(lo: int = 3, hi: int = 15) -> dict:
-    """櫃買產業價值鏈細分類 → {名稱: [代號]}（3～15 檔）"""
-    ch = json.loads((DATA / "industry" / "chain.json").read_text(encoding="utf-8"))
-    out = {}
-
-    def walk(x):
-        if isinstance(x, dict):
-            if "codes" in x and "name" in x and lo <= len(set(x["codes"])) <= hi:
-                out[x["name"]] = sorted(set(x["codes"]))
-            for v in x.values():
-                walk(v)
-        elif isinstance(x, list):
-            for v in x:
-                walk(v)
-    walk(ch["industries"])
-    return out
+def theme_groups() -> dict:
+    """MoneyDJ 產業分類併成較寬的族群（scripts/theme_groups.py；例：記憶體一個族群）"""
+    import theme_groups as tg
+    return tg.groups()
 
 
 def add_theme_groups(need: dict) -> int:
@@ -113,7 +101,7 @@ def add_strategy_days(need: dict) -> int:
     return n
 
 
-def add_swing_universe(need: dict) -> int:
+def add_swing_universe(need: dict) -> set:
     """⑤ 前 20 天平均成交金額前 SWING_TOP 名（每天重排，前一天就知道），連續每天"""
     raw = {}
     for f in (DATA / "research" / "yahoo_adj").glob("*.json"):
@@ -126,13 +114,13 @@ def add_swing_universe(need: dict) -> int:
             if rows[i][0] >= SWING_FROM:
                 tv = st.mean(r[4] * r[5] for r in rows[i - 20:i])
                 by_day[rows[i][0]].append((tv, c, rows[i - 1][4]))
-    n = 0
+    keys = set()
     for d, xs in by_day.items():
         for _, c, pc in sorted(xs, reverse=True)[:SWING_TOP]:
-            if pc and (d, c) not in need:
-                need[(d, c)] = pc
-                n += 1
-    return n
+            if pc:
+                need.setdefault((d, c), pc)
+                keys.add((d, c))
+    return keys
 
 
 def main():
@@ -194,9 +182,12 @@ def main():
     n3 = add_strategy_days(need)
     n4 = add_theme_groups(need)
     print(f"族群最弱勢另外加 {n4}")
-    n5 = add_swing_universe(need)
-    print(f"波段訂單流（成交前 {SWING_TOP} 名連續）另外加 {n5}")
-    out = sorted([[d, c, pc] for (d, c), pc in need.items()], reverse=True)
+    before = len(need)
+    first = add_swing_universe(need)
+    print(f"波段訂單流（成交前 {SWING_TOP} 名連續）{len(first)}，另外加 {len(need) - before}")
+    # 抓取順序：⑤ 波段訂單流先（使用者指定先做），其餘照日期新到舊
+    out = sorted([[d, c, pc] for (d, c), pc in need.items() if (d, c) in first], reverse=True) + \
+        sorted([[d, c, pc] for (d, c), pc in need.items() if (d, c) not in first], reverse=True)
     print(f"當沖策略交易日另外加 {n3}")
     (DATA / "research" / "intraday_need.json").write_text(json.dumps(out, separators=(",", ":")), encoding="utf-8")
     print(f"{FROM} 起：共 {len(out)} 個日期×股票（熱門股 {n2}、族群弱勢另外加 {n1}）")

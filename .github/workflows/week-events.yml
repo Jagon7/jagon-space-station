@@ -1,6 +1,7 @@
 name: Week Events
 
 # 週日晚上推「本週／下週重點大事」（美國總經、美股休市、美股大型財報、台指期結算、MSCI／FTSE 調整、大型股法說與除權息）
+# 每月第一個週日另外更新 MoneyDJ 產業分類（空族群弱勢的族群定義）
 # 由 Cloudflare 排程 19:55 觸發；cron 是備援；發過的日期記在 data/notify/week-events-sent.json
 on:
   schedule:
@@ -25,7 +26,7 @@ env:
 jobs:
   push:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v7
         with:
@@ -56,3 +57,17 @@ jobs:
             git pull --rebase -X theirs origin main || { git rebase --abort; git pull --no-rebase -X ours origin main; }
           done
           exit 1
+      - name: Refresh MoneyDJ industry groups (first Sunday of month)
+        if: always()
+        continue-on-error: true
+        run: |
+          if [ "$(TZ=Asia/Taipei date +%d)" -le 7 ] || [ ! -f data/industry/moneydj.json ]; then
+            python3 scripts/fetch_moneydj_industry.py || exit 0
+            git add data/industry/moneydj.json
+            git diff --staged --quiet && exit 0
+            git commit -m "data: MoneyDJ 產業分類（月更）"
+            for i in 1 2 3 4 5; do
+              git push && exit 0
+              git pull --rebase -X theirs origin main || { git rebase --abort; git pull --no-rebase -X ours origin main; }
+            done
+          fi
