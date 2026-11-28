@@ -7,6 +7,7 @@
   ③ 各當沖策略的「交易日」（第 t 天收盤選出、t+1 天開盤空）：用 1 分 K 算 +7.5% 停損的實際成交價
      85g（前一天成交前 50、漲停或 5 日漲 ≥ 8%）、高週轉＋漲停（週轉前 20、成交 ≥ 1 億）、高當沖比＋黑K收漲、
      空族群弱勢（日線版）、散戶擁擠（週轉前 50 且當沖比 ≥ 50%）
+  ⑤ 訂單流挑波段（1 分 K 推估買賣盤）：SWING_FROM 起每個交易日，前 20 天平均成交金額前 SWING_TOP 名，連續每天都抓
   ④ 族群最弱勢（使用者定義）：族群＝櫃買產業價值鏈的細分類（data/industry/chain.json，3～15 檔，例：記憶體IC）；
      當天族群裡有股票收盤鎖漲停 → 抓族群裡所有當天成交 ≥ 5000 萬的成員（盤中再判斷鎖漲停那一刻誰最弱）
 期間：FROM 起（永豐 1 分 K 歷史）；用 data/research/yahoo_adj 日線
@@ -29,6 +30,8 @@ from fetch_dt_stop import tick_limit  # noqa: E402
 
 FROM = "2024-01-01"
 TOP2 = 20
+SWING_FROM = "2025-01-01"
+SWING_TOP = 120
 
 
 def theme_groups(lo: int = 3, hi: int = 15) -> dict:
@@ -110,6 +113,28 @@ def add_strategy_days(need: dict) -> int:
     return n
 
 
+def add_swing_universe(need: dict) -> int:
+    """⑤ 前 20 天平均成交金額前 SWING_TOP 名（每天重排，前一天就知道），連續每天"""
+    raw = {}
+    for f in (DATA / "research" / "yahoo_adj").glob("*.json"):
+        j = json.loads(f.read_text(encoding="utf-8"))
+        if j["code"].isdigit() and len(j["code"]) == 4:
+            raw[j["code"]] = j["d"]
+    by_day = defaultdict(list)
+    for c, rows in raw.items():
+        for i in range(21, len(rows)):
+            if rows[i][0] >= SWING_FROM:
+                tv = st.mean(r[4] * r[5] for r in rows[i - 20:i])
+                by_day[rows[i][0]].append((tv, c, rows[i - 1][4]))
+    n = 0
+    for d, xs in by_day.items():
+        for _, c, pc in sorted(xs, reverse=True)[:SWING_TOP]:
+            if pc and (d, c) not in need:
+                need[(d, c)] = pc
+                n += 1
+    return n
+
+
 def main():
     px, mk = nh.load()
     sec = nh.sector_map()
@@ -169,6 +194,8 @@ def main():
     n3 = add_strategy_days(need)
     n4 = add_theme_groups(need)
     print(f"族群最弱勢另外加 {n4}")
+    n5 = add_swing_universe(need)
+    print(f"波段訂單流（成交前 {SWING_TOP} 名連續）另外加 {n5}")
     out = sorted([[d, c, pc] for (d, c), pc in need.items()], reverse=True)
     print(f"當沖策略交易日另外加 {n3}")
     (DATA / "research" / "intraday_need.json").write_text(json.dumps(out, separators=(",", ":")), encoding="utf-8")
