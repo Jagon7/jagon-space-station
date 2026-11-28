@@ -102,7 +102,8 @@ def check_daily():
             for c, v in m.items():
                 if c in ma and v[1] is not None and ma[c][0] is not None and v[0] is not None:
                     n += 1
-                    bad += abs(v[0] - ma[c][0] - v[1]) > 1
+                    # 交易所事後會小幅修正前一天餘額（例：差 2～20 張），容許 max(20 張, 餘額 0.1%)
+                    bad += abs(v[0] - ma[c][0] - v[1]) > max(20, abs(v[0]) * 0.001)
                 if len(v) > 8 and v[8] and v[0] and v[0] > v[8] * 1.001:
                     lim += 1
             r = bad / n if n else 1
@@ -143,7 +144,8 @@ def check_yahoo():
         dup = len(dates) - len(set(dates))
         order = sum(1 for a, b in zip(dates, dates[1:]) if b <= a)
         nulls = sum(1 for r in d[-300:] if any(x is None for x in r[1:5]))
-        hl = sum(1 for r in d[-300:] if None not in r[1:5] and not (r[3] <= min(r[1], r[4]) + 1e-6 and r[2] >= max(r[1], r[4]) - 1e-6))
+        # 收盤存的是還原除權息價（開高低是原始價），所以只檢查 最低 ≤ 開盤 ≤ 最高，不拿收盤比
+        hl = sum(1 for r in d[-300:] if None not in r[1:5] and not (r[3] <= r[1] + 1e-6 and r[2] >= r[1] - 1e-6))
         big = 9 if p.stem == "_VIX" else 0.25  # VIX 單日暴漲是常態，另外用 CBOE 官方資料逐日對照
         jump = [f"{b[0]} {(b[4] / a[4] - 1) * 100:+.0f}%" for a, b in zip(d[-300:], d[-299:]) if a[4] and b[4] and abs(b[4] / a[4] - 1) > big]
         lv = "error" if dup or order or nulls else "warn" if jump or (hl > 3 and "=X" not in p.stem) else "ok"  # 匯率的高低點 Yahoo 常不含收盤

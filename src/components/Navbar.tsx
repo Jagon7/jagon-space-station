@@ -48,7 +48,7 @@ const navItems: NavItem[] = [
   {
     label: "籌碼雷達",
     children: [
-      { label: "融資斷頭監控", href: "/margin" },
+      { label: "融資融券", href: "/margin" },
       { label: "主動ETF停損監控", href: "/active-stop" },
       { label: "券差偵察", href: "/short" },
       { label: "處置預警",      href: "/disposition" },
