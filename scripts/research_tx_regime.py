@@ -32,11 +32,69 @@ MR_LAST_FROM = "2026-11-26"  # 這天起的訊號才套用 MR 進場期限（之
 MR_LAST = 44       # MR 只在 09:15～09:29 第一次碰到邊界才做（scripts/research_tx_mr_exec.py：09:30 以後才碰到的兩段都虧）
 
 
-def load_dir(d: Path) -> dict:
+LAST_CLOSE: dict[str, float] = {}   # 日盤最後一根收盤（結算日是換月後的次月價，隔天算跳空要用這個才連續）
+SETTLE: set[str] = set()            # 月結算日（第 3 個週三，遇休市順延）
+CLEANED: dict[str, int] = {}         # 每天清掉的異常跳價根數
+
+
+def _settle_days(dates: list[str]) -> set[str]:
+    out = set()
+    ds = sorted(dates)
+    for ym in sorted({d[:7] for d in ds}):
+        y, mo = int(ym[:4]), int(ym[5:])
+        x = date(y, mo, 1)
+        x += timedelta(days=(2 - x.weekday()) % 7 + 14)   # 第 3 個週三
+        nxt = next((d for d in ds if d >= x.isoformat()), None)
+        if nxt and nxt[:7] == ym:
+            out.add(nxt)
+    return out
+
+
+def _clean(bars: dict) -> tuple[dict, int]:
+    """清掉一分鐘就回來的錯誤成交：收盤離前後兩根都 > 1.2% 且方向相反 → 用前一根收盤取代；
+    上下影線比前後兩根的高低點都超出 1.2% → 影線截到開收盤"""
+    ms = sorted(bars)
+    n = 0
+    for i in range(1, len(ms) - 1):
+        a, b, c = bars[ms[i - 1]], bars[ms[i]], bars[ms[i + 1]]
+        r1, r2 = b[3] / a[3] - 1, c[3] / b[3] - 1
+        if abs(r1) > 0.012 and abs(r2) > 0.012 and r1 * r2 < 0:
+            p = a[3]
+            bars[ms[i]] = [p, p, p, p] + list(b[4:])
+            n += 1
+            continue
+        top, bot = max(b[0], b[3]), min(b[0], b[3])
+        if b[1] > max(a[1], c[1]) * 1.012:
+            bars[ms[i]] = [b[0], top] + list(b[2:])
+            n += 1
+        if bars[ms[i]][2] < min(a[2], c[2]) / 1.012:
+            bars[ms[i]] = [b[0], bars[ms[i]][1], bot] + list(b[3:])
+            n += 1
+    return bars, n
+
+
+def load_dir(d: Path, raw: bool = False) -> dict:
+    """{日期: {分鐘: [開, 高, 低, 收, 量]}}。日盤（data/futures/day）預設會：
+    ① 清掉一分鐘就回來的錯誤成交（_clean）② 月結算日拿掉 13:30（第 285 分鐘）以後的 K 棒——近月 13:30 到期，
+       之後是次月合約的價格（換月價差平均約 90 點），交易回測一律在 13:29 平倉；換月後的收盤另存 LAST_CLOSE 給隔天算跳空
+    raw=True 原樣回傳"""
     out = {}
     for f in sorted(d.glob("20*.json")) if d.exists() else []:
         for k, v in json.loads(f.read_text(encoding="utf-8")).items():
-            out[k] = {b[0]: b[1:] for b in v["bars"]}
+            out[k] = {b[0]: list(b[1:]) for b in v["bars"]}
+    if raw or d.name != "day":
+        return out
+    SETTLE.update(_settle_days([k for k, v in out.items() if len(v) >= 250]))
+    for k, bars in out.items():
+        if not bars:
+            continue
+        LAST_CLOSE[k] = bars[max(bars)][3]
+        bars, n = _clean(bars)
+        if n:
+            CLEANED[k] = n
+        if k in SETTLE:
+            bars = {m: b for m, b in bars.items() if m < EXIT_M}
+        out[k] = bars
     return out
 
 
@@ -118,7 +176,7 @@ def main():
         o = bars[ms[0]][0]
         hi = max(b[1] for b in bars.values())
         lo = min(b[2] for b in bars.values())
-        cl = bars[ms[-1]][3]
+        cl = LAST_CLOSE.get(d, bars[ms[-1]][3])   # 結算日用換月後的收盤，隔天跳空才連續
         orb = [bars[m] for m in range(0, OR_M) if m in bars]
         if len(hist) >= 20 and orb:
             prev = hist[-1]

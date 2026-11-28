@@ -57,10 +57,13 @@ def save(days: dict[str, dict]):
         (OUT / f"{ym}.json").write_text(json.dumps(dict(sorted(doc.items())), separators=(",", ":")), encoding="utf-8")
 
 
+FULL = 250   # 日盤正常約 300 根；不足 FULL 根視為不完整（下載檔殘缺），下次重抓（跌停鎖死等真的沒成交的日子會一直重試，但只多一次請求）
+
+
 def have_days() -> set[str]:
     out = set()
     for f in OUT.glob("20*.json") if OUT.exists() else []:
-        out |= set(load_month(f.stem))
+        out |= {d for d, v in load_month(f.stem).items() if len(v.get("bars") or []) >= FULL}
     return out
 
 
@@ -103,7 +106,7 @@ def taifex_day(d: date) -> dict | None:
 def run_taifex(days: int = 35):
     have = set()
     for f in OUT.glob("20*.json") if OUT.exists() else []:
-        have |= {d for d, v in load_month(f.stem).items() if v.get("src") == "taifex"}
+        have |= {d for d, v in load_month(f.stem).items() if v.get("src") == "taifex" and len(v.get("bars") or []) >= FULL}
     today = datetime.now(TPE).date()
     got = {}
     for i in range(days, -1, -1):

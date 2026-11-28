@@ -104,7 +104,7 @@ def build_rows():
         o = bars[ms[0]][0]
         hi = max(b[1] for b in bars.values())
         lo = min(b[2] for b in bars.values())
-        cl = bars[ms[-1]][3]
+        cl = rr.LAST_CLOSE.get(d, bars[ms[-1]][3])   # 結算日用換月後收盤
         # 期現貨價差（今天全天平均，給明天用）
         basis_today = None
         if d in idx:
