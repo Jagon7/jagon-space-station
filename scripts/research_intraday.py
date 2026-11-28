@@ -228,6 +228,55 @@ def main():
         print(f"    收盤前再創當天新高：{sum(e['newHigh'] for e in ev2) / len(ev2) * 100:.0f}%；之後連續收黑的 5 分 K："
               + "、".join(f"{k} 根 {sum(e['blackRun'] == k for e in ev2) / len(ev2) * 100:.0f}%" for k in range(0, 5))
               + f"、≥5 根 {sum(e['blackRun'] >= 5 for e in ev2) / len(ev2) * 100:.0f}%")
+    # ---------- ③ 使用者定義：族群（價值鏈細分類）有股票鎖漲停那一刻，空族群裡當下漲最少的 ----------
+    import intraday_need as inn
+    groups = inn.theme_groups()
+    ev3, seen = [], set()
+    for d, stocks in sorted(bars.items()):
+        for g, cs in groups.items():
+            mem = [c for c in cs if c in stocks]
+            if len(mem) < 3:
+                continue
+            locks = []
+            for c in mem:
+                m, pc = stocks[c]["m"], stocks[c]["pc"]
+                lim = round((tick_limit(pc) / pc - 1) * 1e4)
+                t = next((t for t in sorted(m) if m[t][2] >= lim - 1), None)
+                if t is not None and t < END - 10:
+                    locks.append((t, c))
+            if not locks:
+                continue
+            T, lc = min(locks)
+            now = {c: px_at(stocks[c]["m"], T) for c in mem if c != lc}
+            now = {c: v for c, v in now.items() if v is not None}
+            if len(now) < 2:
+                continue
+            locked_by_T = {c for t, c in locks if t <= T}
+            cand = sorted((v, c) for c, v in now.items() if c not in locked_by_T)
+            if not cand:
+                continue
+            wv, wc = cand[0]
+            if wv >= 750 or (d, wc) in seen:
+                continue
+            r = short_path(stocks[wc]["m"], T + 1)
+            if r is None:
+                continue
+            seen.add((d, wc))
+            mid_c = cand[len(cand) // 2][1]          # 對照：同一刻漲幅在中間的那檔
+            rm = short_path(stocks[mid_c]["m"], T + 1) if mid_c != wc else None
+            ev3.append({"d": d, "g": g, "code": wc, "T": T, "w": wv, "n": len(mem), "up": sum(v > 0 for v in now.values()) / len(now),
+                        "r": r[0], "stopped": r[1], **{f"p{k}": v for k, v in r[2].items()}, "mid": rm[0] if rm else None})
+    print(f"\n■ ③ 族群（價值鏈細分類，3～15 檔）有股票鎖漲停 → 空當下族群裡漲最少的：{len(ev3)} 筆")
+    out["themeWeakest"] = {"all": report("鎖漲停下一分鐘空最弱的、13:25 補", ev3)}
+    out["themeWeakest"]["mid"] = report("（對照）同一刻空漲幅中間的那檔", ev3, "mid")
+    for name, f in (("最弱的當下下跌", lambda e: e["w"] < 0), ("最弱的當下 0～+3%", lambda e: 0 <= e["w"] < 300),
+                    ("最弱的當下 +3～+7.5%", lambda e: e["w"] >= 300), ("鎖漲停在 10:00 前", lambda e: e["T"] < 60),
+                    ("10:00～12:00", lambda e: 60 <= e["T"] < 180), ("12:00 後", lambda e: e["T"] >= 180),
+                    ("族群當下上漲 ≥ 80%", lambda e: e["up"] >= 0.8), ("族群當下上漲 < 50%", lambda e: e["up"] < 0.5),
+                    ("族群 3～5 檔", lambda e: e["n"] <= 5), ("族群 6 檔以上", lambda e: e["n"] >= 6)):
+        out["themeWeakest"][name] = report(name, [e for e in ev3 if f(e)])
+    if ev3:
+        print(f"    碰到 +7.5% 停損：{sum(e['stopped'] for e in ev3) / len(ev3) * 100:.1f}%")
     (DATA / "research" / "intraday.json").write_text(json.dumps(out, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     return 0
 

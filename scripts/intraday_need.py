@@ -7,6 +7,8 @@
   ③ 各當沖策略的「交易日」（第 t 天收盤選出、t+1 天開盤空）：用 1 分 K 算 +7.5% 停損的實際成交價
      85g（前一天成交前 50、漲停或 5 日漲 ≥ 8%）、高週轉＋漲停（週轉前 20、成交 ≥ 1 億）、高當沖比＋黑K收漲、
      空族群弱勢（日線版）、散戶擁擠（週轉前 50 且當沖比 ≥ 50%）
+  ④ 族群最弱勢（使用者定義）：族群＝櫃買產業價值鏈的細分類（data/industry/chain.json，3～15 檔，例：記憶體IC）；
+     當天族群裡有股票收盤鎖漲停 → 抓族群裡所有當天成交 ≥ 5000 萬的成員（盤中再判斷鎖漲停那一刻誰最弱）
 期間：FROM 起（永豐 1 分 K 歷史）；用 data/research/yahoo_adj 日線
 用法：python scripts/intraday_need.py
 """
@@ -27,6 +29,56 @@ from fetch_dt_stop import tick_limit  # noqa: E402
 
 FROM = "2024-01-01"
 TOP2 = 20
+
+
+def theme_groups(lo: int = 3, hi: int = 15) -> dict:
+    """櫃買產業價值鏈細分類 → {名稱: [代號]}（3～15 檔）"""
+    ch = json.loads((DATA / "industry" / "chain.json").read_text(encoding="utf-8"))
+    out = {}
+
+    def walk(x):
+        if isinstance(x, dict):
+            if "codes" in x and "name" in x and lo <= len(set(x["codes"])) <= hi:
+                out[x["name"]] = sorted(set(x["codes"]))
+            for v in x.values():
+                walk(v)
+        elif isinstance(x, list):
+            for v in x:
+                walk(v)
+    walk(ch["industries"])
+    return out
+
+
+def add_theme_groups(need: dict) -> int:
+    groups = theme_groups()
+    mem = defaultdict(set)
+    for g, cs in groups.items():
+        for c in cs:
+            mem[c].add(g)
+    raw = {}
+    for f in (DATA / "research" / "yahoo_adj").glob("*.json"):
+        j = json.loads(f.read_text(encoding="utf-8"))
+        if j["code"] in mem:
+            raw[j["code"]] = {r[0]: r for r in j["d"]}
+    days = sorted({d for v in raw.values() for d in v if d >= FROM})
+    n = 0
+    for i in range(1, len(days)):
+        d, p = days[i], days[i - 1]
+        hit = set()
+        for c, v in raw.items():
+            r, r0 = v.get(d), v.get(p)
+            if r and r0 and r0[4] and all(r[1:5]) and r[4] >= tick_limit(r0[4]) - 1e-6 and r[4] >= r[2] - 1e-6:
+                hit |= mem[c]
+        for g in hit:
+            liq = [c for c in groups[g] if raw.get(c, {}).get(d) and raw[c][d][4] * raw[c][d][5] >= 5e7]
+            if len(liq) < 3:
+                continue
+            for c in liq:
+                prev = raw[c].get(p)
+                if prev and prev[4] and (d, c) not in need:
+                    need[(d, c)] = prev[4]
+                    n += 1
+    return n
 
 
 def add_strategy_days(need: dict) -> int:
@@ -115,6 +167,8 @@ def main():
                     if i + 1 < len(s["d"]) and 0.02 <= r[4] / pc - 1 < 0.09:   # 日線版：隔天開盤空 → 隔天的 1 分 K
                         need[(s["d"][i + 1], c)] = r[4]
     n3 = add_strategy_days(need)
+    n4 = add_theme_groups(need)
+    print(f"族群最弱勢另外加 {n4}")
     out = sorted([[d, c, pc] for (d, c), pc in need.items()], reverse=True)
     print(f"當沖策略交易日另外加 {n3}")
     (DATA / "research" / "intraday_need.json").write_text(json.dumps(out, separators=(",", ":")), encoding="utf-8")
