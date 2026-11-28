@@ -22,7 +22,8 @@ const TAG: Record<string, string> = { 斷頭: "bg-[#f05252]/15 text-[#f05252]", 
 const ax = { tick: { fill: "#7c8aa0", fontSize: 11 }, stroke: "#334155" };
 const drop = (m: number | null) => (m ? `${((1 - CALL / m) * 100).toFixed(1)}%` : "—");
 
-export default function MarginDashboard() {
+/** part：top＝維持率指標＋大盤維持率走勢（放頁面最上面）；table＝個股推估維持率表；all＝全部 */
+export default function MarginDashboard({ part = "all" }: { part?: "top" | "table" | "all" }) {
   const { data, error } = useStaticJson<Data>("margin.json");
   const wl = useWatchlist();
   const [scope, setScope] = useState<Scope>("hot");
@@ -59,13 +60,15 @@ export default function MarginDashboard() {
     { key: "tag", label: "判讀", render: (r) => (r.tag ? <span className={`rounded px-1.5 py-0.5 text-[10px] ${TAG[r.tag] ?? ""}`}>{r.tag}</span> : null) },
   ];
 
+  const top = part !== "table", table = part !== "top";
   return (
     <div>
-      {!data.seed && (
+      {top && !data.seed && (
         <div className="mb-4 rounded-lg border border-[#f59e0b]/30 bg-[#f59e0b]/[0.06] p-3 text-xs text-[#fcd34d]">
           長期融資成本還在回補中，目前只用 {md(data.start)} 以後的資料推估，成本偏向近期價位、維持率會偏低；回補完成後會自動改用 2021 年底起的完整重播。
         </div>
       )}
+      {top && <>
       <KpiRow>
         <Kpi label={`上市融資維持率（${md(data.date)}）`} value={data.market.tw != null ? `${data.market.tw}%` : "—"} color={data.market.tw != null && data.market.tw < 150 ? "text-[#f59e0b]" : "text-white"} sub={`再跌 ${drop(data.market.tw)} 到 130%`} />
         <Kpi label="上櫃融資維持率" value={data.market.otc != null ? `${data.market.otc}%` : "—"} color={data.market.otc != null && data.market.otc < 150 ? "text-[#f59e0b]" : "text-white"} sub={`再跌 ${drop(data.market.otc)} 到 130%`} />
@@ -95,7 +98,9 @@ export default function MarginDashboard() {
           大盤維持率 ＝ 全部融資股票的融資市值 ÷ 融資借款；剛用融資買進時約 166%（上市 6 成融資），跌破 130% 券商發追繳、兩天內沒補就可能被斷頭賣出。
         </p>
       </section>
+      </>}
 
+      {table && <>
       <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
         <Pills<Scope> value={scope} onChange={setScope} options={[
           { value: "hot", label: `熱門股（${data.count.hot}）` }, { value: "all", label: "全部個股" }, { value: "etf", label: "ETF" }]} />
@@ -111,6 +116,7 @@ export default function MarginDashboard() {
         判讀依近 20 日融資增減 × 股價漲跌：追價（資增價漲）、攤平（資增價跌）、洗籌（資減價漲）、斷頭（資減價跌且維持率 &lt; 140%）、減碼（其他資減價跌）。
         實際維持率依個別帳戶、整戶擔保品而不同，這裡是全體融資戶的平均推估。
       </Note>
+      </>}
     </div>
   );
 }
