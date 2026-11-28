@@ -13,7 +13,9 @@
   VWAP    收盤由下往上穿過 VWAP + 0.2×ATR20 做多、由上往下穿過 VWAP − 0.2×ATR20 做空
   REGIME  09:15 線上規則：BO 日做 ORB、MR 日做 FADE、不做的日子不做
   GAPDIR  只做跟開盤跳空同方向的 DON15 訊號（開高只做多、開低只做空）
+  REGIME_WF 同 REGIME，但 09:15 規則的參數每年只用「那年以前最近 500 天」選（跟線上每週調參同一套網格），沒有偷看未來
   RANDOM  每分鐘 5% 機率隨機進場、方向隨機（對照，看停損大小本身的期望值）
+資料：research_tx_regime.load_dir 會清掉一分鐘就回來的錯誤成交、結算日 13:29 平倉（13:30 後是次月價）
 選擇：停損大小與訊號只用 2020-22 選，看 2023-24、2025+
 輸出 data/research/tx_scalp.json；用法：python scripts/research_tx_scalp.py
 """
@@ -150,13 +152,27 @@ def main():
         hist.append(max(x[1] for x in b.values()) - min(x[2] for x in b.values()))
     dates = [d for d in dates if d in atr and d in reg]
     rnd = random.Random(7)
-    kinds = ["ORB", "DON15", "DON30", "FADE", "VWAP", "REGIME", "GAPDIR", "RANDOM"]
+    kinds = ["ORB", "DON15", "DON30", "FADE", "VWAP", "REGIME", "REGIME_WF", "GAPDIR", "RANDOM"]
+    # 逐年選 09:15 規則參數（只用之前的資料）
+    import itertools
+    allrows = [reg[d] for d in sorted(reg)]
+    wf = {}
+    for y in sorted({d[:4] for d in dates}):
+        prior = [r for r in allrows if r["date"] < f"{y}-01-01"][-trv.TUNE_DAYS:]
+        if len(prior) < 120:
+            wf[y] = dict(trv.DEFAULT)
+        else:
+            wf[y] = max((dict(zip(trv.GRID, c)) for c in itertools.product(*trv.GRID.values())),
+                        key=lambda q: trv.evaluate(prior, q)["avg"])
+        print(f"  {y} 年用的 09:15 規則參數：{wf[y]}（只用 {y} 年以前的資料選）")
     sigs = {}
     for k in kinds:
         sigs[k] = {}
         for d in dates:
             plan = trv.decide(reg[d], p)[1]
-            if k == "REGIME":
+            if k == "REGIME_WF":
+                plan = trv.decide(reg[d], {**wf[d[:4]], "overrides": []})[1]
+            if k in ("REGIME", "REGIME_WF"):
                 s = signals(day[d], "REGIME_BO", atr[d], plan, 0, rnd) if plan == "BO" else signals(day[d], "REGIME_MR", atr[d], plan, 0, rnd) if plan == "MR" else {}
             else:
                 s = signals(day[d], k, atr[d], plan, reg[d]["gapATR"], rnd)
@@ -198,7 +214,7 @@ def main():
         print(f"  {k:7s} 停損 {b['sl']:g}{unit}（停利 {b['sl'] * RR:g}{unit}）：" + "｜".join(
             f"{lab} 每天 {v['dayPts']:+.1f} 點、{v['perDay']:.1f} 筆、勝率 {v['win']:.0f}%" for lab, v in b["parts"].items()))
     # 最佳組合的細節：每年、最大回落、出場原因
-    for k in ("REGIME", "DON15", "FADE"):
+    for k in ("REGIME", "REGIME_WF"):
         for g in (0.2, 0.3, 0.4, 0.5):
             REASON.clear()
             per_year, eq, pk, mdd, tot = defaultdict(list), 0.0, 0.0, 0.0, []

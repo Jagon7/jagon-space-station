@@ -172,10 +172,7 @@ def check_journals():
     sys.path.insert(0, str(Path(__file__).resolve().parent))
     import research_tx_regime as rr
     j = load(DATA / "futures" / "regime_journal.json", {}) or {}
-    day = {}
-    for f in sorted((DATA / "futures" / "day").glob("20*.json"))[-2:]:
-        for k, v in (load(f, {}) or {}).items():
-            day[k] = {b[0]: b[1:] for b in v["bars"]}
+    day = rr.load_dir(DATA / "futures" / "day")   # 和 tx_regime_review 同一套（清錯誤成交、結算日 13:29 平倉）
     fut = load(DATA / "futures" / "daily.json", {}) or {}
     for d in sorted(j)[-5:]:
         e = j[d]

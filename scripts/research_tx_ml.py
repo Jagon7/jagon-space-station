@@ -94,7 +94,7 @@ def main():
     p = trv.params()["current"]
     dates = sorted(d for d, b in day.items() if len(b) >= 250)
     rng = {d: max(x[1] for x in day[d].values()) - min(x[2] for x in day[d].values()) for d in dates}
-    closes = {d: day[d][max(day[d])][3] for d in dates}
+    closes = {d: rr.LAST_CLOSE.get(d, day[d][max(day[d])][3]) for d in dates}   # 結算日用換月後收盤
     prev_basis = None
     X, meta = [], []      # meta: (日期, t, k 的標記與損益)
     LBL = {k: defaultdict(dict) for k in KS}
