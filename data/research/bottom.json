@@ -1504,7 +1504,7 @@
   "z20": -0.64,
   "bias20": -3.8,
   "streak": 0,
-  "volx": null,
+  "volx": 0.76,
   "upDay": true,
   "keyRev": false,
   "aboveMa5": true,
